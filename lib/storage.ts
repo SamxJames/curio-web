@@ -30,13 +30,26 @@ export function useClientOnlyValue<T>(getValue: () => T, serverValue: T): T {
   );
 }
 
+// useSyncExternalStore requires getSnapshot to return a reference-stable
+// value when nothing has changed (React compares with Object.is); returning
+// a freshly-constructed Set on every call makes it look like the store
+// changes on every render, which triggers an infinite re-render loop. So
+// each key's last-read Set is cached and only rebuilt when the raw
+// localStorage string actually differs from what produced it.
+const EMPTY_SET: Set<string> = new Set();
+const setCache = new Map<string, { raw: string | null; value: Set<string> }>();
+
 function readSet(key: string): Set<string> {
-  if (typeof window === "undefined") return new Set();
+  if (typeof window === "undefined") return EMPTY_SET;
   try {
     const raw = window.localStorage.getItem(key);
-    return raw ? new Set(JSON.parse(raw)) : new Set();
+    const cached = setCache.get(key);
+    if (cached && cached.raw === raw) return cached.value;
+    const value = raw ? new Set<string>(JSON.parse(raw)) : EMPTY_SET;
+    setCache.set(key, { raw, value });
+    return value;
   } catch {
-    return new Set();
+    return EMPTY_SET;
   }
 }
 
@@ -51,7 +64,7 @@ export function getFavorites(): Set<string> {
 }
 
 export function useFavorites(): Set<string> {
-  return useSyncExternalStore(subscribe, () => getFavorites(), () => new Set<string>());
+  return useSyncExternalStore(subscribe, () => getFavorites(), () => EMPTY_SET);
 }
 
 export function isFavorite(slug: string): boolean {
@@ -59,11 +72,15 @@ export function isFavorite(slug: string): boolean {
 }
 
 export function toggleFavorite(slug: string): boolean {
-  const favorites = getFavorites();
-  const nowFavorited = !favorites.has(slug);
-  if (nowFavorited) favorites.add(slug);
-  else favorites.delete(slug);
-  writeSet(FAVORITES_KEY, favorites);
+  // Copy rather than mutate the cached Set in place — readSet/getFavorites
+  // hands out that same cached reference to callers, and mutating a Set
+  // that's already been returned as a snapshot would change it without a
+  // new reference for useSyncExternalStore to notice.
+  const next = new Set(getFavorites());
+  const nowFavorited = !next.has(slug);
+  if (nowFavorited) next.add(slug);
+  else next.delete(slug);
+  writeSet(FAVORITES_KEY, next);
   return nowFavorited;
 }
 
