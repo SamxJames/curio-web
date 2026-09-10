@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #f1ece0;
+  --paper-raised: #e9e2d0;
+  --ink: #24302b;
+  --ink-soft: #5b665f;
+  --ink-faint: #8a9089;
+  --accent: #9c6b30;
+  --accent-deep: #7a4f1e;
+  --line: #d8cfbc;
+  --danger: #a13f3f;
+}
+
+[data-theme="dark"] {
+  --paper: #161e1b;
+  --paper-raised: #1d2723;
+  --ink: #ece6d6;
+  --ink-soft: #a9a395;
+  --ink-faint: #767065;
+  --accent: #d3a35f;
+  --accent-deep: #e8bd82;
+  --line: #33413b;
+  --danger: #d97b7b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #161e1b;
+    --paper-raised: #1d2723;
+    --ink: #ece6d6;
+    --ink-soft: #a9a395;
+    --ink-faint: #767065;
+    --accent: #d3a35f;
+    --accent-deep: #e8bd82;
+    --line: #33413b;
+    --danger: #d97b7b;
+  }
+}
+
+:root {
+  --font-newsreader: "Newsreader", ui-serif, Georgia, serif;
+  --font-work-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-raised: var(--paper-raised);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-accent: var(--accent);
+  --color-accent-deep: var(--accent-deep);
+  --color-line: var(--line);
+  --color-danger: var(--danger);
+  --font-serif: var(--font-newsreader);
+  --font-sans: var(--font-work-sans);
+}
+
+* {
+  border-color: var(--line);
+}
+
+html {
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--paper);
+}
+
+/* Hides the hour wheel's native scrollbar while keeping it scrollable */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
