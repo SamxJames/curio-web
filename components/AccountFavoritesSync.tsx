@@ -19,13 +19,17 @@ export default function AccountFavoritesSync() {
   useEffect(() => {
     if (status !== "authenticated") return;
     if (typeof window === "undefined") return;
-    if (window.localStorage.getItem(OFFERED_KEY)) return;
 
     fetch("/api/favorites")
       .then((res) => (res.ok ? res.json() : { slugs: [] as string[] }))
       .then((data: { slugs: string[] }) => {
         const accountSlugs = new Set(data.slugs);
+        // Pull-down runs on every authenticated sign-in, unconditionally —
+        // only the one-time import *offer* below is gated by OFFERED_KEY.
         mergeFavoritesFromAccount(data.slugs);
+
+        if (window.localStorage.getItem(OFFERED_KEY)) return;
+
         const localOnly = Array.from(getFavorites()).filter((slug) => !accountSlugs.has(slug));
         setImportCandidates(localOnly);
       })
