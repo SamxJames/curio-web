@@ -46,3 +46,7 @@ next-env.d.ts
 
 # local git worktrees (superpowers subagent-driven-development workspaces)
 /.worktrees/
+
+# local Claude Code tooling config (e.g. dev-server launch config for the
+# Browser preview tool) — not part of the app
+/.claude/
