@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getUserFavorites, setUserFavorite } from "@/lib/userData";
+import { WORDS } from "@/lib/words";
 
 export async function GET() {
   const session = await auth();
@@ -21,6 +22,9 @@ export async function POST(req: Request) {
     | null;
   if (!body?.slug || typeof body.favorited !== "boolean") {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+  }
+  if (!WORDS.some((w) => w.slug === body.slug)) {
+    return NextResponse.json({ error: "Unknown word slug." }, { status: 400 });
   }
   await setUserFavorite(session.user.id, body.slug, body.favorited);
   return NextResponse.json({ ok: true });
