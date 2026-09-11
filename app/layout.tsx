@@ -15,10 +15,24 @@ import "@fontsource/work-sans/500.css";
 import "@fontsource/work-sans/600.css";
 import "./globals.css";
 
+// Same env var lib/email.ts already uses for absolute links in emails.
+// Without metadataBase, Next.js resolves the OG image routes' relative URLs
+// against http://localhost:3000 in every environment — including
+// production — which would silently break link previews everywhere.
+const SITE_URL = process.env.CURIO_SITE_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Curio — one word, one story, every day",
   description:
     "A daily word's origin story, delivered once a day. No feed, no firehose — just one word.",
+  openGraph: {
+    type: "website",
+    siteName: "Curio",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
