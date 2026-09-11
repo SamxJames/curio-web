@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
+import { useSession } from "next-auth/react";
 import ThemeToggle from "./ThemeToggle";
 
 const NAV = [
@@ -12,6 +13,7 @@ const NAV = [
 
 export default function Header() {
   const pathname = usePathname();
+  const { status } = useSession();
 
   return (
     <header className="border-b border-line">
@@ -36,6 +38,21 @@ export default function Header() {
               </Link>
             );
           })}
+          {status === "authenticated" ? (
+            <Link
+              href="/account"
+              className={clsx(
+                "text-sm transition-colors",
+                pathname === "/account" ? "text-ink" : "text-ink-soft hover:text-ink"
+              )}
+            >
+              Account
+            </Link>
+          ) : status === "unauthenticated" ? (
+            <Link href="/login" className="text-sm text-ink-soft transition-colors hover:text-ink">
+              Sign in
+            </Link>
+          ) : null}
           <ThemeToggle />
         </nav>
       </div>
