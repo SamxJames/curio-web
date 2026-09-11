@@ -59,4 +59,25 @@ describe("getHistoryForUser", () => {
       expect(day.word).toEqual(expected);
     }
   });
+
+  it("wraps around after the full list length", () => {
+    const joinedAt = new Date("2026-01-01T00:00:00Z");
+    const today = new Date(joinedAt.getTime() + (WORDS.length + 2) * 24 * 60 * 60 * 1000);
+    const history = getHistoryForUser("user-1", joinedAt, today);
+
+    // Most recent day matches getWordForUser directly.
+    expect(history[0].word).toEqual(getWordForUser("user-1", joinedAt, today));
+
+    // More days are returned than there are distinct words, so some word
+    // must repeat — confirming the cycle actually wrapped rather than the
+    // list happening to produce unique words by coincidence.
+    expect(history.length).toBeGreaterThan(WORDS.length);
+    const words = history.map((d) => d.word.slug);
+    const uniqueWords = new Set(words);
+    expect(uniqueWords.size).toBeLessThan(words.length);
+
+    // The entry exactly one full cycle before the most recent day should be
+    // the same word, since the personal order repeats every WORDS.length days.
+    expect(history[WORDS.length].word).toEqual(history[0].word);
+  });
 });
