@@ -8,6 +8,25 @@ import {
   getWordForDate,
 } from "./words";
 
+describe("WORDS content", () => {
+  it("every entry has a teaser distinct from its origin text", () => {
+    for (const word of WORDS) {
+      expect(word.teaser.length).toBeGreaterThan(0);
+      // The whole point of a separate teaser is that it isn't just the
+      // origin text repeated — this doesn't catch every possible overlap,
+      // but it catches the easy mistake of leaving teaser === origin.
+      expect(word.teaser).not.toBe(word.origin);
+    }
+  });
+
+  it("every entry has a non-empty lineage ending in English", () => {
+    for (const word of WORDS) {
+      expect(word.lineage.length).toBeGreaterThan(0);
+      expect(word.lineage[word.lineage.length - 1]).toBe("English");
+    }
+  });
+});
+
 describe("getPersonalOrder", () => {
   it("is deterministic for the same user id", () => {
     const a = getPersonalOrder("user-1").map((w) => w.slug);
