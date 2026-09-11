@@ -3,6 +3,7 @@ import Resend from "next-auth/providers/resend";
 import { UpstashRedisAdapter } from "@auth/upstash-redis-adapter";
 import { redis, usingUpstash } from "./redis";
 import { recordUserJoined } from "./userData";
+import { sendSignInEmail } from "./email";
 
 // Auth.js's default Session type doesn't carry `id` — every page/route in
 // this app needs it, so it's added by the session callback below and the
@@ -25,8 +26,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET,
   providers: [
     Resend({
-      apiKey: process.env.RESEND_API_KEY,
-      from: process.env.CURIO_FROM_EMAIL ?? "Curio <onboarding@resend.dev>",
+      // Overrides the provider's built-in sendVerificationRequest (a generic
+      // "click here to sign in" template that's both off-brand and a known
+      // spam signal on its own) with Curio's own branded email — see
+      // sendSignInEmail's doc comment in lib/email.ts.
+      async sendVerificationRequest({ identifier: email, url }) {
+        await sendSignInEmail(email, url);
+      },
     }),
   ],
   callbacks: {

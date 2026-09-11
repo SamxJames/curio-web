@@ -18,13 +18,26 @@ export function decodeUnsubscribeToken(token: string): string {
   return Buffer.from(token, "base64url").toString("utf-8");
 }
 
-function buildHtml(word: WordEntry, dateStr: string, unsubscribeUrl: string) {
-  const storyUrl = `${SITE_URL}/story/${word.slug}`;
+/** Shared chrome for every Curio email (daily digest, sign-in link, etc.) so
+ * they read as one product rather than a mix of a custom template and
+ * whatever a library's stock default looks like — the latter is also a
+ * meaningfully worse spam signal, since generic auth-library email templates
+ * are extremely common and well-known to spam filters. */
+function buildShell(bodyHtml: string): string {
   return `
 <!doctype html>
 <html>
   <body style="margin:0;padding:32px 16px;background:#f1ece0;font-family:Georgia,'Times New Roman',serif;color:#24302b;">
     <div style="max-width:480px;margin:0 auto;">
+      ${bodyHtml}
+    </div>
+  </body>
+</html>`;
+}
+
+function buildDigestHtml(word: WordEntry, dateStr: string, unsubscribeUrl: string) {
+  const storyUrl = `${SITE_URL}/story/${word.slug}`;
+  return buildShell(`
       <p style="font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:0.02em;color:#5b665f;margin:0 0 24px;">
         Curio &middot; ${dateStr}
       </p>
@@ -43,10 +56,26 @@ function buildHtml(word: WordEntry, dateStr: string, unsubscribeUrl: string) {
       <p style="font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#8a9089;margin-top:48px;border-top:1px solid #d8cfbc;padding-top:16px;">
         One word, once a day.
         <a href="${unsubscribeUrl}" style="color:#8a9089;">Unsubscribe</a>
+      </p>`);
+}
+
+function buildSignInHtml(url: string) {
+  return buildShell(`
+      <p style="font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:0.02em;color:#5b665f;margin:0 0 24px;">
+        Curio
       </p>
-    </div>
-  </body>
-</html>`;
+      <h1 style="font-size:28px;line-height:1.25;margin:0 0 12px;font-weight:600;">
+        Sign in to Curio
+      </h1>
+      <p style="font-size:16px;line-height:1.55;margin:0 0 28px;">
+        Click below to sign in. This link expires in 24 hours and can only be used once.
+      </p>
+      <a href="${url}" style="display:inline-block;background:#9c6b30;color:#f1ece0;font-family:Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;text-decoration:none;padding:12px 24px;border-radius:6px;">
+        Sign in to Curio
+      </a>
+      <p style="font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#8a9089;margin-top:48px;border-top:1px solid #d8cfbc;padding-top:16px;">
+        If you didn&rsquo;t request this, you can safely ignore this email &mdash; no changes will be made to any account.
+      </p>`);
 }
 
 export async function sendDailyDigest(email: string, word: WordEntry, date: Date) {
@@ -55,8 +84,12 @@ export async function sendDailyDigest(email: string, word: WordEntry, date: Date
     month: "long",
     day: "numeric",
   });
+  const storyUrl = `${SITE_URL}/story/${word.slug}`;
   const unsubscribeUrl = `${SITE_URL}/api/unsubscribe?token=${unsubscribeToken(email)}`;
-  const html = buildHtml(word, dateStr, unsubscribeUrl);
+  const html = buildDigestHtml(word, dateStr, unsubscribeUrl);
+  // A plain-text alternative alongside the HTML body isn't just a nicety —
+  // HTML-only email is itself a spam signal most filters weigh directly.
+  const text = `${word.word} (${word.respelling}, ${word.partOfSpeech})\n\n${word.origin}\n\nRead the full story: ${storyUrl}\n\nUnsubscribe: ${unsubscribeUrl}`;
   const subject = `${word.word} — today's word from Curio`;
 
   if (!resend) {
@@ -70,8 +103,36 @@ export async function sendDailyDigest(email: string, word: WordEntry, date: Date
     to: email,
     subject,
     html,
+    text,
   });
 
   if (error) throw new Error(`Resend send failed: ${error.message}`);
   return { id: data?.id, sent: true as const };
+}
+
+/** Sends the Auth.js magic-link sign-in email, replacing the library's stock
+ * default template so it (a) reads as part of Curio rather than a generic
+ * "click here to sign in" pattern spam filters have learned to recognize
+ * broadly, and (b) carries a plain-text alternative, which the default
+ * template also omits. Used as the Resend provider's `sendVerificationRequest`
+ * in lib/auth.ts. */
+export async function sendSignInEmail(email: string, url: string): Promise<void> {
+  const html = buildSignInHtml(url);
+  const text = `Sign in to Curio\n\n${url}\n\nThis link expires in 24 hours. If you didn't request this, you can safely ignore this email.`;
+  const subject = "Sign in to Curio";
+
+  if (!resend) {
+    console.log(`[curio:email:dev-fallback] would send "${subject}" to ${email}: ${url}`);
+    return;
+  }
+
+  const { error } = await resend.emails.send({
+    from: FROM_ADDRESS,
+    to: email,
+    subject,
+    html,
+    text,
+  });
+
+  if (error) throw new Error(`Resend send failed: ${error.message}`);
 }
