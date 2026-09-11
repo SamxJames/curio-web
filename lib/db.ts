@@ -87,4 +87,16 @@ export async function getSubscribersForHour(hour: number): Promise<string[]> {
     .map((s) => s.email);
 }
 
+export async function getSubscriberByEmail(email: string): Promise<Subscriber | null> {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (redis) {
+    const existing = await redis.hgetall<Subscriber>(SUBSCRIBER_PREFIX + normalizedEmail);
+    return existing?.email ? existing : null;
+  }
+
+  const db = await readLocalDb();
+  return db[normalizedEmail] ?? null;
+}
+
 export const usingLocalFallback = !usingUpstash;
