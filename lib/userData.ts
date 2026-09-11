@@ -19,3 +19,39 @@ export async function getUserJoinedAt(userId: string): Promise<string | null> {
   if (!redis) return null;
   return redis.get<string>(joinedKey(userId));
 }
+
+function favoritesKey(userId: string): string {
+  return `curio:user:${userId}:favorites`;
+}
+
+function importedKey(userId: string): string {
+  return `curio:user:${userId}:importedLocalFavorites`;
+}
+
+export async function getUserFavorites(userId: string): Promise<Set<string>> {
+  if (!redis) return new Set();
+  const slugs = await redis.smembers(favoritesKey(userId));
+  return new Set(slugs);
+}
+
+export async function setUserFavorite(
+  userId: string,
+  slug: string,
+  favorited: boolean
+): Promise<void> {
+  if (!redis) return;
+  if (favorited) await redis.sadd(favoritesKey(userId), slug);
+  else await redis.srem(favoritesKey(userId), slug);
+}
+
+/** One-time import of a browser's pre-account favorites into the account's
+ * server-side set. Returns false (and imports nothing) if this account has
+ * already gone through an import before, so the client's "import?" prompt
+ * can only ever add slugs once per account. */
+export async function importFavoritesOnce(userId: string, slugs: string[]): Promise<boolean> {
+  if (!redis) return false;
+  const firstTime = await redis.set(importedKey(userId), "1", { nx: true });
+  if (firstTime === null) return false;
+  if (slugs.length > 0) await redis.sadd(favoritesKey(userId), ...slugs);
+  return true;
+}
