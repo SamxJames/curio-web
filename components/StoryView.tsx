@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Heart, Link as LinkIcon, Share } from "lucide-react";
 import type { WordEntry } from "@/lib/words";
 import { isFavorite, toggleFavorite, useClientOnlyValue } from "@/lib/storage";
@@ -100,6 +101,15 @@ export default function StoryView({ word, date }: { word: WordEntry; date?: stri
             <p className="font-serif text-lg leading-relaxed text-ink">{word[key]}</p>
           </section>
         ))}
+      </div>
+
+      <div className="mt-12 border-t border-line pt-8">
+        <Link
+          href="/history"
+          className="font-sans text-sm text-ink-soft transition-colors hover:text-ink"
+        >
+          Browse all words &rarr;
+        </Link>
       </div>
     </article>
   );

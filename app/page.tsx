@@ -7,10 +7,10 @@ import { getTodayWord, getWordForUser } from "@/lib/words";
 export default async function TodayPage() {
   const session = await auth();
   const joinedAtStr = session?.user?.id ? await getUserJoinedAt(session.user.id) : null;
-  const word =
-    session?.user?.id && joinedAtStr
-      ? getWordForUser(session.user.id, new Date(joinedAtStr + "T00:00:00Z"))
-      : getTodayWord();
+  const isPersonalized = !!joinedAtStr;
+  const word = isPersonalized
+    ? getWordForUser(session!.user.id, new Date(joinedAtStr! + "T00:00:00Z"))
+    : getTodayWord();
 
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -22,7 +22,9 @@ export default async function TodayPage() {
     <>
       <OnboardingModal />
       <section className="mx-auto flex max-w-[640px] flex-col items-start px-6 py-20">
-        <p className="font-sans text-xs tracking-wide text-ink-faint">{today}</p>
+        <p className="font-sans text-xs tracking-wide text-ink-faint">
+          {isPersonalized ? <>Your word &middot; {today}</> : today}
+        </p>
 
         <h1 className="mt-6 font-serif text-6xl leading-none sm:text-7xl">
           {word.word}

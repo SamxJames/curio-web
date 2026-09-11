@@ -7,37 +7,69 @@ import { Heart } from "lucide-react";
 import type { HistoryDay } from "@/lib/words";
 import { toggleFavorite, useFavorites } from "@/lib/storage";
 
-type Filter = "all" | "favorites";
+type Filter = "mine" | "all" | "favorites";
 
-export default function HistoryList({ entries }: { entries: HistoryDay[] }) {
-  const [filter, setFilter] = useState<Filter>("all");
+export default function HistoryList({
+  allEntries,
+  personalEntries,
+}: {
+  /** The full shared archive — every word, in calendar order. Always
+   * available, signed in or not, so a brand-new account has something rich
+   * to look at on day one instead of only their (necessarily sparse) own
+   * history. */
+  allEntries: HistoryDay[];
+  /** This account's personal word order, one entry per day since they
+   * joined — present only when signed in. */
+  personalEntries?: HistoryDay[] | null;
+}) {
+  const hasPersonal = !!personalEntries;
+  const [filter, setFilter] = useState<Filter>(hasPersonal ? "mine" : "all");
   const favorites = useFavorites();
 
   function handleToggle(slug: string) {
     toggleFavorite(slug);
   }
 
-  const visible =
-    filter === "favorites"
-      ? entries.filter((d) => favorites.has(d.word.slug))
-      : entries;
+  const tabs: { key: Filter; label: string }[] = hasPersonal
+    ? [
+        { key: "mine", label: "My days" },
+        { key: "all", label: "All words" },
+        { key: "favorites", label: "Favorites" },
+      ]
+    : [
+        { key: "all", label: "All" },
+        { key: "favorites", label: "Favorites" },
+      ];
+
+  const activeEntries = filter === "mine" && personalEntries ? personalEntries : allEntries;
+  // Favorites always reads from the shared archive's dates, regardless of
+  // which tab was open before — a favorited word's "when" shouldn't change
+  // depending on which list you happened to be looking at.
+  const visible = filter === "favorites" ? allEntries.filter((d) => favorites.has(d.word.slug)) : activeEntries;
 
   return (
     <div className="mx-auto max-w-[640px] px-6 py-16">
-      <div className="mb-10 flex items-center gap-1 font-sans text-sm">
-        {(["all", "favorites"] as Filter[]).map((f) => (
+      <div className="mb-6 flex items-center gap-1 font-sans text-sm">
+        {tabs.map(({ key, label }) => (
           <button
-            key={f}
-            onClick={() => setFilter(f)}
+            key={key}
+            onClick={() => setFilter(key)}
             className={clsx(
               "rounded-full px-3.5 py-1.5 transition-colors cursor-pointer",
-              filter === f ? "bg-paper-raised text-ink" : "text-ink-soft hover:text-ink"
+              filter === key ? "bg-paper-raised text-ink" : "text-ink-soft hover:text-ink"
             )}
           >
-            {f === "all" ? "All" : "Favorites"}
+            {label}
           </button>
         ))}
       </div>
+
+      {filter === "mine" && (
+        <p className="mb-6 font-sans text-sm text-ink-faint">
+          Your personal word order — one new word a day since you joined. It&apos;ll grow day by
+          day; browse <button onClick={() => setFilter("all")} className="underline underline-offset-2 hover:text-ink cursor-pointer">all words</button> in the meantime.
+        </p>
+      )}
 
       {visible.length === 0 && (
         <p className="font-sans text-sm text-ink-faint">

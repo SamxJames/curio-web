@@ -8,10 +8,11 @@ export const metadata = { title: "History — Curio" };
 export default async function HistoryPage() {
   const session = await auth();
   const joinedAtStr = session?.user?.id ? await getUserJoinedAt(session.user.id) : null;
-  const entries =
+  const allEntries = getHistory();
+  const personalEntries =
     session?.user?.id && joinedAtStr
       ? getHistoryForUser(session.user.id, new Date(joinedAtStr + "T00:00:00Z"))
-      : getHistory();
+      : null;
 
-  return <HistoryList entries={entries} />;
+  return <HistoryList allEntries={allEntries} personalEntries={personalEntries} />;
 }
