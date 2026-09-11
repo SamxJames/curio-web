@@ -156,3 +156,78 @@ export function getHistory(today: Date = new Date()): HistoryDay[] {
   }
   return days;
 }
+
+/** Simple deterministic string hash (djb2 variant) → 32-bit unsigned int.
+ * Doesn't need to be cryptographically strong, just a stable per-user seed
+ * so the same account always gets the same shuffle back. */
+function hashSeed(input: string): number {
+  let hash = 5381;
+  for (let i = 0; i < input.length; i++) {
+    hash = (hash * 33) ^ input.charCodeAt(i);
+  }
+  return hash >>> 0;
+}
+
+/** Mulberry32 — a small, fast, deterministic PRNG for a given seed. */
+function mulberry32(seed: number): () => number {
+  let a = seed;
+  return function () {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** Deterministic per-account shuffle of WORDS (Fisher-Yates driven by a
+ * seeded PRNG) — every account gets its own fixed order, and the same
+ * account always gets the same order back. */
+export function getPersonalOrder(userId: string): WordEntry[] {
+  const rand = mulberry32(hashSeed(userId));
+  const order = [...WORDS];
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  return order;
+}
+
+function daysBetweenUtcMidnights(start: Date, end: Date): number {
+  const startUtc = Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate());
+  const endUtc = Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate());
+  return Math.floor((endUtc - startUtc) / DAY_MS);
+}
+
+/** Personalized word-of-the-day for a signed-in account: same rotation
+ * length as the shared list, shuffled per account, anchored to their join
+ * date instead of the global calendar anchor used by getWordForDate. */
+export function getWordForUser(userId: string, joinedAt: Date, today: Date = new Date()): WordEntry {
+  const order = getPersonalOrder(userId);
+  const dayIndex = daysBetweenUtcMidnights(joinedAt, today);
+  const idx = ((dayIndex % order.length) + order.length) % order.length;
+  return order[idx];
+}
+
+/** Every day from a user's join date through today, most recent first,
+ * using their personal word order instead of the shared calendar mapping. */
+export function getHistoryForUser(
+  userId: string,
+  joinedAt: Date,
+  today: Date = new Date()
+): HistoryDay[] {
+  const order = getPersonalOrder(userId);
+  const totalDays = daysBetweenUtcMidnights(joinedAt, today);
+  const joinedUtcMidnight = Date.UTC(
+    joinedAt.getUTCFullYear(),
+    joinedAt.getUTCMonth(),
+    joinedAt.getUTCDate()
+  );
+  const days: HistoryDay[] = [];
+  for (let i = totalDays; i >= 0; i--) {
+    const d = new Date(joinedUtcMidnight + i * DAY_MS);
+    const idx = ((i % order.length) + order.length) % order.length;
+    days.push({ date: d.toISOString().slice(0, 10), word: order[idx] });
+  }
+  return days;
+}
