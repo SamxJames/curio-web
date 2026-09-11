@@ -1,9 +1,17 @@
 import Link from "next/link";
 import OnboardingModal from "@/components/OnboardingModal";
-import { getTodayWord } from "@/lib/words";
+import { auth } from "@/lib/auth";
+import { getUserJoinedAt } from "@/lib/userData";
+import { getTodayWord, getWordForUser } from "@/lib/words";
 
-export default function TodayPage() {
-  const word = getTodayWord();
+export default async function TodayPage() {
+  const session = await auth();
+  const joinedAtStr = session?.user?.id ? await getUserJoinedAt(session.user.id) : null;
+  const word =
+    session?.user?.id && joinedAtStr
+      ? getWordForUser(session.user.id, new Date(joinedAtStr + "T00:00:00Z"))
+      : getTodayWord();
+
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
     month: "long",
