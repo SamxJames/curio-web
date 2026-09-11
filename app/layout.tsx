@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ThemeInit from "@/components/ThemeInit";
+import AccountFavoritesSync from "@/components/AccountFavoritesSync";
 // Self-hosted (not next/font/google) so the app builds without reaching
 // fonts.googleapis.com at build time — works the same in dev, CI, and prod.
 import "@fontsource/newsreader/400.css";
@@ -32,6 +33,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col bg-paper text-ink">
         <SessionProvider session={session}>
           <Header />
+          <AccountFavoritesSync />
           <main className="flex-1">{children}</main>
           <Footer />
         </SessionProvider>
