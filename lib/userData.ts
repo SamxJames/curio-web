@@ -52,6 +52,9 @@ export async function importFavoritesOnce(userId: string, slugs: string[]): Prom
   if (!redis) return false;
   const firstTime = await redis.set(importedKey(userId), "1", { nx: true });
   if (firstTime === null) return false;
-  if (slugs.length > 0) await redis.sadd(favoritesKey(userId), ...slugs);
+  if (slugs.length > 0) {
+    const [first, ...rest] = slugs;
+    await redis.sadd(favoritesKey(userId), first, ...rest);
+  }
   return true;
 }
