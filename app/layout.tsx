@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
-import { auth } from "@/lib/auth";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ThemeInit from "@/components/ThemeInit";
@@ -22,16 +21,14 @@ export const metadata: Metadata = {
     "A daily word's origin story, delivered once a day. No feed, no firehose — just one word.",
 };
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const session = await auth();
-
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
         <ThemeInit />
       </head>
       <body className="min-h-full flex flex-col bg-paper text-ink">
-        <SessionProvider session={session}>
+        <SessionProvider>
           <Header />
           <AccountFavoritesSync />
           <main className="flex-1">{children}</main>
