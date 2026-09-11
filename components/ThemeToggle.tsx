@@ -7,10 +7,10 @@ import {
   useThemePreference,
 } from "@/lib/storage";
 
-const OPTIONS: { value: ThemePreference; label: string; icon: typeof Sun }[] = [
-  { value: "system", label: "Match system", icon: SunMoon },
-  { value: "light", label: "Light", icon: Sun },
-  { value: "dark", label: "Dark", icon: Moon },
+const OPTIONS: { value: ThemePreference; label: string; shortLabel: string; icon: typeof Sun }[] = [
+  { value: "system", label: "Match system", shortLabel: "System", icon: SunMoon },
+  { value: "light", label: "Light", shortLabel: "Light", icon: Sun },
+  { value: "dark", label: "Dark", shortLabel: "Dark", icon: Moon },
 ];
 
 export default function ThemeToggle() {
@@ -30,9 +30,13 @@ export default function ThemeToggle() {
       onClick={cycle}
       aria-label={`Theme: ${current.label}. Click to change.`}
       title={`Theme: ${current.label}`}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-soft transition-colors hover:text-ink hover:border-accent cursor-pointer"
+      className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-line px-2.5 text-ink-soft transition-colors hover:text-ink hover:border-accent cursor-pointer sm:px-3"
     >
       <Icon size={16} strokeWidth={1.75} />
+      {/* Icon alone is enough on narrow viewports — the header nav is
+       * already tight on mobile (see components/Header.tsx) — but wider
+       * screens have the room to just say what mode is active. */}
+      <span className="hidden font-sans text-xs sm:inline">{current.shortLabel}</span>
     </button>
   );
 }

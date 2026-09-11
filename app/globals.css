@@ -81,6 +81,25 @@ body {
   color: var(--paper);
 }
 
+/* Every focusable element gets a visible ring in the accent color —
+ * :focus-visible (not :focus) so it only shows for keyboard/assistive-tech
+ * navigation, not every mouse click. A ring (outline, drawn outside the box)
+ * rather than a border-color change: border changes are easy to miss for
+ * low-vision users and don't meet WCAG 2.4.11's non-text contrast
+ * requirement the way a distinct outline does. */
+:focus-visible {
+  /* Longhand, not the `outline` shorthand — Lightning CSS's shorthand
+   * expansion was silently dropping the var(--accent) reference from the
+   * outline-color it generated, rendering a default/inherited color instead
+   * (confirmed visually: the ring rendered in ink-soft, not accent, despite
+   * the shorthand's cssText showing var(--accent) correctly). Longhand
+   * properties avoid that expansion step entirely. */
+  outline-width: 2px;
+  outline-style: solid;
+  outline-color: var(--accent);
+  outline-offset: 2px;
+}
+
 /* Hides the hour wheel's native scrollbar while keeping it scrollable */
 .no-scrollbar::-webkit-scrollbar {
   display: none;

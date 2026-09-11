@@ -1,5 +1,6 @@
 import Link from "next/link";
-import OnboardingModal from "@/components/OnboardingModal";
+import OnboardingBanner from "@/components/OnboardingBanner";
+import EtymologyLineage from "@/components/EtymologyLineage";
 import { auth } from "@/lib/auth";
 import { getUserJoinedAt } from "@/lib/userData";
 import { getTodayWord, getWordForUser } from "@/lib/words";
@@ -20,7 +21,6 @@ export default async function TodayPage() {
 
   return (
     <>
-      <OnboardingModal />
       <section className="mx-auto flex max-w-[640px] flex-col items-start px-6 py-20">
         <p className="font-sans text-xs tracking-wide text-ink-faint">
           {isPersonalized ? <>Your word &middot; {today}</> : today}
@@ -33,8 +33,10 @@ export default async function TodayPage() {
           {word.respelling} &middot; {word.partOfSpeech}
         </p>
 
+        <EtymologyLineage lineage={word.lineage} className="mt-3 text-xs" />
+
         <p className="mt-8 max-w-[46ch] font-serif text-lg leading-relaxed text-ink-soft">
-          {word.origin}
+          {word.teaser}
         </p>
 
         <Link
@@ -44,6 +46,7 @@ export default async function TodayPage() {
           Read the full story
         </Link>
       </section>
+      <OnboardingBanner />
     </>
   );
 }

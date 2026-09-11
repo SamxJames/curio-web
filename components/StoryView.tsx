@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Heart, Link as LinkIcon, Share } from "lucide-react";
+import { ArrowLeft, Heart, Link as LinkIcon, Share } from "lucide-react";
 import type { WordEntry } from "@/lib/words";
 import { isFavorite, toggleFavorite, useClientOnlyValue } from "@/lib/storage";
+import EtymologyLineage from "./EtymologyLineage";
 
 const SECTIONS: { key: keyof Pick<WordEntry, "origin" | "journey" | "related">; label: string }[] = [
   { key: "origin", label: "Origin" },
@@ -45,6 +46,14 @@ export default function StoryView({ word, date }: { word: WordEntry; date?: stri
 
   return (
     <article className="mx-auto max-w-[640px] px-6 py-12">
+      <Link
+        href="/"
+        className="mb-6 inline-flex items-center gap-1.5 font-sans text-xs tracking-wide text-ink-faint transition-colors hover:text-ink"
+      >
+        <ArrowLeft size={13} strokeWidth={1.75} />
+        Today
+      </Link>
+
       {date && (
         <p className="mb-6 font-sans text-xs tracking-wide text-ink-faint">{date}</p>
       )}
@@ -53,6 +62,8 @@ export default function StoryView({ word, date }: { word: WordEntry; date?: stri
       <p className="mt-3 font-sans text-sm text-ink-soft">
         {word.respelling} &middot; {word.partOfSpeech}
       </p>
+
+      <EtymologyLineage lineage={word.lineage} className="mt-4 text-sm" />
 
       <div className="mt-10 flex items-center gap-3">
         <button
