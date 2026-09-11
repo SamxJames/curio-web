@@ -1,7 +1,6 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { getSession } from "next-auth/react";
 
 const FAVORITES_KEY = "curio:favorites";
 const THEME_KEY = "curio:theme"; // "light" | "dark" | absent = system
@@ -82,7 +81,7 @@ export function toggleFavorite(slug: string): boolean {
   if (nowFavorited) next.add(slug);
   else next.delete(slug);
   writeSet(FAVORITES_KEY, next);
-  void syncFavoriteToAccount(slug, nowFavorited); // new line — everything above is unchanged
+  void syncFavoriteToAccount(slug, nowFavorited);
   return nowFavorited;
 }
 
@@ -91,15 +90,13 @@ export function toggleFavorite(slug: string): boolean {
  * swallowed rather than surfaced. */
 async function syncFavoriteToAccount(slug: string, favorited: boolean): Promise<void> {
   try {
-    const session = await getSession();
-    if (!session?.user) return;
     await fetch("/api/favorites", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ slug, favorited }),
     });
   } catch {
-    // best-effort; nothing to do here
+    // best-effort; nothing to do here (also swallows the 401 for signed-out users)
   }
 }
 
