@@ -1,6 +1,6 @@
-import { Redis } from "@upstash/redis";
 import { promises as fs } from "fs";
 import path from "path";
+import { redis, usingUpstash } from "./redis";
 
 export type Subscriber = {
   email: string;
@@ -10,16 +10,6 @@ export type Subscriber = {
 
 const HOUR_INDEX_PREFIX = "curio:hour:"; // set of emails, per UTC hour
 const SUBSCRIBER_PREFIX = "curio:subscriber:"; // hash, keyed by email
-
-const useUpstash =
-  !!process.env.UPSTASH_REDIS_REST_URL && !!process.env.UPSTASH_REDIS_REST_TOKEN;
-
-const redis = useUpstash
-  ? new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL!,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-    })
-  : null;
 
 // --- Local JSON fallback (dev only — serverless filesystems are ephemeral,
 // so this is not a substitute for Upstash in production; it only exists so
@@ -97,4 +87,4 @@ export async function getSubscribersForHour(hour: number): Promise<string[]> {
     .map((s) => s.email);
 }
 
-export const usingLocalFallback = !useUpstash;
+export const usingLocalFallback = !usingUpstash;
