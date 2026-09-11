@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { WORDS, getPersonalOrder, getWordForUser, getHistoryForUser } from "./words";
+import {
+  WORDS,
+  getPersonalOrder,
+  getWordForUser,
+  getHistoryForUser,
+  getUniqueWordsMostRecent,
+  getWordForDate,
+} from "./words";
 
 describe("getPersonalOrder", () => {
   it("is deterministic for the same user id", () => {
@@ -79,5 +86,32 @@ describe("getHistoryForUser", () => {
     // The entry exactly one full cycle before the most recent day should be
     // the same word, since the personal order repeats every WORDS.length days.
     expect(history[WORDS.length].word).toEqual(history[0].word);
+  });
+});
+
+describe("getUniqueWordsMostRecent", () => {
+  it("returns exactly one entry per word, regardless of how many days have passed", () => {
+    // Many days past WORDS.length, so the underlying calendar rotation has
+    // definitely repeated every word several times over.
+    const farFuture = new Date(Date.now() + WORDS.length * 5 * 24 * 60 * 60 * 1000);
+    const unique = getUniqueWordsMostRecent(farFuture);
+    expect(unique).toHaveLength(WORDS.length);
+    const slugs = unique.map((d) => d.word.slug);
+    expect(new Set(slugs).size).toBe(WORDS.length);
+    expect(slugs.slice().sort()).toEqual(WORDS.map((w) => w.slug).sort());
+  });
+
+  it("orders words by most recent appearance first", () => {
+    const today = new Date("2026-01-05T00:00:00Z"); // day 4 of the rotation
+    const unique = getUniqueWordsMostRecent(today);
+    // Today's word must be first, since it was (by definition) just seen.
+    expect(unique[0].word).toEqual(getWordForDate(today));
+  });
+
+  it("returns fewer than WORDS.length entries before the rotation has completed once", () => {
+    const earlyDay = new Date("2026-01-02T00:00:00Z"); // 2 days into the rotation
+    const unique = getUniqueWordsMostRecent(earlyDay);
+    expect(unique.length).toBeLessThanOrEqual(2);
+    expect(unique.length).toBeGreaterThan(0);
   });
 });

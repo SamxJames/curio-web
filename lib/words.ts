@@ -157,6 +157,26 @@ export function getHistory(today: Date = new Date()): HistoryDay[] {
   return days;
 }
 
+/** Every word that's appeared so far, once each, tagged with the date it was
+ * most recently featured — most-recently-seen first. Once the calendar
+ * rotation has run for more days than WORDS.length, getHistory() starts
+ * repeating (the same handful of words over and over), which is a
+ * meaningless way to "browse the vocabulary": it's the same ~10 rows
+ * copy-pasted dozens of times. This collapses that down to one row per word,
+ * which is what "browse everything" actually means with a rotation this
+ * short. */
+export function getUniqueWordsMostRecent(today: Date = new Date()): HistoryDay[] {
+  const seen = new Set<string>();
+  const unique: HistoryDay[] = [];
+  for (const day of getHistory(today)) {
+    if (seen.has(day.word.slug)) continue;
+    seen.add(day.word.slug);
+    unique.push(day);
+    if (unique.length === WORDS.length) break;
+  }
+  return unique;
+}
+
 /** Simple deterministic string hash (djb2 variant) → 32-bit unsigned int.
  * Doesn't need to be cryptographically strong, just a stable per-user seed
  * so the same account always gets the same shuffle back. */
