@@ -12,8 +12,12 @@ export default function LoginPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setStatus("submitting");
-    const result = await signIn("resend", { email, redirect: false, callbackUrl: "/" });
-    setStatus(result?.error ? "error" : "sent");
+    try {
+      const result = await signIn("resend", { email, redirect: false, callbackUrl: "/" });
+      setStatus(result?.error ? "error" : "sent");
+    } catch {
+      setStatus("error");
+    }
   }
 
   if (status === "sent") {
