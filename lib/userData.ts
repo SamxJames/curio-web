@@ -50,11 +50,23 @@ export async function setUserFavorite(
  * can only ever add slugs once per account. */
 export async function importFavoritesOnce(userId: string, slugs: string[]): Promise<boolean> {
   if (!redis) return false;
+  // The NX claim has to happen first — it's what makes this safe to call
+  // multiple times concurrently without double-importing. But that leaves a
+  // window where the claim succeeds and the SADD below then fails, which
+  // would otherwise permanently "spend" the flag with nothing imported. To
+  // avoid that, a SADD failure releases the claim (best-effort) so a later
+  // retry isn't silently lost, and the error propagates instead of this
+  // function resolving as if nothing went wrong.
   const firstTime = await redis.set(importedKey(userId), "1", { nx: true });
   if (firstTime === null) return false;
-  if (slugs.length > 0) {
-    const [first, ...rest] = slugs;
-    await redis.sadd(favoritesKey(userId), first, ...rest);
+  try {
+    if (slugs.length > 0) {
+      const [first, ...rest] = slugs;
+      await redis.sadd(favoritesKey(userId), first, ...rest);
+    }
+  } catch (err) {
+    await redis.del(importedKey(userId)).catch(() => {});
+    throw err;
   }
   return true;
 }
