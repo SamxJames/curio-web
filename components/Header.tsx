@@ -6,14 +6,20 @@ import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import ThemeToggle from "./ThemeToggle";
 
-const NAV = [
-  { href: "/", label: "Today" },
-  { href: "/history", label: "History" },
-];
-
 export default function Header() {
   const pathname = usePathname();
   const { status } = useSession();
+
+  // Signed-in users get "Collection" — their accumulated words — in place
+  // of "History"; the two live together as tabs inside /collection, so
+  // nothing is lost, and the nav stays at four items either way. Signed-out
+  // (and not-yet-resolved) visitors keep History exactly as before.
+  const NAV = [
+    { href: "/", label: "Today" },
+    status === "authenticated"
+      ? { href: "/collection", label: "Collection" }
+      : { href: "/history", label: "History" },
+  ];
 
   return (
     <header className="border-b border-line">
