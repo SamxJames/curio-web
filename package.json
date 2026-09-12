@@ -10,6 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@atproto/api": "^0.20.44",
     "@auth/upstash-redis-adapter": "2.11.3",
     "@fontsource/newsreader": "^5.3.0",
     "@fontsource/work-sans": "^5.3.0",
