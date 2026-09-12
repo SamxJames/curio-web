@@ -1,0 +1,105 @@
+import { execSync } from "child_process";
+import { readFileSync, writeFileSync } from "fs";
+import type { DraftEntry } from "./rewriteEtymology";
+
+/** Re-checks a draft against exactly the invariants lib/words.test.ts
+ * enforces on the real WORDS array, so a draft can only ever be appended
+ * if it would also pass the existing test suite. */
+export function validateDraft(draft: unknown): DraftEntry {
+  const d = draft as Partial<DraftEntry>;
+  const requiredStringFields: (keyof DraftEntry)[] = [
+    "slug",
+    "word",
+    "respelling",
+    "partOfSpeech",
+    "teaser",
+    "origin",
+    "journey",
+    "related",
+  ];
+  for (const field of requiredStringFields) {
+    if (typeof d[field] !== "string" || !(d[field] as string).trim()) {
+      throw new Error(`Draft is missing a non-empty "${field}" field.`);
+    }
+  }
+  if (!Array.isArray(d.lineage) || d.lineage.length === 0 || !d.lineage.every((l) => typeof l === "string")) {
+    throw new Error('Draft has an invalid "lineage" field (must be a non-empty string array).');
+  }
+  if (d.lineage[d.lineage.length - 1] !== "English") {
+    throw new Error(`Draft's "lineage" doesn't end in "English": ${JSON.stringify(d.lineage)}`);
+  }
+  if (d.teaser === d.origin) {
+    throw new Error('Draft\'s "teaser" is identical to its "origin" — they must differ.');
+  }
+  return d as DraftEntry;
+}
+
+/** Matches the WORDS array's closing bracket — a `];` that starts its own
+ * line (optionally indented) — but NOT an inline `= [];` such as
+ * lib/words.ts's `const days: HistoryDay[] = [];` inside getHistoryForUser.
+ * A bare `lastIndexOf("];")` finds that inline occurrence instead, since it
+ * comes later in the file than the WORDS array's real closing bracket, and
+ * corrupts the file; this pattern disambiguates by requiring a line break
+ * right before the bracket. */
+const ARRAY_CLOSING_BRACKET_PATTERN = /\r?\n[ \t]*\];/g;
+
+/** Inserts the draft as one more object literal into the WORDS array,
+ * immediately before the array's closing `];` — a plain text insertion
+ * rather than an AST transform. This targets the *last* such standalone
+ * closing bracket in the file, which is lib/words.ts's WORDS array (its
+ * other exports are functions, not array literals). */
+export function appendDraftToWordsFile(draft: DraftEntry, wordsFilePath: string): void {
+  const source = readFileSync(wordsFilePath, "utf-8");
+
+  let lastMatch: RegExpExecArray | null = null;
+  for (const match of source.matchAll(ARRAY_CLOSING_BRACKET_PATTERN)) {
+    lastMatch = match;
+  }
+  if (!lastMatch) {
+    throw new Error(`Could not find the WORDS array's closing "];" in ${wordsFilePath}.`);
+  }
+  const closingIndex = lastMatch.index + lastMatch[0].indexOf("]");
+
+  const entryLiteral = `  {
+    slug: ${JSON.stringify(draft.slug)},
+    word: ${JSON.stringify(draft.word)},
+    respelling: ${JSON.stringify(draft.respelling)},
+    partOfSpeech: ${JSON.stringify(draft.partOfSpeech)},
+    teaser: ${JSON.stringify(draft.teaser)},
+    origin: ${JSON.stringify(draft.origin)},
+    journey: ${JSON.stringify(draft.journey)},
+    related: ${JSON.stringify(draft.related)},
+    lineage: ${JSON.stringify(draft.lineage)},
+  },
+`;
+
+  const updated = source.slice(0, closingIndex) + entryLiteral + source.slice(closingIndex);
+  writeFileSync(wordsFilePath, updated);
+}
+
+/** CLI entry point: `npm run content:approve -- content/drafts/<slug>.json`.
+ * Validates the draft, appends it to the real lib/words.ts, then re-runs
+ * the full test suite (which re-checks the exact same invariants across
+ * every entry, old and new) so a bad append is caught immediately rather
+ * than silently shipping. */
+function main() {
+  const [draftPath] = process.argv.slice(2);
+  if (!draftPath) {
+    console.error("Usage: npm run content:approve -- content/drafts/<slug>.json");
+    process.exit(1);
+  }
+
+  const raw = JSON.parse(readFileSync(draftPath, "utf-8"));
+  const draft = validateDraft(raw);
+
+  const wordsFilePath = "lib/words.ts";
+  appendDraftToWordsFile(draft, wordsFilePath);
+  console.log(`Appended "${draft.slug}" to ${wordsFilePath}. Running tests…`);
+
+  execSync("npx vitest run lib/words.test.ts", { stdio: "inherit" });
+  console.log(`Done. Review the diff (git diff ${wordsFilePath}) before committing.`);
+}
+
+if (require.main === module) {
+  main();
+}

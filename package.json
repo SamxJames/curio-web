@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "content:extract": "tsx scripts/extractEtymology.ts",
-    "content:rewrite": "tsx scripts/rewriteEtymology.ts"
+    "content:rewrite": "tsx scripts/rewriteEtymology.ts",
+    "content:approve": "tsx scripts/approveDraft.ts"
   },
   "dependencies": {
     "@atproto/api": "^0.20.44",
