@@ -13,6 +13,9 @@ import { getTodayWord } from "@/lib/words";
  * extra infra. */
 export async function GET(req: NextRequest) {
   const secret = process.env.CRON_SECRET;
+  if (!secret && process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "CRON_SECRET is not configured" }, { status: 401 });
+  }
   if (secret) {
     const auth = req.headers.get("authorization");
     if (auth !== `Bearer ${secret}`) {

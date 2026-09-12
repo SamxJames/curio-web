@@ -4,21 +4,22 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
-import { useHasOnboarded } from "@/lib/storage";
+import { useShowArrival } from "@/lib/useShowArrival";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
   const pathname = usePathname();
   const { status } = useSession();
-  const onboarded = useHasOnboarded();
+  const showArrival = useShowArrival();
 
   // The arrival hero (app/page.tsx, first-time anonymous visitors only)
   // draws its own wordmark + theme toggle row as part of its layout — the
   // global header would otherwise duplicate that row and add nav links
   // ("Today", "History", "Sign in") that don't make sense before someone
   // has read a single word yet. See components/HomeContent.tsx for the
-  // exact same condition this mirrors.
-  const isArrivalRoute = pathname === "/" && status !== "authenticated" && !onboarded;
+  // exact same condition this mirrors (useShowArrival has no route
+  // awareness of its own, hence the separate pathname check here).
+  const isArrivalRoute = pathname === "/" && showArrival;
   if (isArrivalRoute) return null;
 
   const secondNavItem =

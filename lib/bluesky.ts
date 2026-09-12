@@ -48,20 +48,29 @@ export async function postDailyWordToBluesky(
     return { posted: false };
   }
 
-  const agent = new AtpAgent({ service: "https://bsky.social" });
-  await agent.login({ identifier, password: appPassword });
+  try {
+    const agent = new AtpAgent({ service: "https://bsky.social" });
+    await agent.login({ identifier, password: appPassword });
 
-  // RichText auto-detects the URL and turns it into a real clickable
-  // facet — without this, the link would just be plain unclickable text
-  // in the post, defeating the UTM tracking's whole purpose.
-  const richText = new RichText({ text });
-  await richText.detectFacets(agent);
+    // RichText auto-detects the URL and turns it into a real clickable
+    // facet — without this, the link would just be plain unclickable text
+    // in the post, defeating the UTM tracking's whole purpose.
+    const richText = new RichText({ text });
+    await richText.detectFacets(agent);
 
-  await agent.post({
-    text: richText.text,
-    facets: richText.facets,
-    createdAt: date.toISOString(),
-  });
+    await agent.post({
+      text: richText.text,
+      facets: richText.facets,
+      createdAt: date.toISOString(),
+    });
 
-  return { posted: true };
+    return { posted: true };
+  } catch (err) {
+    // The daily cron runs unattended with nobody watching its response —
+    // without this log, a real posting failure (bad credentials, a
+    // revoked app password, rate limiting) would be indistinguishable
+    // from "just not configured" and could go unnoticed indefinitely.
+    console.error("[curio:bluesky] post failed:", err);
+    return { posted: false };
+  }
 }

@@ -1,7 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useHasOnboarded } from "@/lib/storage";
+import { useShowArrival } from "@/lib/useShowArrival";
 import type { WordEntry } from "@/lib/words";
 import ArrivalHero from "./ArrivalHero";
 import TodayHero from "./TodayHero";
@@ -20,9 +19,7 @@ export default function HomeContent({
   date: string;
   isPersonalized: boolean;
 }) {
-  const { status } = useSession();
-  const onboarded = useHasOnboarded();
-  const showArrival = status !== "authenticated" && !onboarded;
+  const showArrival = useShowArrival();
 
   return showArrival ? (
     <ArrivalHero word={word} date={date} />

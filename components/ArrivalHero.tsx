@@ -93,6 +93,7 @@ export default function ArrivalHero({ word, date }: { word: WordEntry; date: str
               <input
                 type="email"
                 name="email"
+                aria-label="Email address"
                 inputMode="email"
                 autoComplete="email"
                 required
