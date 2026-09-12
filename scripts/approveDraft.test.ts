@@ -84,4 +84,29 @@ describe("appendDraftToWordsFile", () => {
     expect(contents.indexOf('slug: "bank"')).toBeLessThan(contents.indexOf("function getHistory"));
     expect(contents.indexOf('slug: "existing"')).toBeLessThan(contents.indexOf('slug: "bank"'));
   });
+
+  // Regression test: anchoring. A future edit might add another exported
+  // array literal after WORDS whose closing bracket also sits alone on its
+  // own line (the same "standalone-line `];`" shape the search looks for).
+  // Without anchoring the search to the WORDS declaration itself, "the last
+  // standalone `];` in the whole file" would find THAT later array's
+  // closing bracket instead of WORDS's own — this fixture simulates that
+  // future shape and confirms the new entry still lands inside WORDS.
+  it("appends inside the WORDS array even when a later array literal also closes on its own line", () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "curio-approve-test-"));
+    tmpFile = path.join(dir, "words-fixture.ts");
+    writeFileSync(
+      tmpFile,
+      `export const WORDS: WordEntry[] = [\n  {\n    slug: "existing",\n    word: "existing",\n  },\n];\n\nexport const OTHER: string[] = [\n  "decoy",\n];\n`
+    );
+
+    appendDraftToWordsFile(validDraft, tmpFile);
+
+    const contents = readFileSync(tmpFile, "utf-8");
+    // The later array literal must be untouched.
+    expect(contents).toContain('export const OTHER: string[] = [\n  "decoy",\n];');
+    // The new entry must land inside WORDS, before OTHER even starts.
+    expect(contents.indexOf('slug: "bank"')).toBeLessThan(contents.indexOf("OTHER"));
+    expect(contents.indexOf('slug: "existing"')).toBeLessThan(contents.indexOf('slug: "bank"'));
+  });
 });

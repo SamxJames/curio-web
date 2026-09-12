@@ -34,31 +34,41 @@ export function validateDraft(draft: unknown): DraftEntry {
   return d as DraftEntry;
 }
 
-/** Matches the WORDS array's closing bracket — a `];` that starts its own
+/** The exact declaration that opens the WORDS array — searching is anchored
+ * to this text first, so the closing-bracket search below only ever looks
+ * *inside* the WORDS array, never at some other array literal elsewhere in
+ * the file. */
+const WORDS_DECLARATION = "export const WORDS: WordEntry[] = [";
+
+/** Matches an array literal's closing bracket — a `];` that starts its own
  * line (optionally indented) — but NOT an inline `= [];` such as
- * lib/words.ts's `const days: HistoryDay[] = [];` inside getHistoryForUser.
- * A bare `lastIndexOf("];")` finds that inline occurrence instead, since it
- * comes later in the file than the WORDS array's real closing bracket, and
- * corrupts the file; this pattern disambiguates by requiring a line break
- * right before the bracket. */
-const ARRAY_CLOSING_BRACKET_PATTERN = /\r?\n[ \t]*\];/g;
+ * lib/words.ts's `const days: HistoryDay[] = [];` inside getHistoryForUser
+ * (there `[` and `]` share a line, so this pattern can't match there). */
+const ARRAY_CLOSING_BRACKET_PATTERN = /\r?\n[ \t]*\];/;
 
 /** Inserts the draft as one more object literal into the WORDS array,
  * immediately before the array's closing `];` — a plain text insertion
- * rather than an AST transform. This targets the *last* such standalone
- * closing bracket in the file, which is lib/words.ts's WORDS array (its
- * other exports are functions, not array literals). */
+ * rather than an AST transform. The search is anchored to the WORDS
+ * declaration itself and then finds the *first* standalone closing bracket
+ * after it, so this keeps targeting the WORDS array specifically even if a
+ * later edit adds another exported array literal (with its own standalone
+ * `];`) further down the file — unlike a bare "last standalone `];` in the
+ * whole file" search, which would silently redirect into that later array
+ * instead. */
 export function appendDraftToWordsFile(draft: DraftEntry, wordsFilePath: string): void {
   const source = readFileSync(wordsFilePath, "utf-8");
 
-  let lastMatch: RegExpExecArray | null = null;
-  for (const match of source.matchAll(ARRAY_CLOSING_BRACKET_PATTERN)) {
-    lastMatch = match;
+  const wordsStart = source.indexOf(WORDS_DECLARATION);
+  if (wordsStart === -1) {
+    throw new Error(`Could not find "${WORDS_DECLARATION}" in ${wordsFilePath}.`);
   }
-  if (!lastMatch) {
+
+  const searchFrom = wordsStart + WORDS_DECLARATION.length;
+  const match = ARRAY_CLOSING_BRACKET_PATTERN.exec(source.slice(searchFrom));
+  if (!match) {
     throw new Error(`Could not find the WORDS array's closing "];" in ${wordsFilePath}.`);
   }
-  const closingIndex = lastMatch.index + lastMatch[0].indexOf("]");
+  const closingIndex = searchFrom + match.index + match[0].indexOf("]");
 
   const entryLiteral = `  {
     slug: ${JSON.stringify(draft.slug)},
