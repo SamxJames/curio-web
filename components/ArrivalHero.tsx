@@ -32,7 +32,12 @@ export default function ArrivalHero({ word, date }: { word: WordEntry; date: str
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Something went wrong.");
       setStatus("success");
-      markOnboarded();
+      // Delayed (unlike the "Find out more" / archive links below, which mark
+      // onboarded immediately since they navigate away): marking onboarded
+      // right away would flip HomeContent to TodayHero in the same commit as
+      // this success state, so the "You're in" message would never actually
+      // paint. Giving it a couple seconds first lets it be seen.
+      setTimeout(() => markOnboarded(), 2000);
     } catch (err) {
       setStatus("error");
       setErrorMessage(err instanceof Error ? err.message : "Something went wrong.");
