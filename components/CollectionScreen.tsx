@@ -136,17 +136,20 @@ function CollectionBody({
   );
 
   const bandNote = sparse
-    ? `${capitalize(spellNumber(languages.length))} ${pluralize(
-        languages.length,
-        "language"
-      )} so far. Every one of them ends in English.`
-    : "Widths are how many of your words passed through each language. All of them end in English.";
+    ? `${capitalize(spellNumber(languages.length))} ${pluralize(languages.length, "language")} so far.`
+    : "Widths are how many of your words passed through each language.";
 
   const filterLine = activeLanguage
     ? `${filteredEntries.length} ${pluralize(filteredEntries.length, "word")} through ${activeLanguage}`
     : null;
 
-  const showClosingLine = !activeLanguage && sparse;
+  // In place of a generic reassurance ("nothing to catch up on"), the closing
+  // note surfaces something to actually read: the `related` fact for the
+  // most recent word, which the collection view otherwise never shows (the
+  // story page is the only other place it appears). Only for small,
+  // unfiltered collections — the same slot the copy used to occupy.
+  const closingWord = entries[0]?.word;
+  const showClosingLine = !activeLanguage && sparse && !!closingWord;
 
   return (
     <>
@@ -249,7 +252,7 @@ function CollectionBody({
 
       {showClosingLine && (
         <p className="mt-[30px] border-t border-line pt-[22px] font-serif text-[15px] leading-[1.55] text-ink-soft italic [text-wrap:pretty]">
-          A new word arrives each morning. There is no backlog, and nothing here to finish.
+          A little more about {closingWord.word}: {closingWord.related}
         </p>
       )}
     </>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { detectMailProvider, MAIL_PROVIDERS } from "@/lib/mailProviders";
+import { detectMailProvider, openMailProvider, MAIL_PROVIDERS } from "@/lib/mailProviders";
 
 type Status = "idle" | "submitting" | "sent" | "error";
 
@@ -35,28 +35,26 @@ export default function LoginPage() {
         </p>
 
         {matched && (
-          <a
-            href={matched.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-6 inline-flex w-full items-center justify-center rounded-md bg-accent px-4 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90"
+          <button
+            type="button"
+            onClick={() => openMailProvider(matched)}
+            className="mt-6 inline-flex w-full items-center justify-center rounded-md bg-accent px-4 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90 cursor-pointer"
           >
             Open {matched.label}
-          </a>
+          </button>
         )}
 
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 font-sans text-sm text-ink-soft">
           {!matched && <span className="text-ink-faint">Open your inbox:</span>}
           {others.map((p) => (
-            <a
+            <button
               key={p.label}
-              href={p.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-colors hover:text-ink"
+              type="button"
+              onClick={() => openMailProvider(p)}
+              className="transition-colors hover:text-ink cursor-pointer"
             >
               {p.label}
-            </a>
+            </button>
           ))}
         </div>
       </section>
@@ -76,7 +74,10 @@ export default function LoginPage() {
           </label>
           <input
             id="email"
+            name="email"
             type="email"
+            inputMode="email"
+            autoComplete="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}

@@ -230,15 +230,24 @@ function mulberry32(seed: number): () => number {
 
 /** Deterministic per-account shuffle of WORDS (Fisher-Yates driven by a
  * seeded PRNG) — every account gets its own fixed order, and the same
- * account always gets the same order back. */
-export function getPersonalOrder(userId: string): WordEntry[] {
+ * account always gets the same order back.
+ *
+ * The word for `anchorDate` (a new account's join date) is pinned to slot 0
+ * rather than falling wherever the shuffle happens to put it: without this,
+ * someone who saw a word on Today, then signed in, would immediately see a
+ * *different* word from their newly-started personal rotation — a jarring
+ * swap for no visible reason. Pinning it means their first personalized day
+ * carries on from what they already saw; every day after that is the normal
+ * per-account shuffle. */
+export function getPersonalOrder(userId: string, anchorDate: Date): WordEntry[] {
+  const anchorWord = getWordForDate(anchorDate);
   const rand = mulberry32(hashSeed(userId));
-  const order = [...WORDS];
-  for (let i = order.length - 1; i > 0; i--) {
+  const rest = WORDS.filter((w) => w.slug !== anchorWord.slug);
+  for (let i = rest.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1));
-    [order[i], order[j]] = [order[j], order[i]];
+    [rest[i], rest[j]] = [rest[j], rest[i]];
   }
-  return order;
+  return [anchorWord, ...rest];
 }
 
 function daysBetweenUtcMidnights(start: Date, end: Date): number {
@@ -251,7 +260,7 @@ function daysBetweenUtcMidnights(start: Date, end: Date): number {
  * length as the shared list, shuffled per account, anchored to their join
  * date instead of the global calendar anchor used by getWordForDate. */
 export function getWordForUser(userId: string, joinedAt: Date, today: Date = new Date()): WordEntry {
-  const order = getPersonalOrder(userId);
+  const order = getPersonalOrder(userId, joinedAt);
   const dayIndex = daysBetweenUtcMidnights(joinedAt, today);
   const idx = ((dayIndex % order.length) + order.length) % order.length;
   return order[idx];
@@ -264,7 +273,7 @@ export function getHistoryForUser(
   joinedAt: Date,
   today: Date = new Date()
 ): HistoryDay[] {
-  const order = getPersonalOrder(userId);
+  const order = getPersonalOrder(userId, joinedAt);
   const totalDays = daysBetweenUtcMidnights(joinedAt, today);
   const joinedUtcMidnight = Date.UTC(
     joinedAt.getUTCFullYear(),

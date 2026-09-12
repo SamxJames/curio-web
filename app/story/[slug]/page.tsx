@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import StoryView from "@/components/StoryView";
-import { WORDS, getWordBySlug, getHistory } from "@/lib/words";
+import { auth } from "@/lib/auth";
+import { getUserJoinedAt } from "@/lib/userData";
+import { WORDS, getWordBySlug, getHistory, getHistoryForUser } from "@/lib/words";
 
 export function generateStaticParams() {
   return WORDS.map((w) => ({ slug: w.slug }));
@@ -30,7 +32,19 @@ export default async function StoryPage({
   const word = getWordBySlug(slug);
   if (!word) notFound();
 
-  const historyEntry = getHistory().find((d) => d.word.slug === slug);
+  // Prefer this account's own personalized date for the word (matching what
+  // they actually saw on Today/Collection) over the shared calendar's date —
+  // the two rotations are independent, so the shared date can be a stale day
+  // for someone whose personal rotation is showing this word right now.
+  const session = await auth();
+  const joinedAtStr = session?.user?.id ? await getUserJoinedAt(session.user.id) : null;
+  const personalEntry =
+    session?.user?.id && joinedAtStr
+      ? getHistoryForUser(session.user.id, new Date(joinedAtStr + "T00:00:00Z")).find(
+          (d) => d.word.slug === slug
+        )
+      : undefined;
+  const historyEntry = personalEntry ?? getHistory().find((d) => d.word.slug === slug);
   const date = historyEntry
     ? new Date(historyEntry.date + "T00:00:00Z").toLocaleDateString("en-US", {
         weekday: "long",

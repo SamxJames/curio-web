@@ -28,42 +28,53 @@ describe("WORDS content", () => {
 });
 
 describe("getPersonalOrder", () => {
+  const anchorDate = new Date("2026-01-01T00:00:00Z");
+
   it("is deterministic for the same user id", () => {
-    const a = getPersonalOrder("user-1").map((w) => w.slug);
-    const b = getPersonalOrder("user-1").map((w) => w.slug);
+    const a = getPersonalOrder("user-1", anchorDate).map((w) => w.slug);
+    const b = getPersonalOrder("user-1", anchorDate).map((w) => w.slug);
     expect(a).toEqual(b);
   });
 
   it("is a permutation of the full word list", () => {
-    const order = getPersonalOrder("user-1").map((w) => w.slug);
+    const order = getPersonalOrder("user-1", anchorDate).map((w) => w.slug);
     expect(order.slice().sort()).toEqual(WORDS.map((w) => w.slug).sort());
   });
 
   it("differs between different user ids", () => {
-    const a = getPersonalOrder("user-1").map((w) => w.slug);
-    const b = getPersonalOrder("some-other-user").map((w) => w.slug);
+    const a = getPersonalOrder("user-1", anchorDate).map((w) => w.slug);
+    const b = getPersonalOrder("some-other-user", anchorDate).map((w) => w.slug);
     expect(a).not.toEqual(b);
+  });
+
+  it("pins the anchor date's global word-of-the-day to the first slot", () => {
+    // This is what keeps someone's very first personalized day continuous
+    // with whatever word they saw (signed out) right before signing in.
+    const order = getPersonalOrder("user-1", anchorDate);
+    expect(order[0]).toEqual(getWordForDate(anchorDate));
   });
 });
 
 describe("getWordForUser", () => {
-  it("returns the first word in the user's order on their join day", () => {
+  it("returns the anchor date's global word on the join day itself", () => {
+    // A brand-new account's first personalized word must match the shared
+    // word they'd have already seen (signed out) that same day — otherwise
+    // signing in silently swaps the word underneath them.
     const joinedAt = new Date("2026-01-01T00:00:00Z");
-    const order = getPersonalOrder("user-1");
-    expect(getWordForUser("user-1", joinedAt, joinedAt)).toEqual(order[0]);
+    expect(getWordForUser("user-1", joinedAt, joinedAt)).toEqual(getWordForDate(joinedAt));
   });
 
   it("advances one word per day", () => {
     const joinedAt = new Date("2026-01-01T00:00:00Z");
     const dayTwo = new Date("2026-01-02T00:00:00Z");
-    const order = getPersonalOrder("user-1");
+    const order = getPersonalOrder("user-1", joinedAt);
     expect(getWordForUser("user-1", joinedAt, dayTwo)).toEqual(order[1]);
   });
 
   it("wraps around after the full list length", () => {
     const joinedAt = new Date("2026-01-01T00:00:00Z");
     const wrapDay = new Date(joinedAt.getTime() + WORDS.length * 24 * 60 * 60 * 1000);
-    const order = getPersonalOrder("user-1");
+    const order = getPersonalOrder("user-1", joinedAt);
     expect(getWordForUser("user-1", joinedAt, wrapDay)).toEqual(order[0]);
   });
 });
