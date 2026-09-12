@@ -9,6 +9,7 @@ import AccountFavoritesSync from "@/components/AccountFavoritesSync";
 import "@fontsource/newsreader/400.css";
 import "@fontsource/newsreader/500.css";
 import "@fontsource/newsreader/600.css";
+import "@fontsource/newsreader/700.css";
 import "@fontsource/newsreader/400-italic.css";
 import "@fontsource/work-sans/400.css";
 import "@fontsource/work-sans/500.css";
