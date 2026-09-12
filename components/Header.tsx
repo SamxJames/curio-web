@@ -4,22 +4,28 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
+import { useHasOnboarded } from "@/lib/storage";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
   const pathname = usePathname();
   const { status } = useSession();
+  const onboarded = useHasOnboarded();
 
-  // Signed-in users get "Collection" — their accumulated words — in place
-  // of "History"; the two live together as tabs inside /collection, so
-  // nothing is lost, and the nav stays at four items either way. Signed-out
-  // (and not-yet-resolved) visitors keep History exactly as before.
-  const NAV = [
-    { href: "/", label: "Today" },
+  // The arrival hero (app/page.tsx, first-time anonymous visitors only)
+  // draws its own wordmark + theme toggle row as part of its layout — the
+  // global header would otherwise duplicate that row and add nav links
+  // ("Today", "History", "Sign in") that don't make sense before someone
+  // has read a single word yet. See components/HomeContent.tsx for the
+  // exact same condition this mirrors.
+  const isArrivalRoute = pathname === "/" && status !== "authenticated" && !onboarded;
+  if (isArrivalRoute) return null;
+
+  const secondNavItem =
     status === "authenticated"
       ? { href: "/collection", label: "Collection" }
-      : { href: "/history", label: "History" },
-  ];
+      : { href: "/history", label: "History" };
+  const NAV = [{ href: "/", label: "Today" }, secondNavItem];
 
   return (
     <header className="border-b border-line">
