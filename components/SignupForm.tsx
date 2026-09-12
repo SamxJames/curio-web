@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import HourWheel from "./HourWheel";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
 export default function SignupForm({ onSubscribed }: { onSubscribed?: () => void }) {
   const [email, setEmail] = useState("");
-  const [hour, setHour] = useState(9);
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -19,7 +17,7 @@ export default function SignupForm({ onSubscribed }: { onSubscribed?: () => void
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, hour }),
+        body: JSON.stringify({ email }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Something went wrong.");
@@ -33,21 +31,22 @@ export default function SignupForm({ onSubscribed }: { onSubscribed?: () => void
 
   if (status === "success") {
     return (
-      <p className="font-sans text-sm text-ink-soft">
-        You&apos;re in. Your first word arrives at your next chosen hour.
-      </p>
+      <p className="font-sans text-sm text-ink-soft">You&apos;re in. Your first word arrives tomorrow.</p>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="email" className="mb-2 block font-sans text-xs tracking-wide text-ink-faint">
+        <label htmlFor="signup-email" className="mb-2 block font-sans text-xs tracking-wide text-ink-faint">
           Email
         </label>
         <input
-          id="email"
+          id="signup-email"
+          name="email"
           type="email"
+          inputMode="email"
+          autoComplete="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -56,16 +55,7 @@ export default function SignupForm({ onSubscribed }: { onSubscribed?: () => void
         />
       </div>
 
-      <div>
-        <p className="mb-2 text-center font-sans text-xs tracking-wide text-ink-faint">
-          Delivery hour
-        </p>
-        <HourWheel value={hour} onChange={setHour} />
-      </div>
-
-      {status === "error" && (
-        <p className="font-sans text-sm text-danger">{errorMessage}</p>
-      )}
+      {status === "error" && <p className="font-sans text-sm text-danger">{errorMessage}</p>}
 
       <button
         type="submit"

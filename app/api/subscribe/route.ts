@@ -11,15 +11,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const { email, hour } = (body ?? {}) as { email?: string; hour?: number };
+  const { email } = (body ?? {}) as { email?: string };
 
   if (!email || !EMAIL_RE.test(email)) {
     return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
   }
-  if (typeof hour !== "number" || hour < 0 || hour > 23 || !Number.isInteger(hour)) {
-    return NextResponse.json({ error: "Pick a delivery hour between 0 and 23." }, { status: 400 });
-  }
 
-  await upsertSubscriber(email, hour);
+  await upsertSubscriber(email);
   return NextResponse.json({ ok: true });
 }

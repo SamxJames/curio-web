@@ -32,7 +32,7 @@ async function writeLocalDb(db: Record<string, Subscriber>) {
 
 export async function upsertSubscriber(
   email: string,
-  hour: number
+  hour: number = 9
 ): Promise<void> {
   const normalizedEmail = email.trim().toLowerCase();
   const record: Subscriber = {
