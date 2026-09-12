@@ -2,18 +2,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth, signOut } from "@/lib/auth";
 import { getSubscriberByEmail, removeSubscriber, upsertSubscriber } from "@/lib/db";
-import AccountHourPicker from "@/components/AccountHourPicker";
 
 export const metadata = { title: "Account — Curio" };
-
-/** Matches the 12-hour AM/PM format the homepage's HourWheel already uses —
- * the account page previously showed raw 24-hour UTC ("21:00 UTC"), which
- * was the only place in the app not using that convention. */
-function formatHour(hour: number): string {
-  const period = hour < 12 ? "AM" : "PM";
-  const display = hour % 12 === 0 ? 12 : hour % 12;
-  return `${display}:00 ${period}`;
-}
 
 export default async function AccountPage() {
   const session = await auth();
@@ -22,12 +12,10 @@ export default async function AccountPage() {
   const email = session.user.email;
   const subscriber = email ? await getSubscriberByEmail(email) : null;
 
-  async function updateSubscription(hour: number) {
+  async function subscribe() {
     "use server";
     if (!email) return;
-    if (Number.isInteger(hour) && hour >= 0 && hour <= 23) {
-      await upsertSubscriber(email, hour);
-    }
+    await upsertSubscriber(email);
     revalidatePath("/account");
   }
 
@@ -47,28 +35,29 @@ export default async function AccountPage() {
         <h2 className="font-sans text-xs tracking-wide text-ink-faint">Daily email</h2>
 
         {subscriber ? (
-          <p className="mt-2 font-sans text-sm text-ink-soft">
-            Subscribed — delivered at {formatHour(subscriber.hour)} UTC.
-          </p>
+          <>
+            <p className="mt-2 font-sans text-sm text-ink-soft">Subscribed — one word a day.</p>
+            <form action={unsubscribe} className="mt-3">
+              <button
+                type="submit"
+                className="font-sans text-sm text-ink-faint underline underline-offset-2 transition-colors hover:text-danger cursor-pointer"
+              >
+                Unsubscribe
+              </button>
+            </form>
+          </>
         ) : (
-          <p className="mt-2 font-sans text-sm text-ink-soft">Not subscribed yet.</p>
-        )}
-
-        <AccountHourPicker
-          initialHour={subscriber?.hour ?? 9}
-          onSave={updateSubscription}
-          saveLabel={subscriber ? "Save" : "Subscribe"}
-        />
-
-        {subscriber && (
-          <form action={unsubscribe} className="mt-3">
-            <button
-              type="submit"
-              className="font-sans text-sm text-ink-faint underline underline-offset-2 transition-colors hover:text-danger cursor-pointer"
-            >
-              Unsubscribe
-            </button>
-          </form>
+          <>
+            <p className="mt-2 font-sans text-sm text-ink-soft">Not subscribed yet.</p>
+            <form action={subscribe} className="mt-3">
+              <button
+                type="submit"
+                className="rounded-md bg-accent px-4 py-2 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90 cursor-pointer"
+              >
+                Subscribe
+              </button>
+            </form>
+          </>
         )}
       </div>
 
