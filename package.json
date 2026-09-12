@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "content:extract": "tsx scripts/extractEtymology.ts"
+    "content:extract": "tsx scripts/extractEtymology.ts",
+    "content:rewrite": "tsx scripts/rewriteEtymology.ts"
   },
   "dependencies": {
     "@atproto/api": "^0.20.44",
