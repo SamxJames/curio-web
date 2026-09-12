@@ -87,6 +87,20 @@ export async function getSubscribersForHour(hour: number): Promise<string[]> {
     .map((s) => s.email);
 }
 
+/** Every subscribed email, regardless of the delivery hour they picked (or
+ * were defaulted to) — used by the daily cron, which only ever fires once
+ * a day on the Hobby plan (see the send-daily route's own comment). The
+ * hour-bucketed index (`HOUR_INDEX_PREFIX`) predates that realization and
+ * is unused by the send path now; this reads subscriber records directly. */
+export async function getAllSubscribers(): Promise<string[]> {
+  if (redis) {
+    const keys = await redis.keys(`${SUBSCRIBER_PREFIX}*`);
+    return keys.map((key) => key.slice(SUBSCRIBER_PREFIX.length));
+  }
+  const db = await readLocalDb();
+  return Object.values(db).map((s) => s.email);
+}
+
 export async function getSubscriberByEmail(email: string): Promise<Subscriber | null> {
   const normalizedEmail = email.trim().toLowerCase();
 

@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSubscribersForHour } from "@/lib/db";
+import { getAllSubscribers } from "@/lib/db";
 import { sendDailyDigest } from "@/lib/email";
 import { getTodayWord } from "@/lib/words";
 
-/** Configured in vercel.json to run at minute 0 of every hour. Vercel Cron
- * requests don't carry user auth, so this checks a shared secret instead —
- * set CRON_SECRET in the project's environment variables and Vercel will
- * send it automatically as a bearer token on scheduled invocations. */
+/** Configured in vercel.json to run once a day at 0 9 * * * (9am UTC) — the
+ * Vercel Hobby plan caps cron at once/day, so there is no per-hour bucket
+ * to honor here even though Subscriber still carries an `hour` field
+ * (vestigial — see lib/db.ts). Every subscriber gets today's word at this
+ * one run, regardless of what hour they were ever assigned. */
 export async function GET(req: NextRequest) {
   const secret = process.env.CRON_SECRET;
   if (secret) {
@@ -17,9 +18,8 @@ export async function GET(req: NextRequest) {
   }
 
   const now = new Date();
-  const hour = now.getUTCHours();
   const word = getTodayWord();
-  const subscribers = await getSubscribersForHour(hour);
+  const subscribers = await getAllSubscribers();
 
   const results = await Promise.allSettled(
     subscribers.map((email) => sendDailyDigest(email, word, now))
@@ -27,5 +27,5 @@ export async function GET(req: NextRequest) {
   const sent = results.filter((r) => r.status === "fulfilled").length;
   const failed = results.length - sent;
 
-  return NextResponse.json({ hour, word: word.slug, attempted: results.length, sent, failed });
+  return NextResponse.json({ word: word.slug, attempted: results.length, sent, failed });
 }
