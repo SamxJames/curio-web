@@ -77,6 +77,20 @@ export async function getAllSubscribers(): Promise<string[]> {
   return Object.values(db).map((s) => s.email);
 }
 
+/** Every subscriber's full record (not just the email), for the admin
+ * portal's growth-by-signup-date view — getAllSubscribers only returns
+ * email strings because that's all the daily cron ever needed. */
+export async function getAllSubscriberRecords(): Promise<Subscriber[]> {
+  if (redis) {
+    const keys = await redis.keys(`${SUBSCRIBER_PREFIX}*`);
+    if (keys.length === 0) return [];
+    const records = await Promise.all(keys.map((key) => redis!.hgetall<Subscriber>(key)));
+    return records.filter((r): r is Subscriber => !!r?.email);
+  }
+  const db = await readLocalDb();
+  return Object.values(db);
+}
+
 export async function getSubscriberByEmail(email: string): Promise<Subscriber | null> {
   const normalizedEmail = email.trim().toLowerCase();
 
