@@ -160,3 +160,94 @@ export function markOnboarded() {
   window.localStorage.setItem(ONBOARDED_KEY, "1");
   notify();
 }
+
+const PLAY_STATE_KEY_PREFIX = "curio:play:"; // one key per puzzle date, e.g. curio:play:2026-10-15
+
+export type PlayState = {
+  puzzleDate: string; // YYYY-MM-DD — which puzzle this state belongs to
+  cluesRevealed: 1 | 2 | 3;
+  status: "playing" | "solved" | "failed";
+  cluesUsedToSolve: 1 | 2 | 3 | null; // set only once status leaves "playing"
+};
+
+function playStateKey(puzzleDate: string): string {
+  return `${PLAY_STATE_KEY_PREFIX}${puzzleDate}`;
+}
+
+export function getPlayState(puzzleDate: string): PlayState | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(playStateKey(puzzleDate));
+    return raw ? (JSON.parse(raw) as PlayState) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function usePlayState(puzzleDate: string): PlayState | null {
+  return useSyncExternalStore(subscribe, () => getPlayState(puzzleDate), () => null);
+}
+
+/** Persists today's play state locally (so a reload doesn't reset progress
+ * or let the puzzle be replayed) and, best-effort, to the signed-in
+ * account — mirroring toggleFavorite's fire-and-forget sync above. Local
+ * state already reflects the change regardless of whether the sync
+ * succeeds. */
+export function savePlayState(state: PlayState): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(playStateKey(state.puzzleDate), JSON.stringify(state));
+  notify();
+  void syncPlayStateToAccount(state);
+}
+
+async function syncPlayStateToAccount(state: PlayState): Promise<void> {
+  try {
+    await fetch("/api/play-state", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(state),
+    });
+  } catch {
+    // best-effort; nothing to do here (also swallows the 401 for signed-out users)
+  }
+}
+
+const PUZZLE_STATS_KEY = "curio:puzzleStats";
+
+// [clues-to-solve-on-1, on-2, on-3, failed] — index 3 is "failed", not a
+// 4th clue. No streak field, ever — see this plan's Global Constraints.
+export type PuzzleStats = { played: number; histogram: [number, number, number, number] };
+
+const EMPTY_STATS: PuzzleStats = { played: 0, histogram: [0, 0, 0, 0] };
+
+export function getPuzzleStats(): PuzzleStats {
+  if (typeof window === "undefined") return EMPTY_STATS;
+  try {
+    const raw = window.localStorage.getItem(PUZZLE_STATS_KEY);
+    return raw ? (JSON.parse(raw) as PuzzleStats) : EMPTY_STATS;
+  } catch {
+    return EMPTY_STATS;
+  }
+}
+
+export function usePuzzleStats(): PuzzleStats {
+  return useSyncExternalStore(subscribe, () => getPuzzleStats(), () => EMPTY_STATS);
+}
+
+/** Records one completed puzzle (solved on a given clue, or failed) into
+ * the local, per-device stats histogram. Local-only by design — see this
+ * plan's Flagged decision D for why this doesn't sync to the account the
+ * way play state does. Call this exactly once per puzzle completion (the
+ * caller — components/PuzzleGame.tsx — only calls it from the actual
+ * guess-submission handler, never from an effect that could re-fire on a
+ * reload of an already-completed puzzle). */
+export function recordPuzzleResult(cluesUsedToSolve: 1 | 2 | 3 | null): void {
+  if (typeof window === "undefined") return;
+  const stats = getPuzzleStats();
+  const index = cluesUsedToSolve === null ? 3 : cluesUsedToSolve - 1;
+  const histogram = [...stats.histogram] as [number, number, number, number];
+  histogram[index] += 1;
+  const next: PuzzleStats = { played: stats.played + 1, histogram };
+  window.localStorage.setItem(PUZZLE_STATS_KEY, JSON.stringify(next));
+  notify();
+}
