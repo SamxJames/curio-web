@@ -301,6 +301,24 @@ export function getPersonalOrder(userId: string, anchorDate: Date): WordEntry[] 
   return [anchorWord, ...rest];
 }
 
+/** Resolves which word a single daily-digest recipient should get: the
+ * shared calendar word for anonymous subscribers (or accounts with no
+ * recorded join date), otherwise that account's own personalized rotation —
+ * matching what they'd already see on the signed-in Today page, instead of
+ * a second word that only ever shows up in their inbox. Takes the account
+ * lookup already resolved rather than performing it itself, so this stays a
+ * pure, easily-tested function; see app/api/cron/send-daily/route.ts for the
+ * Redis lookups that feed it. */
+export function getDigestWordForSubscriber(
+  userId: string | null,
+  joinedAtStr: string | null,
+  now: Date,
+  sharedWord: WordEntry
+): WordEntry {
+  if (!userId || !joinedAtStr) return sharedWord;
+  return getWordForUser(userId, new Date(joinedAtStr + "T00:00:00Z"), now);
+}
+
 function daysBetweenUtcMidnights(start: Date, end: Date): number {
   const startUtc = Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate());
   const endUtc = Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate());

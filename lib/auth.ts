@@ -19,8 +19,12 @@ declare module "next-auth" {
  * session and any sign-in attempt fails with a clear Auth.js configuration
  * error — the rest of the app (anonymous browsing, email subscribe) keeps
  * working exactly as before, matching lib/db.ts's local-fallback behavior. */
+const adapter = usingUpstash
+  ? UpstashRedisAdapter(redis!, { baseKeyPrefix: "curio:auth:" })
+  : undefined;
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: usingUpstash ? UpstashRedisAdapter(redis!, { baseKeyPrefix: "curio:auth:" }) : undefined,
+  adapter,
   session: { strategy: "database" },
   trustHost: true,
   secret: process.env.AUTH_SECRET,
@@ -57,3 +61,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 });
+
+/** Looks up the signed-in account (if any) tied to an email address, so the
+ * daily-digest cron can personalize an otherwise-anonymous subscriber's word
+ * — see lib/words.ts's getDigestWordForSubscriber. Returns null when Upstash
+ * isn't configured (no adapter to query) or no account matches. */
+export async function getUserIdByEmail(email: string): Promise<string | null> {
+  const user = await adapter?.getUserByEmail?.(email);
+  return user?.id ?? null;
+}

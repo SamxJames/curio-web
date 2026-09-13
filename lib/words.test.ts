@@ -6,6 +6,7 @@ import {
   getHistoryForUser,
   getUniqueWordsMostRecent,
   getWordForDate,
+  getDigestWordForSubscriber,
 } from "./words";
 
 describe("WORDS content", () => {
@@ -147,6 +148,47 @@ describe("getHistoryForUser", () => {
     // The entry exactly one full cycle before the most recent day should be
     // the same word, since the personal order repeats every WORDS.length days.
     expect(history[WORDS.length].word).toEqual(history[0].word);
+  });
+});
+
+describe("getDigestWordForSubscriber", () => {
+  const now = new Date("2026-01-05T00:00:00Z");
+  const sharedWord = getWordForDate(now);
+
+  it("falls back to the shared word when there's no linked account", () => {
+    expect(getDigestWordForSubscriber(null, null, now, sharedWord)).toEqual(sharedWord);
+  });
+
+  it("falls back to the shared word when the account has no recorded join date", () => {
+    expect(getDigestWordForSubscriber("user-1", null, now, sharedWord)).toEqual(sharedWord);
+  });
+
+  it("uses the account's personalized word when both userId and join date are known", () => {
+    const joinedAtStr = "2026-01-01";
+    const expected = getWordForUser("user-1", new Date(joinedAtStr + "T00:00:00Z"), now);
+    expect(getDigestWordForSubscriber("user-1", joinedAtStr, now, sharedWord)).toEqual(expected);
+  });
+
+  it("matches what that account's Today page shows, not necessarily the shared word", () => {
+    // The personal rotation is a permutation of every word, so sharedWord
+    // occupies exactly one slot in it — searching join dates 1..N-1 days
+    // before `now` is guaranteed to find one whose personalized word isn't
+    // sharedWord (for a word list with more than 2 entries), without
+    // depending on any specific WORDS content.
+    const dayMs = 24 * 60 * 60 * 1000;
+    let personalized: ReturnType<typeof getDigestWordForSubscriber> | undefined;
+    for (let k = 1; k < WORDS.length; k++) {
+      const joinedAt = new Date(now.getTime() - k * dayMs);
+      const joinedAtStr = joinedAt.toISOString().slice(0, 10);
+      const candidate = getDigestWordForSubscriber("user-1", joinedAtStr, now, sharedWord);
+      if (candidate.slug !== sharedWord.slug) {
+        personalized = candidate;
+        const expected = getWordForUser("user-1", joinedAt, now);
+        expect(candidate).toEqual(expected);
+        break;
+      }
+    }
+    expect(personalized).not.toEqual(sharedWord);
   });
 });
 
