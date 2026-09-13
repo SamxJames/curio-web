@@ -1,10 +1,11 @@
 import HomeContent from "@/components/HomeContent";
 import { auth } from "@/lib/auth";
-import { getUserJoinedAt } from "@/lib/userData";
+import { getUserJoinedAt, recordUserSeen } from "@/lib/userData";
 import { getTodayWord, getWordForUser } from "@/lib/words";
 
 export default async function TodayPage() {
   const session = await auth();
+  if (session?.user?.id) void recordUserSeen(session.user.id);
   const joinedAtStr = session?.user?.id ? await getUserJoinedAt(session.user.id) : null;
   const isPersonalized = !!joinedAtStr;
   const word = isPersonalized

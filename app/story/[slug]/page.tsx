@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import StoryView from "@/components/StoryView";
 import { auth } from "@/lib/auth";
-import { getUserJoinedAt } from "@/lib/userData";
+import { getUserJoinedAt, recordUserSeen } from "@/lib/userData";
 import { WORDS, getWordBySlug, getHistory, getHistoryForUser } from "@/lib/words";
 
 export function generateStaticParams() {
@@ -37,6 +37,7 @@ export default async function StoryPage({
   // the two rotations are independent, so the shared date can be a stale day
   // for someone whose personal rotation is showing this word right now.
   const session = await auth();
+  if (session?.user?.id) void recordUserSeen(session.user.id);
   const joinedAtStr = session?.user?.id ? await getUserJoinedAt(session.user.id) : null;
   const personalEntry =
     session?.user?.id && joinedAtStr

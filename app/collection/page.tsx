@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import CollectionScreen from "@/components/CollectionScreen";
 import { auth } from "@/lib/auth";
-import { getUserJoinedAt } from "@/lib/userData";
+import { getUserJoinedAt, recordUserSeen } from "@/lib/userData";
 import { getHistoryForUser } from "@/lib/words";
 
 export const metadata = { title: "Your collection — Curio" };
@@ -13,6 +13,7 @@ export default async function CollectionPage({
 }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
+  void recordUserSeen(session.user.id);
 
   const { tab } = await searchParams;
   const joinedAtStr = await getUserJoinedAt(session.user.id);

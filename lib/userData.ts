@@ -21,6 +21,87 @@ export async function getUserJoinedAt(userId: string): Promise<string | null> {
   return redis.get<string>(joinedKey(userId));
 }
 
+function lastSeenKey(userId: string): string {
+  return `curio:user:${userId}:lastSeen`;
+}
+
+/** Records that a signed-in account was active today (UTC calendar date) —
+ * feeds the admin portal's retention metrics. Deliberately not awaited by
+ * its callers (see app/page.tsx, app/collection/page.tsx,
+ * app/story/[slug]/page.tsx): a failed write here must never block or
+ * break page rendering, mirroring lib/storage.ts's fire-and-forget account
+ * sync. Skips the write once today's date is already stored, so visiting
+ * the same page many times in a day costs one extra GET and no SET after
+ * the first. */
+export async function recordUserSeen(userId: string, date: Date = new Date()): Promise<void> {
+  if (!redis) return;
+  const dateStr = date.toISOString().slice(0, 10);
+  const key = lastSeenKey(userId);
+  const existing = await redis.get<string>(key);
+  if (existing === dateStr) return;
+  await redis.set(key, dateStr);
+}
+
+export async function getUserLastSeen(userId: string): Promise<string | null> {
+  if (!redis) return null;
+  return redis.get<string>(lastSeenKey(userId));
+}
+
+// `curio:user:<id>:<suffix>` — every scan below needs to recover the
+// userId from the key name, and every id is a crypto.randomUUID() (no
+// colons), so slicing off the fixed prefix/suffix is safe.
+const USER_KEY_PREFIX = "curio:user:";
+
+function parseUserKey(key: string, suffix: string): string {
+  return key.slice(USER_KEY_PREFIX.length, key.length - suffix.length);
+}
+
+/** Every account's last-seen date, keyed by userId. Empty when Upstash
+ * isn't configured. */
+export async function getAllUserLastSeen(): Promise<Record<string, string>> {
+  if (!redis) return {};
+  const keys = await redis.keys(`${USER_KEY_PREFIX}*:lastSeen`);
+  if (keys.length === 0) return {};
+  const values = await redis.mget<string[]>(...keys);
+  const result: Record<string, string> = {};
+  keys.forEach((key, i) => {
+    const value = values[i];
+    if (value) result[parseUserKey(key, ":lastSeen")] = value;
+  });
+  return result;
+}
+
+/** Every account's join date, keyed by userId — the same data
+ * getUserJoinedAt reads one account at a time, scanned across every
+ * account for the admin portal's growth and retention views. */
+export async function getAllUserJoinDates(): Promise<Record<string, string>> {
+  if (!redis) return {};
+  const keys = await redis.keys(`${USER_KEY_PREFIX}*:joinedAt`);
+  if (keys.length === 0) return {};
+  const values = await redis.mget<string[]>(...keys);
+  const result: Record<string, string> = {};
+  keys.forEach((key, i) => {
+    const value = values[i];
+    if (value) result[parseUserKey(key, ":joinedAt")] = value;
+  });
+  return result;
+}
+
+export type UserActivity = { userId: string; joinedAt: string; lastSeen: string | null };
+
+/** Every account with a recorded join date, paired with its last-seen date
+ * (or null if it's never been recorded — true for every account until it
+ * next visits a page that calls recordUserSeen). The shape
+ * lib/adminStats.ts's computeRollingRetention consumes directly. */
+export async function getAllUserActivity(): Promise<UserActivity[]> {
+  const [joinDates, lastSeen] = await Promise.all([getAllUserJoinDates(), getAllUserLastSeen()]);
+  return Object.entries(joinDates).map(([userId, joinedAt]) => ({
+    userId,
+    joinedAt,
+    lastSeen: lastSeen[userId] ?? null,
+  }));
+}
+
 function favoritesKey(userId: string): string {
   return `curio:user:${userId}:favorites`;
 }
