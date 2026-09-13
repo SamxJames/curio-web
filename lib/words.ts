@@ -154,7 +154,8 @@ export const WORDS: WordEntry[] = [
     word: "avocado",
     respelling: "av-uh-KAH-doh",
     partOfSpeech: "noun",
-    teaser: "A Nahuatl word for testicle, reshaped by Spanish into something entirely different.",
+    teaser:
+      "A Nahuatl word for a rather personal part of the body, reshaped by Spanish into something else entirely.",
     origin:
       "From Nahuatl \u0101huacatl, which also meant \u201ctesticle,\u201d likely describing how the fruit hangs from the tree in pairs.",
     journey:

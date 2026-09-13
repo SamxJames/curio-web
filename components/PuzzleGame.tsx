@@ -102,9 +102,15 @@ export default function PuzzleGame({
       }
       return;
     }
-    await navigator.clipboard.writeText(text);
-    setShareCopied(true);
-    setTimeout(() => setShareCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(text);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    } catch {
+      // Clipboard access can reject in an insecure context or when
+      // permission is denied — leave shareCopied false rather than
+      // claiming a copy that didn't happen.
+    }
   }
 
   const isDone = state.status === "solved" || state.status === "failed";

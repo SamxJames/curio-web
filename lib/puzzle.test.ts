@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   PUZZLE_MIN_DAYS_SINCE_SHOWN,
+  PUZZLE_MIN_POOL_SIZE,
   getEligiblePuzzleWords,
   getPuzzleForDate,
   isCorrectGuess,
@@ -31,6 +32,22 @@ function makeWord(slug: string): WordEntry {
 // cannot do. This is the only way to test the "pool becomes non-empty"
 // path without waiting for real content to reach 30+ entries.
 const LARGE_WORD_LIST: WordEntry[] = Array.from({ length: 40 }, (_, i) => makeWord(`word-${i}`));
+
+// A 35-word list has an eligible pool of exactly 5 (rotation period 35,
+// PUZZLE_MIN_DAYS_SINCE_SHOWN 30 -> days-since-shown values 30..34 are
+// eligible, i.e. 35 - 30 = 5 words) — below PUZZLE_MIN_POOL_SIZE (10), so
+// the pool-size gate should suppress it to [] even though it's genuinely
+// non-empty before that gate is applied.
+const BELOW_MIN_POOL_WORD_LIST: WordEntry[] = Array.from({ length: 35 }, (_, i) =>
+  makeWord(`below-${i}`)
+);
+
+// A 41-word list has an eligible pool of exactly 11 (41 - 30), just above
+// PUZZLE_MIN_POOL_SIZE — confirms the gate doesn't over-suppress a pool
+// that already clears the threshold.
+const ABOVE_MIN_POOL_WORD_LIST: WordEntry[] = Array.from({ length: 41 }, (_, i) =>
+  makeWord(`above-${i}`)
+);
 
 describe("getEligiblePuzzleWords", () => {
   it("is empty for the real (small) WORDS array, on any date", () => {
@@ -92,6 +109,32 @@ describe("getEligiblePuzzleWords", () => {
     const todaysWord = LARGE_WORD_LIST[index];
     const pool = getEligiblePuzzleWords(today, LARGE_WORD_LIST);
     expect(pool.map((w) => w.slug)).not.toContain(todaysWord.slug);
+  });
+});
+
+describe("PUZZLE_MIN_POOL_SIZE gate", () => {
+  const today = new Date("2026-01-01T00:00:00Z");
+
+  it("suppresses a genuinely non-empty pool that's still below PUZZLE_MIN_POOL_SIZE", () => {
+    // Some words in this list have gone 30+ days unshown (a raw filtered
+    // pool of 5), but 5 < PUZZLE_MIN_POOL_SIZE (10) — the daily selection
+    // at that pool size would have no meaningful variety or an
+    // unacceptably high repeat rate, so /play should stay closed.
+    expect(getEligiblePuzzleWords(today, BELOW_MIN_POOL_WORD_LIST)).toEqual([]);
+    expect(getPuzzleForDate(today, BELOW_MIN_POOL_WORD_LIST)).toBeNull();
+  });
+
+  it("opens once the pool reaches PUZZLE_MIN_POOL_SIZE", () => {
+    const pool = getEligiblePuzzleWords(today, ABOVE_MIN_POOL_WORD_LIST);
+    expect(pool.length).toBe(11);
+    expect(pool.length).toBeGreaterThanOrEqual(PUZZLE_MIN_POOL_SIZE);
+    expect(getPuzzleForDate(today, ABOVE_MIN_POOL_WORD_LIST)).not.toBeNull();
+  });
+
+  it("keeps LARGE_WORD_LIST (pool size exactly PUZZLE_MIN_POOL_SIZE) open, confirming the boundary is inclusive", () => {
+    const pool = getEligiblePuzzleWords(today, LARGE_WORD_LIST);
+    expect(pool.length).toBe(PUZZLE_MIN_POOL_SIZE);
+    expect(getPuzzleForDate(today, LARGE_WORD_LIST)).not.toBeNull();
   });
 });
 

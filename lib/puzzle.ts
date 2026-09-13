@@ -11,6 +11,15 @@ const DAY_MS = 24 * 60 * 60 * 1000;
  * null case. */
 export const PUZZLE_MIN_DAYS_SINCE_SHOWN = 30;
 
+/** /play doesn't open until the eligible pool reaches this size — below
+ * it, the daily selection either has no variety at all (pool size 1) or
+ * an unacceptably high repeat rate relative to what's been validated (see
+ * getPuzzleForDate's doc comment for why the rate depends on pool size).
+ * 10 matches the pool size this algorithm was actually validated against
+ * during development (a 40-word bank, since pool size is structurally
+ * `words.length - PUZZLE_MIN_DAYS_SINCE_SHOWN`). */
+export const PUZZLE_MIN_POOL_SIZE = 10;
+
 /** The word shown on `date` under the same deterministic rotation
  * getWordForDate uses, but parameterized over an arbitrary word list —
  * getWordForDate itself is hardcoded to the real WORDS array, so this
@@ -47,17 +56,39 @@ function daysSinceLastShown(word: WordEntry, today: Date, words: WordEntry[]): n
  * explicit check, today's own word would incorrectly qualify as eligible.
  * `words` defaults to the real WORDS array; tests pass a larger synthetic
  * list to exercise the non-empty case, which the real (currently 8-word)
- * list cannot reach. */
+ * list cannot reach.
+ *
+ * Scope note: this anti-spoiler gate protects the SHARED/anonymous daily
+ * word experience specifically — it filters against getWordForDate's
+ * calendar-based rotation, the one thing every player (signed in or not)
+ * sees on Today and in the Bluesky post. A signed-in account also has its
+ * own PERSONALIZED rotation (getWordForUser, from an earlier plan), and
+ * this gate does not — and structurally cannot — account for what that
+ * particular account happens to have seen recently under it. That's a
+ * deliberate, accepted scope boundary: filtering per-user against each
+ * account's own history would mean a different puzzle per player, which
+ * breaks "the same puzzle for everyone, one shareable result grid" that
+ * this whole feature is built around. So the guarantee this function
+ * actually provides is "not recently shown as the shared daily word," not
+ * "unspoiled for every individual player."
+ *
+ * Also returns an empty pool — even when the raw filtered pool is
+ * non-empty — until the pool reaches PUZZLE_MIN_POOL_SIZE. A pool that's
+ * merely non-empty but still small gives the daily selection either no
+ * variety (pool size 1) or a repeat rate well above what's been validated
+ * (see getPuzzleForDate's doc comment); this keeps /play's "not open yet"
+ * state honest about when the puzzle can actually deliver on that. */
 export function getEligiblePuzzleWords(
   today: Date = new Date(),
   words: WordEntry[] = WORDS
 ): WordEntry[] {
   const todayWord = wordForDateFrom(words, today);
-  return words.filter((w) => {
+  const filtered = words.filter((w) => {
     if (w.slug === todayWord.slug) return false;
     const days = daysSinceLastShown(w, today, words);
     return days !== null && days >= PUZZLE_MIN_DAYS_SINCE_SHOWN;
   });
+  return filtered.length < PUZZLE_MIN_POOL_SIZE ? [] : filtered;
 }
 
 export type Puzzle = { word: WordEntry; puzzleNumber: number };
@@ -81,9 +112,17 @@ function rawPuzzlePick(today: Date, words: WordEntry[]): RawPick | null {
   return { word: pool[index], pool };
 }
 
-/** Today's puzzle, or null if the eligible pool is empty (the word bank
- * isn't deep enough yet — this is the honest "not open yet" case /play
- * renders, never a fallback to a recent word). Deterministic per calendar
+/** Today's puzzle, or null if the eligible pool is too shallow (either
+ * genuinely empty, or non-empty but smaller than PUZZLE_MIN_POOL_SIZE —
+ * see getEligiblePuzzleWords). This is the honest "not open yet" case
+ * /play renders, never a fallback to a recent word. The consecutive-day
+ * repeat rate this function's anti-repeat logic (below) has to fight
+ * depends heavily on how large the eligible pool is: a smaller pool means
+ * both a higher baseline collision rate and fewer alternatives to redraw
+ * to, so the rate isn't a single fixed number — it was specifically
+ * measured (via long simulated date ranges) at pool size
+ * PUZZLE_MIN_POOL_SIZE, which is why that constant gates when /play opens
+ * rather than opening as soon as the pool is merely non-empty. Deterministic per calendar
  * day: the same date always yields the same puzzle for every player,
  * called any number of times. Selection is a per-day seeded pseudo-random
  * pick from the CURRENTLY eligible pool (same hashSeed/mulberry32 PRNG
@@ -105,9 +144,8 @@ function rawPuzzlePick(today: Date, words: WordEntry[]): RawPick | null {
  * rawPuzzlePick, a one-day lookback — never a recursive chain back
  * through every prior day) and, on a collision, redraws from today's own
  * pool excluding that word using a second, differently-seeded draw. This
- * closes the large majority of consecutive-day repeats (a 400-day
- * simulation against a 40-word list dropped the rate from ~9% to ~1%),
- * but does NOT make it impossible: because the comparison is against
+ * closes the large majority of consecutive-day repeats, but does NOT make
+ * it impossible: because the comparison is against
  * yesterday's *raw* pick rather than yesterday's actual (possibly
  * already-redrawn) result — a deliberate choice, since computing
  * yesterday's true final answer would mean asking whether *its*
