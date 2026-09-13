@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { bucketDatesByDay, cumulativeGrowth, computeRollingRetention } from "./adminStats";
+import {
+  bucketDatesByDay,
+  cumulativeGrowth,
+  computeRollingRetention,
+  summarizePuzzleEngagement,
+} from "./adminStats";
+import type { PlayState } from "./storage";
 
 describe("bucketDatesByDay", () => {
   it("returns an empty list for no dates", () => {
@@ -79,5 +85,61 @@ describe("computeRollingRetention", () => {
     ];
     const result = computeRollingRetention(users, 7, today);
     expect(result).toEqual({ eligible: 2, active: 1, rate: 0.5 });
+  });
+});
+
+function playState(overrides: Partial<PlayState>): PlayState {
+  return {
+    puzzleDate: "2026-09-13",
+    cluesRevealed: 1,
+    status: "playing",
+    cluesUsedToSolve: null,
+    ...overrides,
+  };
+}
+
+describe("summarizePuzzleEngagement", () => {
+  it("returns all zeros for no plays", () => {
+    expect(summarizePuzzleEngagement([])).toEqual({
+      totalPlays: 0,
+      solved: 0,
+      failed: 0,
+      inProgress: 0,
+      histogram: [0, 0, 0, 0],
+    });
+  });
+
+  it("tallies solved plays into the histogram by clues used", () => {
+    const states = [
+      playState({ status: "solved", cluesUsedToSolve: 1 }),
+      playState({ status: "solved", cluesUsedToSolve: 1 }),
+      playState({ status: "solved", cluesUsedToSolve: 3 }),
+    ];
+    const result = summarizePuzzleEngagement(states);
+    expect(result.solved).toBe(3);
+    expect(result.histogram).toEqual([2, 0, 1, 0]);
+  });
+
+  it("tallies failed plays into the histogram's 4th slot", () => {
+    const states = [playState({ status: "failed" }), playState({ status: "failed" })];
+    const result = summarizePuzzleEngagement(states);
+    expect(result.failed).toBe(2);
+    expect(result.histogram).toEqual([0, 0, 0, 2]);
+  });
+
+  it("counts in-progress plays separately, with no histogram entry", () => {
+    const states = [playState({ status: "playing" })];
+    const result = summarizePuzzleEngagement(states);
+    expect(result.inProgress).toBe(1);
+    expect(result.histogram).toEqual([0, 0, 0, 0]);
+  });
+
+  it("counts totalPlays as every play regardless of status", () => {
+    const states = [
+      playState({ status: "solved", cluesUsedToSolve: 2 }),
+      playState({ status: "failed" }),
+      playState({ status: "playing" }),
+    ];
+    expect(summarizePuzzleEngagement(states).totalPlays).toBe(3);
   });
 });

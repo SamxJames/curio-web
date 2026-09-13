@@ -5,6 +5,8 @@
 // fetching (Redis scans, the Resend API call) lives next to the data it
 // reads: lib/db.ts, lib/userData.ts, lib/resendMetrics.ts.
 
+import type { PlayState } from "./storage";
+
 export type DailyCount = { date: string; count: number };
 
 /** Buckets a list of YYYY-MM-DD dates into one row per distinct date,
@@ -67,4 +69,36 @@ export function computeRollingRetention(
     active: active.length,
     rate: eligible.length === 0 ? null : active.length / eligible.length,
   };
+}
+
+export type PuzzleEngagementSummary = {
+  totalPlays: number;
+  solved: number;
+  failed: number;
+  inProgress: number;
+  // [clues-to-solve-on-1, on-2, on-3, failed] — same shape as the
+  // client-side PuzzleStats histogram (lib/storage.ts), aggregated across
+  // every signed-in account's synced play state instead of one device.
+  histogram: [number, number, number, number];
+};
+
+export function summarizePuzzleEngagement(states: PlayState[]): PuzzleEngagementSummary {
+  const histogram: [number, number, number, number] = [0, 0, 0, 0];
+  let solved = 0;
+  let failed = 0;
+  let inProgress = 0;
+
+  for (const state of states) {
+    if (state.status === "solved" && state.cluesUsedToSolve) {
+      solved++;
+      histogram[state.cluesUsedToSolve - 1]++;
+    } else if (state.status === "failed") {
+      failed++;
+      histogram[3]++;
+    } else {
+      inProgress++;
+    }
+  }
+
+  return { totalPlays: states.length, solved, failed, inProgress, histogram };
 }

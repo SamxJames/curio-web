@@ -174,3 +174,34 @@ export async function setUserPlayState(
   if (!redis) return;
   await redis.set(playStateKey(userId, puzzleDate), state);
 }
+
+/** Account-level favoriting activity across every signed-in account — how
+ * many accounts have favorited at least one word, and how many favorites
+ * exist in total. Scans rather than maintaining a running counter because
+ * this app's account count is small enough that a scan is cheap and a
+ * running counter is one more thing that can drift out of sync. */
+export async function getFavoritesSummary(): Promise<{
+  accountsWithFavorites: number;
+  totalFavorites: number;
+}> {
+  if (!redis) return { accountsWithFavorites: 0, totalFavorites: 0 };
+  const keys = await redis.keys(`${USER_KEY_PREFIX}*:favorites`);
+  if (keys.length === 0) return { accountsWithFavorites: 0, totalFavorites: 0 };
+  const counts = await Promise.all(keys.map((key) => redis!.scard(key)));
+  return {
+    accountsWithFavorites: counts.filter((c) => c > 0).length,
+    totalFavorites: counts.reduce((sum, c) => sum + c, 0),
+  };
+}
+
+/** Every signed-in account's synced puzzle play state, across every date
+ * they've played — the server-side, cross-device counterpart to
+ * lib/storage.ts's local-only PuzzleStats, used only for the admin
+ * portal's aggregate view (not shown to the account itself). */
+export async function getAllPlayStates(): Promise<PlayState[]> {
+  if (!redis) return [];
+  const keys = await redis.keys(`${USER_KEY_PREFIX}*:play:*`);
+  if (keys.length === 0) return [];
+  const values = await redis.mget<PlayState[]>(...keys);
+  return values.filter((v): v is PlayState => v !== null);
+}
