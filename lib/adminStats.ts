@@ -89,9 +89,16 @@ export function summarizePuzzleEngagement(states: PlayState[]): PuzzleEngagement
   let inProgress = 0;
 
   for (const state of states) {
-    if (state.status === "solved" && state.cluesUsedToSolve) {
+    if (state.status === "solved") {
       solved++;
-      histogram[state.cluesUsedToSolve - 1]++;
+      if (state.cluesUsedToSolve != null) {
+        histogram[state.cluesUsedToSolve - 1]++;
+      }
+      // else: solved but missing cluesUsedToSolve (shouldn't happen per the
+      // PlayState type's own invariant, but getAllPlayStates reads
+      // unvalidated Redis JSON) — still counted as solved above, just
+      // excluded from the histogram breakdown rather than being
+      // miscounted as still in progress.
     } else if (state.status === "failed") {
       failed++;
       histogram[3]++;

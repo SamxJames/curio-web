@@ -142,4 +142,12 @@ describe("summarizePuzzleEngagement", () => {
     ];
     expect(summarizePuzzleEngagement(states).totalPlays).toBe(3);
   });
+
+  it("still counts a solved play as solved even with a corrupted null cluesUsedToSolve", () => {
+    const states = [playState({ status: "solved", cluesUsedToSolve: null })];
+    const result = summarizePuzzleEngagement(states);
+    expect(result.solved).toBe(1);
+    expect(result.inProgress).toBe(0);
+    expect(result.histogram).toEqual([0, 0, 0, 0]);
+  });
 });
