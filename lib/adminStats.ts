@@ -35,3 +35,36 @@ export function cumulativeGrowth(daily: DailyCount[]): CumulativeCount[] {
     return { date, total };
   });
 }
+
+export type RetentionResult = { eligible: number; active: number; rate: number | null };
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** "Rolling retention": of the accounts old enough to have had a full
+ * `windowDays` to come back (joined at least that many days ago), what
+ * fraction were active at all within the last `windowDays`? This is a
+ * simplified, continuously-computable stand-in for classic fixed-cohort
+ * Day-N retention (see this plan's Flagged Decision A) — it starts
+ * producing real numbers the moment the first account crosses the window
+ * age, at the cost of not being a true same-cohort curve. `rate` is `null`
+ * (never `0`) when there's no eligible account yet, so the UI can show
+ * "not enough data" instead of a misleading 0%. */
+export function computeRollingRetention(
+  users: { joinedAt: string; lastSeen: string | null }[],
+  windowDays: number,
+  today: Date
+): RetentionResult {
+  const todayUtc = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  const cutoff = todayUtc - windowDays * DAY_MS;
+
+  const eligible = users.filter((u) => Date.parse(u.joinedAt + "T00:00:00Z") <= cutoff);
+  const active = eligible.filter(
+    (u) => u.lastSeen !== null && Date.parse(u.lastSeen + "T00:00:00Z") > cutoff
+  );
+
+  return {
+    eligible: eligible.length,
+    active: active.length,
+    rate: eligible.length === 0 ? null : active.length / eligible.length,
+  };
+}
