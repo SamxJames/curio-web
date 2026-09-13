@@ -23,7 +23,7 @@ describe("buildDigestSubject", () => {
   it("never leaves dangling punctuation immediately before the ellipsis", () => {
     // Constructed so the naive word-boundary cut would land right after a comma.
     const teaser = "A word for something, done in a very particular and quite specific way, historically.";
-    const subject = buildDigestSubject(teaser, 30);
+    const subject = buildDigestSubject(teaser, 22);
     expect(subject.endsWith("…")).toBe(true);
     expect(subject).not.toMatch(/[.,;:!?—–-]…$/);
   });
