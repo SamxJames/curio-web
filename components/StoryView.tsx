@@ -127,6 +127,15 @@ export default function StoryView({ word, date }: { word: WordEntry; date?: stri
           Browse all words &rarr;
         </Link>
       </div>
+
+      <div className="mt-4">
+        <Link
+          href="/play"
+          className="font-sans text-xs text-ink-faint transition-colors hover:text-ink-soft"
+        >
+          Try today&apos;s puzzle &rarr;
+        </Link>
+      </div>
     </article>
   );
 }

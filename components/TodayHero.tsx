@@ -34,6 +34,13 @@ export default function TodayHero({
       >
         Read the full story
       </Link>
+
+      <Link
+        href="/play"
+        className="mt-4 font-sans text-xs text-ink-faint transition-colors hover:text-ink-soft"
+      >
+        Feeling curious? Try today&apos;s puzzle &rarr;
+      </Link>
     </section>
   );
 }
