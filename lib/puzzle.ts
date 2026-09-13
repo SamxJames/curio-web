@@ -1,4 +1,4 @@
-import { WORDS, type WordEntry, daysSinceStart } from "./words";
+import { WORDS, type WordEntry, daysSinceStart, hashSeed, mulberry32 } from "./words";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -37,11 +37,17 @@ function daysSinceLastShown(word: WordEntry, today: Date, words: WordEntry[]): n
 }
 
 /** Words eligible to appear as today's puzzle: shown at least
- * PUZZLE_MIN_DAYS_SINCE_SHOWN days ago, excluding today's own word (which
- * would fail that threshold anyway, having been shown zero days ago, but
- * is excluded explicitly for clarity). `words` defaults to the real WORDS
- * array; tests pass a larger synthetic list to exercise the non-empty
- * case, which the real (currently 8-word) list cannot reach. */
+ * PUZZLE_MIN_DAYS_SINCE_SHOWN days ago, excluding today's own word. This
+ * exclusion is REQUIRED, not decorative: `daysSinceLastShown` searches
+ * backward from `today`, so for today's own word it doesn't see "shown 0
+ * days ago" — it walks past today entirely and finds that word's *next*
+ * occurrence further back (one full rotation earlier, i.e.
+ * `words.length` days ago), which for a list long enough to make the pool
+ * non-empty is itself >= PUZZLE_MIN_DAYS_SINCE_SHOWN. Without this
+ * explicit check, today's own word would incorrectly qualify as eligible.
+ * `words` defaults to the real WORDS array; tests pass a larger synthetic
+ * list to exercise the non-empty case, which the real (currently 8-word)
+ * list cannot reach. */
 export function getEligiblePuzzleWords(
   today: Date = new Date(),
   words: WordEntry[] = WORDS
@@ -58,15 +64,22 @@ export type Puzzle = { word: WordEntry; puzzleNumber: number };
 
 /** Today's puzzle, or null if the eligible pool is empty (the word bank
  * isn't deep enough yet — this is the honest "not open yet" case /play
- * renders, never a fallback to a recent word). Deterministic and global:
- * the same calendar day always selects the same word for every player,
- * the same seeded-rotation approach getWordForDate uses for the shared
- * word-of-the-day, cycling through the CURRENTLY eligible pool without
- * repeating until it's been exhausted once. The pool's own membership can
- * shift day to day as the underlying daily rotation continues (a word
- * ages back out of eligibility once it's shown on Today again) — this is
- * a deliberately simple rotation, not a long-term perfect-non-repeat
- * guarantee across pool membership changes. */
+ * renders, never a fallback to a recent word). Deterministic per calendar
+ * day: the same date always yields the same puzzle for every player,
+ * called any number of times. Selection is a per-day seeded pseudo-random
+ * pick from the CURRENTLY eligible pool (same hashSeed/mulberry32 PRNG
+ * lib/words.ts uses for per-account personalization), not a positional
+ * index into the pool — the pool's own membership shifts by roughly one
+ * word per day as words age in and out of eligibility, and a naive
+ * `dayCount % pool.length` index compounds with that daily shift into a
+ * degenerate step pattern (effectively skipping every other word, so only
+ * a fraction of the pool is ever reachable and the rest repeat every few
+ * days). Seeding the pick per day decorrelates it from that churn. This
+ * is NOT a guaranteed no-repeat-until-exhausted rotation — the shifting
+ * pool membership makes that provably hard to promise — but it avoids the
+ * severe skip/repeat pathology a positional index produces, and gives
+ * good practical coverage across the pool over time (see
+ * lib/puzzle.test.ts's coverage-sanity test). */
 export function getPuzzleForDate(
   today: Date = new Date(),
   words: WordEntry[] = WORDS
@@ -74,7 +87,8 @@ export function getPuzzleForDate(
   const pool = getEligiblePuzzleWords(today, words);
   if (pool.length === 0) return null;
   const dayCount = daysSinceStart(today);
-  const index = ((dayCount % pool.length) + pool.length) % pool.length;
+  const rand = mulberry32(hashSeed(`puzzle-${dayCount}`));
+  const index = Math.floor(rand() * pool.length);
   // Human-facing puzzle numbers start at 1, reusing the same anchor date
   // getWordForDate does rather than introducing a second one — see this
   // plan's Flagged decision C for what that means for the first real
@@ -90,10 +104,18 @@ function normalizeGuess(s: string): string {
   return s.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
-function stripSimplePlural(s: string): string {
-  if (s.endsWith("es") && s.length > 3) return s.slice(0, -2);
-  if (s.endsWith("s") && s.length > 2) return s.slice(0, -1);
-  return s;
+/** Every plausible singular reading of `s`: itself, unchanged, plus (when
+ * applicable) both an "-es" strip and an "-s" strip. Both candidates are
+ * offered rather than picking one branch, because committing to just the
+ * "-es" strip for a word like "clues" produces "clu" and never matches
+ * "clue" — the "-s" strip ("clue") is the one that's actually correct
+ * here. Trying both and letting the caller check for any match avoids
+ * having to decide in advance which strip is "right" for a given word. */
+function pluralForms(s: string): string[] {
+  const out = [s];
+  if (s.endsWith("es") && s.length > 3) out.push(s.slice(0, -2));
+  if (s.endsWith("s") && s.length > 2) out.push(s.slice(0, -1));
+  return out;
 }
 
 /** Accepts near-misses — case, surrounding/collapsed whitespace, and a
@@ -104,7 +126,9 @@ export function isCorrectGuess(guess: string, answer: string): boolean {
   const a = normalizeGuess(answer);
   if (!g) return false;
   if (g === a) return true;
-  return stripSimplePlural(g) === a || g === stripSimplePlural(a);
+  const guessForms = pluralForms(g);
+  const answerForms = pluralForms(a);
+  return guessForms.some((gf) => answerForms.includes(gf));
 }
 
 const RESULT_SQUARES = 3;

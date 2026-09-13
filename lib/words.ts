@@ -258,7 +258,7 @@ export function getUniqueWordsMostRecent(today: Date = new Date()): HistoryDay[]
 /** Simple deterministic string hash (djb2 variant) → 32-bit unsigned int.
  * Doesn't need to be cryptographically strong, just a stable per-user seed
  * so the same account always gets the same shuffle back. */
-function hashSeed(input: string): number {
+export function hashSeed(input: string): number {
   let hash = 5381;
   for (let i = 0; i < input.length; i++) {
     hash = (hash * 33) ^ input.charCodeAt(i);
@@ -267,7 +267,7 @@ function hashSeed(input: string): number {
 }
 
 /** Mulberry32 — a small, fast, deterministic PRNG for a given seed. */
-function mulberry32(seed: number): () => number {
+export function mulberry32(seed: number): () => number {
   let a = seed;
   return function () {
     a |= 0;

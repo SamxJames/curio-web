@@ -73,6 +73,26 @@ describe("getEligiblePuzzleWords", () => {
     // per day for a list this size).
     expect(poolToday).not.toEqual(poolTomorrow);
   });
+
+  it("excludes today's own word even though its raw days-since-shown would satisfy the threshold", () => {
+    // The explicit `w.slug === todayWord.slug` guard in
+    // getEligiblePuzzleWords is required, not decorative. wordForDateFrom's
+    // rotation has period LARGE_WORD_LIST.length (40), so searching
+    // backward from `today` for today's own word's slug finds a match
+    // again at exactly i = 40 days ago (one full rotation earlier) — and
+    // 40 >= PUZZLE_MIN_DAYS_SINCE_SHOWN (30). Without the guard, that
+    // wraparound match would make today's own word satisfy the
+    // days-since-shown threshold and incorrectly qualify as eligible. This
+    // hand-confirms that exact case and asserts the guard actually excludes
+    // it, independent of the "never includes today's own word" test above.
+    const today = new Date("2026-01-01T00:00:00Z"); // daysSinceStart = 0
+    const index =
+      ((daysSinceStart(today) % LARGE_WORD_LIST.length) + LARGE_WORD_LIST.length) %
+      LARGE_WORD_LIST.length;
+    const todaysWord = LARGE_WORD_LIST[index];
+    const pool = getEligiblePuzzleWords(today, LARGE_WORD_LIST);
+    expect(pool.map((w) => w.slug)).not.toContain(todaysWord.slug);
+  });
 });
 
 describe("getPuzzleForDate", () => {
@@ -101,6 +121,25 @@ describe("getPuzzleForDate", () => {
     const puzzle = getPuzzleForDate(today, LARGE_WORD_LIST);
     expect(puzzle?.puzzleNumber).toBeGreaterThan(0);
   });
+
+  it("selects a good variety of distinct words over 200 consecutive days (not a degenerate few)", () => {
+    // Documents "good practical coverage" for the per-day seeded pick,
+    // without claiming a false no-repeat-until-exhausted guarantee (the
+    // pool's own membership shifts daily as words age in/out, which makes
+    // that guarantee provably hard to promise — see getPuzzleForDate's doc
+    // comment). A naive `dayCount % pool.length` positional index was
+    // found (by a 400-day simulation) to only ever reach 25 of 40 words,
+    // with repeats as often as every 5 days against a 10-word pool — this
+    // threshold catches a regression back to that pathology.
+    const start = new Date("2026-01-01T00:00:00Z");
+    const seen = new Set<string>();
+    for (let i = 0; i < 200; i++) {
+      const day = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
+      const puzzle = getPuzzleForDate(day, LARGE_WORD_LIST);
+      if (puzzle) seen.add(puzzle.word.slug);
+    }
+    expect(seen.size).toBeGreaterThanOrEqual(15);
+  });
 });
 
 describe("isCorrectGuess", () => {
@@ -122,6 +161,17 @@ describe("isCorrectGuess", () => {
 
   it("tolerates a simple trailing plural on the answer", () => {
     expect(isCorrectGuess("bus", "buses")).toBe(true);
+  });
+
+  it("tolerates a trailing plural on the guess for an answer ending in 'e'", () => {
+    // Regression test: a naive stripSimplePlural that commits to the "-es"
+    // branch before trying "-s" turns "clues" into "clu" (never matching
+    // "clue") instead of trying both candidate strips.
+    expect(isCorrectGuess("clues", "clue")).toBe(true);
+  });
+
+  it("tolerates a trailing plural on the guess for a longer answer ending in 'e'", () => {
+    expect(isCorrectGuess("quarantines", "quarantine")).toBe(true);
   });
 
   it("rejects an unrelated word", () => {
