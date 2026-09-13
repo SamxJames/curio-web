@@ -57,10 +57,10 @@ export async function getEmailMetrics(
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return null;
 
-  const endDate = now.toISOString().slice(0, 10);
-  const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-
   try {
+    const endDate = now.toISOString().slice(0, 10);
+    const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
     const url = new URL(RESEND_METRICS_URL);
     url.searchParams.set("start_date", startDate);
     url.searchParams.set("end_date", endDate);
