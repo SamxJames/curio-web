@@ -17,6 +17,16 @@ export type WordEntry = {
    * origin/journey/related text, in the order they're introduced. Powers
    * the etymology lineage breadcrumb (components/EtymologyLineage.tsx). */
   lineage: string[];
+  /** Three STANDALONE clues for the /play puzzle (lib/puzzle.ts) — unlike
+   * origin/journey/related, each must make sense read in isolation, since
+   * only one is shown at a time. Ordered most-to-least oblique: clue[0]
+   * must not name the word, its direct translation, or any word sharing a
+   * visible stem with it; clue[2] may name cognates and get close to
+   * giving the word away outright, but (like all three) must never contain
+   * the word itself or its stem — see lib/words.test.ts's "WORDS clues"
+   * block for the mechanical half of that check, and this comment for the
+   * editorial half a test can't fully capture. */
+  clues: [string, string, string];
 };
 
 // Seed content. Each entry is written from general etymological knowledge
@@ -38,6 +48,11 @@ export const WORDS: WordEntry[] = [
     related:
       "Quarantine's root, quaranta, traces back to Latin quadraginta (forty), which makes it a distant cousin of quarter and quart — all ultimately from quattuor, four.",
     lineage: ["Latin", "Italian", "English"],
+    clues: [
+      "A European port city once forced incoming ships to sit offshore for a set stretch of time before anyone could disembark.",
+      "Venice imposed this on ships from plague-affected ports in the 1300s — specifically, a wait of exactly forty days.",
+      "The Italian phrase behind it literally means “forty days”; quarter and quart are distant cousins, both from the Latin word for four.",
+    ],
   },
   {
     slug: "salary",
@@ -52,6 +67,11 @@ export const WORDS: WordEntry[] = [
     related:
       "The same Latin sal gives English salad, sauce, and sausage, and lives on in the phrase \u201cworth one's salt.\u201d",
     lineage: ["Latin", "English"],
+    clues: [
+      "Roman soldiers' pay was once connected, in a roundabout way, to an everyday seasoning.",
+      "That seasoning was salt — this word's Latin ancestor was built directly from the Latin word for it.",
+      "The same Latin word for salt also gives English salad, sauce, and sausage — and lives on in the phrase “worth one's salt.”",
+    ],
   },
   {
     slug: "disaster",
@@ -66,6 +86,11 @@ export const WORDS: WordEntry[] = [
     related:
       "The astro- root resurfaces in astronomy and astronaut; the dis- prefix shows up again in disgrace and discord.",
     lineage: ["Italian", "English"],
+    clues: [
+      "This word for a sudden catastrophe was once a literal verdict handed down by the position of the sky.",
+      "Its two Italian building blocks mean “bad” and “star” — misfortune was once blamed directly on an unlucky alignment overhead.",
+      "The “star” half also shows up in astronomy and astronaut; the “bad” half resurfaces in disgrace and discord.",
+    ],
   },
   {
     slug: "clue",
@@ -80,6 +105,11 @@ export const WORDS: WordEntry[] = [
     related:
       "Clew survives today only as a sailing term for the corner of a sail; clue and clew are, at root, the very same word.",
     lineage: ["Old English", "English"],
+    clues: [
+      "In an ancient Greek myth, a hero unwound a ball of thread behind him so he could find his way back out of a maze.",
+      "That myth is where this word for a hint that helps you solve something comes from — it was originally the literal thread itself.",
+      "It's spelled almost like its own ancestor, clew — today surviving only as a sailing term for the corner of a sail.",
+    ],
   },
   {
     slug: "muscle",
@@ -94,6 +124,11 @@ export const WORDS: WordEntry[] = [
     related:
       "Musculus is a diminutive of mus (mouse) — the same root behind mouse itself, and, much later, the computer mouse.",
     lineage: ["Latin", "English"],
+    clues: [
+      "To Roman anatomists, a flexing body part looked like a small animal moving just beneath the skin.",
+      "That resemblance is Latin for “little mouse” — the nickname stuck so well it became the official word for it.",
+      "The same Latin root for “mouse” gives us the small rodent itself, and much later, the computer accessory named after it.",
+    ],
   },
   {
     slug: "robot",
@@ -108,6 +143,11 @@ export const WORDS: WordEntry[] = [
     related:
       "Robota is related to rab, an old Slavic word for slave. English has no native cognates for it, making robot one of the few everyday English words borrowed wholesale from Czech.",
     lineage: ["Slavic", "Czech", "English"],
+    clues: [
+      "This word for a mechanical worker was invented for a 1920s stage play, not borrowed from everyday speech.",
+      "Its Czech root means forced labor or drudgery, coined by the writer Karel Čapek.",
+      "That root is related to an old Slavic word for slave — English has no native relatives for it at all, making this one of the few everyday words borrowed wholesale from Czech.",
+    ],
   },
   {
     slug: "avocado",
@@ -122,6 +162,11 @@ export const WORDS: WordEntry[] = [
     related:
       "Guacamole comes from the same Nahuatl root, combining \u0101huacatl with molli (sauce).",
     lineage: ["Nahuatl", "Spanish", "English"],
+    clues: [
+      "This fruit's original name in Nahuatl referred to a rather personal part of the body — a nod to how it hangs in pairs from the tree.",
+      "Spanish speakers reshaped that word, and a later mix-up with the Spanish word for lawyer helped push it toward its modern form — which is also why English once called it an “alligator pear.”",
+      "Guacamole comes from the very same Nahuatl root, just combined with the word for sauce.",
+    ],
   },
   {
     slug: "companion",
@@ -136,6 +181,11 @@ export const WORDS: WordEntry[] = [
     related:
       "The same panis gives English pantry (where bread was kept), and, through French, company and accompany.",
     lineage: ["Latin", "Old French", "English"],
+    clues: [
+      "This word for someone who's with you started as a description of a very specific shared activity.",
+      "Literally, in Latin, it means “one who breaks bread with you” — together plus the word for bread.",
+      "That same root for bread also gives us pantry, where it was kept, and — through French — company and accompany.",
+    ],
   },
 ];
 
@@ -143,7 +193,7 @@ export const WORDS: WordEntry[] = [
 const START_DATE = Date.UTC(2026, 0, 1); // 2026-01-01
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-function daysSinceStart(date: Date): number {
+export function daysSinceStart(date: Date): number {
   const utcMidnight = Date.UTC(
     date.getUTCFullYear(),
     date.getUTCMonth(),

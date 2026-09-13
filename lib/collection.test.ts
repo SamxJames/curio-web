@@ -22,6 +22,7 @@ function word(slug: string, lineage: string[]): WordEntry {
     journey: "",
     related: "",
     lineage,
+    clues: ["", "", ""],
   };
 }
 

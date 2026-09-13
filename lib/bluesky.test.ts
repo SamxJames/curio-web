@@ -13,6 +13,7 @@ function word(teaser: string): WordEntry {
     journey: "",
     related: "",
     lineage: ["Latin", "Italian", "English"],
+    clues: ["", "", ""],
   };
 }
 

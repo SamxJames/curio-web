@@ -27,6 +27,37 @@ describe("WORDS content", () => {
   });
 });
 
+describe("WORDS clues", () => {
+  it("every entry has exactly 3 clues", () => {
+    for (const word of WORDS) {
+      expect(word.clues).toHaveLength(3);
+      for (const clue of word.clues) {
+        expect(clue.length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("no clue contains the answer word or its rough stem, case-insensitively", () => {
+    for (const word of WORDS) {
+      const lowerWord = word.word.toLowerCase();
+      // A deliberately crude stem — strips one common suffix if present.
+      // This is a mechanical safety net, not a linguistic guarantee: it
+      // catches the easy mistake of a clue containing "salary"/"salaries",
+      // not every possible morphological relative. Editorial judgment
+      // (never naming the word, its direct translation, or a visible
+      // cognate in clue 1 specifically) is enforced by hand-authorship and
+      // by the rewrite pipeline's prompt (scripts/rewriteEtymology.ts),
+      // not by this test.
+      const stem = lowerWord.replace(/(ing|tion|ed|es|s|y)$/i, "");
+      for (const clue of word.clues) {
+        const lowerClue = clue.toLowerCase();
+        expect(lowerClue).not.toContain(lowerWord);
+        expect(lowerClue).not.toContain(stem);
+      }
+    }
+  });
+});
+
 describe("getPersonalOrder", () => {
   const anchorDate = new Date("2026-01-01T00:00:00Z");
 
