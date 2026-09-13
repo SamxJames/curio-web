@@ -39,6 +39,11 @@ describe("parseEmailMetricsResponse", () => {
     });
   });
 
+  it("coerces an actually non-numeric count field (not just a missing one) to 0", () => {
+    const json = { totals: { sent: "5", delivered: 5, opened: 0, clicked: 0 } };
+    expect(parseEmailMetricsResponse(json)?.sent).toBe(0);
+  });
+
   it("leaves rate fields as null (not 0) when missing, since 0% and 'unknown' are different", () => {
     const json = { totals: { sent: 5, delivered: 5, opened: 0, clicked: 0 } };
     const result = parseEmailMetricsResponse(json);

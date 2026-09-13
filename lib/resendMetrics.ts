@@ -55,18 +55,26 @@ export async function getEmailMetrics(
   now: Date = new Date()
 ): Promise<EmailMetricsTotals | null> {
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return null;
+  if (!apiKey) {
+    console.log("[curio:resend-metrics:dev-fallback] RESEND_API_KEY not configured — skipping");
+    return null;
+  }
 
   try {
     const endDate = now.toISOString().slice(0, 10);
-    const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    const startDate = new Date(now.getTime() - (days - 1) * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
 
     const url = new URL(RESEND_METRICS_URL);
     url.searchParams.set("start_date", startDate);
     url.searchParams.set("end_date", endDate);
     url.searchParams.set("metrics", "sent,delivered,opened,clicked,open_rate,click_rate");
 
-    const res = await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } });
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+      next: { revalidate: 300 },
+    });
     if (!res.ok) {
       console.error(`[curio:resend-metrics] request failed with status ${res.status}`);
       return null;

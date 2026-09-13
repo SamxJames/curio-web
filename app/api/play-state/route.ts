@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { auth } from "@/lib/auth";
-import { getUserPlayState, setUserPlayState } from "@/lib/userData";
+import { getUserPlayState, setUserPlayState, recordUserSeen } from "@/lib/userData";
 import type { PlayState } from "@/lib/storage";
 
 export async function GET(req: NextRequest) {
@@ -21,6 +21,7 @@ export async function POST(req: Request) {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Not signed in." }, { status: 401 });
   }
+  after(() => recordUserSeen(session.user.id));
   const body = (await req.json().catch(() => null)) as PlayState | null;
   if (!body?.puzzleDate || !body.status) {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });

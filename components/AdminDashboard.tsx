@@ -48,7 +48,7 @@ export default function AdminDashboard({
           Of accounts old enough to qualify, the share active within the window — see this
           plan&rsquo;s Flagged Decision A for why this isn&rsquo;t a fixed-cohort chart.
         </p>
-        <div className="mt-4 grid grid-cols-3 gap-3">
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
           <RetentionTile label="1-day" result={retention.day1} />
           <RetentionTile label="7-day" result={retention.day7} />
           <RetentionTile label="30-day" result={retention.day30} />

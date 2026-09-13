@@ -19,7 +19,8 @@ export default async function AdminPage() {
   if (!session?.user) redirect("/login");
   // No distinguishing error for a signed-in-but-wrong-email visitor — a
   // plain redirect home doesn't confirm this page exists at all.
-  if (!session.user.email || session.user.email !== process.env.ADMIN_EMAIL) redirect("/");
+  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  if (!session.user.email || session.user.email.toLowerCase() !== adminEmail) redirect("/");
 
   const now = new Date();
   const [subscribers, userActivity, favorites, playStates, emailMetrics7d, emailMetrics30d] =
@@ -33,7 +34,9 @@ export default async function AdminPage() {
     ]);
 
   const subscriberGrowth = cumulativeGrowth(
-    bucketDatesByDay(subscribers.map((s) => s.createdAt.slice(0, 10)))
+    bucketDatesByDay(
+      subscribers.map((s) => s.createdAt?.slice(0, 10)).filter((d): d is string => !!d)
+    )
   );
   const accountGrowth = cumulativeGrowth(bucketDatesByDay(userActivity.map((u) => u.joinedAt)));
   const puzzleEngagement = summarizePuzzleEngagement(playStates);

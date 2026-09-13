@@ -77,6 +77,12 @@ describe("computeRollingRetention", () => {
     expect(result).toEqual({ eligible: 1, active: 0, rate: 0 });
   });
 
+  it("treats an account joined exactly windowDays ago as eligible", () => {
+    const users = [{ joinedAt: "2026-09-06", lastSeen: null }]; // exactly 7 days before today
+    const result = computeRollingRetention(users, 7, today);
+    expect(result.eligible).toBe(1);
+  });
+
   it("computes a fractional rate across a mixed cohort", () => {
     const users = [
       { joinedAt: "2026-08-01", lastSeen: "2026-09-12" }, // eligible, active

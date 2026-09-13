@@ -60,35 +60,32 @@ function parseUserKey(key: string, suffix: string): string {
   return key.slice(USER_KEY_PREFIX.length, key.length - suffix.length);
 }
 
-/** Every account's last-seen date, keyed by userId. Empty when Upstash
- * isn't configured. */
-export async function getAllUserLastSeen(): Promise<Record<string, string>> {
+/** Shared scan behind getAllUserLastSeen/getAllUserJoinDates: every
+ * account's value for a given `curio:user:<id><suffix>` key, keyed by
+ * userId. Empty when Upstash isn't configured. */
+async function scanUserValues(suffix: string): Promise<Record<string, string>> {
   if (!redis) return {};
-  const keys = await redis.keys(`${USER_KEY_PREFIX}*:lastSeen`);
+  const keys = await redis.keys(`${USER_KEY_PREFIX}*${suffix}`);
   if (keys.length === 0) return {};
   const values = await redis.mget<string[]>(...keys);
   const result: Record<string, string> = {};
   keys.forEach((key, i) => {
     const value = values[i];
-    if (value) result[parseUserKey(key, ":lastSeen")] = value;
+    if (value) result[parseUserKey(key, suffix)] = value;
   });
   return result;
+}
+
+/** Every account's last-seen date, keyed by userId. */
+export async function getAllUserLastSeen(): Promise<Record<string, string>> {
+  return scanUserValues(":lastSeen");
 }
 
 /** Every account's join date, keyed by userId — the same data
  * getUserJoinedAt reads one account at a time, scanned across every
  * account for the admin portal's growth and retention views. */
 export async function getAllUserJoinDates(): Promise<Record<string, string>> {
-  if (!redis) return {};
-  const keys = await redis.keys(`${USER_KEY_PREFIX}*:joinedAt`);
-  if (keys.length === 0) return {};
-  const values = await redis.mget<string[]>(...keys);
-  const result: Record<string, string> = {};
-  keys.forEach((key, i) => {
-    const value = values[i];
-    if (value) result[parseUserKey(key, ":joinedAt")] = value;
-  });
-  return result;
+  return scanUserValues(":joinedAt");
 }
 
 export type UserActivity = { userId: string; joinedAt: string; lastSeen: string | null };
