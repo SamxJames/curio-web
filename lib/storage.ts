@@ -174,11 +174,26 @@ function playStateKey(puzzleDate: string): string {
   return `${PLAY_STATE_KEY_PREFIX}${puzzleDate}`;
 }
 
+// Same rationale as setCache above: useSyncExternalStore requires getSnapshot
+// to return a reference-stable value when nothing has changed, but
+// JSON.parse-ing the raw string fresh on every call would hand back a new
+// object each time even when the underlying value is identical — which
+// reads to React as "the store changed on every render" and triggers an
+// infinite re-render loop the moment any play state has actually been
+// saved. Cached per puzzle-date key, keyed off the raw string so a real
+// write (a new raw string) still invalidates it.
+const playStateCache = new Map<string, { raw: string | null; value: PlayState | null }>();
+
 export function getPlayState(puzzleDate: string): PlayState | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = window.localStorage.getItem(playStateKey(puzzleDate));
-    return raw ? (JSON.parse(raw) as PlayState) : null;
+    const key = playStateKey(puzzleDate);
+    const raw = window.localStorage.getItem(key);
+    const cached = playStateCache.get(key);
+    if (cached && cached.raw === raw) return cached.value;
+    const value = raw ? (JSON.parse(raw) as PlayState) : null;
+    playStateCache.set(key, { raw, value });
+    return value;
   } catch {
     return null;
   }
@@ -220,11 +235,20 @@ export type PuzzleStats = { played: number; histogram: [number, number, number, 
 
 const EMPTY_STATS: PuzzleStats = { played: 0, histogram: [0, 0, 0, 0] };
 
+// See playStateCache above for why this is needed: without it, getSnapshot
+// hands useSyncExternalStore a freshly-parsed (so reference-unequal) object
+// on every call once any stats have ever been recorded, which reads as a
+// constantly-changing store and triggers an infinite re-render loop.
+let statsCache: { raw: string | null; value: PuzzleStats } | null = null;
+
 export function getPuzzleStats(): PuzzleStats {
   if (typeof window === "undefined") return EMPTY_STATS;
   try {
     const raw = window.localStorage.getItem(PUZZLE_STATS_KEY);
-    return raw ? (JSON.parse(raw) as PuzzleStats) : EMPTY_STATS;
+    if (statsCache && statsCache.raw === raw) return statsCache.value;
+    const value = raw ? (JSON.parse(raw) as PuzzleStats) : EMPTY_STATS;
+    statsCache = { raw, value };
+    return value;
   } catch {
     return EMPTY_STATS;
   }
