@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import type { WordEntry } from "@/lib/words";
 import { markOnboarded } from "@/lib/storage";
 import { track } from "@/lib/analytics";
 import ThemeToggle from "./ThemeToggle";
-
-type Status = "idle" | "submitting" | "success" | "error";
+import EmailSignupInline from "./EmailSignupInline";
 
 /** The merged first-look hero for anonymous, first-time visitors — replaces
  * the old pairing of the plain Today hero plus a separate OnboardingBanner
@@ -16,39 +15,9 @@ type Status = "idle" | "submitting" | "success" | "error";
  * page view, so reloading mid-read doesn't prematurely swap to the normal
  * Today page. See components/HomeContent.tsx for how this is chosen. */
 export default function ArrivalHero({ word, date }: { word: WordEntry; date: string }) {
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<Status>("idle");
-  const [errorMessage, setErrorMessage] = useState("");
-
   useEffect(() => {
     track("arrival_view");
   }, []);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setStatus("submitting");
-    setErrorMessage("");
-    try {
-      const res = await fetch("/api/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Something went wrong.");
-      setStatus("success");
-      track("signup_submitted");
-      // Delayed (unlike the "Find out more" / archive links below, which mark
-      // onboarded immediately since they navigate away): marking onboarded
-      // right away would flip HomeContent to TodayHero in the same commit as
-      // this success state, so the "You're in" message would never actually
-      // paint. Giving it a couple seconds first lets it be seen.
-      setTimeout(() => markOnboarded(), 2000);
-    } catch (err) {
-      setStatus("error");
-      setErrorMessage(err instanceof Error ? err.message : "Something went wrong.");
-    }
-  }
 
   return (
     <div className="mx-auto flex min-h-[calc(100vh-1px)] max-w-[640px] flex-col px-6">
@@ -90,34 +59,9 @@ export default function ArrivalHero({ word, date }: { word: WordEntry; date: str
             No feed. No backlog to catch up on.
           </p>
 
-          {status === "success" ? (
-            <p className="mt-5 font-sans text-sm text-ink-soft">
-              You&apos;re in. Your first word arrives tomorrow.
-            </p>
-          ) : (
-            <form onSubmit={handleSubmit} className="mt-5 flex gap-2">
-              <input
-                type="email"
-                name="email"
-                aria-label="Email address"
-                inputMode="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                className="min-w-0 flex-1 rounded-full border border-line bg-paper-raised px-4 py-2.5 font-sans text-sm text-ink placeholder:text-ink-faint focus:border-accent"
-              />
-              <button
-                type="submit"
-                disabled={status === "submitting"}
-                className="shrink-0 rounded-full bg-accent px-5 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-50 cursor-pointer"
-              >
-                {status === "submitting" ? "Joining…" : "Join"}
-              </button>
-            </form>
-          )}
-          {status === "error" && <p className="mt-2 font-sans text-sm text-danger">{errorMessage}</p>}
+          <div className="mt-5">
+            <EmailSignupInline onSubscribed={() => setTimeout(() => markOnboarded(), 2000)} />
+          </div>
 
           <Link
             href="/history"
