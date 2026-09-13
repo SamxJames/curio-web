@@ -8,6 +8,7 @@ export type DraftEntry = {
   journey: string;
   related: string;
   lineage: string[];
+  clues: [string, string, string];
 };
 
 /** The prompt sent to Claude — the source facts are the *only* thing it's
@@ -34,7 +35,12 @@ Write a JSON object (and nothing else — no markdown fences, no commentary) wit
   "origin": "1-3 sentences, the full origin explanation, drawn only from the facts above",
   "journey": "1-3 sentences on how the meaning or use of the word changed over time, drawn only from the facts above (if the facts don't support a journey, write the honest shorter version rather than inventing a shift)",
   "related": "1-2 sentences connecting this word to a cognate or related English word, drawn only from the facts above (if none is supported by the facts, say so plainly rather than inventing one)",
-  "lineage": ["array of language names, oldest first, always ending with \\"English\\" — only languages actually named in the facts above, in the order they appear in the word's history"]
+  "lineage": ["array of language names, oldest first, always ending with \\"English\\" — only languages actually named in the facts above, in the order they appear in the word's history"],
+  "clues": [
+    "clue 1 (most oblique): must NOT contain the word \\"${word}\\" itself, its direct translation, or any word sharing a visible stem with it — describe the underlying fact obliquely instead",
+    "clue 2 (more revealing): may state the direct translation or an additional fact from above, but still must not contain \\"${word}\\" itself",
+    "clue 3 (nearly a giveaway): may name a cognate or related word, but must still never contain \\"${word}\\" itself"
+  ]
 }`;
 }
 
@@ -71,6 +77,19 @@ export function parseRewriteResponse(raw: string, word: string): DraftEntry {
     throw new Error(`Draft for "${word}" has a "teaser" identical to its "origin" — they must differ.`);
   }
 
+  if (!Array.isArray(parsed.clues) || parsed.clues.length !== 3 || !parsed.clues.every((c) => typeof c === "string" && c.trim())) {
+    throw new Error(`Draft for "${word}" has an invalid "clues" field (must be exactly 3 non-empty strings).`);
+  }
+  const clues = parsed.clues as [string, string, string];
+  const lowerWord = word.toLowerCase();
+  const stem = lowerWord.replace(/(ing|tion|ed|es|s|y)$/i, "");
+  for (const [i, clue] of clues.entries()) {
+    const lowerClue = clue.toLowerCase();
+    if (lowerClue.includes(lowerWord) || lowerClue.includes(stem)) {
+      throw new Error(`Draft for "${word}" has a clue (index ${i}) containing the answer word or its stem: "${clue}"`);
+    }
+  }
+
   return {
     slug: word,
     word,
@@ -81,6 +100,7 @@ export function parseRewriteResponse(raw: string, word: string): DraftEntry {
     journey: parsed.journey as string,
     related: parsed.related as string,
     lineage,
+    clues,
   };
 }
 

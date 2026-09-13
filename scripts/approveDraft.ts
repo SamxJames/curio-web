@@ -31,6 +31,17 @@ export function validateDraft(draft: unknown): DraftEntry {
   if (d.teaser === d.origin) {
     throw new Error('Draft\'s "teaser" is identical to its "origin" — they must differ.');
   }
+  if (!Array.isArray(d.clues) || d.clues.length !== 3 || !d.clues.every((c) => typeof c === "string" && c.trim())) {
+    throw new Error('Draft has an invalid "clues" field (must be exactly 3 non-empty strings).');
+  }
+  const lowerWord = (d.word as string).toLowerCase();
+  const stem = lowerWord.replace(/(ing|tion|ed|es|s|y)$/i, "");
+  for (const [i, clue] of d.clues.entries()) {
+    const lowerClue = (clue as string).toLowerCase();
+    if (lowerClue.includes(lowerWord) || lowerClue.includes(stem)) {
+      throw new Error(`Draft's clue (index ${i}) contains the answer word or its stem: "${clue}"`);
+    }
+  }
   return d as DraftEntry;
 }
 
@@ -80,6 +91,7 @@ export function appendDraftToWordsFile(draft: DraftEntry, wordsFilePath: string)
     journey: ${JSON.stringify(draft.journey)},
     related: ${JSON.stringify(draft.related)},
     lineage: ${JSON.stringify(draft.lineage)},
+    clues: ${JSON.stringify(draft.clues)},
   },
 `;
 

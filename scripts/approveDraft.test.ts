@@ -3,8 +3,9 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import path from "path";
 import { appendDraftToWordsFile, validateDraft } from "./approveDraft";
+import type { DraftEntry } from "./rewriteEtymology";
 
-const validDraft = {
+const validDraft: DraftEntry = {
   slug: "bank",
   word: "bank",
   respelling: "BANGK",
@@ -14,6 +15,11 @@ const validDraft = {
   journey: "The word split into two senses that still share one spelling today.",
   related: "A distant cousin of bench, from the same Germanic root for a raised shelf.",
   lineage: ["Old Norse", "Middle English", "English"],
+  clues: [
+    "A raised shelf of ground and a place to keep your money share more than you'd think.",
+    "Old Norse for a raised shelf of ground is the shared root behind both senses.",
+    "A distant cousin of bench, from the same Germanic root.",
+  ],
 };
 
 describe("validateDraft", () => {
@@ -32,6 +38,12 @@ describe("validateDraft", () => {
 
   it("rejects a draft whose teaser equals its origin", () => {
     expect(() => validateDraft({ ...validDraft, teaser: validDraft.origin })).toThrow(/teaser/i);
+  });
+
+  it("rejects a draft whose clue contains the answer word", () => {
+    expect(() =>
+      validateDraft({ ...validDraft, clues: ["This one says bank outright.", "clue two", "clue three"] })
+    ).toThrow(/clue/i);
   });
 });
 

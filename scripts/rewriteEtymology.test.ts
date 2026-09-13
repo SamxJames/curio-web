@@ -23,6 +23,11 @@ describe("parseRewriteResponse", () => {
     journey: "The word split into two senses that still share one spelling today.",
     related: "A distant cousin of bench, from the same Germanic root for a raised shelf.",
     lineage: ["Old Norse", "Middle English", "English"],
+    clues: [
+      "A raised shelf of ground and a place to keep your money share more than you'd think.",
+      "Old Norse for a raised shelf of ground is the shared root behind both senses.",
+      "A distant cousin of bench, from the same Germanic root.",
+    ],
   });
 
   it("parses a valid response into a DraftEntry with the given slug/word", () => {
@@ -31,6 +36,7 @@ describe("parseRewriteResponse", () => {
     expect(draft.word).toBe("bank");
     expect(draft.respelling).toBe("BANGK");
     expect(draft.lineage).toEqual(["Old Norse", "Middle English", "English"]);
+    expect(draft.clues).toHaveLength(3);
   });
 
   it("throws if the response isn't valid JSON", () => {
@@ -73,5 +79,37 @@ describe("parseRewriteResponse", () => {
       lineage: ["English"],
     });
     expect(() => parseRewriteResponse(sameText, "bank")).toThrow(/teaser/i);
+  });
+
+  it("throws if clues isn't exactly 3 non-empty strings", () => {
+    const badClues = JSON.stringify({
+      respelling: "BANGK",
+      partOfSpeech: "noun",
+      teaser: "A teaser sentence here.",
+      origin: "Origin text.",
+      journey: "Journey text.",
+      related: "Related text.",
+      lineage: ["English"],
+      clues: ["Only one clue."],
+    });
+    expect(() => parseRewriteResponse(badClues, "bank")).toThrow(/clues/i);
+  });
+
+  it("throws if a clue contains the answer word", () => {
+    const spoilerClue = JSON.stringify({
+      respelling: "BANGK",
+      partOfSpeech: "noun",
+      teaser: "A teaser sentence here.",
+      origin: "Origin text.",
+      journey: "Journey text.",
+      related: "Related text.",
+      lineage: ["English"],
+      clues: [
+        "This clue accidentally mentions bank directly.",
+        "A second clue.",
+        "A third clue.",
+      ],
+    });
+    expect(() => parseRewriteResponse(spoilerClue, "bank")).toThrow(/clue/i);
   });
 });
