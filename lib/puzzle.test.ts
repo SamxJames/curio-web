@@ -7,7 +7,7 @@ import {
   buildPuzzleResultGrid,
   buildPuzzleShareText,
 } from "./puzzle";
-import { WORDS, daysSinceStart } from "./words";
+import { WORDS, daysSinceStart, hashSeed, mulberry32 } from "./words";
 import type { WordEntry } from "./words";
 
 function makeWord(slug: string): WordEntry {
@@ -127,10 +127,13 @@ describe("getPuzzleForDate", () => {
     // without claiming a false no-repeat-until-exhausted guarantee (the
     // pool's own membership shifts daily as words age in/out, which makes
     // that guarantee provably hard to promise — see getPuzzleForDate's doc
-    // comment). A naive `dayCount % pool.length` positional index was
-    // found (by a 400-day simulation) to only ever reach 25 of 40 words,
-    // with repeats as often as every 5 days against a 10-word pool — this
-    // threshold catches a regression back to that pathology.
+    // comment). The threshold here is deliberately high (30 of 40 words):
+    // a re-review confirmed the OLD buggy `dayCount % pool.length`
+    // positional index also reaches 25 distinct words over this same
+    // 200-day window despite its severe skip/repeat pathology, so a lower
+    // threshold (e.g. 15) would stay green even if selection regressed
+    // back to that bug. >= 30 is the threshold that actually discriminates
+    // the seeded-pick fix from the positional-index regression.
     const start = new Date("2026-01-01T00:00:00Z");
     const seen = new Set<string>();
     for (let i = 0; i < 200; i++) {
@@ -138,7 +141,57 @@ describe("getPuzzleForDate", () => {
       const puzzle = getPuzzleForDate(day, LARGE_WORD_LIST);
       if (puzzle) seen.add(puzzle.word.slug);
     }
-    expect(seen.size).toBeGreaterThanOrEqual(15);
+    expect(seen.size).toBeGreaterThanOrEqual(30);
+  });
+
+  it("never repeats the immediately preceding day's raw pick", () => {
+    // Finds a day whose UNADJUSTED (pre-anti-repeat) seeded pick would
+    // coincide with the previous day's unadjusted pick — the exact
+    // collision getPuzzleForDate's one-day-lookback redraw is meant to
+    // catch — using the same hashSeed/mulberry32 formula getPuzzleForDate
+    // uses internally, applied independently here (via the exported
+    // getEligiblePuzzleWords/hashSeed/mulberry32) rather than trusting the
+    // implementation's own intermediate values. Also requires the
+    // previous day's raw pick to NOT itself collide with the day before
+    // that, so the previous day's actual (adjusted) puzzle is guaranteed
+    // to equal its raw pick — isolating a clean single-collision case
+    // rather than a chain of adjustments.
+    function rawPickSlug(date: Date): string | null {
+      const pool = getEligiblePuzzleWords(date, LARGE_WORD_LIST);
+      if (pool.length === 0) return null;
+      const dayCount = daysSinceStart(date);
+      const rand = mulberry32(hashSeed(`puzzle-${dayCount}`));
+      const index = Math.floor(rand() * pool.length);
+      return pool[index].slug;
+    }
+    const start = new Date("2026-01-01T00:00:00Z");
+    const dateForOffset = (i: number) => new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
+
+    let collisionOffset = -1;
+    for (let i = 2; i < 2000; i++) {
+      const prevPrev = rawPickSlug(dateForOffset(i - 2));
+      const prev = rawPickSlug(dateForOffset(i - 1));
+      const curr = rawPickSlug(dateForOffset(i));
+      if (prev !== null && curr !== null && prev === curr && prev !== prevPrev) {
+        collisionOffset = i;
+        break;
+      }
+    }
+    // Sanity check that this test is actually exercising the collision
+    // case, not vacuously passing because no collision was found.
+    expect(collisionOffset).toBeGreaterThan(-1);
+
+    const prevDay = dateForOffset(collisionOffset - 1);
+    const day = dateForOffset(collisionOffset);
+    const prevPuzzle = getPuzzleForDate(prevDay, LARGE_WORD_LIST);
+    const puzzle = getPuzzleForDate(day, LARGE_WORD_LIST);
+
+    // The previous day's own predecessor didn't collide with it, so its
+    // actual puzzle is unadjusted — confirming today's raw pick really
+    // would have repeated it had the fix not intervened.
+    expect(prevPuzzle?.word.slug).toBe(rawPickSlug(prevDay));
+    // The fix must have redrawn today's pick away from that repeat.
+    expect(puzzle?.word.slug).not.toBe(prevPuzzle?.word.slug);
   });
 });
 
