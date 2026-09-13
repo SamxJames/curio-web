@@ -35,11 +35,15 @@ function lastSeenKey(userId: string): string {
  * the first. */
 export async function recordUserSeen(userId: string, date: Date = new Date()): Promise<void> {
   if (!redis) return;
-  const dateStr = date.toISOString().slice(0, 10);
-  const key = lastSeenKey(userId);
-  const existing = await redis.get<string>(key);
-  if (existing === dateStr) return;
-  await redis.set(key, dateStr);
+  try {
+    const dateStr = date.toISOString().slice(0, 10);
+    const key = lastSeenKey(userId);
+    const existing = await redis.get<string>(key);
+    if (existing === dateStr) return;
+    await redis.set(key, dateStr);
+  } catch {
+    // best-effort; nothing to do here
+  }
 }
 
 export async function getUserLastSeen(userId: string): Promise<string | null> {

@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import HomeContent from "@/components/HomeContent";
 import { auth } from "@/lib/auth";
 import { getUserJoinedAt, recordUserSeen } from "@/lib/userData";
@@ -5,7 +6,7 @@ import { getTodayWord, getWordForUser } from "@/lib/words";
 
 export default async function TodayPage() {
   const session = await auth();
-  if (session?.user?.id) void recordUserSeen(session.user.id);
+  if (session?.user?.id) after(() => recordUserSeen(session.user.id));
   const joinedAtStr = session?.user?.id ? await getUserJoinedAt(session.user.id) : null;
   const isPersonalized = !!joinedAtStr;
   const word = isPersonalized

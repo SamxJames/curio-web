@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import CollectionScreen from "@/components/CollectionScreen";
 import { auth } from "@/lib/auth";
 import { getUserJoinedAt, recordUserSeen } from "@/lib/userData";
@@ -13,7 +14,7 @@ export default async function CollectionPage({
 }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
-  void recordUserSeen(session.user.id);
+  after(() => recordUserSeen(session.user.id));
 
   const { tab } = await searchParams;
   const joinedAtStr = await getUserJoinedAt(session.user.id);

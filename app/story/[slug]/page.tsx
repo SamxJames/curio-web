@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { after } from "next/server";
 import StoryView from "@/components/StoryView";
 import { auth } from "@/lib/auth";
 import { getUserJoinedAt, recordUserSeen } from "@/lib/userData";
@@ -37,7 +38,7 @@ export default async function StoryPage({
   // the two rotations are independent, so the shared date can be a stale day
   // for someone whose personal rotation is showing this word right now.
   const session = await auth();
-  if (session?.user?.id) void recordUserSeen(session.user.id);
+  if (session?.user?.id) after(() => recordUserSeen(session.user.id));
   const joinedAtStr = session?.user?.id ? await getUserJoinedAt(session.user.id) : null;
   const personalEntry =
     session?.user?.id && joinedAtStr
