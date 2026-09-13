@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { WordEntry } from "@/lib/words";
 import { markOnboarded } from "@/lib/storage";
+import { track } from "@/lib/analytics";
 import ThemeToggle from "./ThemeToggle";
 
 type Status = "idle" | "submitting" | "success" | "error";
@@ -19,6 +20,10 @@ export default function ArrivalHero({ word, date }: { word: WordEntry; date: str
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
+  useEffect(() => {
+    track("arrival_view");
+  }, []);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setStatus("submitting");
@@ -32,6 +37,7 @@ export default function ArrivalHero({ word, date }: { word: WordEntry; date: str
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Something went wrong.");
       setStatus("success");
+      track("signup_submitted");
       // Delayed (unlike the "Find out more" / archive links below, which mark
       // onboarded immediately since they navigate away): marking onboarded
       // right away would flip HomeContent to TodayHero in the same commit as

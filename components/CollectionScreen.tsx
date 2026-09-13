@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
@@ -18,6 +18,7 @@ import {
   type LanguageStat,
 } from "@/lib/collection";
 import { useFavorites } from "@/lib/storage";
+import { track } from "@/lib/analytics";
 
 type Tab = "collection" | "history";
 
@@ -36,6 +37,10 @@ export default function CollectionScreen({
   tab: Tab;
 }) {
   const [activeLanguage, setActiveLanguage] = useState<string | null>(null);
+
+  useEffect(() => {
+    track("collection_view");
+  }, []);
 
   const totalWords = entries.length;
   const languages = useMemo(() => computeLanguageStats(entries), [entries]);

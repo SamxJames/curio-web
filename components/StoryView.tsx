@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Heart, Link as LinkIcon, Share } from "lucide-react";
 import type { WordEntry } from "@/lib/words";
 import { isFavorite, toggleFavorite, useClientOnlyValue } from "@/lib/storage";
+import { track } from "@/lib/analytics";
 import EtymologyLineage from "./EtymologyLineage";
 
 const SECTIONS: { key: keyof Pick<WordEntry, "origin" | "journey" | "related">; label: string }[] = [
@@ -14,6 +15,10 @@ const SECTIONS: { key: keyof Pick<WordEntry, "origin" | "journey" | "related">; 
 ];
 
 export default function StoryView({ word, date }: { word: WordEntry; date?: string }) {
+  useEffect(() => {
+    track("story_view");
+  }, []);
+
   const favorited = useClientOnlyValue(() => isFavorite(word.slug), false);
   const canShare = useClientOnlyValue(
     () => typeof navigator !== "undefined" && !!navigator.share,
