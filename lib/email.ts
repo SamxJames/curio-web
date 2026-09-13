@@ -18,6 +18,25 @@ export function decodeUnsubscribeToken(token: string): string {
   return Buffer.from(token, "base64url").toString("utf-8");
 }
 
+const DEFAULT_SUBJECT_MAX_LENGTH = 60;
+
+/** Truncates a teaser to a safe email-subject length, breaking on a word
+ * boundary (never mid-word) and stripping any trailing punctuation left
+ * dangling right before the ellipsis — "...arrived," followed by "…" reads
+ * worse than "...arrived…". Returns the teaser unchanged if it already
+ * fits. */
+export function buildDigestSubject(
+  teaser: string,
+  maxLength: number = DEFAULT_SUBJECT_MAX_LENGTH
+): string {
+  if (teaser.length <= maxLength) return teaser;
+  const truncated = teaser
+    .slice(0, maxLength)
+    .replace(/\s+\S*$/, "")
+    .replace(/[\s.,;:!?—–-]+$/, "");
+  return `${truncated}…`;
+}
+
 /** Shared chrome for every Curio email (daily digest, sign-in link, etc.) so
  * they read as one product rather than a mix of a custom template and
  * whatever a library's stock default looks like — the latter is also a
@@ -90,7 +109,11 @@ export async function sendDailyDigest(email: string, word: WordEntry, date: Date
   // A plain-text alternative alongside the HTML body isn't just a nicety —
   // HTML-only email is itself a spam signal most filters weigh directly.
   const text = `${word.word} (${word.respelling}, ${word.partOfSpeech})\n\n${word.origin}\n\nRead the full story: ${storyUrl}\n\nUnsubscribe: ${unsubscribeUrl}`;
-  const subject = `${word.word} — today's word from Curio`;
+  // The word itself stays prominent in the body (the <h1> in the HTML, the
+  // first line of the plain-text version) — only the subject line changed,
+  // so curiosity about the *teaser* survives long enough to get the email
+  // opened, instead of being spent in the inbox preview.
+  const subject = buildDigestSubject(word.teaser);
 
   if (!resend) {
     // Local/dev fallback: no RESEND_API_KEY configured, so log instead of sending.
