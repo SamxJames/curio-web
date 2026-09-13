@@ -1,4 +1,5 @@
 import { redis } from "./redis";
+import type { PlayState } from "./storage";
 
 function joinedKey(userId: string): string {
   return `curio:user:${userId}:joinedAt`;
@@ -69,4 +70,22 @@ export async function importFavoritesOnce(userId: string, slugs: string[]): Prom
     throw err;
   }
   return true;
+}
+
+function playStateKey(userId: string, puzzleDate: string): string {
+  return `curio:user:${userId}:play:${puzzleDate}`;
+}
+
+export async function getUserPlayState(userId: string, puzzleDate: string): Promise<PlayState | null> {
+  if (!redis) return null;
+  return redis.get<PlayState>(playStateKey(userId, puzzleDate));
+}
+
+export async function setUserPlayState(
+  userId: string,
+  puzzleDate: string,
+  state: PlayState
+): Promise<void> {
+  if (!redis) return;
+  await redis.set(playStateKey(userId, puzzleDate), state);
 }
