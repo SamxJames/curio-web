@@ -4,6 +4,7 @@ import { UpstashRedisAdapter } from "@auth/upstash-redis-adapter";
 import { redis, usingUpstash } from "./redis";
 import { recordUserJoined } from "./userData";
 import { sendSignInEmail } from "./email";
+import { claimSignInSend } from "./signInCooldown";
 
 // Auth.js's default Session type doesn't carry `id` — every page/route in
 // this app needs it, so it's added by the session callback below and the
@@ -35,6 +36,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // spam signal on its own) with Curio's own branded email — see
       // sendSignInEmail's doc comment in lib/email.ts.
       async sendVerificationRequest({ identifier: email, url }) {
+        // Protects the shared Resend quota from a burst of repeated
+        // requests for the same address — see lib/signInCooldown.ts.
+        if (!(await claimSignInSend(email))) return;
         await sendSignInEmail(email, url);
       },
     }),
