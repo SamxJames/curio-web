@@ -181,11 +181,12 @@ don't assume the domain and the project name match.
   `!== "authenticated"` — the latter also matches `useSession()`'s
   transient `"loading"` state, which flashed the arrival hero (and its
   reduced header) at signed-in users on a fresh browser before this was
-  fixed. `app/layout.tsx`'s `<SessionProvider>` still isn't fed a
-  server-fetched `session` prop, which is the actual root cause of that
-  loading window existing at all — passing one would make the arrival/today
-  decision flash-free in both directions; noted as an easy follow-up, not
-  done this session.
+  fixed. `app/layout.tsx`'s `<SessionProvider>` is now fed a
+  server-fetched `session` prop (2026-09-18, see "This session" below),
+  which was the actual root cause of that loading window — the cold-load
+  flash this guard exists for no longer happens; the guard itself stays in
+  place as defense-in-depth for any client-side transition that still
+  passes through `"loading"`.
 - `components/ArrivalHero.tsx` / `TodayHero.tsx` / `HomeContent.tsx` — the
   homepage now renders `HomeContent`, a client component that picks between
   `ArrivalHero` (first-time anonymous visitors — merged word + pitch +
@@ -333,14 +334,12 @@ at 26 words — now genuinely live at 1,147, not hypothetical:**
   itself** — still true, still not a practical risk (the math needs a
   ~94+ character single headword; nothing in the real 1,147-word bank gets
   remotely close). Theoretical gap, unaddressed, low priority.
-- **`lib/puzzle.ts`'s `daysSinceLastShown` is O(n²)** — at 1,147 words this
-  is no longer a synthetic-benchmark number, it's what `/play` actually
-  pays on every render (measured at a synthetic 1,000-word list: ~56ms per
-  `getEligiblePuzzleWords` call, ×2 per `/play` render). `/play` still felt
-  instant in a live check, so not urgent, but it's the first concrete
-  candidate for the O(n) rewrite (walk the window once, build a Set of
-  recently-shown slugs, filter against that) if the word bank grows
-  further or `/play` traffic grows enough for it to matter. Not built.
+- **`lib/puzzle.ts`'s eligibility scan was O(n²) — fixed 2026-09-18.** The
+  old per-word `daysSinceLastShown` (~56ms per `getEligiblePuzzleWords`
+  call at 1,147 words, ×2 per `/play` render) is gone, replaced by
+  `daysSinceShownMap`: one O(n) pass building a slug→days-since-shown map,
+  reused via O(1) lookup for every word. Measured post-fix: ~0.35ms per
+  call at 1,147 words. See "This session" below.
 
 ## Accounts / auth system, in one paragraph
 
@@ -373,19 +372,26 @@ relitigate it — reuse that pattern.
 These were surfaced during review and deliberately not fixed — each has a
 reason, not just "ran out of time":
 
-- **Resend quota shared between sign-in and the daily digest, no rate
-  limiting on `/api/auth/signin/resend`.** Low-traffic project, obscure
-  URL, judged disproportionate to build real rate-limiting for. Cheapest
-  future fix: a second Resend API key just for auth.
+- **Resend quota shared between sign-in and the daily digest — partially
+  addressed 2026-09-18.** `lib/signInCooldown.ts` now blocks *repeated*
+  sign-in requests for the *same* address within a 60s window (see "This
+  session" below). What's still unprotected: a bot iterating many *unique*
+  addresses still burns the quota at one email each — this cooldown
+  doesn't defend against that axis. Real rate-limiting (or a second Resend
+  API key just for auth) is still the fix for that case, and is still
+  judged disproportionate to build at this project's traffic level.
 - **No TTL on Auth.js's Redis keys** (sessions/verification tokens never
   expire) — this is `@auth/upstash-redis-adapter`'s own behavior, not
   fixable without forking it. Fine at current scale; would want a
   periodic manual cleanup if the account base ever grows meaningfully.
-- **`/history`'s "All" list has no pagination for very long personal
-  histories** — mitigated but not eliminated by `getUniqueWordsMostRecent`
-  (caps the *shared* archive at `WORDS.length`); "My days" for a
-  long-tenured account will still grow forever. Month-grouping (this
-  session) helps readability but doesn't cap the DOM size.
+- **`/history`'s lists had no DOM pagination, and shipped full word prose
+  to the client regardless — both fixed 2026-09-18.**
+  `components/HistoryList.tsx` now caps every tab (including "My days") to
+  60 entries behind a "Show more" button, with an active search bypassing
+  the cap so it can still surface any word; and `app/history/page.tsx` now
+  projects each entry down to just `{slug, word}` before sending it to the
+  client, instead of the full `WordEntry` (origin/journey/related prose
+  included). See "This session" below.
 - **Mobile header nav has zero spare width** (confirmed, not just
   guessed) for a 5th nav item at 375px. Any future top-level nav addition
   needs a redesign (e.g. a menu), not just another `<Link>`. (This session
@@ -401,15 +407,12 @@ reason, not just "ran out of time":
   compatibility with already-written Redis hashes) — the daily cron
   ignores it entirely now (see "This session" below). Harmless dead
   weight, not worth a migration at this scale.
-- **`app/layout.tsx`'s `<SessionProvider>` isn't fed a server-fetched
-  `session` prop** — causes a brief `useSession()` `"loading"` window on
-  every cold load that `lib/useShowArrival.ts` has to specifically guard
-  against (see architecture map above). Passing the session down would
-  remove the window entirely; flagged this session, not fixed.
-- **`lib/bluesky.ts`'s post-failure path has no automated test coverage**,
-  and there's no guard for a hypothetical word+URL combination alone
-  exceeding 300 characters (unlikely with the current short word list).
-  Both are cheap follow-ups, not urgent.
+- **`lib/bluesky.ts`'s post-failure path now has automated test coverage
+  (2026-09-18, see "This session" below)** — `lib/bluesky.test.ts` covers
+  success, login failure, post failure, and unconfigured, all via a mocked
+  `@atproto/api`. Still true and unaddressed: no guard for a hypothetical
+  word+URL combination alone exceeding 300 characters (unlikely with the
+  current word bank, still a cheap follow-up if it ever comes up).
 
 ## A real bug worth remembering (Lightning CSS + `outline` shorthand)
 

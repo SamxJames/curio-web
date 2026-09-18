@@ -4,10 +4,11 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
 import { Heart, Search } from "lucide-react";
-import type { HistoryDay } from "@/lib/words";
 import { toggleFavorite, useFavorites } from "@/lib/storage";
 
 type Filter = "mine" | "all" | "favorites";
+
+type HistoryPreview = { date: string; word: { slug: string; word: string } };
 
 /** Above this many entries, a flat list stops being scannable — split into
  * month/year sections instead. Below it, the extra headers would just be
@@ -16,14 +17,16 @@ const GROUP_THRESHOLD = 30;
 
 /** How many entries the unfiltered browse view renders before "Show more"
  * is needed — chosen so the first page comfortably fills a screen without
- * forcing a page-load's worth of DOM for all 1,000+ words up front. A
- * search always bypasses this cap (see `isSearching` below): finding a
- * word you typed shouldn't depend on how many times you've clicked "Show
- * more" first. */
+ * forcing a page-load's worth of DOM up front. The shared archive is
+ * currently 261 entries (bounded by days since the rotation's start date)
+ * and grows toward the full word bank (1,147 and counting) over time; this
+ * cap keeps the DOM bounded either way. A search always bypasses this cap
+ * (see `isSearching` below): finding a word you typed shouldn't depend on
+ * how many times you've clicked "Show more" first. */
 const PAGE_SIZE = 60;
 
-function groupByMonth(entries: HistoryDay[]): { label: string; entries: HistoryDay[] }[] {
-  const groups: { label: string; entries: HistoryDay[] }[] = [];
+function groupByMonth(entries: HistoryPreview[]): { label: string; entries: HistoryPreview[] }[] {
+  const groups: { label: string; entries: HistoryPreview[] }[] = [];
   for (const entry of entries) {
     const label = new Date(entry.date + "T00:00:00Z").toLocaleDateString("en-US", {
       month: "long",
@@ -44,10 +47,10 @@ export default function HistoryList({
    * available, signed in or not, so a brand-new account has something rich
    * to look at on day one instead of only their (necessarily sparse) own
    * history. */
-  allEntries: HistoryDay[];
+  allEntries: HistoryPreview[];
   /** This account's personal word order, one entry per day since they
    * joined — present only when signed in. */
-  personalEntries?: HistoryDay[] | null;
+  personalEntries?: HistoryPreview[] | null;
 }) {
   const hasPersonal = !!personalEntries;
   const [filter, setFilter] = useState<Filter>(hasPersonal ? "mine" : "all");

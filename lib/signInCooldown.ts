@@ -1,16 +1,33 @@
 import { redis } from "./redis";
 
-/** Protects the Resend quota (shared with the daily digest — see
- * lib/email.ts) from being exhausted by repeated sign-in requests for the
- * same address. Claims a short-lived Redis lock the first time an address
- * asks within the window; a request for the same address before the lock
- * expires returns false and the caller (lib/auth.ts's
- * sendVerificationRequest) skips sending. Auth.js's own client response
- * stays the same "check your email" success either way — it deliberately
- * never reveals whether a given address is a real account or whether an
- * email was actually sent, and this doesn't change that. No-ops (always
- * allows sending) without Upstash configured, matching every other
- * Redis-backed feature in this app. */
+/** Guards against ONE narrow abuse case: repeated sign-in requests for the
+ * SAME address within a short window, which would otherwise burn through
+ * the Resend quota shared with the daily digest (see lib/email.ts). This
+ * does NOT rate-limit sign-in generally — a bot iterating many different
+ * addresses still sends one email per address, unaffected by this. Claims
+ * a short-lived Redis lock the first time an address asks within the
+ * window; a request for the same address before the lock expires returns
+ * false and the caller (lib/auth.ts's sendVerificationRequest) skips
+ * sending. Auth.js's own client response stays the same "check your
+ * email" success either way — it deliberately never reveals whether a
+ * given address is a real account or whether an email was actually sent,
+ * and this doesn't change that. No-ops (always allows sending) without
+ * Upstash configured, matching every other Redis-backed feature in this
+ * app.
+ *
+ * Caveat worth knowing if this window is ever widened: the cooldown is
+ * keyed by email only, not by the specific sign-in attempt
+ * (app/login/page.tsx mints a fresh `attemptId` per page load for
+ * lib/deviceLink.ts's cross-device handoff). If someone requests a link,
+ * reloads /login, and resubmits the same address within the cooldown
+ * window, the second request is silently suppressed — only the FIRST
+ * attempt's magic link is actually live. Opening that email later on
+ * another device signs that device in via lib/deviceLink.ts as normal, but
+ * the SECOND attempt's tab (the one still showing "check your email") never
+ * gets a matching device-link token and just times out after ~15 minutes.
+ * This degrades gracefully (a manual reload recovers it; nobody is locked
+ * out) rather than being a security issue, just a rough edge worth knowing
+ * about if the cooldown window ever grows. */
 const COOLDOWN_SECONDS = 60;
 
 function cooldownKey(email: string): string {
