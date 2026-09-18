@@ -118,6 +118,23 @@ describe("getEligiblePuzzleWords", () => {
     const pool = getEligiblePuzzleWords(today, LARGE_WORD_LIST);
     expect(pool.map((w) => w.slug)).not.toContain(todaysWord.slug);
   });
+
+  it("stays fast at a much larger word count (regression guard against the old O(n²) scan)", () => {
+    // The old daysSinceLastShown scanned the lookback window once PER
+    // word, making getEligiblePuzzleWords O(words.length * window) —
+    // negligible at 8 words, ~56ms per call at the real 1,147-word bank.
+    // A word list 3x that size should still resolve in well under 200ms
+    // if the O(n) rewrite (one pass building a slug -> days-since-shown
+    // map, reused for every word) is actually in place; the old scan at
+    // this size would take multiple seconds.
+    const HUGE_WORD_LIST: WordEntry[] = Array.from({ length: 3000 }, (_, i) => makeWord(`huge-${i}`));
+    const today = new Date("2026-01-01T00:00:00Z");
+    const start = performance.now();
+    const pool = getEligiblePuzzleWords(today, HUGE_WORD_LIST);
+    const elapsed = performance.now() - start;
+    expect(pool.length).toBeGreaterThan(0);
+    expect(elapsed).toBeLessThan(200);
+  });
 });
 
 describe("PUZZLE_MIN_POOL_SIZE gate", () => {

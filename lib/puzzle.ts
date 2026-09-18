@@ -32,31 +32,41 @@ function wordForDateFrom(words: WordEntry[], date: Date): WordEntry {
   return words[index];
 }
 
-/** How many days before `today` (1 = yesterday) `word` was last shown under
- * `wordForDateFrom`, or null if it wasn't shown at all within the search
- * window. The window is one full rotation or PUZZLE_MIN_DAYS_SINCE_SHOWN,
- * whichever is longer — either is enough to prove "not recently shown". */
-function daysSinceLastShown(word: WordEntry, today: Date, words: WordEntry[]): number | null {
+/** Maps every slug shown within the lookback window to how many days ago
+ * its FIRST (i.e. most recent) occurrence was — built in one pass over the
+ * window instead of one pass per word. `searchWindow` is the same for
+ * every word (it depends only on `words.length` and
+ * PUZZLE_MIN_DAYS_SINCE_SHOWN, not on which word is being asked about), so
+ * computing it once here and walking the window once replaces what used to
+ * be an O(words.length) scan PER word — O(words.length * searchWindow)
+ * overall — with a single O(searchWindow) pass whose result every word
+ * then does an O(1) lookup against. Walking `i` from 1 upward and only
+ * recording a slug's FIRST appearance (`!map.has(slug)`) reproduces
+ * exactly what the old per-word backward scan returned: the smallest i
+ * (most recent occurrence) within the window. */
+function daysSinceShownMap(today: Date, words: WordEntry[]): Map<string, number> {
   const searchWindow = Math.max(words.length, PUZZLE_MIN_DAYS_SINCE_SHOWN);
+  const map = new Map<string, number>();
   for (let i = 1; i <= searchWindow; i++) {
     const past = new Date(today.getTime() - i * DAY_MS);
-    if (wordForDateFrom(words, past).slug === word.slug) return i;
+    const slug = wordForDateFrom(words, past).slug;
+    if (!map.has(slug)) map.set(slug, i);
   }
-  return null;
+  return map;
 }
 
 /** Words eligible to appear as today's puzzle: shown at least
  * PUZZLE_MIN_DAYS_SINCE_SHOWN days ago, excluding today's own word. This
- * exclusion is REQUIRED, not decorative: `daysSinceLastShown` searches
- * backward from `today`, so for today's own word it doesn't see "shown 0
- * days ago" — it walks past today entirely and finds that word's *next*
+ * exclusion is REQUIRED, not decorative: `daysSinceShownMap` records each
+ * slug's MOST RECENT occurrence in the window, so for today's own word it
+ * doesn't record "shown 0 days ago" — it records that word's *next*
  * occurrence further back (one full rotation earlier, i.e.
  * `words.length` days ago), which for a list long enough to make the pool
  * non-empty is itself >= PUZZLE_MIN_DAYS_SINCE_SHOWN. Without this
  * explicit check, today's own word would incorrectly qualify as eligible.
  * `words` defaults to the real WORDS array; tests pass a larger synthetic
- * list to exercise the non-empty case, which the real (currently 8-word)
- * list cannot reach.
+ * list to exercise the non-empty case, which the real (currently
+ * 1,147-word) list clears comfortably.
  *
  * Scope note: this anti-spoiler gate protects the SHARED/anonymous daily
  * word experience specifically — it filters against getWordForDate's
@@ -83,10 +93,11 @@ export function getEligiblePuzzleWords(
   words: WordEntry[] = WORDS
 ): WordEntry[] {
   const todayWord = wordForDateFrom(words, today);
+  const recentlyShown = daysSinceShownMap(today, words);
   const filtered = words.filter((w) => {
     if (w.slug === todayWord.slug) return false;
-    const days = daysSinceLastShown(w, today, words);
-    return days !== null && days >= PUZZLE_MIN_DAYS_SINCE_SHOWN;
+    const days = recentlyShown.get(w.slug);
+    return days !== undefined && days >= PUZZLE_MIN_DAYS_SINCE_SHOWN;
   });
   return filtered.length < PUZZLE_MIN_POOL_SIZE ? [] : filtered;
 }
