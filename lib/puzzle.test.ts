@@ -8,7 +8,7 @@ import {
   buildPuzzleResultGrid,
   buildPuzzleShareText,
 } from "./puzzle";
-import { WORDS, daysSinceStart, hashSeed, mulberry32 } from "./words";
+import { daysSinceStart, hashSeed, mulberry32 } from "./words";
 import type { WordEntry } from "./words";
 
 function makeWord(slug: string): WordEntry {
@@ -26,11 +26,19 @@ function makeWord(slug: string): WordEntry {
   };
 }
 
+// A tiny synthetic list, deliberately too small for any word to ever go
+// PUZZLE_MIN_DAYS_SINCE_SHOWN days unshown — for testing the honest
+// "not open yet" empty-pool state. These tests used to rely on the real
+// WORDS array being this small itself, which held only until real content
+// growth (2026-09) crossed the open threshold; a synthetic stand-in keeps
+// this test meaningful regardless of how large real content gets from
+// here.
+const SMALL_WORD_LIST: WordEntry[] = Array.from({ length: 5 }, (_, i) => makeWord(`small-${i}`));
+
 // A synthetic 40-word list — large enough for its rotation period (40 days)
-// to comfortably exceed PUZZLE_MIN_DAYS_SINCE_SHOWN (30), which the real
-// WORDS array (8 entries, a rotation period far shorter than 30 days)
-// cannot do. This is the only way to test the "pool becomes non-empty"
-// path without waiting for real content to reach 30+ entries.
+// to comfortably exceed PUZZLE_MIN_DAYS_SINCE_SHOWN (30). This is the only
+// way to test the "pool becomes non-empty" path with numbers pinned down
+// exactly, independent of how many real words happen to exist right now.
 const LARGE_WORD_LIST: WordEntry[] = Array.from({ length: 40 }, (_, i) => makeWord(`word-${i}`));
 
 // A 35-word list has an eligible pool of exactly 5 (rotation period 35,
@@ -50,12 +58,12 @@ const ABOVE_MIN_POOL_WORD_LIST: WordEntry[] = Array.from({ length: 41 }, (_, i) 
 );
 
 describe("getEligiblePuzzleWords", () => {
-  it("is empty for the real (small) WORDS array, on any date", () => {
-    // WORDS.length is currently well under 30, so its rotation period is
-    // too short for any word to ever go 30 days unshown — this is the
-    // exact "not open yet" condition getPuzzleForDate relies on.
+  it("is empty for a word list too small to reach PUZZLE_MIN_DAYS_SINCE_SHOWN", () => {
+    // A rotation period this short (5 days) means no word can ever go 30
+    // days unshown — this is the exact "not open yet" condition
+    // getPuzzleForDate relies on.
     const today = new Date("2027-06-01T00:00:00Z");
-    expect(getEligiblePuzzleWords(today, WORDS)).toEqual([]);
+    expect(getEligiblePuzzleWords(today, SMALL_WORD_LIST)).toEqual([]);
   });
 
   it("is non-empty for a large enough synthetic word list", () => {
@@ -141,7 +149,7 @@ describe("PUZZLE_MIN_POOL_SIZE gate", () => {
 describe("getPuzzleForDate", () => {
   it("returns null when the pool is empty", () => {
     const today = new Date("2027-06-01T00:00:00Z");
-    expect(getPuzzleForDate(today, WORDS)).toBeNull();
+    expect(getPuzzleForDate(today, SMALL_WORD_LIST)).toBeNull();
   });
 
   it("returns the same puzzle for the same date, called twice", () => {
