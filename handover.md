@@ -225,43 +225,109 @@ origin/journey/related existed). Every entry has both, and
 `lineage` ends in `"English"`. If you add a new word, you need both fields
 or the tests fail.
 
-## Known limitation: only 8 words
+## Word bank: growing from 8, batch pipeline now proven against real content
 
-`WORDS` has 8 entries. This has been flagged repeatedly as the real
-ceiling on this app right now — History's "All words" tab, the
-personalized rotation, and general repeat-visit value are all capped by
-it. Growing the content library is a **content** task (needs real,
+`WORDS` had 8 entries for most of this project's life; as of 2026-09-18 it
+has **26** (8 original + the first real batch of 18, pulled from real
+Wiktextract facts and approved by hand). The plan is ~1,000 total, pulled
+from `curio-word-candidates.txt` (1,317 candidates, categorized in
+`curio-word-candidates-by-category.md`) with `curio-reserve-words.txt`
+(3,209 more) as backup if attrition runs high — both committed at the repo
+root. Growing the content library is still a **content** task (needs real,
 accurate etymology), not a code task — don't invent etymologies to pad the
-list. If a future session is asked to add words, each new entry needs
-`teaser`/`lineage` populated honestly (see the existing 8 for the pattern:
-`lineage` is derived only from languages the entry's own
-origin/journey/related text actually names, in order, ending in English).
+list. `/play`'s "not open yet" state is itself an honest progress signal:
+it needs the eligible pool (words not shown in 30+ days) to reach 10,
+which this codebase's own design notes say happens around a 40-word bank
+— so `/play` stays closed for a while yet even as the count climbs.
 
-**The tooling to do this now exists** (scaffolded this session, not yet
-run against real content):
+**The pipeline is no longer just scaffolded — it's been run against real
+content and batched for ~1,000-word scale:**
 
 ```bash
+# Single word (original, still works)
 npm run content:extract -- <wiktextract-dump-path> <word>   # -> facts JSON on stdout
 npm run content:rewrite -- <word> <facts-json-path>          # needs ANTHROPIC_API_KEY, writes content/drafts/<word>.json
 npm run content:approve -- content/drafts/<word>.json        # after a human reads and approves the draft
+
+# Batch (added to handle hundreds of words in one pass)
+npm run content:extract -- --batch <dump-path> <word-list-file> <output-json>   # one dump pass, all words
+npm run content:rewrite -- --batch <facts-json-path>                            # resumable; writes content/drafts/_batch-log.json
+npm run content:approve -- --batch content/drafts                              # validates ALL drafts first; aborts with nothing written if any fail
 ```
 
-`content:extract` needs a real Wiktextract JSONL dump (not included in this
-repo — `scripts/__fixtures__/sample-wiktextract.jsonl` is a hand-built
-fixture for its own tests, not real content). `content:rewrite` calls the
-Claude API and costs real money per word; it never invents facts beyond
-what's extracted, and never skips a thin entry — both are enforced in the
-prompt text (`scripts/rewriteEtymology.ts`'s `buildRewritePrompt`).
-`content:approve` is the only thing that ever touches the real
-`lib/words.ts`, and only for a draft you've already read — it validates
-the draft against the exact invariants `lib/words.test.ts` checks, then
-re-runs that test file. If you ever edit `scripts/approveDraft.ts`'s
-bracket-matching logic (`appendDraftToWordsFile`), know that the naive
-`source.lastIndexOf("];")` approach is **wrong** — `lib/words.ts` has
-other array literals later in the file (e.g. inside `getHistoryForUser`)
-whose closing bracket also matches that string. The current code anchors
-the search to start after the literal `export const WORDS: WordEntry[] = [`
-text specifically; don't regress that anchor.
+The real Wiktextract dump lives at `https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz`
+(2.7 GB compressed, 23.1 GB decompressed — not in this repo;
+`scripts/__fixtures__/sample-wiktextract.jsonl` is a hand-built fixture for
+tests, not real content). Batch rewrite is resumable — it skips a word
+that already has a draft file or is already in `WORDS`, so an interrupted
+or multi-session run can just be re-invoked. `content:approve --batch`
+also rejects (as a validation error, not a silent skip) a slug that's
+already in `lib/words.ts` or duplicated within the batch, so re-running it
+against a stale drafts directory can't double-append a word.
+
+**A real bug worth knowing about if you touch `scripts/rewriteEtymology.ts`
+again:** the original `callClaude` capped `max_tokens` at 1024 with no
+`thinking`/`effort` configuration. Claude Sonnet 5 runs adaptive thinking
+by default, and thinking tokens count against that same cap — in the first
+real batch run this truncated or fully swallowed 14 of 20 responses before
+anyone even got to see thin-facts or invented-content problems. Fixed by
+raising `max_tokens` to 4096 and setting `output_config: {effort: "low"}`
+(this is a formulaic rewrite task, not one that benefits from heavy
+reasoning). If a future model swap or prompt change brings back truncated
+JSON or "no text content block" errors, check this first before assuming
+it's a facts or prompt problem.
+
+`content:rewrite` calls the Claude API and costs real money per word — with
+the fix above, real measured cost is ~$0.0064/word on Sonnet 5
+(~923 input / ~452 output tokens average), so ~$6-8 for 1,000 words
+including retries. It never invents facts beyond what's extracted, and
+never skips a thin entry — both are enforced in the prompt text
+(`scripts/rewriteEtymology.ts`'s `buildRewritePrompt`). `content:approve`
+is the only thing that ever touches the real `lib/words.ts`, and only for
+drafts a human has already read — it validates each draft against the
+exact invariants `lib/words.test.ts` checks, then re-runs that test file
+once per batch (not once per word). If you ever edit
+`scripts/approveDraft.ts`'s bracket-matching logic
+(`appendDraftsToWordsFile`), know that the naive `source.lastIndexOf("];")`
+approach is **wrong** — `lib/words.ts` has other array literals later in
+the file (e.g. inside `getHistoryForUser`) whose closing bracket also
+matches that string. The current code anchors the search to start after
+the literal `export const WORDS: WordEntry[] = [` text specifically; don't
+regress that anchor.
+
+**Things that were flagged as "cheap now, expensive later" and checked at
+26 words — revisit as the count climbs toward 1,000:**
+- **Bundle size:** verified fine, not just assumed — every Client Component
+  that touches `lib/words.ts` imports only `import type { WordEntry }` /
+  `import type { HistoryDay }`, never the `WORDS` value itself or any
+  function that reads it, and every page that does read `WORDS` is a
+  Server Component. TypeScript `import type` is erased at compile time, so
+  none of `WORDS`'s content ships to the browser regardless of its size.
+  No architecture change needed unless that import pattern changes.
+- **`/history`'s "All words" tab has no pagination.** `HistoryList.tsx`
+  already groups entries by month past 30 of them (readability), but every
+  entry still renders its own `<li>` — no cap on total DOM nodes. Fine at
+  26; will need a real fix (pagination, or a "load more" per group) well
+  before 1,000. Proposed approach, not yet built: cap eagerly-rendered
+  groups (e.g. first few months) behind a "show more," with search
+  bypassing the cap so it can still find older entries.
+- **`lib/bluesky.ts`'s `buildBlueskyPost` doesn't bound `word + url`
+  itself** (only the teaser gets truncated to fit 300 chars) — still true,
+  but checked the actual math: with the real UTM-tagged story URL, a
+  single headword would need to be ~94+ characters to ever trigger it. No
+  realistic English word gets remotely close, even across ~1,000 entries.
+  Not a practical risk; the theoretical gap in the code is unaddressed.
+- **`lib/puzzle.ts`'s `daysSinceLastShown` is O(n²)** at the word-bank
+  scale (`getEligiblePuzzleWords` calls it once per word, each call
+  walking up to `max(words.length, 30)` days backward) — measured directly
+  at a synthetic 1,000-word list: **~56ms per call**, and
+  `getPuzzleForDate` calls it twice per `/play` render (today + yesterday
+  lookback), so ~112ms of added server compute per page load at that
+  scale. Logically still correct (the search window formula is sound), but
+  worth optimizing before real growth much past 1,000: the fix is to walk
+  backward through the window once, building a Set of slugs shown in it,
+  then filter all words against that Set in one pass — turns O(n²) into
+  O(n). Not built; flagging for whoever hits this next.
 
 ## Accounts / auth system, in one paragraph
 
