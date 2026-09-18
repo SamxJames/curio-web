@@ -14,6 +14,14 @@ type Filter = "mine" | "all" | "favorites";
  * visual noise for a handful of rows. */
 const GROUP_THRESHOLD = 30;
 
+/** How many entries the unfiltered browse view renders before "Show more"
+ * is needed — chosen so the first page comfortably fills a screen without
+ * forcing a page-load's worth of DOM for all 1,000+ words up front. A
+ * search always bypasses this cap (see `isSearching` below): finding a
+ * word you typed shouldn't depend on how many times you've clicked "Show
+ * more" first. */
+const PAGE_SIZE = 60;
+
 function groupByMonth(entries: HistoryDay[]): { label: string; entries: HistoryDay[] }[] {
   const groups: { label: string; entries: HistoryDay[] }[] = [];
   for (const entry of entries) {
@@ -44,6 +52,11 @@ export default function HistoryList({
   const hasPersonal = !!personalEntries;
   const [filter, setFilter] = useState<Filter>(hasPersonal ? "mine" : "all");
   const [query, setQuery] = useState("");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  // Tracks the (filter, query) pair `visibleCount` was last reset for, so we
+  // can detect a tab switch or a fresh search during render — see the reset
+  // below.
+  const [paginationKey, setPaginationKey] = useState({ filter, query });
   const favorites = useFavorites();
 
   function handleToggle(slug: string) {
@@ -73,12 +86,33 @@ export default function HistoryList({
     return visible.filter((d) => d.word.word.toLowerCase().includes(q));
   }, [visible, query]);
 
+  // A search has to be able to surface any matching word, not just ones
+  // already revealed by "Show more" — so the page cap only applies to the
+  // unfiltered browse view, never to search results.
+  const isSearching = query.trim().length > 0;
+
+  // Switching tabs or starting a fresh search resets pagination — otherwise
+  // "Favorites" could inherit a visibleCount left over from scrolling deep
+  // into "All words", and immediately show a misleading "Show more" (or
+  // none at all) relative to its own much shorter list. Adjusting state
+  // during render (rather than in a useEffect) avoids an extra
+  // commit-then-effect round trip for what's ultimately a derived reset.
+  let effectiveVisibleCount = visibleCount;
+  if (paginationKey.filter !== filter || paginationKey.query !== query) {
+    effectiveVisibleCount = PAGE_SIZE;
+    setPaginationKey({ filter, query });
+    setVisibleCount(PAGE_SIZE);
+  }
+
+  const paged = isSearching ? filtered : filtered.slice(0, effectiveVisibleCount);
+  const hasMore = !isSearching && filtered.length > effectiveVisibleCount;
+
   const groups = useMemo(
     () =>
-      filtered.length > GROUP_THRESHOLD
-        ? groupByMonth(filtered)
-        : [{ label: "", entries: filtered }],
-    [filtered]
+      paged.length > GROUP_THRESHOLD
+        ? groupByMonth(paged)
+        : [{ label: "", entries: paged }],
+    [paged]
   );
 
   return (
@@ -172,6 +206,15 @@ export default function HistoryList({
           </ul>
         </div>
       ))}
+
+      {hasMore && (
+        <button
+          onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+          className="mt-6 w-full rounded-md border border-line py-2.5 font-sans text-sm text-ink-soft transition-colors hover:text-ink hover:border-accent cursor-pointer"
+        >
+          Show more
+        </button>
+      )}
     </div>
   );
 }
