@@ -1,8 +1,6 @@
 # Curio — Handover
 
-Last updated: 2026-09-12, after a session that added the Collection screen,
-fixed the daily-send cron, replaced onboarding with an arrival hero, added
-Bluesky auto-posting, and scaffolded a content pipeline. This doc exists so
+Last updated: 2026-09-18, after a session that grew the word bank to 1,147 entries, added the word-locking layer, cross-device sign-in, and a batch of outstanding-debt fixes (session flash, puzzle perf, sign-in cooldown, Bluesky test coverage, /history pagination). This doc exists so
 a fresh Claude Code session (or a human) can pick up without re-deriving
 all of the above from git log.
 
@@ -499,6 +497,16 @@ during planning — worth knowing if either area gets touched again:
   "obviously" looks right, don't — this is the second time this project's
   history has a bug that only a real dry-run caught (see the Lightning CSS
   focus-ring bug above for the first).
+
+## This session (2026-09-18)
+
+Five things landed, roughly in this order:
+
+1. Added a visible "Sign in" link to the first-time arrival hero (previously unreachable except via "See the archive").
+2. Cross-device magic-link handoff — a tab that requested a sign-in link now signs itself in automatically once the link is verified elsewhere (`app/api/auth/device-link/*`, `lib/deviceLink.ts`).
+3. Word-of-the-day locking layer (`lib/words.ts`'s `resolve*` functions) — growing the word bank can no longer retroactively change a date's or account-day's already-served word; see the "Word bank" section above.
+4. Grew the word bank from 26 to 1,147 entries via the content pipeline's full batch run.
+5. A batch of outstanding-debt fixes: server-fed session in the root layout (kills the sign-in loading flash), an O(n) rewrite of the puzzle eligibility scan, a per-email cooldown on magic-link sign-in requests, test coverage for `postDailyWordToBluesky`'s failure path, and pagination for `/history`'s "All words" view.
 
 ## Workflow notes for whoever picks this up
 
