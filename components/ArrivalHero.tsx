@@ -25,7 +25,19 @@ export default function ArrivalHero({ word, date }: { word: WordEntry; date: str
         <Link href="/" className="font-serif text-lg tracking-tight">
           Curio
         </Link>
-        <ThemeToggle />
+        <div className="flex items-center gap-4">
+          {/* Anyone landing here is unauthenticated (see useShowArrival) —
+           * without this, a returning subscriber on a new device has no way
+           * to sign in short of guessing "See the archive" to reach the
+           * normal Header on another route. */}
+          <Link
+            href="/login"
+            className="font-sans text-xs text-ink-faint transition-colors hover:text-ink-soft"
+          >
+            Sign in
+          </Link>
+          <ThemeToggle />
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col pt-10 pb-10">
