@@ -55,6 +55,23 @@ describe("parseRewriteResponse", () => {
     expect(() => parseRewriteResponse("not json", "bank")).toThrow();
   });
 
+  it("strips a markdown code fence around the JSON before parsing", () => {
+    // Real batch run (2026-09-18, 150-word canary): despite buildRewritePrompt's
+    // explicit "no markdown fences" instruction, Claude sometimes wraps the
+    // response in ```json ... ``` anyway — 10/150 failures in that run were
+    // this exact shape, not a facts/quality problem.
+    const fenced = "```json\n" + validJson + "\n```";
+    const draft = parseRewriteResponse(fenced, "bank");
+    expect(draft.slug).toBe("bank");
+    expect(draft.respelling).toBe("BANGK");
+  });
+
+  it("strips a plain (unlabeled) code fence around the JSON before parsing", () => {
+    const fenced = "```\n" + validJson + "\n```";
+    const draft = parseRewriteResponse(fenced, "bank");
+    expect(draft.slug).toBe("bank");
+  });
+
   it("throws if a required field is missing", () => {
     const missingTeaser = JSON.stringify({
       respelling: "BANGK",

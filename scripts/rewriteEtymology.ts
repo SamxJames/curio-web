@@ -48,10 +48,24 @@ Write a JSON object (and nothing else — no markdown fences, no commentary) wit
  * enforcing the same invariants lib/words.test.ts checks for the real
  * WORDS array — a draft that fails these should never reach a review
  * file at all. */
+/** Strips a wrapping markdown code fence (```` ```json ... ``` ```` or a
+ * plain ```` ``` ... ``` ````) if the whole response is wrapped in one.
+ * `buildRewritePrompt` explicitly asks for "no markdown fences," but Claude
+ * doesn't always honor that — a real batch run (2026-09-18, 150 words) had
+ * 10 otherwise-good responses fail to parse for exactly this reason, not a
+ * facts or quality problem. Only strips a fence that wraps the *entire*
+ * trimmed response, so this can't accidentally eat a code block a draft's
+ * own text happens to contain. */
+function stripMarkdownFence(raw: string): string {
+  const trimmed = raw.trim();
+  const match = /^```(?:json)?\s*\n?([\s\S]*?)\n?```$/i.exec(trimmed);
+  return match ? match[1] : raw;
+}
+
 export function parseRewriteResponse(raw: string, word: string): DraftEntry {
   let parsed: Record<string, unknown>;
   try {
-    parsed = JSON.parse(raw);
+    parsed = JSON.parse(stripMarkdownFence(raw));
   } catch {
     throw new Error(`Claude's response was not valid JSON for "${word}": ${raw.slice(0, 200)}`);
   }
