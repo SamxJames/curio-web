@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ThemeInit from "@/components/ThemeInit";
 import AccountFavoritesSync from "@/components/AccountFavoritesSync";
+import { auth } from "@/lib/auth";
 // Self-hosted (not next/font/google) so the app builds without reaching
 // fonts.googleapis.com at build time — works the same in dev, CI, and prod.
 import "@fontsource/newsreader/400.css";
@@ -38,14 +39,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // Feeding SessionProvider a server-resolved session means useSession()
+  // never has to pass through a transient "loading" state on a cold load —
+  // without this, lib/useShowArrival.ts had to specifically guard against
+  // that state being mistaken for "signed out" (see its doc comment). This
+  // removes the underlying flash instead of just working around it.
+  const session = await auth();
+
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
         <ThemeInit />
       </head>
       <body className="min-h-full flex flex-col bg-paper text-ink">
-        <SessionProvider>
+        <SessionProvider session={session}>
           <Header />
           <AccountFavoritesSync />
           <main className="flex-1">{children}</main>
