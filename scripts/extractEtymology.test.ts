@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import path from "path";
-import { extractEtymologyFacts } from "./extractEtymology";
+import { extractEtymologyFacts, extractEtymologyFactsForWords } from "./extractEtymology";
 
 const FIXTURE = path.join(__dirname, "__fixtures__", "sample-wiktextract.jsonl");
 
@@ -29,5 +29,35 @@ describe("extractEtymologyFacts", () => {
   it("returns an empty array for a word not in the dump", async () => {
     const facts = await extractEtymologyFacts(FIXTURE, "nonexistent-word");
     expect(facts).toEqual([]);
+  });
+});
+
+describe("extractEtymologyFactsForWords", () => {
+  it("collects facts for every target word in a single pass", async () => {
+    const facts = await extractEtymologyFactsForWords(FIXTURE, ["bank", "thistle"]);
+    expect(facts.bank).toHaveLength(2);
+    expect(facts.thistle).toEqual(["From Old English þistel."]);
+  });
+
+  it("includes an empty array for a target word not present in the dump", async () => {
+    const facts = await extractEtymologyFactsForWords(FIXTURE, ["bank", "nonexistent-word"]);
+    expect(facts["nonexistent-word"]).toEqual([]);
+  });
+
+  it("dedupes facts per word exactly like the single-word version", async () => {
+    const facts = await extractEtymologyFactsForWords(FIXTURE, ["bank"]);
+    expect(facts.bank).toHaveLength(2);
+    expect(new Set(facts.bank).size).toBe(2);
+  });
+
+  it("excludes non-English-language entries", async () => {
+    const facts = await extractEtymologyFactsForWords(FIXTURE, ["bank"]);
+    expect(facts.bank.join(" ")).not.toContain("Emprunt");
+  });
+
+  it("returns results matching extractEtymologyFacts for the same word", async () => {
+    const batch = await extractEtymologyFactsForWords(FIXTURE, ["thistle"]);
+    const single = await extractEtymologyFacts(FIXTURE, "thistle");
+    expect(batch.thistle).toEqual(single);
   });
 });
