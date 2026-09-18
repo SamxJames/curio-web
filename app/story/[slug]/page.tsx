@@ -4,7 +4,7 @@ import { after } from "next/server";
 import StoryView from "@/components/StoryView";
 import { auth } from "@/lib/auth";
 import { getUserJoinedAt, recordUserSeen } from "@/lib/userData";
-import { WORDS, getWordBySlug, getHistory, getHistoryForUser } from "@/lib/words";
+import { WORDS, getWordBySlug, resolveHistory, resolveHistoryForUser } from "@/lib/words";
 
 export function generateStaticParams() {
   return WORDS.map((w) => ({ slug: w.slug }));
@@ -42,11 +42,11 @@ export default async function StoryPage({
   const joinedAtStr = session?.user?.id ? await getUserJoinedAt(session.user.id) : null;
   const personalEntry =
     session?.user?.id && joinedAtStr
-      ? getHistoryForUser(session.user.id, new Date(joinedAtStr + "T00:00:00Z")).find(
+      ? (await resolveHistoryForUser(session.user.id, new Date(joinedAtStr + "T00:00:00Z"))).find(
           (d) => d.word.slug === slug
         )
       : undefined;
-  const historyEntry = personalEntry ?? getHistory().find((d) => d.word.slug === slug);
+  const historyEntry = personalEntry ?? (await resolveHistory()).find((d) => d.word.slug === slug);
   const date = historyEntry
     ? new Date(historyEntry.date + "T00:00:00Z").toLocaleDateString("en-US", {
         weekday: "long",

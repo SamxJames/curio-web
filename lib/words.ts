@@ -1,3 +1,5 @@
+import { redis } from "./redis";
+
 export type WordEntry = {
   slug: string;
   word: string;
@@ -572,4 +574,173 @@ export function getHistoryForUser(
     days.push({ date: d.toISOString().slice(0, 10), word: order[idx] });
   }
   return days;
+}
+
+// --- Locking layer -----------------------------------------------------
+//
+// Every function above is a pure recomputation over the CURRENT `WORDS`
+// array: growing that array (adding a content batch) shifts every
+// modulo-based index that depends on its length, which silently changes
+// the word already shown for a given calendar date or account-day — see
+// the 8→26-word batch commit that flipped today's global word mid-day.
+// getPersonalOrder is worse: its Fisher-Yates shuffle depends on the
+// array's full length at shuffle time, so growing it reshuffles a
+// signed-in account's *entire* personal order, not just the newly added
+// slots.
+//
+// The functions below wrap the pure ones with a "lock on first serve"
+// layer in Redis: the first time a given date (or account-day) is
+// resolved, whatever the pure function currently computes is persisted
+// under that date/account, and every later call returns the persisted
+// word regardless of how WORDS changes afterward. Nothing is persisted
+// for a date that's never been asked for, so future, not-yet-served days
+// are free to shift as content is added — only what's already been shown
+// is locked. Everything here is a no-op passthrough to the pure functions
+// when Upstash isn't configured (lib/redis.ts's usual fallback).
+//
+// lib/puzzle.ts deliberately keeps its own separate, unlocked
+// implementation of this same date math (see wordForDateFrom there) — its
+// anti-spoiler window is already documented as tolerant of this kind of
+// drift, and locking it would conflict with how its eligibility pool is
+// validated.
+
+function wordOfDayKey(dateStr: string): string {
+  return `curio:wordoftheday:${dateStr}`;
+}
+
+function userWordKey(userId: string, dateStr: string): string {
+  return `curio:user:${userId}:wordFor:${dateStr}`;
+}
+
+/** Returns the word locked in under `key`, or computes and locks in
+ * `compute()`'s result if nothing's locked yet. `nx: true` makes a race
+ * between two simultaneous first-visits harmless — whichever write lands
+ * first wins, and the loser's own (identical, since both computed from the
+ * same pure function) value is simply discarded. */
+async function resolveLocked(key: string, compute: () => WordEntry): Promise<WordEntry> {
+  if (redis) {
+    const lockedSlug = await redis.get<string>(key);
+    const locked = lockedSlug ? getWordBySlug(lockedSlug) : undefined;
+    if (locked) return locked;
+  }
+  const word = compute();
+  if (redis) await redis.set(key, word.slug, { nx: true });
+  return word;
+}
+
+/** Batch counterpart to resolveLocked — one Redis round trip to check every
+ * entry, instead of one per entry, for history-sized ranges. */
+async function resolveLockedMany(
+  entries: { key: string; compute: () => WordEntry }[]
+): Promise<WordEntry[]> {
+  if (!redis || entries.length === 0) return entries.map((e) => e.compute());
+
+  const lockedSlugs = await redis.mget<(string | null)[]>(...entries.map((e) => e.key));
+  const toWrite: { key: string; slug: string }[] = [];
+  const results = entries.map((entry, i) => {
+    const locked = lockedSlugs[i] ? getWordBySlug(lockedSlugs[i]!) : undefined;
+    if (locked) return locked;
+    const word = entry.compute();
+    toWrite.push({ key: entry.key, slug: word.slug });
+    return word;
+  });
+
+  if (toWrite.length > 0) {
+    await Promise.all(toWrite.map(({ key, slug }) => redis!.set(key, slug, { nx: true })));
+  }
+  return results;
+}
+
+/** Stable counterpart to getWordForDate: locks in the word for `date` the
+ * first time it's resolved, so a later content batch can't change it. */
+export async function resolveWordForDate(date: Date): Promise<WordEntry> {
+  const dateStr = date.toISOString().slice(0, 10);
+  return resolveLocked(wordOfDayKey(dateStr), () => getWordForDate(date));
+}
+
+export async function resolveTodayWord(): Promise<WordEntry> {
+  return resolveWordForDate(new Date());
+}
+
+/** Stable counterpart to getHistory. */
+export async function resolveHistory(today: Date = new Date()): Promise<HistoryDay[]> {
+  const totalDays = daysSinceStart(today);
+  const dates: Date[] = [];
+  for (let i = totalDays; i >= 0; i--) dates.push(new Date(START_DATE + i * DAY_MS));
+
+  const words = await resolveLockedMany(
+    dates.map((d) => ({
+      key: wordOfDayKey(d.toISOString().slice(0, 10)),
+      compute: () => getWordForDate(d),
+    }))
+  );
+  return dates.map((d, i) => ({ date: d.toISOString().slice(0, 10), word: words[i] }));
+}
+
+/** Stable counterpart to getUniqueWordsMostRecent, built from resolveHistory
+ * rather than getHistory so the "most recent appearance" it reports for
+ * each word can't be moved by a later content batch either. */
+export async function resolveUniqueWordsMostRecent(today: Date = new Date()): Promise<HistoryDay[]> {
+  const seen = new Set<string>();
+  const unique: HistoryDay[] = [];
+  for (const day of await resolveHistory(today)) {
+    if (seen.has(day.word.slug)) continue;
+    seen.add(day.word.slug);
+    unique.push(day);
+    if (unique.length === WORDS.length) break;
+  }
+  return unique;
+}
+
+/** Stable counterpart to getWordForUser. */
+export async function resolveWordForUser(
+  userId: string,
+  joinedAt: Date,
+  today: Date = new Date()
+): Promise<WordEntry> {
+  const dateStr = today.toISOString().slice(0, 10);
+  return resolveLocked(userWordKey(userId, dateStr), () => getWordForUser(userId, joinedAt, today));
+}
+
+/** Stable counterpart to getHistoryForUser. getPersonalOrder is computed
+ * once up front and reused as the fallback for every not-yet-locked day in
+ * the range, rather than once per day — it's the same shuffle regardless of
+ * which day is asking, so there's no reason to redo it per entry. */
+export async function resolveHistoryForUser(
+  userId: string,
+  joinedAt: Date,
+  today: Date = new Date()
+): Promise<HistoryDay[]> {
+  const totalDays = daysBetweenUtcMidnights(joinedAt, today);
+  const joinedUtcMidnight = Date.UTC(
+    joinedAt.getUTCFullYear(),
+    joinedAt.getUTCMonth(),
+    joinedAt.getUTCDate()
+  );
+  const order = getPersonalOrder(userId, joinedAt);
+  const offsets: number[] = [];
+  for (let i = totalDays; i >= 0; i--) offsets.push(i);
+
+  const words = await resolveLockedMany(
+    offsets.map((i) => {
+      const d = new Date(joinedUtcMidnight + i * DAY_MS);
+      const idx = ((i % order.length) + order.length) % order.length;
+      return { key: userWordKey(userId, d.toISOString().slice(0, 10)), compute: () => order[idx] };
+    })
+  );
+  return offsets.map((i, pos) => ({
+    date: new Date(joinedUtcMidnight + i * DAY_MS).toISOString().slice(0, 10),
+    word: words[pos],
+  }));
+}
+
+/** Stable counterpart to getDigestWordForSubscriber. */
+export async function resolveDigestWordForSubscriber(
+  userId: string | null,
+  joinedAtStr: string | null,
+  now: Date,
+  sharedWord: WordEntry
+): Promise<WordEntry> {
+  if (!userId || !joinedAtStr) return sharedWord;
+  return resolveWordForUser(userId, new Date(joinedAtStr + "T00:00:00Z"), now);
 }

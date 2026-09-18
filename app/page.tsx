@@ -2,7 +2,7 @@ import { after } from "next/server";
 import HomeContent from "@/components/HomeContent";
 import { auth } from "@/lib/auth";
 import { getUserJoinedAt, recordUserSeen } from "@/lib/userData";
-import { getTodayWord, getWordForUser } from "@/lib/words";
+import { resolveTodayWord, resolveWordForUser } from "@/lib/words";
 
 export default async function TodayPage() {
   const session = await auth();
@@ -10,8 +10,8 @@ export default async function TodayPage() {
   const joinedAtStr = session?.user?.id ? await getUserJoinedAt(session.user.id) : null;
   const isPersonalized = !!joinedAtStr;
   const word = isPersonalized
-    ? getWordForUser(session!.user.id, new Date(joinedAtStr! + "T00:00:00Z"))
-    : getTodayWord();
+    ? await resolveWordForUser(session!.user.id, new Date(joinedAtStr! + "T00:00:00Z"))
+    : await resolveTodayWord();
 
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",

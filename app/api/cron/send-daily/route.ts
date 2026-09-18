@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAllSubscribers } from "@/lib/db";
 import { sendDailyDigest } from "@/lib/email";
 import { postDailyWordToBluesky } from "@/lib/bluesky";
-import { getTodayWord, getDigestWordForSubscriber, type WordEntry } from "@/lib/words";
+import { resolveTodayWord, resolveDigestWordForSubscriber, type WordEntry } from "@/lib/words";
 import { getUserIdByEmail } from "@/lib/auth";
 import { getUserJoinedAt } from "@/lib/userData";
 
@@ -21,7 +21,7 @@ async function resolveSubscriberWord(
   const userId = await getUserIdByEmail(email);
   const joinedAtStr = userId ? await getUserJoinedAt(userId) : null;
   return {
-    word: getDigestWordForSubscriber(userId, joinedAtStr, now, sharedWord),
+    word: await resolveDigestWordForSubscriber(userId, joinedAtStr, now, sharedWord),
     personalized: Boolean(userId && joinedAtStr),
   };
 }
@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
   }
 
   const now = new Date();
-  const sharedWord = getTodayWord();
+  const sharedWord = await resolveTodayWord();
   const subscribers = await getAllSubscribers();
   const resolved = await Promise.all(
     subscribers.map((email) => resolveSubscriberWord(email, sharedWord, now))
