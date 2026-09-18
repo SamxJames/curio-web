@@ -1,5 +1,4 @@
-import { describe, expect, it } from "vitest";
-import { buildBlueskyPost } from "./bluesky";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { WordEntry } from "./words";
 
 function word(teaser: string): WordEntry {
@@ -18,6 +17,8 @@ function word(teaser: string): WordEntry {
 }
 
 const URL = "https://example.com/story/quarantine?utm_source=bluesky&utm_medium=social&utm_campaign=daily-word";
+
+const { buildBlueskyPost } = await import("./bluesky");
 
 describe("buildBlueskyPost", () => {
   it("includes the word, teaser, and link", () => {
@@ -44,5 +45,94 @@ describe("buildBlueskyPost", () => {
   it("leaves a short teaser untruncated", () => {
     const post = buildBlueskyPost(word("Short."), URL);
     expect(post).not.toContain("…");
+  });
+});
+
+// postDailyWordToBluesky's own success/failure/unconfigured paths, with the
+// real @atproto/api client mocked — this is the path lib/bluesky.ts's own
+// doc comment flags as running unattended in the daily cron with nobody
+// watching, so a real posting failure needs to degrade gracefully (logged,
+// not thrown) rather than break the rest of that cron run.
+const { mockLogin, mockPost, mockDetectFacets } = vi.hoisted(() => ({
+  mockLogin: vi.fn(),
+  mockPost: vi.fn(),
+  mockDetectFacets: vi.fn(async () => {}),
+}));
+
+vi.mock("@atproto/api", () => ({
+  AtpAgent: vi.fn(function () {
+    return {
+      login: mockLogin,
+      post: mockPost,
+    };
+  }),
+  RichText: vi.fn(function ({ text }: { text: string }) {
+    return {
+      text,
+      facets: undefined,
+      detectFacets: mockDetectFacets,
+    };
+  }),
+}));
+
+const { postDailyWordToBluesky } = await import("./bluesky");
+
+const ORIGINAL_ENV = { ...process.env };
+
+describe("postDailyWordToBluesky", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.BLUESKY_IDENTIFIER = "curiodaily.bsky.social";
+    process.env.BLUESKY_APP_PASSWORD = "app-password";
+    mockLogin.mockResolvedValue(undefined);
+    mockPost.mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    process.env = { ...ORIGINAL_ENV };
+  });
+
+  it("logs in, posts, and reports success when the client succeeds", async () => {
+    const result = await postDailyWordToBluesky(word("A teaser."), new Date("2026-01-01T00:00:00Z"));
+    expect(result).toEqual({ posted: true });
+    expect(mockLogin).toHaveBeenCalledWith({
+      identifier: "curiodaily.bsky.social",
+      password: "app-password",
+    });
+    expect(mockPost).toHaveBeenCalledTimes(1);
+  });
+
+  it("catches a login failure, logs it, and reports posted: false without throwing", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockLogin.mockRejectedValue(new Error("invalid credentials"));
+
+    const result = await postDailyWordToBluesky(word("A teaser."), new Date("2026-01-01T00:00:00Z"));
+
+    expect(result).toEqual({ posted: false });
+    expect(mockPost).not.toHaveBeenCalled();
+    expect(consoleError).toHaveBeenCalledWith("[curio:bluesky] post failed:", expect.any(Error));
+    consoleError.mockRestore();
+  });
+
+  it("catches a post failure, logs it, and reports posted: false without throwing", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockPost.mockRejectedValue(new Error("rate limited"));
+
+    const result = await postDailyWordToBluesky(word("A teaser."), new Date("2026-01-01T00:00:00Z"));
+
+    expect(result).toEqual({ posted: false });
+    expect(consoleError).toHaveBeenCalledWith("[curio:bluesky] post failed:", expect.any(Error));
+    consoleError.mockRestore();
+  });
+
+  it("skips the network call and reports posted: false when unconfigured", async () => {
+    delete process.env.BLUESKY_IDENTIFIER;
+    delete process.env.BLUESKY_APP_PASSWORD;
+
+    const result = await postDailyWordToBluesky(word("A teaser."), new Date("2026-01-01T00:00:00Z"));
+
+    expect(result).toEqual({ posted: false });
+    expect(mockLogin).not.toHaveBeenCalled();
+    expect(mockPost).not.toHaveBeenCalled();
   });
 });
