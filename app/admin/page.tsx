@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { auth, getUserEmail } from "@/lib/auth";
 import { getAllSubscriberRecords } from "@/lib/db";
 import { getAllUserActivity, getFavoritesSummary, getAllPlayStates } from "@/lib/userData";
 import { getEmailMetrics } from "@/lib/resendMetrics";
@@ -8,6 +8,7 @@ import {
   cumulativeGrowth,
   summarizePuzzleEngagement,
   computeRollingRetention,
+  buildAccountSummaries,
 } from "@/lib/adminStats";
 import AdminDashboard from "@/components/AdminDashboard";
 
@@ -46,12 +47,28 @@ export default async function AdminPage() {
     day30: computeRollingRetention(userActivity, 30, now),
   };
 
+  // Sorted newest first — "who signed up" reads most naturally as a feed,
+  // not a growth chart. Subscribers already carry createdAt; accounts only
+  // carry a userId/joinedAt pair (getAllUserActivity), so their emails are
+  // fetched separately (one adapter call each — fine at this app's scale,
+  // same N+1-is-fine-for-now tradeoff already accepted for the other admin
+  // reads) and paired up by buildAccountSummaries.
+  const subscriberList = [...subscribers].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const accountEmails = Object.fromEntries(
+    await Promise.all(
+      userActivity.map(async (u) => [u.userId, await getUserEmail(u.userId)] as const)
+    )
+  );
+  const accountList = buildAccountSummaries(userActivity, accountEmails);
+
   return (
     <AdminDashboard
       subscriberCount={subscribers.length}
       accountCount={userActivity.length}
       subscriberGrowth={subscriberGrowth}
       accountGrowth={accountGrowth}
+      subscriberList={subscriberList}
+      accountList={accountList}
       favorites={favorites}
       puzzleEngagement={puzzleEngagement}
       retention={retention}

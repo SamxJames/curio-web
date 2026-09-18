@@ -4,6 +4,7 @@ import {
   cumulativeGrowth,
   computeRollingRetention,
   summarizePuzzleEngagement,
+  buildAccountSummaries,
 } from "./adminStats";
 import type { PlayState } from "./storage";
 
@@ -155,5 +156,30 @@ describe("summarizePuzzleEngagement", () => {
     expect(result.solved).toBe(1);
     expect(result.inProgress).toBe(0);
     expect(result.histogram).toEqual([0, 0, 0, 0]);
+  });
+});
+
+describe("buildAccountSummaries", () => {
+  it("pairs each account with its email, most recently joined first", () => {
+    const activity = [
+      { userId: "u1", joinedAt: "2026-09-01", lastSeen: "2026-09-10" },
+      { userId: "u2", joinedAt: "2026-09-15", lastSeen: null },
+    ];
+    const emails = { u1: "a@example.com", u2: "b@example.com" };
+    const result = buildAccountSummaries(activity, emails);
+    expect(result).toEqual([
+      { userId: "u2", email: "b@example.com", joinedAt: "2026-09-15", lastSeen: null },
+      { userId: "u1", email: "a@example.com", joinedAt: "2026-09-01", lastSeen: "2026-09-10" },
+    ]);
+  });
+
+  it("uses null for an account whose email lookup failed or is missing", () => {
+    const activity = [{ userId: "u1", joinedAt: "2026-09-01", lastSeen: null }];
+    const result = buildAccountSummaries(activity, {});
+    expect(result[0].email).toBeNull();
+  });
+
+  it("returns an empty list for no accounts", () => {
+    expect(buildAccountSummaries([], {})).toEqual([]);
   });
 });

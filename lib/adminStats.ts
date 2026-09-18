@@ -109,3 +109,27 @@ export function summarizePuzzleEngagement(states: PlayState[]): PuzzleEngagement
 
   return { totalPlays: states.length, solved, failed, inProgress, histogram };
 }
+
+export type AccountSummary = {
+  userId: string;
+  email: string | null;
+  joinedAt: string;
+  lastSeen: string | null;
+};
+
+/** Pairs each account's activity record with its email (fetched
+ * separately, one account at a time, via lib/auth.ts's getUserEmail —
+ * that's an adapter call per account, not something this pure function
+ * does itself), for the admin portal's "who has signed up" view.
+ * `email` is null when the lookup came back empty (id no longer matches a
+ * real account, or Upstash unreachable) — never dropped, so an admin can
+ * still see the join date even without a name to put to it. Sorted most
+ * recently joined first, matching the subscriber list's ordering. */
+export function buildAccountSummaries(
+  activity: { userId: string; joinedAt: string; lastSeen: string | null }[],
+  emailsByUserId: Record<string, string | null>
+): AccountSummary[] {
+  return activity
+    .map((a) => ({ ...a, email: emailsByUserId[a.userId] ?? null }))
+    .sort((a, b) => b.joinedAt.localeCompare(a.joinedAt));
+}

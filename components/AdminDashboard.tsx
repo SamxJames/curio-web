@@ -1,5 +1,6 @@
-import type { CumulativeCount, PuzzleEngagementSummary, RetentionResult } from "@/lib/adminStats";
+import type { CumulativeCount, PuzzleEngagementSummary, RetentionResult, AccountSummary } from "@/lib/adminStats";
 import type { EmailMetricsTotals } from "@/lib/resendMetrics";
+import type { Subscriber } from "@/lib/db";
 import { pluralize, capitalize, WIDE_DOT, formatShortDate } from "@/lib/collection";
 
 type Props = {
@@ -7,6 +8,8 @@ type Props = {
   accountCount: number;
   subscriberGrowth: CumulativeCount[];
   accountGrowth: CumulativeCount[];
+  subscriberList: Subscriber[];
+  accountList: AccountSummary[];
   favorites: { accountsWithFavorites: number; totalFavorites: number };
   puzzleEngagement: PuzzleEngagementSummary;
   retention: { day1: RetentionResult; day7: RetentionResult; day30: RetentionResult };
@@ -19,6 +22,8 @@ export default function AdminDashboard({
   accountCount,
   subscriberGrowth,
   accountGrowth,
+  subscriberList,
+  accountList,
   favorites,
   puzzleEngagement,
   retention,
@@ -40,6 +45,30 @@ export default function AdminDashboard({
         <GrowthTable label="Subscribers" rows={subscriberGrowth} />
         <div className="mt-6">
           <GrowthTable label="Accounts" rows={accountGrowth} />
+        </div>
+      </Section>
+
+      <Section title="People">
+        <PeopleTable
+          label="Subscribers"
+          emptyText="No subscribers yet."
+          rows={subscriberList.map((s) => ({
+            key: s.email,
+            primary: s.email,
+            date: s.createdAt.slice(0, 10),
+          }))}
+        />
+        <div className="mt-6">
+          <PeopleTable
+            label="Accounts"
+            emptyText="No accounts yet."
+            rows={accountList.map((a) => ({
+              key: a.userId,
+              primary: a.email ?? "(no email on record)",
+              date: a.joinedAt,
+              secondary: a.lastSeen ? `seen ${formatShortDate(a.lastSeen)}` : "never seen",
+            }))}
+          />
         </div>
       </Section>
 
@@ -124,6 +153,40 @@ function GrowthTable({ label, rows }: { label: string; rows: CumulativeCount[] }
                 {formatShortDate(row.date)}
               </span>
               <span className="font-serif text-[13px]">{row.total} total</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PeopleTable({
+  label,
+  rows,
+  emptyText,
+}: {
+  label: string;
+  rows: { key: string; primary: string; date: string; secondary?: string }[];
+  emptyText: string;
+}) {
+  return (
+    <div>
+      <h3 className="font-sans text-[9.5px] tracking-[0.18em] text-ink-soft uppercase">{label}</h3>
+      {rows.length === 0 ? (
+        <p className="mt-2 font-serif text-[13.5px] text-ink-soft italic">{emptyText}</p>
+      ) : (
+        <div className="mt-2 max-h-[320px] overflow-y-auto">
+          {rows.map((row) => (
+            <div
+              key={row.key}
+              className="flex items-baseline justify-between gap-3 border-t border-line py-1.5 first:border-t-0"
+            >
+              <span className="min-w-0 truncate font-sans text-[12px] text-ink">{row.primary}</span>
+              <span className="shrink-0 font-sans text-[9.5px] tracking-[0.06em] text-ink-soft">
+                {formatShortDate(row.date)}
+                {row.secondary && <> {WIDE_DOT} {row.secondary}</>}
+              </span>
             </div>
           ))}
         </div>
