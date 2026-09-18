@@ -225,20 +225,39 @@ origin/journey/related existed). Every entry has both, and
 `lineage` ends in `"English"`. If you add a new word, you need both fields
 or the tests fail.
 
-## Word bank: growing from 8, batch pipeline now proven against real content
+## Word bank: 1,147 words, content pipeline run to completion
 
-`WORDS` had 8 entries for most of this project's life; as of 2026-09-18 it
-has **26** (8 original + the first real batch of 18, pulled from real
-Wiktextract facts and approved by hand). The plan is ~1,000 total, pulled
-from `curio-word-candidates.txt` (1,317 candidates, categorized in
-`curio-word-candidates-by-category.md`) with `curio-reserve-words.txt`
-(3,209 more) as backup if attrition runs high — both committed at the repo
-root. Growing the content library is still a **content** task (needs real,
-accurate etymology), not a code task — don't invent etymologies to pad the
-list. `/play`'s "not open yet" state is itself an honest progress signal:
-it needs the eligible pool (words not shown in 30+ days) to reach 10,
-which this codebase's own design notes say happens around a 40-word bank
-— so `/play` stays closed for a while yet even as the count climbs.
+`WORDS` had 8 entries for most of this project's life. As of 2026-09-18 it
+has **1,147** — grown in two real batches (26 after the first, a further
+1,121 after running the full remaining candidate list). Source lists:
+`curio-word-candidates.txt` (1,317 candidates, categorized in
+`curio-word-candidates-by-category.md`) and `curio-reserve-words.txt`
+(3,209 more, unused so far — attrition never ran high enough to need it).
+Real attrition across the whole run: 1,317 candidates → 1,281 had usable
+`etymology_text` (97.3%) → 1,121 survived rewrite and validation (87.5% of
+those) — 160 dropped for a clue naming the answer word/stem, 36 for
+genuinely no facts. Growing the content library further is still a
+**content** task (needs real, accurate etymology from a real Wiktextract
+dump), not a code task — don't invent etymologies to pad the list; if you
+add more, the batch tooling below already exists and is proven at this
+scale, real cost was ~$0.0076/word all-in (including retries).
+
+**`/play` is now open** — the eligible pool (words not shown in 30+ days)
+comfortably clears `PUZZLE_MIN_POOL_SIZE` (10) at this word count, verified
+live (a real puzzle rendered, not just code review). If the word count
+ever somehow dropped back under ~40, it would honestly close again — that
+behavior is unchanged, just no longer reachable at 1,147.
+
+**Important, if you ever grow `WORDS` again:** confirm `81d8203`'s
+word-locking layer (see `lib/words.ts`'s "Locking layer" section, and
+`resolveTodayWord`/`resolveWordForUser`/etc.) is still in place and used by
+every page. Before that fix existed, growing the array retroactively
+shifted the calendar-index math for every already-served date — it
+actually happened once, mid-day, during the 8→26 batch. The locking layer
+persists each date's word in Redis the first time it's resolved, so later
+growth can't move history out from under someone who already saw it. Don't
+revert to the plain `getWordForDate`/`getWordForUser`/etc. call sites in
+`app/`.
 
 **The pipeline is no longer just scaffolded — it's been run against real
 content and batched for ~1,000-word scale:**
@@ -295,39 +314,35 @@ matches that string. The current code anchors the search to start after
 the literal `export const WORDS: WordEntry[] = [` text specifically; don't
 regress that anchor.
 
-**Things that were flagged as "cheap now, expensive later" and checked at
-26 words — revisit as the count climbs toward 1,000:**
-- **Bundle size:** verified fine, not just assumed — every Client Component
-  that touches `lib/words.ts` imports only `import type { WordEntry }` /
-  `import type { HistoryDay }`, never the `WORDS` value itself or any
-  function that reads it, and every page that does read `WORDS` is a
-  Server Component. TypeScript `import type` is erased at compile time, so
-  none of `WORDS`'s content ships to the browser regardless of its size.
-  No architecture change needed unless that import pattern changes.
-- **`/history`'s "All words" tab has no pagination.** `HistoryList.tsx`
-  already groups entries by month past 30 of them (readability), but every
-  entry still renders its own `<li>` — no cap on total DOM nodes. Fine at
-  26; will need a real fix (pagination, or a "load more" per group) well
-  before 1,000. Proposed approach, not yet built: cap eagerly-rendered
-  groups (e.g. first few months) behind a "show more," with search
-  bypassing the cap so it can still find older entries.
+**Things that were flagged as "cheap now, expensive later," first checked
+at 26 words — now genuinely live at 1,147, not hypothetical:**
+- **Bundle size:** still verified fine — every Client Component that
+  touches `lib/words.ts` imports only `import type { WordEntry }` /
+  `import type { HistoryDay }`, never the `WORDS` value itself, and every
+  page that reads `WORDS` is a Server Component. `import type` is erased
+  at compile time, so none of `WORDS`'s content (now ~13,000 lines) ships
+  to the browser. No architecture change needed unless that import pattern
+  changes.
+- **`/history`'s "All words" tab has no pagination — and now actually
+  renders up to 1,147 `<li>`s.** `HistoryList.tsx` groups by month past 30
+  entries (readability), but doesn't cap total DOM nodes. Checked live: it
+  still rendered and scrolled fine in a quick manual pass, but this is the
+  first time it's genuinely been tested at real scale rather than reasoned
+  about. Worth a proper look (pagination, or windowing) if it ever feels
+  sluggish on a real device — proposed approach unchanged: cap eagerly
+  rendered groups behind "show more," with search bypassing the cap.
 - **`lib/bluesky.ts`'s `buildBlueskyPost` doesn't bound `word + url`
-  itself** (only the teaser gets truncated to fit 300 chars) — still true,
-  but checked the actual math: with the real UTM-tagged story URL, a
-  single headword would need to be ~94+ characters to ever trigger it. No
-  realistic English word gets remotely close, even across ~1,000 entries.
-  Not a practical risk; the theoretical gap in the code is unaddressed.
-- **`lib/puzzle.ts`'s `daysSinceLastShown` is O(n²)** at the word-bank
-  scale (`getEligiblePuzzleWords` calls it once per word, each call
-  walking up to `max(words.length, 30)` days backward) — measured directly
-  at a synthetic 1,000-word list: **~56ms per call**, and
-  `getPuzzleForDate` calls it twice per `/play` render (today + yesterday
-  lookback), so ~112ms of added server compute per page load at that
-  scale. Logically still correct (the search window formula is sound), but
-  worth optimizing before real growth much past 1,000: the fix is to walk
-  backward through the window once, building a Set of slugs shown in it,
-  then filter all words against that Set in one pass — turns O(n²) into
-  O(n). Not built; flagging for whoever hits this next.
+  itself** — still true, still not a practical risk (the math needs a
+  ~94+ character single headword; nothing in the real 1,147-word bank gets
+  remotely close). Theoretical gap, unaddressed, low priority.
+- **`lib/puzzle.ts`'s `daysSinceLastShown` is O(n²)** — at 1,147 words this
+  is no longer a synthetic-benchmark number, it's what `/play` actually
+  pays on every render (measured at a synthetic 1,000-word list: ~56ms per
+  `getEligiblePuzzleWords` call, ×2 per `/play` render). `/play` still felt
+  instant in a live check, so not urgent, but it's the first concrete
+  candidate for the O(n) rewrite (walk the window once, build a Set of
+  recently-shown slugs, filter against that) if the word bank grows
+  further or `/play` traffic grows enough for it to matter. Not built.
 
 ## Accounts / auth system, in one paragraph
 
