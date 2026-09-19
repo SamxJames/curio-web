@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { getFavorites, mergeFavoritesFromAccount } from "@/lib/storage";
+import Button from "@/components/ui/Button";
 
 const OFFERED_KEY = "curio:localImportOffered";
 
@@ -56,24 +57,18 @@ export default function AccountFavoritesSync() {
   const count = importCandidates.length;
   return (
     <div className="border-b border-line bg-paper-raised px-6 py-3">
-      <div className="mx-auto flex max-w-[640px] flex-wrap items-center justify-between gap-3">
+      <div className="mx-auto flex max-w-page flex-wrap items-center justify-between gap-3">
         <p className="font-sans text-sm text-ink-soft">
           You have {count} favorite{count === 1 ? "" : "s"} saved on this device — import{" "}
           {count === 1 ? "it" : "them"} into your account?
         </p>
         <div className="flex gap-2">
-          <button
-            onClick={handleSkip}
-            className="rounded-full px-3.5 py-1.5 font-sans text-sm text-ink-soft transition-colors hover:text-ink cursor-pointer"
-          >
+          <Button variant="ghost" size="sm" className="text-sm" onClick={handleSkip}>
             Skip
-          </button>
-          <button
-            onClick={handleImport}
-            className="rounded-full bg-accent px-3.5 py-1.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90 cursor-pointer"
-          >
+          </Button>
+          <Button size="sm" onClick={handleImport}>
             Import
-          </button>
+          </Button>
         </div>
       </div>
     </div>

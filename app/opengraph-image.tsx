@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { ogTheme } from "@/lib/ogTheme";
 
 export const alt = "Curio — one word, one story, every day";
 export const size = { width: 1200, height: 630 };
@@ -18,12 +19,12 @@ export default function Image() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "#f1ece0",
-          color: "#24302b",
+          background: ogTheme.paper,
+          color: ogTheme.ink,
         }}
       >
         <div style={{ display: "flex", fontSize: 96, fontWeight: 600 }}>Curio</div>
-        <div style={{ display: "flex", fontSize: 36, color: "#5b665f", marginTop: 24 }}>
+        <div style={{ display: "flex", fontSize: 36, color: ogTheme.inkSoft, marginTop: 24 }}>
           One word. One story. Every day.
         </div>
       </div>

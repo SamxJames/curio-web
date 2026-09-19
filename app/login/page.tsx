@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { detectMailProvider, openMailProvider, MAIL_PROVIDERS } from "@/lib/mailProviders";
+import Button from "@/components/ui/Button";
+import TextField from "@/components/ui/TextField";
 
 type Status = "idle" | "submitting" | "sent" | "error";
 
@@ -79,32 +81,23 @@ export default function LoginPage() {
     const others = MAIL_PROVIDERS.filter((p) => p !== matched);
 
     return (
-      <section className="mx-auto max-w-[440px] px-6 py-20">
+      <section className="mx-auto max-w-form px-6 py-20">
         <p className="font-sans text-sm text-ink-soft">
           Check {email} for a sign-in link. It expires in 24 hours.
         </p>
 
         {matched && (
-          <button
-            type="button"
-            onClick={() => openMailProvider(matched)}
-            className="mt-6 inline-flex w-full items-center justify-center rounded-md bg-accent px-4 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90 cursor-pointer"
-          >
+          <Button type="button" fullWidth className="mt-6" onClick={() => openMailProvider(matched)}>
             Open {matched.label}
-          </button>
+          </Button>
         )}
 
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 font-sans text-sm text-ink-soft">
           {!matched && <span className="text-ink-faint">Open your inbox:</span>}
           {others.map((p) => (
-            <button
-              key={p.label}
-              type="button"
-              onClick={() => openMailProvider(p)}
-              className="transition-colors hover:text-ink cursor-pointer"
-            >
+            <Button key={p.label} variant="ghost" type="button" onClick={() => openMailProvider(p)}>
               {p.label}
-            </button>
+            </Button>
           ))}
         </div>
       </section>
@@ -112,39 +105,35 @@ export default function LoginPage() {
   }
 
   return (
-    <section className="mx-auto max-w-[440px] px-6 py-20">
+    <section className="mx-auto max-w-form px-6 py-20">
       <h1 className="font-serif text-3xl">Sign in</h1>
       <p className="mt-3 font-sans text-sm text-ink-soft">
         We&apos;ll email you a link — no password needed.
       </p>
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-        <div>
-          <label htmlFor="email" className="mb-2 block font-sans text-xs tracking-wide text-ink-faint">
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            inputMode="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            className="w-full rounded-md border border-line bg-transparent px-3 py-2.5 font-sans text-sm text-ink placeholder:text-ink-faint focus:border-accent"
-          />
-        </div>
+        <TextField
+          id="email"
+          name="email"
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          required
+          label="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@example.com"
+        />
         {status === "error" && (
-          <p className="font-sans text-sm text-danger">Something went wrong. Try again.</p>
+          <p role="alert" className="font-sans text-sm text-danger">Something went wrong. Try again.</p>
         )}
-        <button
+        <Button
           type="submit"
+          fullWidth
+          loading={status === "submitting"}
           disabled={status === "submitting"}
-          className="w-full rounded-md bg-accent px-4 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-50 cursor-pointer"
         >
           {status === "submitting" ? "Sending…" : "Send sign-in link"}
-        </button>
+        </Button>
       </form>
     </section>
   );

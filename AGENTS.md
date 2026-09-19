@@ -7,3 +7,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Design system
+
+Curio has a small, consolidated design token layer (`app/globals.css`'s `@theme inline` block — colors, type sizes, tracking, leading, container widths, motion) and a shared component primitive library (`components/ui/` — Button, IconButton, TextField, SegmentedControl, Eyebrow). Read `docs/design-system.md` before adding any new UI — new arbitrary Tailwind values (`text-[Npx]`, `tracking-[...]`, etc.) or a new hand-rolled `<button>`/`<input>` outside `components/ui/` should be treated as a regression, not a shortcut. `components/AdminDashboard.tsx` is the one deliberate exception (internal tooling, not part of this system).

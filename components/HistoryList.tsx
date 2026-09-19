@@ -2,9 +2,12 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import clsx from "clsx";
 import { Heart, Search } from "lucide-react";
 import { toggleFavorite, useFavorites } from "@/lib/storage";
+import Button from "@/components/ui/Button";
+import IconButton from "@/components/ui/IconButton";
+import TextField from "@/components/ui/TextField";
+import { SegmentedTabs } from "@/components/ui/SegmentedControl";
 
 type Filter = "mine" | "all" | "favorites";
 
@@ -119,42 +122,23 @@ export default function HistoryList({
   );
 
   return (
-    <div className="mx-auto max-w-[640px] px-6 py-16">
-      <div className="relative mb-4">
-        <Search
-          size={15}
-          strokeWidth={1.75}
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
-        />
-        <input
-          type="text"
+    <div className="mx-auto max-w-page px-6 py-16">
+      <div className="mb-4">
+        <TextField
+          icon={<Search size={15} strokeWidth={1.75} />}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search words…"
           aria-label="Search words"
-          className="w-full rounded-md border border-line bg-transparent py-2 pl-9 pr-3 font-sans text-sm text-ink placeholder:text-ink-faint focus:border-accent"
         />
       </div>
 
-      <div className="mb-6 flex items-center gap-1 font-sans text-sm">
-        {tabs.map(({ key, label }) => (
-          <button
-            key={key}
-            onClick={() => setFilter(key)}
-            className={clsx(
-              "rounded-full px-3.5 py-1.5 transition-colors cursor-pointer",
-              filter === key ? "bg-paper-raised text-ink" : "text-ink-soft hover:text-ink"
-            )}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <SegmentedTabs segments={tabs} active={filter} onChange={setFilter} className="mb-6" />
 
       {filter === "mine" && (
         <p className="mb-6 font-sans text-sm text-ink-faint">
           Your personal word order — one new word a day since you joined. It&apos;ll grow day by
-          day; browse <button onClick={() => setFilter("all")} className="underline underline-offset-2 hover:text-ink cursor-pointer">all words</button> in the meantime.
+          day; browse <Button variant="link" className="inline" onClick={() => setFilter("all")}>all words</Button> in the meantime.
         </p>
       )}
 
@@ -191,17 +175,18 @@ export default function HistoryList({
                         {word.word}
                       </p>
                     </Link>
-                    <button
+                    <IconButton
+                      label={favorited ? "Remove from favorites" : "Add to favorites"}
                       onClick={() => handleToggle(word.slug)}
-                      aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
-                      className="shrink-0 rounded-full p-2 text-ink-faint transition-colors hover:text-accent cursor-pointer"
+                      bordered={false}
+                      className="shrink-0 !text-ink-faint hover:!text-accent"
                     >
                       <Heart
                         size={16}
                         strokeWidth={1.75}
                         className={favorited ? "fill-accent text-accent" : ""}
                       />
-                    </button>
+                    </IconButton>
                   </div>
                 </li>
               );
@@ -211,12 +196,14 @@ export default function HistoryList({
       ))}
 
       {hasMore && (
-        <button
+        <Button
+          variant="secondary"
+          fullWidth
+          className="mt-6 !rounded-md"
           onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-          className="mt-6 w-full rounded-md border border-line py-2.5 font-sans text-sm text-ink-soft transition-colors hover:text-ink hover:border-accent cursor-pointer"
         >
           Show more
-        </button>
+        </Button>
       )}
     </div>
   );

@@ -7,6 +7,7 @@ import { markOnboarded } from "@/lib/storage";
 import { track } from "@/lib/analytics";
 import ThemeToggle from "./ThemeToggle";
 import EmailSignupInline from "./EmailSignupInline";
+import Eyebrow from "@/components/ui/Eyebrow";
 
 /** The merged first-look hero for anonymous, first-time visitors — replaces
  * the old pairing of the plain Today hero plus a separate OnboardingBanner
@@ -20,7 +21,7 @@ export default function ArrivalHero({ word, date }: { word: WordEntry; date: str
   }, []);
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-1px)] max-w-[640px] flex-col px-6">
+    <div className="mx-auto flex min-h-[calc(100vh-1px)] max-w-page flex-col px-6">
       <div className="flex items-center justify-between py-5">
         <Link href="/" className="font-serif text-lg tracking-tight">
           Curio
@@ -41,16 +42,16 @@ export default function ArrivalHero({ word, date }: { word: WordEntry; date: str
       </div>
 
       <div className="flex flex-1 flex-col pt-10 pb-10">
-        <p className="font-sans text-[11px] tracking-[0.14em] text-accent uppercase">
+        <Eyebrow as="p" className="tracking-eyebrow-wider text-accent">
           Today&apos;s word &middot; {date}
-        </p>
+        </Eyebrow>
 
-        <h1 className="mt-4 font-serif text-[44px] leading-[1.05] font-bold">{word.word}</h1>
+        <h1 className="mt-4 font-serif text-display leading-display font-bold">{word.word}</h1>
         <p className="mt-3 font-sans text-sm text-ink-soft">
           {word.respelling} &middot; {word.partOfSpeech}
         </p>
 
-        <p className="mt-6 max-w-[46ch] font-serif text-[19px] leading-[1.38] text-ink">
+        <p className="mt-6 max-w-[46ch] font-serif text-lg leading-relaxed text-ink">
           {word.teaser}
         </p>
 

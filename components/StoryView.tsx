@@ -7,6 +7,7 @@ import type { WordEntry } from "@/lib/words";
 import { isFavorite, toggleFavorite, useClientOnlyValue } from "@/lib/storage";
 import { track } from "@/lib/analytics";
 import EtymologyLineage from "./EtymologyLineage";
+import Button from "@/components/ui/Button";
 
 const SECTIONS: { key: keyof Pick<WordEntry, "origin" | "journey" | "related">; label: string }[] = [
   { key: "origin", label: "Origin" },
@@ -50,7 +51,7 @@ export default function StoryView({ word, date }: { word: WordEntry; date?: stri
   }
 
   return (
-    <article className="mx-auto max-w-[640px] px-6 py-12">
+    <article className="mx-auto max-w-page px-6 py-12">
       <Link
         href="/"
         className="mb-6 inline-flex items-center gap-1.5 font-sans text-xs tracking-wide text-ink-faint transition-colors hover:text-ink"
@@ -71,11 +72,12 @@ export default function StoryView({ word, date }: { word: WordEntry; date?: stri
       <EtymologyLineage lineage={word.lineage} className="mt-4 text-sm" />
 
       <div className="mt-10 flex items-center gap-3">
-        <button
-          onClick={handleFavorite}
+        <Button
+          variant="secondary"
+          className="inline-flex items-center gap-2"
           aria-pressed={isFavorited}
           aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
-          className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 text-sm text-ink-soft transition-colors hover:border-accent hover:text-ink cursor-pointer"
+          onClick={handleFavorite}
         >
           <Heart
             size={15}
@@ -83,11 +85,8 @@ export default function StoryView({ word, date }: { word: WordEntry; date?: stri
             className={isFavorited ? "fill-accent text-accent" : ""}
           />
           {isFavorited ? "Favorited" : "Favorite"}
-        </button>
-        <button
-          onClick={handleShare}
-          className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 text-sm text-ink-soft transition-colors hover:border-accent hover:text-ink cursor-pointer"
-        >
+        </Button>
+        <Button variant="secondary" className="inline-flex items-center gap-2" onClick={handleShare}>
           {copied ? (
             <>
               <LinkIcon size={15} strokeWidth={1.75} />
@@ -104,7 +103,7 @@ export default function StoryView({ word, date }: { word: WordEntry; date?: stri
               Copy link
             </>
           )}
-        </button>
+        </Button>
       </div>
 
       <div className="mt-12 space-y-10">

@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getWordBySlug } from "@/lib/words";
+import { ogTheme } from "@/lib/ogTheme";
 
 export const alt = "Curio";
 export const size = { width: 1200, height: 630 };
@@ -30,8 +31,8 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "#f1ece0",
-            color: "#24302b",
+            background: ogTheme.paper,
+            color: ogTheme.ink,
             fontSize: 72,
             fontWeight: 600,
           }}
@@ -53,17 +54,17 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           flexDirection: "column",
           justifyContent: "center",
           padding: "80px",
-          background: "#f1ece0",
-          color: "#24302b",
+          background: ogTheme.paper,
+          color: ogTheme.ink,
         }}
       >
-        <div style={{ display: "flex", fontSize: 28, color: "#5b665f", letterSpacing: 1 }}>
+        <div style={{ display: "flex", fontSize: 28, color: ogTheme.inkSoft, letterSpacing: 1 }}>
           CURIO
         </div>
         <div style={{ display: "flex", fontSize: 112, fontWeight: 600, lineHeight: 1, marginTop: 20 }}>
           {word.word}
         </div>
-        <div style={{ display: "flex", fontSize: 32, color: "#8a9089", marginTop: 20 }}>
+        <div style={{ display: "flex", fontSize: 32, color: ogTheme.inkFaint, marginTop: 20 }}>
           {word.respelling} &middot; {word.partOfSpeech}
         </div>
         <div
@@ -73,7 +74,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             lineHeight: 1.45,
             marginTop: 40,
             maxWidth: 1000,
-            color: "#24302b",
+            color: ogTheme.ink,
           }}
         >
           {truncate(word.origin, MAX_ORIGIN_LENGTH)}

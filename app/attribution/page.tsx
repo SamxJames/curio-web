@@ -2,7 +2,7 @@ export const metadata = { title: "Attribution — Curio" };
 
 export default function AttributionPage() {
   return (
-    <section className="mx-auto max-w-[640px] px-6 py-20">
+    <section className="mx-auto max-w-page px-6 py-20">
       <h1 className="font-serif text-3xl">Attribution</h1>
       <p className="mt-6 font-serif text-lg leading-relaxed text-ink-soft">
         Word origin content on Curio is adapted from{" "}

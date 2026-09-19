@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { track } from "@/lib/analytics";
+import Button from "@/components/ui/Button";
+import TextField from "@/components/ui/TextField";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -37,34 +39,31 @@ export default function EmailSignupInline({ onSubscribed }: { onSubscribed?: () 
 
   if (status === "success") {
     return (
-      <p className="font-sans text-sm text-ink-soft">You&apos;re in. Your first word arrives tomorrow.</p>
+      <p role="status" className="font-sans text-sm text-ink-soft">You&apos;re in. Your first word arrives tomorrow.</p>
     );
   }
 
   return (
     <div>
       <form onSubmit={handleSubmit} className="flex gap-2">
-        <input
-          type="email"
-          name="email"
-          inputMode="email"
-          autoComplete="email"
-          required
-          aria-label="Email address"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="your@email.com"
-          className="min-w-0 flex-1 rounded-full border border-line bg-paper-raised px-4 py-2.5 font-sans text-sm text-ink placeholder:text-ink-faint focus:border-accent"
-        />
-        <button
-          type="submit"
-          disabled={status === "submitting"}
-          className="shrink-0 rounded-full bg-accent px-5 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-50 cursor-pointer"
-        >
+        <div className="min-w-0 flex-1">
+          <TextField
+            type="email"
+            name="email"
+            inputMode="email"
+            autoComplete="email"
+            required
+            aria-label="Email address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="your@email.com"
+          />
+        </div>
+        <Button type="submit" disabled={status === "submitting"} className="shrink-0">
           {status === "submitting" ? "Joining…" : "Join"}
-        </button>
+        </Button>
       </form>
-      {status === "error" && <p className="mt-2 font-sans text-sm text-danger">{errorMessage}</p>}
+      {status === "error" && <p role="alert" className="mt-2 font-sans text-sm text-danger">{errorMessage}</p>}
     </div>
   );
 }
