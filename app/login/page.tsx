@@ -79,7 +79,7 @@ export default function LoginPage() {
     const others = MAIL_PROVIDERS.filter((p) => p !== matched);
 
     return (
-      <section className="mx-auto max-w-[440px] px-6 py-20">
+      <section className="mx-auto max-w-form px-6 py-20">
         <p className="font-sans text-sm text-ink-soft">
           Check {email} for a sign-in link. It expires in 24 hours.
         </p>
@@ -112,7 +112,7 @@ export default function LoginPage() {
   }
 
   return (
-    <section className="mx-auto max-w-[440px] px-6 py-20">
+    <section className="mx-auto max-w-form px-6 py-20">
       <h1 className="font-serif text-3xl">Sign in</h1>
       <p className="mt-3 font-sans text-sm text-ink-soft">
         We&apos;ll email you a link — no password needed.

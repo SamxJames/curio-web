@@ -56,7 +56,7 @@ export default function AccountFavoritesSync() {
   const count = importCandidates.length;
   return (
     <div className="border-b border-line bg-paper-raised px-6 py-3">
-      <div className="mx-auto flex max-w-[640px] flex-wrap items-center justify-between gap-3">
+      <div className="mx-auto flex max-w-page flex-wrap items-center justify-between gap-3">
         <p className="font-sans text-sm text-ink-soft">
           You have {count} favorite{count === 1 ? "" : "s"} saved on this device — import{" "}
           {count === 1 ? "it" : "them"} into your account?

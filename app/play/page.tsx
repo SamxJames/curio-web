@@ -16,7 +16,7 @@ export default function PlayPage() {
 
   if (!puzzle) {
     return (
-      <div className="mx-auto max-w-[640px] px-6 py-16">
+      <div className="mx-auto max-w-page px-6 py-16">
         <p className="font-sans text-xs tracking-wide text-ink-faint">Puzzle</p>
         <h1 className="mt-3 font-serif text-3xl">Not open yet</h1>
         <p className="mt-4 max-w-[46ch] font-serif text-lg leading-relaxed text-ink-soft">

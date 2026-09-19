@@ -27,7 +27,7 @@ export default async function AccountPage() {
   }
 
   return (
-    <section className="mx-auto max-w-[440px] px-6 py-20">
+    <section className="mx-auto max-w-form px-6 py-20">
       <h1 className="font-serif text-3xl">Account</h1>
       <p className="mt-3 font-sans text-sm text-ink-soft">{session.user.email}</p>
 

@@ -12,7 +12,7 @@ export default function TodayHero({
   isPersonalized: boolean;
 }) {
   return (
-    <section className="mx-auto flex max-w-[640px] flex-col items-start px-6 py-20">
+    <section className="mx-auto flex max-w-page flex-col items-start px-6 py-20">
       <p className="font-sans text-xs tracking-wide text-ink-faint">
         {isPersonalized ? <>Your word &middot; {date}</> : date}
       </p>

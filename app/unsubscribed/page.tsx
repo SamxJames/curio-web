@@ -9,7 +9,7 @@ export default async function UnsubscribedPage({
   const success = ok !== "0";
 
   return (
-    <section className="mx-auto max-w-[480px] px-6 py-24 text-center">
+    <section className="mx-auto max-w-form px-6 py-24 text-center">
       <h1 className="font-serif text-3xl">
         {success ? "You're unsubscribed" : "Something went wrong"}
       </h1>

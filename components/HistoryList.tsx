@@ -119,7 +119,7 @@ export default function HistoryList({
   );
 
   return (
-    <div className="mx-auto max-w-[640px] px-6 py-16">
+    <div className="mx-auto max-w-page px-6 py-16">
       <div className="relative mb-4">
         <Search
           size={15}

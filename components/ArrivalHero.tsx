@@ -20,7 +20,7 @@ export default function ArrivalHero({ word, date }: { word: WordEntry; date: str
   }, []);
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-1px)] max-w-[640px] flex-col px-6">
+    <div className="mx-auto flex min-h-[calc(100vh-1px)] max-w-page flex-col px-6">
       <div className="flex items-center justify-between py-5">
         <Link href="/" className="font-serif text-lg tracking-tight">
           Curio

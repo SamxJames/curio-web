@@ -59,7 +59,7 @@ export default function CollectionScreen({
   }
 
   return (
-    <div className="mx-auto max-w-[560px] px-5 pb-8.5">
+    <div className="mx-auto max-w-form px-5 pb-8.5">
       <div className="pt-7.5">
         <h1 className="font-serif text-4xl leading-display font-normal tracking-headline">
           Your collection

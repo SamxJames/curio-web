@@ -50,7 +50,7 @@ export default function StoryView({ word, date }: { word: WordEntry; date?: stri
   }
 
   return (
-    <article className="mx-auto max-w-[640px] px-6 py-12">
+    <article className="mx-auto max-w-page px-6 py-12">
       <Link
         href="/"
         className="mb-6 inline-flex items-center gap-1.5 font-sans text-xs tracking-wide text-ink-faint transition-colors hover:text-ink"

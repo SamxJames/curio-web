@@ -30,7 +30,7 @@ export default function Header() {
 
   return (
     <header className="border-b border-line">
-      <div className="mx-auto flex max-w-[640px] items-center justify-between px-6 py-5">
+      <div className="mx-auto flex max-w-page items-center justify-between px-6 py-5">
         <Link href="/" className="font-serif text-lg tracking-tight">
           Curio
         </Link>
