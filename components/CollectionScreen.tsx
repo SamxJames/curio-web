@@ -59,24 +59,24 @@ export default function CollectionScreen({
   }
 
   return (
-    <div className="mx-auto max-w-[560px] px-5 pb-[34px]">
-      <div className="pt-[30px]">
-        <h1 className="font-serif text-[36px] leading-[1.05] font-normal tracking-[-0.015em]">
+    <div className="mx-auto max-w-[560px] px-5 pb-8.5">
+      <div className="pt-7.5">
+        <h1 className="font-serif text-4xl leading-display font-normal tracking-headline">
           Your collection
         </h1>
         {subline && (
-          <p className="mt-2.5 font-sans text-[10.5px] tracking-[0.12em] text-ink-soft uppercase">
+          <p className="mt-2.5 font-sans text-micro tracking-eyebrow-wider text-ink-soft uppercase">
             {subline}
           </p>
         )}
       </div>
 
-      <div className="mt-[22px] flex border-b border-line">
+      <div className="mt-5.5 flex border-b border-line">
         <Link
           href="/collection"
           scroll={false}
           className={clsx(
-            "-mb-px mr-[24px] border-b pb-2.5 font-sans text-[11px] tracking-[0.12em] uppercase transition-colors duration-150",
+            "-mb-px mr-6 border-b pb-2.5 font-sans text-micro tracking-eyebrow-wider uppercase transition-colors duration-150",
             tab === "collection" ? "border-ink text-ink" : "border-transparent text-ink-soft"
           )}
         >
@@ -86,7 +86,7 @@ export default function CollectionScreen({
           href="/collection?tab=history"
           scroll={false}
           className={clsx(
-            "-mb-px border-b pb-2.5 font-sans text-[11px] tracking-[0.12em] uppercase transition-colors duration-150",
+            "-mb-px border-b pb-2.5 font-sans text-micro tracking-eyebrow-wider uppercase transition-colors duration-150",
             tab === "history" ? "border-ink text-ink" : "border-transparent text-ink-soft"
           )}
         >
@@ -96,7 +96,7 @@ export default function CollectionScreen({
 
       {tab === "collection" ? (
         totalWords === 0 ? (
-          <p className="mt-[28px] font-serif text-[15px] text-ink-soft italic">
+          <p className="mt-7 font-serif text-base text-ink-soft italic">
             Your first word arrives tomorrow morning.
           </p>
         ) : (
@@ -158,15 +158,15 @@ function CollectionBody({
 
   return (
     <>
-      <div className="pt-[28px]">
+      <div className="pt-7">
         <div className="flex items-baseline justify-between gap-3">
-          <h2 className="font-serif text-[18px] italic">Where they came from</h2>
-          <span className="font-sans text-[9.5px] tracking-[0.1em] text-ink-soft uppercase">
+          <h2 className="font-serif text-lg italic">Where they came from</h2>
+          <span className="font-sans text-micro tracking-eyebrow text-ink-soft uppercase">
             tap to filter
           </span>
         </div>
 
-        <div className="mt-[14px] flex h-[28px] gap-[2px] text-ink">
+        <div className="mt-3.5 flex h-7 gap-0.5 text-ink">
           {languages.map((stat) => {
             const isActive = activeLanguage === stat.name;
             return (
@@ -191,7 +191,7 @@ function CollectionBody({
           })}
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-[6px]">
+        <div className="mt-3 flex flex-wrap gap-1.5">
           {languages.map((stat) => {
             const isActive = activeLanguage === stat.name;
             return (
@@ -205,29 +205,29 @@ function CollectionBody({
                   // extends the invisible tap target to ~44px tall without
                   // affecting the 6px gap between chips (it's absolutely
                   // positioned, so it doesn't take part in the flex layout).
-                  "relative flex cursor-pointer items-baseline gap-[5px] rounded-[2px] border px-[9px] py-[5px] font-sans text-[10.5px] tracking-[0.05em] transition-colors duration-150 after:absolute after:-inset-3 after:content-['']",
+                  "relative flex cursor-pointer items-baseline gap-1.25 rounded-full border px-2.25 py-1.25 font-sans text-micro tracking-label transition-colors duration-150 after:absolute after:-inset-3 after:content-['']",
                   isActive ? "border-accent text-accent" : "border-line text-ink-soft"
                 )}
               >
                 <span>{stat.name}</span>
-                <span className="text-[9px] opacity-70">{stat.count}</span>
+                <span className="text-micro opacity-70">{stat.count}</span>
               </button>
             );
           })}
         </div>
 
-        <p className="mt-[14px] font-serif text-[13.5px] leading-[1.5] text-ink-soft italic">
+        <p className="mt-3.5 font-serif text-sm leading-body text-ink-soft italic">
           {bandNote}
         </p>
       </div>
 
       {filterLine && (
-        <div className="mt-[26px] flex items-baseline justify-between border-b border-accent pb-2">
-          <span className="font-serif text-[16px]">{filterLine}</span>
+        <div className="mt-6.5 flex items-baseline justify-between border-b border-accent pb-2">
+          <span className="font-serif text-base">{filterLine}</span>
           <button
             type="button"
             onClick={() => onToggleLanguage(activeLanguage!)}
-            className="cursor-pointer font-sans text-[10px] tracking-[0.1em] text-accent uppercase"
+            className="cursor-pointer font-sans text-micro tracking-eyebrow text-accent uppercase"
           >
             clear
           </button>
@@ -238,7 +238,7 @@ function CollectionBody({
         {groups.map((group, i) => (
           <div key={group.label ?? `ungrouped-${i}`}>
             {group.label && (
-              <div className="pt-[26px] pb-1 font-sans text-[9.5px] tracking-[0.18em] text-ink-soft uppercase">
+              <div className="pt-6.5 pb-1 font-sans text-micro tracking-section text-ink-soft uppercase">
                 {group.label}
               </div>
             )}
@@ -256,7 +256,7 @@ function CollectionBody({
       </div>
 
       {showClosingLine && (
-        <p className="mt-[30px] border-t border-line pt-[22px] font-serif text-[15px] leading-[1.55] text-ink-soft italic [text-wrap:pretty]">
+        <p className="mt-7.5 border-t border-line pt-5.5 font-serif text-base leading-body text-ink-soft italic [text-wrap:pretty]">
           A little more about {closingWord.word}: {closingWord.related}
         </p>
       )}
@@ -297,19 +297,19 @@ function WordRow({
       className="flex cursor-pointer gap-3 border-t border-line py-5"
     >
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-[7px]">
-          <span className="font-serif text-[26px] leading-[1.1]">{word.word}</span>
+        <div className="flex items-center gap-1.75">
+          <span className="font-serif text-2xl leading-display">{word.word}</span>
           {favorited && <Star size={10} className="fill-accent text-accent" aria-hidden />}
         </div>
-        <div className="mt-[5px] font-sans text-[10.5px] tracking-[0.06em] text-ink-soft">
+        <div className="mt-1.25 font-sans text-micro tracking-label text-ink-soft">
           {word.respelling}
           {WIDE_DOT}
           {word.partOfSpeech}
         </div>
-        <p className="mt-2 font-serif text-[15px] leading-[1.45] text-ink [text-wrap:pretty]">
+        <p className="mt-2 font-serif text-base leading-body text-ink [text-wrap:pretty]">
           {word.teaser}
         </p>
-        <div className="mt-2.5 flex flex-wrap gap-x-[7px] gap-y-0 font-sans text-[9.5px] tracking-[0.13em] text-ink-soft uppercase">
+        <div className="mt-2.5 flex flex-wrap gap-x-1.75 gap-y-0 font-sans text-micro tracking-eyebrow-wider text-ink-soft uppercase">
           {word.lineage.map((lang, i) => {
             const label = (i > 0 ? "› " : "") + lang;
             if (lang === "English") {
@@ -336,7 +336,7 @@ function WordRow({
           })}
         </div>
       </div>
-      <div className="pt-2 font-sans text-[9.5px] tracking-[0.08em] whitespace-nowrap text-ink-soft">
+      <div className="pt-2 font-sans text-micro tracking-label whitespace-nowrap text-ink-soft">
         {formatShortDate(entry.date)}
       </div>
     </div>
@@ -347,11 +347,11 @@ function HistoryTabBody({ entries }: { entries: HistoryDay[] }) {
   const groups = useMemo(() => groupByMonth(entries), [entries]);
 
   return (
-    <div className="pt-[22px]">
-      <p className="font-serif text-[14px] text-ink-soft italic">Every morning since you joined.</p>
+    <div className="pt-5.5">
+      <p className="font-serif text-sm text-ink-soft italic">Every morning since you joined.</p>
       {groups.map((group) => (
         <div key={group.label}>
-          <div className="pt-[26px] pb-1 font-sans text-[9.5px] tracking-[0.18em] text-ink-soft uppercase">
+          <div className="pt-6.5 pb-1 font-sans text-micro tracking-section text-ink-soft uppercase">
             {group.label}
           </div>
           {group.items.map((entry) => (
@@ -360,11 +360,11 @@ function HistoryTabBody({ entries }: { entries: HistoryDay[] }) {
               href={`/story/${entry.word.slug}`}
               className="flex items-baseline gap-3 border-t border-line py-3"
             >
-              <span className="w-[42px] shrink-0 font-sans text-[10px] tracking-[0.06em] text-ink-soft">
+              <span className="w-11 shrink-0 font-sans text-micro tracking-label text-ink-soft">
                 {formatShortDate(entry.date)}
               </span>
-              <span className="flex-1 font-serif text-[18px]">{entry.word.word}</span>
-              <span className="font-sans text-[9.5px] tracking-[0.1em] text-ink-soft uppercase">
+              <span className="flex-1 font-serif text-lg">{entry.word.word}</span>
+              <span className="font-sans text-micro tracking-eyebrow text-ink-soft uppercase">
                 {entry.word.partOfSpeech}
               </span>
             </Link>
