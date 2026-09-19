@@ -15,6 +15,7 @@ import {
 import { useSession } from "next-auth/react";
 import EmailSignupInline from "./EmailSignupInline";
 import Button from "@/components/ui/Button";
+import TextField from "@/components/ui/TextField";
 
 function todayDateString(): string {
   return new Date().toISOString().slice(0, 10);
@@ -131,14 +132,15 @@ export default function PuzzleGame({
           ))}
 
           <form onSubmit={handleGuess} className="mt-6 flex gap-2">
-            <input
-              type="text"
-              value={guess}
-              onChange={(e) => setGuess(e.target.value)}
-              placeholder="Type your guess…"
-              aria-label="Your guess"
-              className="min-w-0 flex-1 rounded-full border border-line bg-transparent px-3 py-2.5 font-sans text-sm text-ink placeholder:text-ink-faint focus:border-accent"
-            />
+            <div className="min-w-0 flex-1">
+              <TextField
+                type="text"
+                value={guess}
+                onChange={(e) => setGuess(e.target.value)}
+                placeholder="Type your guess…"
+                aria-label="Your guess"
+              />
+            </div>
             <Button type="submit">
               Guess
             </Button>

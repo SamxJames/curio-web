@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { detectMailProvider, openMailProvider, MAIL_PROVIDERS } from "@/lib/mailProviders";
 import Button from "@/components/ui/Button";
+import TextField from "@/components/ui/TextField";
 
 type Status = "idle" | "submitting" | "sent" | "error";
 
@@ -110,23 +111,18 @@ export default function LoginPage() {
         We&apos;ll email you a link — no password needed.
       </p>
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-        <div>
-          <label htmlFor="email" className="mb-2 block font-sans text-xs tracking-wide text-ink-faint">
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            inputMode="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            className="w-full rounded-full border border-line bg-transparent px-3 py-2.5 font-sans text-sm text-ink placeholder:text-ink-faint focus:border-accent"
-          />
-        </div>
+        <TextField
+          id="email"
+          name="email"
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          required
+          label="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@example.com"
+        />
         {status === "error" && (
           <p className="font-sans text-sm text-danger">Something went wrong. Try again.</p>
         )}

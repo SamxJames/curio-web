@@ -7,6 +7,7 @@ import { Heart, Search } from "lucide-react";
 import { toggleFavorite, useFavorites } from "@/lib/storage";
 import Button from "@/components/ui/Button";
 import IconButton from "@/components/ui/IconButton";
+import TextField from "@/components/ui/TextField";
 
 type Filter = "mine" | "all" | "favorites";
 
@@ -122,19 +123,13 @@ export default function HistoryList({
 
   return (
     <div className="mx-auto max-w-page px-6 py-16">
-      <div className="relative mb-4">
-        <Search
-          size={15}
-          strokeWidth={1.75}
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
-        />
-        <input
-          type="text"
+      <div className="mb-4">
+        <TextField
+          icon={<Search size={15} strokeWidth={1.75} />}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search words…"
           aria-label="Search words"
-          className="w-full rounded-full border border-line bg-transparent py-2 pl-9 pr-3 font-sans text-sm text-ink placeholder:text-ink-faint focus:border-accent"
         />
       </div>
 

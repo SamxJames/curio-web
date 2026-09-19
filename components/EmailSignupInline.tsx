@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { track } from "@/lib/analytics";
 import Button from "@/components/ui/Button";
+import TextField from "@/components/ui/TextField";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -45,18 +46,19 @@ export default function EmailSignupInline({ onSubscribed }: { onSubscribed?: () 
   return (
     <div>
       <form onSubmit={handleSubmit} className="flex gap-2">
-        <input
-          type="email"
-          name="email"
-          inputMode="email"
-          autoComplete="email"
-          required
-          aria-label="Email address"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="your@email.com"
-          className="min-w-0 flex-1 rounded-full border border-line bg-paper-raised px-4 py-2.5 font-sans text-sm text-ink placeholder:text-ink-faint focus:border-accent"
-        />
+        <div className="min-w-0 flex-1">
+          <TextField
+            type="email"
+            name="email"
+            inputMode="email"
+            autoComplete="email"
+            required
+            aria-label="Email address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="your@email.com"
+          />
+        </div>
         <Button type="submit" disabled={status === "submitting"} className="shrink-0">
           {status === "submitting" ? "Joining…" : "Join"}
         </Button>
