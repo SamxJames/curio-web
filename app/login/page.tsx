@@ -124,7 +124,7 @@ export default function LoginPage() {
           placeholder="you@example.com"
         />
         {status === "error" && (
-          <p className="font-sans text-sm text-danger">Something went wrong. Try again.</p>
+          <p role="alert" className="font-sans text-sm text-danger">Something went wrong. Try again.</p>
         )}
         <Button
           type="submit"

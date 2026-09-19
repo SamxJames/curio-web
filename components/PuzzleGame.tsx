@@ -146,7 +146,7 @@ export default function PuzzleGame({
             </Button>
           </form>
           {wrongFlash && (
-            <p className="font-sans text-sm text-danger">Not quite — here&apos;s another clue.</p>
+            <p role="alert" className="font-sans text-sm text-danger">Not quite — here&apos;s another clue.</p>
           )}
           {state.cluesRevealed < 3 && (
             <Button variant="link" className="text-xs" onClick={handleNeedAnotherClue}>
@@ -157,7 +157,7 @@ export default function PuzzleGame({
       )}
 
       {isDone && (
-        <div className="mt-8">
+        <div role="status" className="mt-8">
           <p className="font-sans text-sm text-ink-soft">
             {state.status === "solved" ? "Solved it." : "This one got away."}
           </p>

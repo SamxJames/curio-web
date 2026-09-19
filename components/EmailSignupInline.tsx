@@ -39,7 +39,7 @@ export default function EmailSignupInline({ onSubscribed }: { onSubscribed?: () 
 
   if (status === "success") {
     return (
-      <p className="font-sans text-sm text-ink-soft">You&apos;re in. Your first word arrives tomorrow.</p>
+      <p role="status" className="font-sans text-sm text-ink-soft">You&apos;re in. Your first word arrives tomorrow.</p>
     );
   }
 
@@ -63,7 +63,7 @@ export default function EmailSignupInline({ onSubscribed }: { onSubscribed?: () 
           {status === "submitting" ? "Joining…" : "Join"}
         </Button>
       </form>
-      {status === "error" && <p className="mt-2 font-sans text-sm text-danger">{errorMessage}</p>}
+      {status === "error" && <p role="alert" className="mt-2 font-sans text-sm text-danger">{errorMessage}</p>}
     </div>
   );
 }
