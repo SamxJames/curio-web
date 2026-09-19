@@ -136,11 +136,11 @@ export default function PuzzleGame({
               onChange={(e) => setGuess(e.target.value)}
               placeholder="Type your guess…"
               aria-label="Your guess"
-              className="min-w-0 flex-1 rounded-md border border-line bg-transparent px-3 py-2.5 font-sans text-sm text-ink placeholder:text-ink-faint focus:border-accent"
+              className="min-w-0 flex-1 rounded-full border border-line bg-transparent px-3 py-2.5 font-sans text-sm text-ink placeholder:text-ink-faint focus:border-accent"
             />
             <button
               type="submit"
-              className="shrink-0 rounded-md bg-accent px-4 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90 cursor-pointer"
+              className="shrink-0 rounded-full bg-accent px-4 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90 cursor-pointer"
             >
               Guess
             </button>

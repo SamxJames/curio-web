@@ -88,7 +88,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => openMailProvider(matched)}
-            className="mt-6 inline-flex w-full items-center justify-center rounded-md bg-accent px-4 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90 cursor-pointer"
+            className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-accent px-4 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90 cursor-pointer"
           >
             Open {matched.label}
           </button>
@@ -132,7 +132,7 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="w-full rounded-md border border-line bg-transparent px-3 py-2.5 font-sans text-sm text-ink placeholder:text-ink-faint focus:border-accent"
+            className="w-full rounded-full border border-line bg-transparent px-3 py-2.5 font-sans text-sm text-ink placeholder:text-ink-faint focus:border-accent"
           />
         </div>
         {status === "error" && (
@@ -141,7 +141,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={status === "submitting"}
-          className="w-full rounded-md bg-accent px-4 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-50 cursor-pointer"
+          className="w-full rounded-full bg-accent px-4 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-50 cursor-pointer"
         >
           {status === "submitting" ? "Sending…" : "Send sign-in link"}
         </button>

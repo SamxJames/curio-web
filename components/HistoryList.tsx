@@ -132,7 +132,7 @@ export default function HistoryList({
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search words…"
           aria-label="Search words"
-          className="w-full rounded-md border border-line bg-transparent py-2 pl-9 pr-3 font-sans text-sm text-ink placeholder:text-ink-faint focus:border-accent"
+          className="w-full rounded-full border border-line bg-transparent py-2 pl-9 pr-3 font-sans text-sm text-ink placeholder:text-ink-faint focus:border-accent"
         />
       </div>
 

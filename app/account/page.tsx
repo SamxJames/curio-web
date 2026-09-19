@@ -52,7 +52,7 @@ export default async function AccountPage() {
             <form action={subscribe} className="mt-3">
               <button
                 type="submit"
-                className="rounded-md bg-accent px-4 py-2 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90 cursor-pointer"
+                className="rounded-full bg-accent px-4 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90 cursor-pointer"
               >
                 Subscribe
               </button>
@@ -70,7 +70,7 @@ export default async function AccountPage() {
       >
         <button
           type="submit"
-          className="rounded-md border border-line px-4 py-2.5 font-sans text-sm text-ink-soft transition-colors hover:border-accent hover:text-ink cursor-pointer"
+          className="rounded-full border border-line px-4 py-2.5 font-sans text-sm text-ink-soft transition-colors hover:border-accent hover:text-ink cursor-pointer"
         >
           Sign out
         </button>
