@@ -20,6 +20,7 @@ import {
 import { useFavorites } from "@/lib/storage";
 import { track } from "@/lib/analytics";
 import Button from "@/components/ui/Button";
+import { ToggleGroup } from "@/components/ui/SegmentedControl";
 
 type Tab = "collection" | "history";
 
@@ -167,55 +168,51 @@ function CollectionBody({
           </span>
         </div>
 
-        <div className="mt-3.5 flex h-7 gap-0.5 text-ink">
-          {languages.map((stat) => {
-            const isActive = activeLanguage === stat.name;
-            return (
-              <button
-                key={stat.name}
-                type="button"
-                title={stat.name}
-                aria-pressed={isActive}
-                aria-label={`Filter by ${stat.name}, ${stat.count} ${pluralize(stat.count, "word")}`}
-                onClick={() => onToggleLanguage(stat.name)}
-                className="cursor-pointer transition-[opacity,background-color] duration-150"
-                style={{
-                  flexGrow: stat.count,
-                  flexShrink: 1,
-                  flexBasis: 0,
-                  minWidth: 3,
-                  backgroundColor: isActive ? "var(--accent)" : "currentColor",
-                  opacity: activeLanguage ? (isActive ? 1 : 0.09) : stat.opacity,
-                }}
-              />
-            );
+        <ToggleGroup
+          segments={languages}
+          getKey={(stat) => stat.name}
+          isActive={(stat) => activeLanguage === stat.name}
+          onToggle={(stat) => onToggleLanguage(stat.name)}
+          renderSegment={() => null}
+          getButtonProps={(stat, isActive) => ({
+            title: stat.name,
+            "aria-label": `Filter by ${stat.name}, ${stat.count} ${pluralize(stat.count, "word")}`,
+            className: "transition-[opacity,background-color] duration-150",
+            style: {
+              flexGrow: stat.count,
+              flexShrink: 1,
+              flexBasis: 0,
+              minWidth: 3,
+              backgroundColor: isActive ? "var(--accent)" : "currentColor",
+              opacity: activeLanguage ? (isActive ? 1 : 0.09) : stat.opacity,
+            },
           })}
-        </div>
+          className="mt-3.5 flex h-7 gap-0.5 text-ink"
+        />
 
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {languages.map((stat) => {
-            const isActive = activeLanguage === stat.name;
-            return (
-              <button
-                key={stat.name}
-                type="button"
-                aria-pressed={isActive}
-                onClick={() => onToggleLanguage(stat.name)}
-                className={clsx(
-                  // The visible chip matches the design's exact box; `after`
-                  // extends the invisible tap target to ~44px tall without
-                  // affecting the 6px gap between chips (it's absolutely
-                  // positioned, so it doesn't take part in the flex layout).
-                  "relative flex cursor-pointer items-baseline gap-1.25 rounded-full border px-2.25 py-1.25 font-sans text-micro tracking-label transition-colors duration-150 after:absolute after:-inset-3 after:content-['']",
-                  isActive ? "border-accent text-accent" : "border-line text-ink-soft"
-                )}
-              >
-                <span>{stat.name}</span>
-                <span className="text-micro opacity-70">{stat.count}</span>
-              </button>
-            );
+        <ToggleGroup
+          segments={languages}
+          getKey={(stat) => stat.name}
+          isActive={(stat) => activeLanguage === stat.name}
+          onToggle={(stat) => onToggleLanguage(stat.name)}
+          renderSegment={(stat) => (
+            <>
+              <span>{stat.name}</span>
+              <span className="text-micro opacity-70">{stat.count}</span>
+            </>
+          )}
+          getButtonProps={(stat, isActive) => ({
+            // The visible chip matches the design's exact box; `after`
+            // extends the invisible tap target to ~44px tall without
+            // affecting the 6px gap between chips (it's absolutely
+            // positioned, so it doesn't take part in the flex layout).
+            className: clsx(
+              "relative flex items-baseline gap-1.25 rounded-full border px-2.25 py-1.25 font-sans text-micro tracking-label transition-colors duration-150 after:absolute after:-inset-3 after:content-['']",
+              isActive ? "border-accent text-accent" : "border-line text-ink-soft"
+            ),
           })}
-        </div>
+          className="mt-3 flex flex-wrap gap-1.5"
+        />
 
         <p className="mt-3.5 font-serif text-sm leading-body text-ink-soft italic">
           {bandNote}

@@ -2,12 +2,12 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import clsx from "clsx";
 import { Heart, Search } from "lucide-react";
 import { toggleFavorite, useFavorites } from "@/lib/storage";
 import Button from "@/components/ui/Button";
 import IconButton from "@/components/ui/IconButton";
 import TextField from "@/components/ui/TextField";
+import { SegmentedTabs } from "@/components/ui/SegmentedControl";
 
 type Filter = "mine" | "all" | "favorites";
 
@@ -133,20 +133,7 @@ export default function HistoryList({
         />
       </div>
 
-      <div className="mb-6 flex items-center gap-1 font-sans text-sm">
-        {tabs.map(({ key, label }) => (
-          <button
-            key={key}
-            onClick={() => setFilter(key)}
-            className={clsx(
-              "rounded-full px-3.5 py-1.5 transition-colors cursor-pointer",
-              filter === key ? "bg-paper-raised text-ink" : "text-ink-soft hover:text-ink"
-            )}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <SegmentedTabs segments={tabs} active={filter} onChange={setFilter} className="mb-6" />
 
       {filter === "mine" && (
         <p className="mb-6 font-sans text-sm text-ink-faint">
