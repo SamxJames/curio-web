@@ -1,6 +1,6 @@
 # Curio — Handover
 
-Last updated: 2026-09-18, after a session that grew the word bank to 1,147 entries, added the word-locking layer, cross-device sign-in, and a batch of outstanding-debt fixes (session flash, puzzle perf, sign-in cooldown, Bluesky test coverage, /history pagination). This doc exists so
+Last updated: 2026-09-19, after a session that consolidated the design system: token cleanup in `app/globals.css`, five new `components/ui/` primitives migrated across the app, five WCAG contrast fixes, three new aria-live regions, and a new `docs/design-system.md`. This doc exists so
 a fresh Claude Code session (or a human) can pick up without re-deriving
 all of the above from git log.
 
@@ -510,6 +510,27 @@ Five things landed, roughly in this order:
 3. Word-of-the-day locking layer (`lib/words.ts`'s `resolve*` functions) — growing the word bank can no longer retroactively change a date's or account-day's already-served word; see the "Word bank" section above.
 4. Grew the word bank from 26 to 1,147 entries via the content pipeline's full batch run.
 5. A batch of outstanding-debt fixes: server-fed session in the root layout (kills the sign-in loading flash), an O(n) rewrite of the puzzle eligibility scan, a per-email cooldown on magic-link sign-in requests, test coverage for `postDailyWordToBluesky`'s failure path, and pagination for `/history`'s "All words" view.
+
+## This session (2026-09-19): design system consolidation
+
+A 16-task plan (`docs/superpowers/plans/2026-09-19-design-system-consolidation.md`) that tokenized the remaining ad-hoc styling, extracted five shared UI primitives, fixed the app's real WCAG contrast failures, and documented all of it in `docs/design-system.md`. Four phases:
+
+1. **Phase 1 — token consolidation** (`app/globals.css`'s `@theme inline` block). Added `--text-micro`/`--text-display` (type), `--tracking-headline`/`-label`/`-eyebrow`/`-eyebrow-wider`/`-section` (deliberately not named `tracking-wide`/`wider`/`widest` — those Tailwind defaults are already used elsewhere with different values and would have been silently overridden), `--leading-display`/`-body`, `--container-page`/`-form` (640px/440px, rolled out across `HistoryList`, `PuzzleGame`, `StoryView`, `Header`, `Footer`, `ArrivalHero`, `TodayHero`, `login`/`account`/`unsubscribed`, `CollectionScreen`), and `--duration-theme` (250ms, the light/dark fade — deliberately not in `@theme inline` since it doesn't back a Tailwind utility). `CollectionScreen.tsx` and `ArrivalHero.tsx` were migrated off scattered arbitrary values (`text-[10px]`, `tracking-[-0.015em]`, etc.) onto these tokens. `lib/ogTheme.ts` was pulled out to hold the OG-image hex literals that can't use CSS variables (server-rendered image generation).
+2. **Phase 2 — `components/ui/` primitives**, five new files, each migrated across real call sites:
+   - `Button.tsx` (`primary`/`secondary`/`ghost`/`link` variants) — 17 of 18 non-icon button call sites migrated (the one holdout is `AdminDashboard.tsx`, out of scope — see below).
+   - `IconButton.tsx` (required `label` prop → mandatory `aria-label`, `min-h-11 min-w-11` tap target, optional `bordered`) — migrated `ThemeToggle.tsx` and `HistoryList.tsx`'s favorite-heart toggle.
+   - `TextField.tsx` (label/error/icon support, `role="alert"` + `aria-describedby` on error) — migrated all 4 text inputs app-wide, and dropped a now-redundant `focus:border-accent` (the global `:focus-visible` ring already covers it, and the duplicate would have fired on mouse clicks too).
+   - `SegmentedControl.tsx` — exports two components with different ARIA semantics: `SegmentedTabs` (`role="tablist"`/`aria-selected`, one-of-many) and `ToggleGroup` (`aria-pressed`, independent on/off). Migrated `CollectionScreen`'s language filter and `HistoryList`'s tabs/filters; also added a missing `aria-selected` to `HistoryList`'s tabs that pre-dated this work.
+   - `Eyebrow.tsx` (polymorphic `span`/`p` uppercase micro-label) — migrated 10 of 15 in-scope instances (5 excluded via `AdminDashboard.tsx`, same exclusion as `Button`).
+   - `components/AdminDashboard.tsx` is the **one deliberate, permanent exclusion** from all of Phase 2 and Phase 3 — internal tooling, not part of the design system. Don't treat it as a reference and don't "fix" it as a drive-by.
+3. **Phase 3 — 5 measured WCAG contrast fixes + 3 new aria-live regions.** (The plan's own early draft said "four" fixes in a couple of places — that was stale; the actual, verified count is **five**.) Approved values (see `docs/design-system.md` §1 for the full ratio table):
+   - `--ink-faint` darkened `#8a9089` → `#5b665f` (light, now **5.07:1** on `paper`) and `#7d7666` → `#b0a891` (dark, now **7.75:1**) — it now renders identically to `--ink-soft` in both themes; the two token names stay separate because they mark different semantic roles (secondary vs. tertiary text) even though currently visually identical.
+   - `--accent-button` added (`#7a4f1e` light / `var(--accent)` dark) so `Button`'s `primary` fill hits **6.01:1** text contrast with `text-paper` on top — plain `--accent` (`#9c6b30`) didn't clear it.
+   - `--line-strong` added (`#8c806a` light / `#6b6250` dark) for borders on interactive controls (`Button secondary`, `IconButton` bordered state, `TextField`'s input border), clearing the 3:1 non-text ratio at **3.29:1** (light) / **3.05:1** (dark) — plain `--line` stays as-is for purely decorative dividers.
+   - Three new `aria-live` regions (`app/login/page.tsx`, `components/EmailSignupInline.tsx`, `components/PuzzleGame.tsx`): sign-in and signup error messages now use `role="alert"`, the signup success message and the puzzle's solved/missed outcome now use `role="status"`, and the puzzle's "wrong guess" flash now uses `role="alert"` — all previously silent to screen reader users on state change.
+4. **Phase 4 — `docs/design-system.md`** written and fact-checked against the actual code (not the original plan) — the canonical reference for tokens, all five primitives' props/variants/real call-site examples, and the non-obvious rules (pill-by-default radius with one deliberate `!rounded-md` exception on `HistoryList`'s "Show more" button; serif-for-reading/sans-for-everything-else split; the `AdminDashboard.tsx` exclusion).
+
+This was done via the `superpowers` subagent-driven-development process (plan + specs under `docs/superpowers/plans/2026-09-19-design-system-consolidation.md` and `docs/superpowers/specs/`), one task per commit, `git log` has each task's individually-reviewed commit. If you add new UI, read `docs/design-system.md` first — a new arbitrary Tailwind value or a hand-rolled `<button>`/`<input>` outside `components/ui/` should be treated as a regression now, not a shortcut (see `AGENTS.md`'s new "Design system" pointer section).
 
 ## Workflow notes for whoever picks this up
 
