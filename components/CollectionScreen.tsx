@@ -207,7 +207,7 @@ function CollectionBody({
             // positioned, so it doesn't take part in the flex layout).
             className: clsx(
               "relative flex items-baseline gap-1.25 rounded-full border px-2.25 py-1.25 font-sans text-micro tracking-label transition-colors duration-150 after:absolute after:-inset-3 after:content-['']",
-              isActive ? "border-accent text-accent" : "border-line text-ink-soft"
+              isActive ? "border-accent text-accent" : "border-line-strong text-ink-soft"
             ),
           })}
           className="mt-3 flex flex-wrap gap-1.5"

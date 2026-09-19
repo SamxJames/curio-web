@@ -24,7 +24,7 @@ export default function IconButton({ label, children, className, bordered = true
         // label alongside the icon (ThemeToggle) can grow past 44px wide
         // without the icon+label combination being force-squared.
         "inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center gap-1.5 rounded-full px-2.5 text-ink-soft transition-colors hover:text-ink",
-        bordered && "border border-line hover:border-accent",
+        bordered && "border border-line-strong hover:border-accent",
         className
       )}
       {...rest}

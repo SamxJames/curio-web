@@ -27,9 +27,9 @@ const SIZE_CLASSES: Record<ButtonSize, string> = {
 };
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
-  primary: "rounded-full bg-accent font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-50",
+  primary: "rounded-full bg-accent-button font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-50",
   secondary:
-    "rounded-full border border-line text-ink-soft transition-colors hover:border-accent hover:text-ink",
+    "rounded-full border border-line-strong text-ink-soft transition-colors hover:border-accent hover:text-ink",
   ghost: "text-ink-soft transition-colors hover:text-ink",
   link: "text-ink-faint underline underline-offset-2 transition-colors hover:text-ink-soft",
 };
