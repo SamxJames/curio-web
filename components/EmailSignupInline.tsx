@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { track } from "@/lib/analytics";
+import Button from "@/components/ui/Button";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -56,13 +57,9 @@ export default function EmailSignupInline({ onSubscribed }: { onSubscribed?: () 
           placeholder="your@email.com"
           className="min-w-0 flex-1 rounded-full border border-line bg-paper-raised px-4 py-2.5 font-sans text-sm text-ink placeholder:text-ink-faint focus:border-accent"
         />
-        <button
-          type="submit"
-          disabled={status === "submitting"}
-          className="shrink-0 rounded-full bg-accent px-5 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-50 cursor-pointer"
-        >
+        <Button type="submit" disabled={status === "submitting"} className="shrink-0">
           {status === "submitting" ? "Joining…" : "Join"}
-        </button>
+        </Button>
       </form>
       {status === "error" && <p className="mt-2 font-sans text-sm text-danger">{errorMessage}</p>}
     </div>

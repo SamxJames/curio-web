@@ -14,6 +14,7 @@ import {
 } from "@/lib/storage";
 import { useSession } from "next-auth/react";
 import EmailSignupInline from "./EmailSignupInline";
+import Button from "@/components/ui/Button";
 
 function todayDateString(): string {
   return new Date().toISOString().slice(0, 10);
@@ -138,24 +139,17 @@ export default function PuzzleGame({
               aria-label="Your guess"
               className="min-w-0 flex-1 rounded-full border border-line bg-transparent px-3 py-2.5 font-sans text-sm text-ink placeholder:text-ink-faint focus:border-accent"
             />
-            <button
-              type="submit"
-              className="shrink-0 rounded-full bg-accent px-4 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90 cursor-pointer"
-            >
+            <Button type="submit">
               Guess
-            </button>
+            </Button>
           </form>
           {wrongFlash && (
             <p className="font-sans text-sm text-danger">Not quite — here&apos;s another clue.</p>
           )}
           {state.cluesRevealed < 3 && (
-            <button
-              type="button"
-              onClick={handleNeedAnotherClue}
-              className="font-sans text-xs text-ink-faint underline underline-offset-2 transition-colors hover:text-ink-soft cursor-pointer"
-            >
+            <Button variant="link" className="text-xs" onClick={handleNeedAnotherClue}>
               I need another clue
-            </button>
+            </Button>
           )}
         </div>
       )}
@@ -177,14 +171,10 @@ export default function PuzzleGame({
             Read the full story &rarr;
           </Link>
 
-          <button
-            type="button"
-            onClick={handleShare}
-            className="mt-6 flex items-center gap-2 font-sans text-sm text-ink-soft transition-colors hover:text-ink cursor-pointer"
-          >
+          <Button variant="ghost" className="mt-6 flex items-center gap-2 text-sm" onClick={handleShare}>
             <Share size={15} strokeWidth={1.75} />
             {shareCopied ? "Copied" : "Share your result"}
-          </button>
+          </Button>
 
           <div className="mt-10 border-t border-line pt-6">
             <p className="font-sans text-sm text-ink-soft">

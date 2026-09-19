@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth, signOut } from "@/lib/auth";
 import { getSubscriberByEmail, removeSubscriber, upsertSubscriber } from "@/lib/db";
+import Button from "@/components/ui/Button";
 
 export const metadata = { title: "Account — Curio" };
 
@@ -38,24 +39,18 @@ export default async function AccountPage() {
           <>
             <p className="mt-2 font-sans text-sm text-ink-soft">Subscribed — one word a day.</p>
             <form action={unsubscribe} className="mt-3">
-              <button
-                type="submit"
-                className="font-sans text-sm text-ink-faint underline underline-offset-2 transition-colors hover:text-danger cursor-pointer"
-              >
+              <Button variant="link" type="submit" className="text-sm hover:!text-danger">
                 Unsubscribe
-              </button>
+              </Button>
             </form>
           </>
         ) : (
           <>
             <p className="mt-2 font-sans text-sm text-ink-soft">Not subscribed yet.</p>
             <form action={subscribe} className="mt-3">
-              <button
-                type="submit"
-                className="rounded-full bg-accent px-4 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90 cursor-pointer"
-              >
+              <Button type="submit">
                 Subscribe
-              </button>
+              </Button>
             </form>
           </>
         )}
@@ -68,12 +63,9 @@ export default async function AccountPage() {
         }}
         className="mt-10"
       >
-        <button
-          type="submit"
-          className="rounded-full border border-line px-4 py-2.5 font-sans text-sm text-ink-soft transition-colors hover:border-accent hover:text-ink cursor-pointer"
-        >
+        <Button variant="secondary" type="submit">
           Sign out
-        </button>
+        </Button>
       </form>
     </section>
   );

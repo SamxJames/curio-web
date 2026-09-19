@@ -19,6 +19,7 @@ import {
 } from "@/lib/collection";
 import { useFavorites } from "@/lib/storage";
 import { track } from "@/lib/analytics";
+import Button from "@/components/ui/Button";
 
 type Tab = "collection" | "history";
 
@@ -321,17 +322,18 @@ function WordRow({
             }
             const isActive = activeLanguage === lang;
             return (
-              <button
+              <Button
                 key={i}
-                type="button"
+                variant="ghost"
+                size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
                   onToggleLanguage(lang);
                 }}
-                className={clsx("cursor-pointer", isActive && "text-accent")}
+                className={isActive ? "text-accent" : undefined}
               >
                 {label}
-              </button>
+              </Button>
             );
           })}
         </div>

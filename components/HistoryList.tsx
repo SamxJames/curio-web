@@ -5,6 +5,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import { Heart, Search } from "lucide-react";
 import { toggleFavorite, useFavorites } from "@/lib/storage";
+import Button from "@/components/ui/Button";
 
 type Filter = "mine" | "all" | "favorites";
 
@@ -154,7 +155,7 @@ export default function HistoryList({
       {filter === "mine" && (
         <p className="mb-6 font-sans text-sm text-ink-faint">
           Your personal word order — one new word a day since you joined. It&apos;ll grow day by
-          day; browse <button onClick={() => setFilter("all")} className="underline underline-offset-2 hover:text-ink cursor-pointer">all words</button> in the meantime.
+          day; browse <Button variant="link" className="inline" onClick={() => setFilter("all")}>all words</Button> in the meantime.
         </p>
       )}
 
@@ -211,12 +212,14 @@ export default function HistoryList({
       ))}
 
       {hasMore && (
-        <button
+        <Button
+          variant="secondary"
+          fullWidth
+          className="mt-6 !rounded-md"
           onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-          className="mt-6 w-full rounded-md border border-line py-2.5 font-sans text-sm text-ink-soft transition-colors hover:text-ink hover:border-accent cursor-pointer"
         >
           Show more
-        </button>
+        </Button>
       )}
     </div>
   );
