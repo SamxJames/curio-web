@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getTodayPuzzle } from "@/lib/puzzle";
+import { ogTheme } from "@/lib/ogTheme";
 
 export const alt = "Curio — Daily Puzzle";
 export const size = { width: 1200, height: 630 };
@@ -28,17 +29,17 @@ export default function Image() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "#f1ece0",
-          color: "#24302b",
+          background: ogTheme.paper,
+          color: ogTheme.ink,
         }}
       >
-        <div style={{ display: "flex", fontSize: 28, color: "#5b665f", letterSpacing: 1 }}>
+        <div style={{ display: "flex", fontSize: 28, color: ogTheme.inkSoft, letterSpacing: 1 }}>
           CURIO
         </div>
         <div style={{ display: "flex", fontSize: 88, fontWeight: 600, marginTop: 20 }}>
           {puzzle ? `Daily Puzzle #${puzzle.puzzleNumber}` : "Daily Puzzle"}
         </div>
-        <div style={{ display: "flex", fontSize: 32, color: "#5b665f", marginTop: 24 }}>
+        <div style={{ display: "flex", fontSize: 32, color: ogTheme.inkSoft, marginTop: 24 }}>
           One word. One story. Every day.
         </div>
       </div>
