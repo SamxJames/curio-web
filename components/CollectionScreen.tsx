@@ -20,6 +20,7 @@ import {
 import { useFavorites } from "@/lib/storage";
 import { track } from "@/lib/analytics";
 import Button from "@/components/ui/Button";
+import Eyebrow from "@/components/ui/Eyebrow";
 import { ToggleGroup } from "@/components/ui/SegmentedControl";
 
 type Tab = "collection" | "history";
@@ -67,9 +68,9 @@ export default function CollectionScreen({
           Your collection
         </h1>
         {subline && (
-          <p className="mt-2.5 font-sans text-micro tracking-eyebrow-wider text-ink-soft uppercase">
+          <Eyebrow as="p" className="mt-2.5 tracking-eyebrow-wider">
             {subline}
-          </p>
+          </Eyebrow>
         )}
       </div>
 
@@ -163,9 +164,7 @@ function CollectionBody({
       <div className="pt-7">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="font-serif text-lg italic">Where they came from</h2>
-          <span className="font-sans text-micro tracking-eyebrow text-ink-soft uppercase">
-            tap to filter
-          </span>
+          <Eyebrow className="tracking-eyebrow">tap to filter</Eyebrow>
         </div>
 
         <ToggleGroup
@@ -222,13 +221,13 @@ function CollectionBody({
       {filterLine && (
         <div className="mt-6.5 flex items-baseline justify-between border-b border-accent pb-2">
           <span className="font-serif text-base">{filterLine}</span>
-          <button
-            type="button"
+          <Button
+            variant="link"
+            className="!text-accent !no-underline text-micro tracking-eyebrow uppercase"
             onClick={() => onToggleLanguage(activeLanguage!)}
-            className="cursor-pointer font-sans text-micro tracking-eyebrow text-accent uppercase"
           >
             clear
-          </button>
+          </Button>
         </div>
       )}
 
@@ -236,9 +235,9 @@ function CollectionBody({
         {groups.map((group, i) => (
           <div key={group.label ?? `ungrouped-${i}`}>
             {group.label && (
-              <div className="pt-6.5 pb-1 font-sans text-micro tracking-section text-ink-soft uppercase">
+              <Eyebrow as="p" className="pt-6.5 pb-1 tracking-section">
                 {group.label}
-              </div>
+              </Eyebrow>
             )}
             {group.items.map((entry) => (
               <WordRow
@@ -307,7 +306,7 @@ function WordRow({
         <p className="mt-2 font-serif text-base leading-body text-ink [text-wrap:pretty]">
           {word.teaser}
         </p>
-        <div className="mt-2.5 flex flex-wrap gap-x-1.75 gap-y-0 font-sans text-micro tracking-eyebrow-wider text-ink-soft uppercase">
+        <Eyebrow className="mt-2.5 flex flex-wrap gap-x-1.75 gap-y-0 tracking-eyebrow-wider">
           {word.lineage.map((lang, i) => {
             const label = (i > 0 ? "› " : "") + lang;
             if (lang === "English") {
@@ -333,7 +332,7 @@ function WordRow({
               </Button>
             );
           })}
-        </div>
+        </Eyebrow>
       </div>
       <div className="pt-2 font-sans text-micro tracking-label whitespace-nowrap text-ink-soft">
         {formatShortDate(entry.date)}
@@ -350,9 +349,9 @@ function HistoryTabBody({ entries }: { entries: HistoryDay[] }) {
       <p className="font-serif text-sm text-ink-soft italic">Every morning since you joined.</p>
       {groups.map((group) => (
         <div key={group.label}>
-          <div className="pt-6.5 pb-1 font-sans text-micro tracking-section text-ink-soft uppercase">
+          <Eyebrow as="p" className="pt-6.5 pb-1 tracking-section">
             {group.label}
-          </div>
+          </Eyebrow>
           {group.items.map((entry) => (
             <Link
               key={entry.date}
@@ -363,9 +362,7 @@ function HistoryTabBody({ entries }: { entries: HistoryDay[] }) {
                 {formatShortDate(entry.date)}
               </span>
               <span className="flex-1 font-serif text-lg">{entry.word.word}</span>
-              <span className="font-sans text-micro tracking-eyebrow text-ink-soft uppercase">
-                {entry.word.partOfSpeech}
-              </span>
+              <Eyebrow className="tracking-eyebrow">{entry.word.partOfSpeech}</Eyebrow>
             </Link>
           ))}
         </div>

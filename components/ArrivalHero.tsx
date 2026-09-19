@@ -7,6 +7,7 @@ import { markOnboarded } from "@/lib/storage";
 import { track } from "@/lib/analytics";
 import ThemeToggle from "./ThemeToggle";
 import EmailSignupInline from "./EmailSignupInline";
+import Eyebrow from "@/components/ui/Eyebrow";
 
 /** The merged first-look hero for anonymous, first-time visitors — replaces
  * the old pairing of the plain Today hero plus a separate OnboardingBanner
@@ -41,9 +42,9 @@ export default function ArrivalHero({ word, date }: { word: WordEntry; date: str
       </div>
 
       <div className="flex flex-1 flex-col pt-10 pb-10">
-        <p className="font-sans text-micro tracking-eyebrow-wider text-accent uppercase">
+        <Eyebrow as="p" className="tracking-eyebrow-wider text-accent">
           Today&apos;s word &middot; {date}
-        </p>
+        </Eyebrow>
 
         <h1 className="mt-4 font-serif text-display leading-display font-bold">{word.word}</h1>
         <p className="mt-3 font-sans text-sm text-ink-soft">
