@@ -79,12 +79,17 @@
    * spec's ~4 estimate — see docs/design-system.md once Phase 4 lands for
    * why: the negative headline value is categorically different from the
    * other four "spread out" values, not just another point on the same
-   * scale). */
+   * scale). Named tracking-eyebrow(-wider)/tracking-section rather than
+   * Tailwind's own tracking-wide/wider/widest names — those are Tailwind v4
+   * built-ins (0.025em/0.05em/0.1em) already used elsewhere in this app
+   * (e.g. StoryView.tsx, PuzzleGame.tsx); reusing those exact names here
+   * would silently override Tailwind's defaults everywhere they're used, not
+   * just add new ones. */
   --tracking-headline: -0.015em;
   --tracking-label: 0.06em;
-  --tracking-wide: 0.1em;
-  --tracking-wider: 0.12em;
-  --tracking-widest: 0.18em;
+  --tracking-eyebrow: 0.1em;
+  --tracking-eyebrow-wider: 0.12em;
+  --tracking-section: 0.18em;
 
   /* Line height: 6 arbitrary values collapse to 2 new tokens here, plus
    * Tailwind's own existing leading-relaxed (1.625, already used by
