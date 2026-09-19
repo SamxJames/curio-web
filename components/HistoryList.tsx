@@ -6,6 +6,7 @@ import clsx from "clsx";
 import { Heart, Search } from "lucide-react";
 import { toggleFavorite, useFavorites } from "@/lib/storage";
 import Button from "@/components/ui/Button";
+import IconButton from "@/components/ui/IconButton";
 
 type Filter = "mine" | "all" | "favorites";
 
@@ -192,17 +193,18 @@ export default function HistoryList({
                         {word.word}
                       </p>
                     </Link>
-                    <button
+                    <IconButton
+                      label={favorited ? "Remove from favorites" : "Add to favorites"}
                       onClick={() => handleToggle(word.slug)}
-                      aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
-                      className="shrink-0 rounded-full p-2 text-ink-faint transition-colors hover:text-accent cursor-pointer"
+                      bordered={false}
+                      className="shrink-0 !text-ink-faint hover:!text-accent"
                     >
                       <Heart
                         size={16}
                         strokeWidth={1.75}
                         className={favorited ? "fill-accent text-accent" : ""}
                       />
-                    </button>
+                    </IconButton>
                   </div>
                 </li>
               );
