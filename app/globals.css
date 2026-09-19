@@ -41,6 +41,13 @@
 :root {
   --font-newsreader: "Newsreader", ui-serif, Georgia, serif;
   --font-work-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* Site-wide theme-switch fade (see the `body` rule below) — deliberately
+   * its own token, not reusing Tailwind's interactive-element transition
+   * default (150ms): a full light/dark swap reads better slower than a
+   * hover state does. Consumed directly via var(), not through @theme,
+   * since it isn't backing a generated Tailwind utility class. */
+  --duration-theme: 250ms;
 }
 
 @theme inline {
@@ -55,6 +62,46 @@
   --color-danger: var(--danger);
   --font-serif: var(--font-newsreader);
   --font-sans: var(--font-work-sans);
+
+  /* Type size: every arbitrary text-[Npx] in the app collapses onto either
+   * an existing Tailwind default (text-sm/base/lg/2xl/4xl — no token needed
+   * for those, they're already consistent) or one of these two genuine
+   * outliers. --text-micro is the accessibility floor for the smallest
+   * labels (was 9/9.5/10/10.5/11px scattered across CollectionScreen.tsx —
+   * see docs/superpowers/specs/2026-09-19-design-system-consolidation-design.md
+   * for the full before/after mapping). --text-display is ArrivalHero's
+   * word headline, deliberately between Tailwind's text-4xl (36px) and
+   * text-5xl (48px) with no close match to either. */
+  --text-micro: 11px;
+  --text-display: 44px;
+
+  /* Letter spacing: 9 arbitrary values collapse to 5 (one more than the
+   * spec's ~4 estimate — see docs/design-system.md once Phase 4 lands for
+   * why: the negative headline value is categorically different from the
+   * other four "spread out" values, not just another point on the same
+   * scale). */
+  --tracking-headline: -0.015em;
+  --tracking-label: 0.06em;
+  --tracking-wide: 0.1em;
+  --tracking-wider: 0.12em;
+  --tracking-widest: 0.18em;
+
+  /* Line height: 6 arbitrary values collapse to 2 new tokens here, plus
+   * Tailwind's own existing leading-relaxed (1.625, already used by
+   * TodayHero's teaser and — after Task 3 — ArrivalHero's) for the "long
+   * reading paragraph" case, giving 3 effective steps total, matching the
+   * spec's ~3 estimate once you count what was already there. */
+  --leading-display: 1.05;
+  --leading-body: 1.5;
+
+  /* Container widths: 640px is already the de facto page-shell standard
+   * (10 uses); 440px is the form-shell standard once its two outliers
+   * (480px, 560px) snap onto it — see this plan's deliberate-exceptions
+   * list. The existing 46ch prose measure (3 uses, already consistent)
+   * isn't tokenized — it's a text-measure unit, not a layout width, and
+   * nothing about it needed fixing. */
+  --container-page: 40rem; /* 640px */
+  --container-form: 27.5rem; /* 440px */
 }
 
 * {
@@ -73,7 +120,7 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition: background-color var(--duration-theme) ease, color var(--duration-theme) ease;
 }
 
 ::selection {
