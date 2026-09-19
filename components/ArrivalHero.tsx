@@ -41,16 +41,16 @@ export default function ArrivalHero({ word, date }: { word: WordEntry; date: str
       </div>
 
       <div className="flex flex-1 flex-col pt-10 pb-10">
-        <p className="font-sans text-[11px] tracking-[0.14em] text-accent uppercase">
+        <p className="font-sans text-micro tracking-eyebrow-wider text-accent uppercase">
           Today&apos;s word &middot; {date}
         </p>
 
-        <h1 className="mt-4 font-serif text-[44px] leading-[1.05] font-bold">{word.word}</h1>
+        <h1 className="mt-4 font-serif text-display leading-display font-bold">{word.word}</h1>
         <p className="mt-3 font-sans text-sm text-ink-soft">
           {word.respelling} &middot; {word.partOfSpeech}
         </p>
 
-        <p className="mt-6 max-w-[46ch] font-serif text-[19px] leading-[1.38] text-ink">
+        <p className="mt-6 max-w-[46ch] font-serif text-lg leading-relaxed text-ink">
           {word.teaser}
         </p>
 
