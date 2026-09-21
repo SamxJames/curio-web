@@ -1,6 +1,6 @@
 # Curio — Handover
 
-Last updated: 2026-09-19, after a session that consolidated the design system: token cleanup in `app/globals.css`, five new `components/ui/` primitives migrated across the app, five WCAG contrast fixes, three new aria-live regions, and a new `docs/design-system.md`. This doc exists so
+Last updated: 2026-09-20, after a session that made the 1,147 word-story pages statically prerendered and discoverable (sitemap, robots.txt, canonical URLs, `DefinedTerm` JSON-LD, an A–Z index, and deterministic inter-page linking) — see "This session (2026-09-20): search discoverability" below. This doc exists so
 a fresh Claude Code session (or a human) can pick up without re-deriving
 all of the above from git log.
 
@@ -74,7 +74,16 @@ needed by the deployed app, and isn't set in Vercel.
 public Bluesky post's link from it (falling back to `http://localhost:3000`
 if unset, same as `lib/email.ts` already did) — a missing value in
 production would publish a localhost link to a public timeline, which is a
-lot less forgiving than the same fallback landing in an email.
+lot less forgiving than the same fallback landing in an email. **As of
+2026-09-20, it also matters for the build itself**, not just runtime
+requests: `app/layout.tsx`'s `metadataBase`, `app/sitemap.ts`,
+`app/robots.ts`, every story page's canonical URL and its `DefinedTerm`
+JSON-LD all resolve `lib/siteUrl.ts`'s `siteUrl()` at `next build` time,
+and 1,147 story pages are now static. A missing `CURIO_SITE_URL` on a
+Production build doesn't just risk one bad link at request time — it bakes
+`http://localhost:3000` into all 1,147 prerendered pages' canonicals,
+sitemap entries and structured data. Confirm it's set in Vercel before any
+build you intend to actually deploy.
 
 `CRON_SECRET` also matters more than it used to: `/api/cron/send-daily`
 fails closed (401) when it's unset **and** `NODE_ENV === "production"` —
@@ -180,13 +189,17 @@ don't assume the domain and the project name match.
   Deliberately requires the *resolved* `status === "unauthenticated"`, not
   `!== "authenticated"` — the latter also matches `useSession()`'s
   transient `"loading"` state, which flashed the arrival hero (and its
-  reduced header) at signed-in users on a fresh browser before this was
-  fixed. `app/layout.tsx`'s `<SessionProvider>` is now fed a
-  server-fetched `session` prop (2026-09-18, see "This session" below),
-  which was the actual root cause of that loading window — the cold-load
-  flash this guard exists for no longer happens; the guard itself stays in
-  place as defense-in-depth for any client-side transition that still
-  passes through `"loading"`.
+  reduced header) at signed-in users on a fresh browser. **As of
+  2026-09-20, `app/layout.tsx` no longer feeds `<SessionProvider>` a
+  server-fetched `session` prop** — that read cookies in the root layout
+  and silently forced every route in the app to render dynamically (see
+  "This session (2026-09-20)" below). The `"loading"` window this guard
+  exists for is back, but only on `/`: `app/page.tsx` (already dynamic,
+  already calls `auth()`) renders `components/ServerSessionMarker.tsx`,
+  and this hook consults its `data-server-session` attribute *only* while
+  `status === "loading"`, falling through to the real `useSession()` value
+  everywhere else. Every other route just waits out `"loading"` like
+  before 2026-09-18 ever existed.
 - `components/ArrivalHero.tsx` / `TodayHero.tsx` / `HomeContent.tsx` — the
   homepage now renders `HomeContent`, a client component that picks between
   `ArrivalHero` (first-time anonymous visitors — merged word + pitch +
@@ -201,6 +214,42 @@ don't assume the domain and the project name match.
   success" order works.
 - `scripts/extractEtymology.ts` / `rewriteEtymology.ts` / `approveDraft.ts`
   — the content pipeline, see "Growing the word list" below.
+- `lib/siteUrl.ts` — the one place `CURIO_SITE_URL` (+ `http://localhost:3000`
+  fallback) gets read for building absolute URLs (`siteUrl()`,
+  `absoluteUrl(path)`). `app/layout.tsx`'s `metadataBase` and every new SEO
+  surface below go through it. `lib/email.ts` and `lib/bluesky.ts` still
+  spell out the same fallback inline — deliberately not refactored this
+  session, see "Deferred" under "This session (2026-09-20)".
+- `lib/seoRoutes.ts` — `PUBLIC_ROUTES` (the 5 crawlable routes: `/`,
+  `/history`, `/words`, `/play`, `/attribution`), `DISALLOWED_PATHS` (the
+  account/auth/API paths blocked in `robots.txt` and left out of the
+  sitemap), `buildSitemapEntries()` (consumed by `app/sitemap.ts`) and
+  `buildRobots()` (consumed by `app/robots.ts`) — the one source of truth
+  so the sitemap, `robots.txt` and the app's actual route structure can't
+  drift apart.
+- `lib/relatedWords.ts` — `getRelatedWords(slug)`, the deterministic
+  inter-story linking (see "This session (2026-09-20)" below for why it's
+  split into `peers`/`neighbours` rather than one prose-matched list).
+  Builds a lazy, process-lifetime index (sorted-by-word array +
+  language buckets) once, not per page, since all 1,147 story pages
+  prerender in one build.
+- `lib/storyJsonLd.ts` — `buildStoryJsonLd(word)` (schema.org `DefinedTerm`,
+  not `Article` — see the design spec for why) and `serializeJsonLd()` (the
+  `<`-escaping needed to embed JSON safely inside a `<script>` tag).
+- `app/api/story/[slug]/date/route.ts` — the route handler that now owns
+  everything session-dependent for a story page: the personalized/shared
+  "featured on" date and the `recordUserSeen` side effect that used to live
+  in the page body. Exists so `app/story/[slug]/page.tsx` itself never
+  calls `auth()`/reads cookies/hits Redis, which is what keeps the page
+  statically prerenderable. Fetched client-side by
+  `components/StoryDate.tsx`, which reserves the line's height so a date
+  arriving after hydration (or never, for ~884 of 1,147 words) doesn't
+  shift the headword.
+- `components/SessionHintInit.tsx` / `components/ServerSessionMarker.tsx`
+  — the two inline pre-hydration scripts (same `ThemeInit` pattern) that
+  replaced feeding `<SessionProvider>` a server-fetched session prop. See
+  "This session (2026-09-20)" below for what each does and why there are
+  two of them.
 
 ## Data model: `WordEntry`
 
@@ -531,6 +580,217 @@ A 16-task plan (`docs/superpowers/plans/2026-09-19-design-system-consolidation.m
 4. **Phase 4 — `docs/design-system.md`** written and fact-checked against the actual code (not the original plan) — the canonical reference for tokens, all five primitives' props/variants/real call-site examples, and the non-obvious rules (pill-by-default radius with one deliberate `!rounded-md` exception on `HistoryList`'s "Show more" button; serif-for-reading/sans-for-everything-else split; the `AdminDashboard.tsx` exclusion).
 
 This was done via the `superpowers` subagent-driven-development process (plan + specs under `docs/superpowers/plans/2026-09-19-design-system-consolidation.md` and `docs/superpowers/specs/`), one task per commit, `git log` has each task's individually-reviewed commit. If you add new UI, read `docs/design-system.md` first — a new arbitrary Tailwind value or a hand-rolled `<button>`/`<input>` outside `components/ui/` should be treated as a regression now, not a shortcut (see `AGENTS.md`'s new "Design system" pointer section).
+
+## This session (2026-09-20): search discoverability
+
+Before this session, effectively none of Curio's 1,147 word-story pages
+were discoverable: no `sitemap.xml`, no `robots.txt`, every route in the
+app rendered dynamically (`ƒ`), and `/history` — the only index — could
+only ever show the ≤263 words the shared calendar had reached so far, 60
+of them before a client-side "Show more". Plan:
+`docs/superpowers/plans/2026-09-20-search-discoverability.md`, spec:
+`docs/superpowers/specs/2026-09-20-search-discoverability-design.md`, 9
+tasks via the `superpowers` subagent-driven-development process, one
+implementer + reviewer cycle per task plus a final whole-branch review
+that caught three more Important findings once every piece was visible
+together (see below) — the ledger at
+`.superpowers/sdd/2026-09-20-search-discoverability/progress.md` has every
+ruling in full if any of this needs re-deriving.
+
+**The root-layout finding, prominently, because it's the one silent
+regression risk this session leaves behind:** `app/layout.tsx`'s
+`await auth()` (added 2026-09-18 to feed `<SessionProvider>` a
+server-resolved session) reads cookies, and reading cookies in the root
+layout opts *every* route that shares it into dynamic rendering — not
+just `/`, which legitimately needs it, but `/attribution`, `/login`,
+`/words` and all 1,147 `/story/[slug]` pages too, none of which ever
+called `auth()` themselves. Removing that call (and `/story/[slug]`'s own
+independent `auth()` call — both had to go) is what let Next actually
+prerender the story pages. **If anyone adds a server-side `auth()`,
+`cookies()` or `headers()` call back to the root layout, every route
+silently goes dynamic again — there is no error, no warning, nothing in
+the diff that flags it. The build's route table (`● ○ ƒ` next to each
+route) is the only place it shows up.** Check it after touching
+`app/layout.tsx`, every time.
+
+What landed, in task order:
+
+1. **`sitemap.xml` + `robots.txt`** (`lib/seoRoutes.ts`, `app/sitemap.ts`,
+   `app/robots.ts`) — `PUBLIC_ROUTES` (5 crawlable routes) and
+   `DISALLOWED_PATHS` (account/auth/API paths) are the one source of truth
+   both files read, so they can't drift apart from each other or from the
+   real route structure.
+2. **Root layout + story page stop calling `auth()`** (see above) —
+   `SessionProvider` now resolves the session purely client-side again.
+3. **The session hint, replacing nav flicker on `/`.** Dropping server-side
+   `auth()` reintroduced the exact nav-flicker problem the 2026-09-18
+   server-session change had fixed: `useSession()` reports `"loading"` on
+   every cold load until its client-side `/api/auth/session` fetch
+   resolves, and the header has to render *something* in the meantime.
+   The plan's original design was a `useSyncExternalStore`-based hook
+   (`useSessionStatus`) reading an optimistic `localStorage` "was signed
+   in" flag — **this was reviewed, found to have two real bugs, and
+   replaced.** `useSyncExternalStore`'s server snapshot is `false` during
+   hydration by construction, so the hint literally could not affect first
+   paint (the signed-in nav would still flash in after a hydration swap,
+   breaking the "no flicker" promise the user had approved), and mapping
+   `"loading"` → `"unauthenticated"` reintroduced the exact regression
+   `useShowArrival`'s guard exists to prevent: a first load on a new
+   device after signing in (no hint written yet) flashed the arrival hero
+   at a signed-in user. **What actually shipped instead** is the repo's
+   existing `ThemeInit` pattern: `components/SessionHintInit.tsx` is an
+   inline `<script>` in `<head>` that reads `localStorage`'s
+   `curio:signedIn` (`SESSION_HINT_KEY` in `lib/storage.ts`) *before*
+   hydration and sets `html[data-signed-in]`; `app/globals.css` adds a
+   `signed-in:` Tailwind custom variant keyed off that attribute; and
+   `components/Header.tsx` renders **both** nav pairs (signed-in and
+   signed-out) whenever `useSession()` is `"loading"`, letting CSS — not a
+   post-hydration render — pick the right one before the user ever sees a
+   frame. Header's own effect is the *only* writer of the hint, firing
+   once `useSession()` actually resolves. It is display-only by
+   construction (a plain CSS attribute selector, nothing gating an API
+   call), and `components/AccountFavoritesSync.tsx` and
+   `components/PuzzleGame.tsx` deliberately keep reading `useSession()`
+   directly rather than the hint — same reasoning `lib/useShowArrival.ts`
+   already used before this session. `lib/useSessionStatus.ts` and the
+   original hook were deleted, not left dead in the tree.
+4. **Story pages become purely static** (`app/story/[slug]/page.tsx`,
+   `app/api/story/[slug]/date/route.ts`, `components/StoryDate.tsx`) — the
+   personalized/shared "featured on" date and the `recordUserSeen` side
+   effect moved out of the page body into a route handler the client
+   fetches after mount, so the page itself never touches `auth()`,
+   cookies or Redis. Result: `/story/[slug]` went from `ƒ` (dynamic) to
+   `●` SSG, 1,147 paths prerendered. **Correcting an overstatement in the
+   original plan prose:** the 263-key Redis `mget` inside
+   `resolveHistory()` is gone from the static page itself *and* from
+   every crawler (crawlers don't run JavaScript, so `StoryDate`'s fetch
+   never fires for them) — but it has **not** been eliminated for human
+   traffic. A signed-out human visitor still triggers it, once per story
+   page they load, via that same client-side date fetch; only the
+   page-render cost moved off the request path, not the Redis read
+   itself.
+5. **`/words`**, a static A–Z index of all 1,147 words (previously only
+   `/history` existed, capped at ≤263). Linked from the footer and from
+   `/history`.
+6. **Canonical URLs + real metadata** on story pages — `lib/siteUrl.ts`
+   centralizes the `CURIO_SITE_URL` origin; `generateMetadata` sets a
+   relative `alternates.canonical` (resolved against `metadataBase`) and a
+   real per-word `<meta name="description">` from `teaser` (every teaser
+   in the bank is ≤151 characters, so nothing truncates). Page-level
+   `openGraph` restates `type`/`siteName` explicitly, because Next
+   replaces a layout's `openGraph` wholesale rather than merging it —
+   omitting them would have silently dropped `og:type`/`og:site_name` from
+   all 1,147 pages.
+7. **`DefinedTerm` JSON-LD** (`lib/storyJsonLd.ts`) on every story page —
+   `DefinedTerm`, not `Article`: Curio's story pages have no author, no
+   publication date and no article body, and `Article` would require
+   inventing at least one of them.
+8. **Deterministic inter-page linking** (`lib/relatedWords.ts`), replacing
+   the plan's original idea of matching headwords inside the `related`
+   prose sentence — measured across all 1,147 entries, prose matching only
+   covered 19.3% of pages and produced false positives on incidental
+   English words (`salary → phrase`, `clue → sail`), so it was rejected
+   before implementation. What shipped instead groups words by
+   `WordEntry.lineage`'s most specific shared source language, plus a
+   same-sorted-list alphabetical prev/next that forms a single cycle
+   through all 1,147 words (guaranteeing every page has at least two
+   outbound links, including the 65 words with no language peer at all).
+   **The final whole-branch review caught that this was rendered under one
+   heading, "More words from {language}", which is false whenever the
+   neighbours don't share that language — true on 1,017 of 1,082 labelled
+   pages (1,808 of 6,133 total links).** Fixed by splitting the return
+   value into `peers` (rendered under "From {language}" — every peer
+   genuinely shares it, tested) and `neighbours` (rendered separately
+   under "Nearby, A–Z"). Measured: 0 words end up with zero inbound links
+   from this block; every page has 2–6 outbound links.
+
+**Two more Important findings from the final whole-branch review, both
+fixed** (the same kind of cross-task integration bug that only a
+whole-branch review catches — see the 2026-09-12 session below for the
+first time this happened):
+- Anonymous first-timers landing on `/` had to wait out the client-side
+  `/api/auth/session` fetch before flipping to the arrival hero, because
+  losing server-side `auth()` in the root layout also removed the signal
+  that used to make that flip happen right after hydration. Fixed by
+  `app/page.tsx` (already dynamic, already calling its own `auth()`)
+  rendering `components/ServerSessionMarker.tsx` — a second inline
+  pre-hydration script, separate from the session hint, setting
+  `html[data-server-session="in"|"out"]` — which `lib/useShowArrival.ts`
+  consults *only* while `useSession()` is `"loading"`. **Parked
+  limitation, ruled acceptable:** the marker script only executes on a
+  cold (full-navigation) load of `/`; a client-side `Link` navigation
+  into `/` inserts the same script via `dangerouslySetInnerHTML`, which
+  browsers never execute. That path just falls back to the ordinary
+  `"loading"`-wait behavior every other route already has — safe, not
+  faster, and `useSession()` has normally already resolved by the time of
+  a follow-on client navigation anyway.
+- `app/sitemap.ts`'s comment hardcoded "1,151 URLs / 4 public routes",
+  which the `/words` addition (task 5) had already made stale (1,152 / 5).
+  Fixed by dropping the hardcoded counts from the comment entirely and
+  keeping only the 50,000-URL ceiling note, so it can't go stale again the
+  next time `WORDS` grows.
+
+**Final, controller-verified build state:** route table shows `●
+/story/[slug]` at 1,147 paths, `○ /words`, `○ /attribution`, `○ /login`,
+`○ /_not-found`, `○ /sitemap.xml`, `○ /robots.txt`; `/` and
+`/api/story/[slug]/date` stay `ƒ` (correctly — both have a real reason to
+be dynamic). Sitemap: 1,152 `<loc>` entries. Tests: 194/194. Lint: the
+same 3 pre-existing warnings from before this session
+(`lib/puzzle.test.ts:3`, `scripts/approveDraft.test.ts:36,211`) — no new
+ones.
+
+**Signed-in verification.** Implementers verified every signed-out path
+live and the hint's pre-hydration read by seeding `curio:signedIn=1` in a
+signed-out browser, but could not create accounts or click magic links on
+the user's behalf — accounts run on the shared production Upstash, so
+"sign in" means a real session in real prod data. The controller ran the
+one signed-in check after all 8 feature tasks, with **the user signing
+in themselves** in the browser pane, then verified: all 11
+personal-rotation words return the correct personal date via
+`/api/story/<slug>/date` (decisive cases — `client`, shared date
+2026-07-24, personal date Mon Sep 14; `citrus`, shared date 2026-07-20,
+personal date Sat Sep 12); the real sign-in wrote `curio:signedIn=1`, and
+the static `/attribution` HTML painted Today/Collection/Account on the
+very first frame; the related-words block at 375px in both themes with no
+horizontal overflow; anonymous `/` carries `data-server-session="out"`,
+`/attribution` carries no marker at all (only `/` sets one). **The
+fresh-private-window arrival-hero check was not done in an actual browser
+window** — the available browser profile was already signed in, so
+instead the controller verified the server marker and
+`useShowArrival`'s consult-only-while-loading logic by reading the code
+and confirming the attribute/state-machine directly, not by observing a
+real signed-out first-timer's first paint.
+
+**Deferred, with reasons** (see the ledger for the full list — these are
+the ones worth knowing about):
+- **No `cacheComponents`/PPR migration.** It's the "proper" Next 16 answer
+  to a static shell with a streamed session, but it's an app-wide change
+  touching every uncached read across `/`, `/history`, `/play`,
+  `/collection` and `/admin` — disproportionate to, and much riskier than,
+  this task.
+- **`lib/email.ts` and `lib/bluesky.ts` still spell out the
+  `CURIO_SITE_URL` + localhost fallback inline**, rather than using the
+  new `lib/siteUrl.ts`. `app/layout.tsx` does use it now. Refactoring two
+  outbound-message code paths mid-SEO-task risked more than it saved;
+  left alone on purpose.
+- **Date-format options are duplicated** across the date route,
+  `app/page.tsx` and `lib/email.ts` — moved around by this branch, not
+  newly introduced.
+- **`StoryView`'s "Browse all words →" link still points at `/history`**
+  (capped at ≤263 words) sitting right next to the new "All words A–Z →"
+  link that points at `/words` (all 1,147). This is a copy/IA decision
+  left for the user, not an oversight.
+- **The story-page date is now JavaScript-dependent** (fetched by
+  `StoryDate` after mount) — a deliberate trade for making the page
+  statically prerenderable; a no-JS visitor (or a crawler) never sees the
+  "featured on" line at all.
+- **Google Rich Results Test and Search Console sitemap submission are
+  post-deploy items** — both need a real public URL to run against and
+  can't be verified from a local build.
+
+This was done via the `superpowers` subagent-driven-development process,
+one task per commit (`git log 8149041..HEAD`), plus the final whole-branch
+review and fix wave described above.
 
 ## Workflow notes for whoever picks this up
 
