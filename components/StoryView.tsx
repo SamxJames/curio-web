@@ -118,26 +118,46 @@ export default function StoryView({ word, related }: { word: WordEntry; related:
         ))}
       </div>
 
-      {related.words.length > 0 && (
+      {related.peers.length + related.neighbours.length > 0 && (
         <section className="mt-12">
           <div className="mb-3 flex items-center gap-3">
-            <h2 className="font-sans text-xs tracking-wide text-ink-faint">
-              {related.language ? `More words from ${related.language}` : "More words"}
-            </h2>
+            <h2 className="font-sans text-xs tracking-wide text-ink-faint">More words</h2>
             <div className="h-px flex-1 bg-line" />
           </div>
-          <ul className="flex flex-wrap gap-x-6 gap-y-2">
-            {related.words.map((link) => (
-              <li key={link.slug}>
-                <Link
-                  href={`/story/${link.slug}`}
-                  className="font-serif text-lg text-ink transition-colors hover:text-accent"
-                >
-                  {link.word}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {related.peers.length > 0 && (
+            <div>
+              <p className="mb-2 font-sans text-xs text-ink-faint">From {related.language}</p>
+              <ul className="flex flex-wrap gap-x-6 gap-y-2">
+                {related.peers.map((link) => (
+                  <li key={link.slug}>
+                    <Link
+                      href={`/story/${link.slug}`}
+                      className="font-serif text-lg text-ink transition-colors hover:text-accent"
+                    >
+                      {link.word}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {related.neighbours.length > 0 && (
+            <div className="mt-4">
+              <p className="mb-2 font-sans text-xs text-ink-faint">Nearby, A&ndash;Z</p>
+              <ul className="flex flex-wrap gap-x-6 gap-y-2">
+                {related.neighbours.map((link) => (
+                  <li key={link.slug}>
+                    <Link
+                      href={`/story/${link.slug}`}
+                      className="font-serif text-lg text-ink transition-colors hover:text-accent"
+                    >
+                      {link.word}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <Link
             href="/words"
             className="mt-4 inline-block font-sans text-xs text-ink-faint transition-colors hover:text-ink-soft"
