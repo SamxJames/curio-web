@@ -47,6 +47,11 @@ describe("buildSitemapEntries", () => {
     const urls = buildSitemapEntries().map((e) => e.url);
     expect(new Set(urls).size).toBe(urls.length);
   });
+
+  it("includes the A–Z index, which is the only page linking every word", () => {
+    const urls = buildSitemapEntries().map((e) => e.url);
+    expect(urls).toContain("https://curio.example/words");
+  });
 });
 
 describe("buildRobots", () => {

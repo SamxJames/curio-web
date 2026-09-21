@@ -1,10 +1,9 @@
 import { WORDS } from "./words";
 import { absoluteUrl } from "./siteUrl";
 
-/** Routes a crawler should index. `/words` is added by the task that
- * creates it — listing a URL here before the route exists would put a 404
- * in the sitemap. */
-export const PUBLIC_ROUTES = ["/", "/history", "/play", "/attribution"] as const;
+/** Routes a crawler should index. Every other route is private,
+ * account-scoped, an auth flow or an API endpoint — see DISALLOWED_PATHS. */
+export const PUBLIC_ROUTES = ["/", "/history", "/words", "/play", "/attribution"] as const;
 
 /** Kept out of the sitemap AND disallowed in robots.txt. These are
  * account-scoped, auth-flow or API paths: a crawler can only ever see the
