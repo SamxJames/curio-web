@@ -161,6 +161,56 @@ export function markOnboarded() {
   notify();
 }
 
+const SESSION_HINT_KEY = "curio:signedIn"; // "1" = this browser was signed in last time a session resolved
+
+/** Optimistic "was this browser signed in?" hint, written whenever
+ * useSession() resolves and read on the very first client render.
+ *
+ * app/layout.tsx deliberately no longer calls auth(): doing so read
+ * cookies, which opted the root layout — and so every route in the app —
+ * into dynamic rendering, and that is what kept 1,147 story pages from
+ * being prerendered (see docs/superpowers/specs/
+ * 2026-09-20-search-discoverability-design.md for the build-output
+ * evidence). Without a server-resolved session, useSession() starts at
+ * "loading" on a cold load and the header would pop its third nav item in
+ * a beat later. This hint lets the first render assume the previous
+ * answer instead of assuming signed out.
+ *
+ * It is a DISPLAY hint only. It lives in localStorage, is trivially
+ * forgeable, and must never gate an API call or an authorization
+ * decision — components/AccountFavoritesSync.tsx and
+ * components/PuzzleGame.tsx keep reading useSession() directly for
+ * exactly that reason. A stale `true` (session expired, or signed out in
+ * another tab) shows the signed-in nav for the few hundred milliseconds
+ * before useSession() resolves and corrects it. */
+export function readSessionHint(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(SESSION_HINT_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function writeSessionHint(signedIn: boolean) {
+  if (typeof window === "undefined") return;
+  // Only write on a real change: the caller runs this on every session
+  // resolution, and an unconditional notify() would wake every subscriber
+  // on every page load for no state change at all.
+  if (readSessionHint() === signedIn) return;
+  try {
+    if (signedIn) window.localStorage.setItem(SESSION_HINT_KEY, "1");
+    else window.localStorage.removeItem(SESSION_HINT_KEY);
+  } catch {
+    return;
+  }
+  notify();
+}
+
+export function useSessionHint(): boolean {
+  return useSyncExternalStore(subscribe, readSessionHint, () => false);
+}
+
 const PLAY_STATE_KEY_PREFIX = "curio:play:"; // one key per puzzle date, e.g. curio:play:2026-10-15
 
 export type PlayState = {

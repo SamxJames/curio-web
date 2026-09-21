@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import { useSession } from "next-auth/react";
+import { useSessionStatus } from "@/lib/useSessionStatus";
 import { useShowArrival } from "@/lib/useShowArrival";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
   const pathname = usePathname();
-  const { status } = useSession();
+  const status = useSessionStatus();
   const showArrival = useShowArrival();
 
   // The arrival hero (app/page.tsx, first-time anonymous visitors only)
@@ -61,11 +61,11 @@ export default function Header() {
             >
               Account
             </Link>
-          ) : status === "unauthenticated" ? (
+          ) : (
             <Link href="/login" className="text-sm text-ink-soft transition-colors hover:text-ink">
               Sign in
             </Link>
-          ) : null}
+          )}
           <ThemeToggle />
         </nav>
       </div>
