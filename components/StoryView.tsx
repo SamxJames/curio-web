@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Heart, Link as LinkIcon, Share } from "lucide-react";
 import type { WordEntry } from "@/lib/words";
+import type { RelatedWords } from "@/lib/relatedWords";
 import { isFavorite, toggleFavorite, useClientOnlyValue } from "@/lib/storage";
 import { track } from "@/lib/analytics";
 import EtymologyLineage from "./EtymologyLineage";
@@ -16,7 +17,7 @@ const SECTIONS: { key: keyof Pick<WordEntry, "origin" | "journey" | "related">; 
   { key: "related", label: "Related words" },
 ];
 
-export default function StoryView({ word }: { word: WordEntry }) {
+export default function StoryView({ word, related }: { word: WordEntry; related: RelatedWords }) {
   useEffect(() => {
     track("story_view");
   }, []);
@@ -116,6 +117,35 @@ export default function StoryView({ word }: { word: WordEntry }) {
           </section>
         ))}
       </div>
+
+      {related.words.length > 0 && (
+        <section className="mt-12">
+          <div className="mb-3 flex items-center gap-3">
+            <h2 className="font-sans text-xs tracking-wide text-ink-faint">
+              {related.language ? `More words from ${related.language}` : "More words"}
+            </h2>
+            <div className="h-px flex-1 bg-line" />
+          </div>
+          <ul className="flex flex-wrap gap-x-6 gap-y-2">
+            {related.words.map((link) => (
+              <li key={link.slug}>
+                <Link
+                  href={`/story/${link.slug}`}
+                  className="font-serif text-lg text-ink transition-colors hover:text-accent"
+                >
+                  {link.word}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <Link
+            href="/words"
+            className="mt-4 inline-block font-sans text-xs text-ink-faint transition-colors hover:text-ink-soft"
+          >
+            All words A&ndash;Z &rarr;
+          </Link>
+        </section>
+      )}
 
       <div className="mt-12 border-t border-line pt-8">
         <Link

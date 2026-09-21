@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import StoryView from "@/components/StoryView";
 import { WORDS, getWordBySlug } from "@/lib/words";
 import { buildStoryJsonLd, serializeJsonLd } from "@/lib/storyJsonLd";
+import { getRelatedWords } from "@/lib/relatedWords";
 
 export function generateStaticParams() {
   return WORDS.map((w) => ({ slug: w.slug }));
@@ -62,7 +63,7 @@ export default async function StoryPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildStoryJsonLd(word)) }}
       />
-      <StoryView word={word} />
+      <StoryView word={word} related={getRelatedWords(slug)} />
     </>
   );
 }
