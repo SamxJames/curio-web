@@ -5,6 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ThemeInit from "@/components/ThemeInit";
+import SessionHintInit from "@/components/SessionHintInit";
 import AccountFavoritesSync from "@/components/AccountFavoritesSync";
 // Self-hosted (not next/font/google) so the app builds without reaching
 // fonts.googleapis.com at build time — works the same in dev, CI, and prod.
@@ -50,6 +51,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
         <ThemeInit />
+        <SessionHintInit />
       </head>
       <body className="min-h-full flex flex-col bg-paper text-ink">
         <SessionProvider>

@@ -164,25 +164,32 @@ export function markOnboarded() {
 const SESSION_HINT_KEY = "curio:signedIn"; // "1" = this browser was signed in last time a session resolved
 
 /** Optimistic "was this browser signed in?" hint, written whenever
- * useSession() resolves and read on the very first client render.
+ * useSession() resolves in components/Header.tsx and read BEFORE PAINT by
+ * components/SessionHintInit.tsx's inline script, which sets a
+ * `data-signed-in` attribute on <html> that app/globals.css's `signed-in:`
+ * Tailwind variant reads. That's the same pre-hydration pattern
+ * components/ThemeInit.tsx already uses for the theme preference — it runs
+ * before React hydrates, so unlike a useSyncExternalStore hook (which is
+ * still bound by its server snapshot during hydration) it can actually
+ * affect the very first paint.
  *
  * app/layout.tsx deliberately no longer calls auth(): doing so read
  * cookies, which opted the root layout — and so every route in the app —
  * into dynamic rendering, and that is what kept 1,147 story pages from
  * being prerendered (see docs/superpowers/specs/
  * 2026-09-20-search-discoverability-design.md for the build-output
- * evidence). Without a server-resolved session, useSession() starts at
- * "loading" on a cold load and the header would pop its third nav item in
- * a beat later. This hint lets the first render assume the previous
- * answer instead of assuming signed out.
+ * evidence).
  *
  * It is a DISPLAY hint only. It lives in localStorage, is trivially
  * forgeable, and must never gate an API call or an authorization
  * decision — components/AccountFavoritesSync.tsx and
  * components/PuzzleGame.tsx keep reading useSession() directly for
- * exactly that reason. A stale `true` (session expired, or signed out in
- * another tab) shows the signed-in nav for the few hundred milliseconds
- * before useSession() resolves and corrects it. */
+ * exactly that reason, and the `signed-in:` CSS variant it drives must
+ * never be used to hide anything security-relevant, only to pick which
+ * nav labels render before the real session resolves. A stale `true`
+ * (session expired, or signed out in another tab) shows the signed-in nav
+ * for the few hundred milliseconds before useSession() resolves and
+ * corrects it. */
 export function readSessionHint(): boolean {
   if (typeof window === "undefined") return false;
   try {
@@ -194,21 +201,17 @@ export function readSessionHint(): boolean {
 
 export function writeSessionHint(signedIn: boolean) {
   if (typeof window === "undefined") return;
-  // Only write on a real change: the caller runs this on every session
-  // resolution, and an unconditional notify() would wake every subscriber
-  // on every page load for no state change at all.
+  // Only write on a real change: the caller (Header) runs this on every
+  // session resolution.
   if (readSessionHint() === signedIn) return;
   try {
     if (signedIn) window.localStorage.setItem(SESSION_HINT_KEY, "1");
     else window.localStorage.removeItem(SESSION_HINT_KEY);
+    if (signedIn) document.documentElement.setAttribute("data-signed-in", "");
+    else document.documentElement.removeAttribute("data-signed-in");
   } catch {
     return;
   }
-  notify();
-}
-
-export function useSessionHint(): boolean {
-  return useSyncExternalStore(subscribe, readSessionHint, () => false);
 }
 
 const PLAY_STATE_KEY_PREFIX = "curio:play:"; // one key per puzzle date, e.g. curio:play:2026-10-15

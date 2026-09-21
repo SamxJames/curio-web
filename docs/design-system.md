@@ -46,6 +46,10 @@ Three tokens were changed or added in Phase 3 to fix five measured WCAG contrast
 
 `--accent-button` exists specifically because plain `--accent` (`#9c6b30`) on `--paper` didn't clear text contrast requirements when used as a button fill with `text-paper` on top — `Button`'s `primary` variant uses `bg-accent-button`, not `bg-accent`. `--line-strong` exists because plain `--line` is a decorative-divider color that doesn't meet the 3:1 non-text contrast ratio required for interactive element borders — it's used on `Button`'s `secondary` variant, `IconButton`'s bordered state, and `TextField`'s input border. Plain `--line` remains correct and unchanged for purely decorative dividers (section borders, footer separators).
 
+### The `signed-in:` variant
+
+`app/globals.css` also declares one non-color custom variant, `@custom-variant signed-in (&:where([data-signed-in] *));`, alongside the `[data-theme]` attribute selectors above. It isn't a design token — it exists purely so `components/Header.tsx` can render both the signed-in and signed-out nav link pairs during `useSession()`'s transient `"loading"` state and let CSS pick the right one before React ever gets to decide, using `signed-in:hidden` / `hidden signed-in:inline` pairs. `components/SessionHintInit.tsx` sets the `data-signed-in` attribute on `<html>` from a localStorage hint before hydration (the same pre-hydration pattern `ThemeInit` uses for theme). It is a display-only hint — trivially forgeable, never authoritative — so `signed-in:` must never be used to hide anything security-relevant; it only ever chooses between two already-public nav label sets.
+
 ---
 
 ## 2. Type, tracking, leading, container, and motion tokens
