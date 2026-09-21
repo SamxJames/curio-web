@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import StoryView from "@/components/StoryView";
 import { WORDS, getWordBySlug } from "@/lib/words";
+import { buildStoryJsonLd, serializeJsonLd } from "@/lib/storyJsonLd";
 
 export function generateStaticParams() {
   return WORDS.map((w) => ({ slug: w.slug }));
@@ -55,5 +56,13 @@ export default async function StoryPage({
   const word = getWordBySlug(slug);
   if (!word) notFound();
 
-  return <StoryView word={word} />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildStoryJsonLd(word)) }}
+      />
+      <StoryView word={word} />
+    </>
+  );
 }
