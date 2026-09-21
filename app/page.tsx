@@ -1,5 +1,6 @@
 import { after } from "next/server";
 import HomeContent from "@/components/HomeContent";
+import ServerSessionMarker from "@/components/ServerSessionMarker";
 import { auth } from "@/lib/auth";
 import { getUserJoinedAt, recordUserSeen } from "@/lib/userData";
 import { resolveTodayWord, resolveWordForUser } from "@/lib/words";
@@ -19,5 +20,10 @@ export default async function TodayPage() {
     day: "numeric",
   });
 
-  return <HomeContent word={word} date={today} isPersonalized={isPersonalized} />;
+  return (
+    <>
+      <ServerSessionMarker signedIn={!!session?.user?.id} />
+      <HomeContent word={word} date={today} isPersonalized={isPersonalized} />
+    </>
+  );
 }

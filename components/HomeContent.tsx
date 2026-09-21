@@ -7,9 +7,15 @@ import TodayHero from "./TodayHero";
 
 /** Decides between the first-time arrival hero and the normal Today hero.
  * `hasOnboarded()`'s pre-hydration snapshot is `true` (see lib/storage.ts),
- * so server-rendered HTML and the first client render both show TodayHero —
- * a genuine first-timer flips to ArrivalHero immediately after hydration,
- * the same one-render-later pattern OnboardingBanner used before it. */
+ * so server-rendered HTML and the first (hydrating) client render both show
+ * TodayHero regardless of who's visiting. A genuine first-time anonymous
+ * visitor then flips to ArrivalHero on the very next render — right after
+ * hydration completes, not after useSession()'s client-side fetch resolves
+ * — because app/page.tsx renders components/ServerSessionMarker.tsx next to
+ * this component, giving lib/useShowArrival.ts a server-known answer to
+ * read the moment useSyncExternalStore's post-hydration snapshot kicks in.
+ * Same one-render-later pattern OnboardingBanner used before it, just no
+ * longer gated on the client's own session round trip. */
 export default function HomeContent({
   word,
   date,
