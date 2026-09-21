@@ -161,17 +161,15 @@ export function markOnboarded() {
   notify();
 }
 
-const SESSION_HINT_KEY = "curio:signedIn"; // "1" = this browser was signed in last time a session resolved
+export const SESSION_HINT_KEY = "curio:signedIn"; // "1" = this browser was signed in last time a session resolved
 
 /** Optimistic "was this browser signed in?" hint, written whenever
  * useSession() resolves in components/Header.tsx and read BEFORE PAINT by
  * components/SessionHintInit.tsx's inline script, which sets a
  * `data-signed-in` attribute on <html> that app/globals.css's `signed-in:`
- * Tailwind variant reads. That's the same pre-hydration pattern
- * components/ThemeInit.tsx already uses for the theme preference — it runs
- * before React hydrates, so unlike a useSyncExternalStore hook (which is
- * still bound by its server snapshot during hydration) it can actually
- * affect the very first paint.
+ * Tailwind variant reads — the same pre-hydration pattern
+ * components/ThemeInit.tsx already uses for the theme preference, so it can
+ * affect the very first paint rather than a render after hydration.
  *
  * app/layout.tsx deliberately no longer calls auth(): doing so read
  * cookies, which opted the root layout — and so every route in the app —

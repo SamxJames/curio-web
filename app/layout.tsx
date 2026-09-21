@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import ThemeInit from "@/components/ThemeInit";
 import SessionHintInit from "@/components/SessionHintInit";
 import AccountFavoritesSync from "@/components/AccountFavoritesSync";
+import { siteUrl } from "@/lib/siteUrl";
 // Self-hosted (not next/font/google) so the app builds without reaching
 // fonts.googleapis.com at build time — works the same in dev, CI, and prod.
 import "@fontsource/newsreader/400.css";
@@ -19,14 +20,11 @@ import "@fontsource/work-sans/500.css";
 import "@fontsource/work-sans/600.css";
 import "./globals.css";
 
-// Same env var lib/email.ts already uses for absolute links in emails.
-// Without metadataBase, Next.js resolves the OG image routes' relative URLs
-// against http://localhost:3000 in every environment — including
-// production — which would silently break link previews everywhere.
-const SITE_URL = process.env.CURIO_SITE_URL ?? "http://localhost:3000";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  // Without metadataBase, Next.js resolves the OG image routes' relative
+  // URLs against http://localhost:3000 in every environment — including
+  // production — which would silently break link previews everywhere.
+  metadataBase: new URL(siteUrl()),
   title: "Curio — one word, one story, every day",
   description:
     "A daily word's origin story, delivered once a day. No feed, no firehose — just one word.",

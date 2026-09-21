@@ -1,5 +1,4 @@
-import { NextResponse } from "next/server";
-import { after } from "next/server";
+import { NextResponse, after } from "next/server";
 import { auth } from "@/lib/auth";
 import { getUserJoinedAt, recordUserSeen } from "@/lib/userData";
 import { getWordBySlug, resolveHistory, resolveHistoryForUser } from "@/lib/words";

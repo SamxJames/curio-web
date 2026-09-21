@@ -53,13 +53,11 @@ export default function Header() {
           </Link>
 
           {/* useSession() is "loading" on a cold load until its client-side
-              fetch resolves. Rather than guessing which pair to render (the
-              earlier useSyncExternalStore-based hint approach couldn't
-              affect first paint at all — its server snapshot still governs
-              hydration), render both pairs and let app/globals.css's
-              `signed-in:` variant — driven by SessionHintInit's
-              pre-hydration script — pick the right one before paint. Once
-              status resolves, only the one matching pair renders. */}
+              fetch resolves. Rather than guessing which pair to render,
+              render both pairs and let app/globals.css's `signed-in:`
+              variant — driven by SessionHintInit's pre-hydration script —
+              pick the right one before paint. Once status resolves, only
+              the one matching pair renders. */}
           {status === "authenticated" ? (
             <Link href="/collection" className={navLinkClass(collectionActive)}>
               Collection
