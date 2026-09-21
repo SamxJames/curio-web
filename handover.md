@@ -558,7 +558,7 @@ Five things landed, roughly in this order:
 2. Cross-device magic-link handoff — a tab that requested a sign-in link now signs itself in automatically once the link is verified elsewhere (`app/api/auth/device-link/*`, `lib/deviceLink.ts`).
 3. Word-of-the-day locking layer (`lib/words.ts`'s `resolve*` functions) — growing the word bank can no longer retroactively change a date's or account-day's already-served word; see the "Word bank" section above.
 4. Grew the word bank from 26 to 1,147 entries via the content pipeline's full batch run.
-5. A batch of outstanding-debt fixes: server-fed session in the root layout (kills the sign-in loading flash), an O(n) rewrite of the puzzle eligibility scan, a per-email cooldown on magic-link sign-in requests, test coverage for `postDailyWordToBluesky`'s failure path, and pagination for `/history`'s "All words" view.
+5. A batch of outstanding-debt fixes: server-fed session in the root layout (kills the sign-in loading flash) — replaced 2026-09-20 by a pre-paint session hint so the root layout can stay static; see that session below — an O(n) rewrite of the puzzle eligibility scan, a per-email cooldown on magic-link sign-in requests, test coverage for `postDailyWordToBluesky`'s failure path, and pagination for `/history`'s "All words" view.
 
 ## This session (2026-09-19): design system consolidation
 
