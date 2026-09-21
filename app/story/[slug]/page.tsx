@@ -15,9 +15,30 @@ export async function generateMetadata({
   const { slug } = await params;
   const word = getWordBySlug(slug);
   if (!word) return {};
+
+  // `teaser` is the field written to be read cold by a human — one
+  // sentence, no mid-thought opening, and deliberately distinct from
+  // `origin` (which is the full explanation and starts with "From Latin…"
+  // more often than not). Every teaser in the bank is ≤151 characters, so
+  // nothing needs truncating for a meta description.
+  const description = word.teaser;
+  const title = `${word.word}: the origin of the word — Curio`;
+
   return {
-    title: `${word.word} — Curio`,
-    description: word.origin,
+    title,
+    description,
+    // Relative on purpose: app/layout.tsx's metadataBase resolves it
+    // against CURIO_SITE_URL, so this can't drift from the sitemap's origin.
+    alternates: { canonical: `/story/${slug}` },
+    openGraph: {
+      // Next replaces the layout's openGraph wholesale rather than merging
+      // it, so the site-level fields have to be restated here.
+      type: "website",
+      siteName: "Curio",
+      title,
+      description,
+      url: `/story/${slug}`,
+    },
   };
 }
 
