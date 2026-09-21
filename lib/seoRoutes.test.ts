@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { buildSitemapEntries, PUBLIC_ROUTES, DISALLOWED_PATHS } from "./seoRoutes";
+import { buildSitemapEntries, buildRobots, PUBLIC_ROUTES, DISALLOWED_PATHS } from "./seoRoutes";
 import { WORDS } from "./words";
 
 const original = process.env.CURIO_SITE_URL;
@@ -46,5 +46,23 @@ describe("buildSitemapEntries", () => {
   it("contains no duplicate URLs", () => {
     const urls = buildSitemapEntries().map((e) => e.url);
     expect(new Set(urls).size).toBe(urls.length);
+  });
+});
+
+describe("buildRobots", () => {
+  it("allows the site root", () => {
+    expect(buildRobots().rules.allow).toBe("/");
+    expect(buildRobots().rules.userAgent).toBe("*");
+  });
+
+  it("disallows every private path", () => {
+    const { disallow } = buildRobots().rules;
+    for (const path of DISALLOWED_PATHS) {
+      expect(disallow).toContain(path);
+    }
+  });
+
+  it("points at the absolute sitemap URL", () => {
+    expect(buildRobots().sitemap).toBe("https://curio.example/sitemap.xml");
   });
 });

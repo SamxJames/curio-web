@@ -46,3 +46,22 @@ export function buildSitemapEntries(): SitemapEntry[] {
 
   return [...routes, ...stories];
 }
+
+export type RobotsConfig = {
+  rules: { userAgent: string; allow: string; disallow: string[] };
+  sitemap: string;
+};
+
+/** One rule block for every crawler. The disallow list is the same
+ * DISALLOWED_PATHS the sitemap excludes, so the two files can't drift into
+ * advertising a URL that robots.txt blocks. */
+export function buildRobots(): RobotsConfig {
+  return {
+    rules: {
+      userAgent: "*",
+      allow: "/",
+      disallow: [...DISALLOWED_PATHS],
+    },
+    sitemap: absoluteUrl("/sitemap.xml"),
+  };
+}
