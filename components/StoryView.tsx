@@ -8,6 +8,7 @@ import { isFavorite, toggleFavorite, useClientOnlyValue } from "@/lib/storage";
 import { track } from "@/lib/analytics";
 import EtymologyLineage from "./EtymologyLineage";
 import Button from "@/components/ui/Button";
+import StoryDate from "./StoryDate";
 
 const SECTIONS: { key: keyof Pick<WordEntry, "origin" | "journey" | "related">; label: string }[] = [
   { key: "origin", label: "Origin" },
@@ -15,7 +16,7 @@ const SECTIONS: { key: keyof Pick<WordEntry, "origin" | "journey" | "related">; 
   { key: "related", label: "Related words" },
 ];
 
-export default function StoryView({ word, date }: { word: WordEntry; date?: string }) {
+export default function StoryView({ word }: { word: WordEntry }) {
   useEffect(() => {
     track("story_view");
   }, []);
@@ -60,9 +61,7 @@ export default function StoryView({ word, date }: { word: WordEntry; date?: stri
         Today
       </Link>
 
-      {date && (
-        <p className="mb-6 font-sans text-xs tracking-wide text-ink-faint">{date}</p>
-      )}
+      <StoryDate slug={word.slug} />
 
       <h1 className="font-serif text-5xl leading-none">{word.word}</h1>
       <p className="mt-3 font-sans text-sm text-ink-soft">
