@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Heart, Link as LinkIcon, Share } from "lucide-react";
 import type { WordEntry } from "@/lib/words";
+import type { RelatedWords } from "@/lib/relatedWords";
 import { isFavorite, toggleFavorite, useClientOnlyValue } from "@/lib/storage";
 import { track } from "@/lib/analytics";
 import EtymologyLineage from "./EtymologyLineage";
 import Button from "@/components/ui/Button";
+import StoryDate from "./StoryDate";
 
 const SECTIONS: { key: keyof Pick<WordEntry, "origin" | "journey" | "related">; label: string }[] = [
   { key: "origin", label: "Origin" },
@@ -15,7 +17,7 @@ const SECTIONS: { key: keyof Pick<WordEntry, "origin" | "journey" | "related">; 
   { key: "related", label: "Related words" },
 ];
 
-export default function StoryView({ word, date }: { word: WordEntry; date?: string }) {
+export default function StoryView({ word, related }: { word: WordEntry; related: RelatedWords }) {
   useEffect(() => {
     track("story_view");
   }, []);
@@ -60,9 +62,7 @@ export default function StoryView({ word, date }: { word: WordEntry; date?: stri
         Today
       </Link>
 
-      {date && (
-        <p className="mb-6 font-sans text-xs tracking-wide text-ink-faint">{date}</p>
-      )}
+      <StoryDate slug={word.slug} />
 
       <h1 className="font-serif text-5xl leading-none">{word.word}</h1>
       <p className="mt-3 font-sans text-sm text-ink-soft">
@@ -117,6 +117,55 @@ export default function StoryView({ word, date }: { word: WordEntry; date?: stri
           </section>
         ))}
       </div>
+
+      {related.peers.length + related.neighbours.length > 0 && (
+        <section className="mt-12">
+          <div className="mb-3 flex items-center gap-3">
+            <h2 className="font-sans text-xs tracking-wide text-ink-faint">More words</h2>
+            <div className="h-px flex-1 bg-line" />
+          </div>
+          {related.peers.length > 0 && (
+            <div>
+              <p className="mb-2 font-sans text-xs text-ink-faint">From {related.language}</p>
+              <ul className="flex flex-wrap gap-x-6 gap-y-2">
+                {related.peers.map((link) => (
+                  <li key={link.slug}>
+                    <Link
+                      href={`/story/${link.slug}`}
+                      className="font-serif text-lg text-ink transition-colors hover:text-accent"
+                    >
+                      {link.word}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {related.neighbours.length > 0 && (
+            <div className="mt-4">
+              <p className="mb-2 font-sans text-xs text-ink-faint">Nearby, A&ndash;Z</p>
+              <ul className="flex flex-wrap gap-x-6 gap-y-2">
+                {related.neighbours.map((link) => (
+                  <li key={link.slug}>
+                    <Link
+                      href={`/story/${link.slug}`}
+                      className="font-serif text-lg text-ink transition-colors hover:text-accent"
+                    >
+                      {link.word}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <Link
+            href="/words"
+            className="mt-4 inline-block font-sans text-xs text-ink-faint transition-colors hover:text-ink-soft"
+          >
+            All words A&ndash;Z &rarr;
+          </Link>
+        </section>
+      )}
 
       <div className="mt-12 border-t border-line pt-8">
         <Link

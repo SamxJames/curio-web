@@ -135,6 +135,15 @@ export default function HistoryList({
 
       <SegmentedTabs segments={tabs} active={filter} onChange={setFilter} className="mb-6" />
 
+      {/* /history can only show words the shared calendar has actually
+          reached, and caps that at PAGE_SIZE — this is the way to the rest
+          of the word bank, for readers and crawlers alike. */}
+      <p className="mb-6 font-sans text-sm text-ink-soft">
+        <Link href="/words" className="transition-colors hover:text-ink">
+          Browse all words A–Z &rarr;
+        </Link>
+      </p>
+
       {filter === "mine" && (
         <p className="mb-6 font-sans text-sm text-ink-faint">
           Your personal word order — one new word a day since you joined. It&apos;ll grow day by

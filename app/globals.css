@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* Driven by components/SessionHintInit.tsx's pre-hydration script, which
+   sets [data-signed-in] on <html> from the localStorage session hint
+   (see readSessionHint's doc comment in lib/storage.ts). Only for choosing
+   between the two header nav variants before useSession() resolves — never
+   for hiding anything security-relevant. */
+@custom-variant signed-in (&:where([data-signed-in] *));
+
 :root {
   --paper: #f1ece0;
   --paper-raised: #e9e2d0;

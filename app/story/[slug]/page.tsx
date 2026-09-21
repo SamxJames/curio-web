@@ -1,10 +1,9 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { after } from "next/server";
 import StoryView from "@/components/StoryView";
-import { auth } from "@/lib/auth";
-import { getUserJoinedAt, recordUserSeen } from "@/lib/userData";
-import { WORDS, getWordBySlug, resolveHistory, resolveHistoryForUser } from "@/lib/words";
+import { WORDS, getWordBySlug } from "@/lib/words";
+import { buildStoryJsonLd, serializeJsonLd } from "@/lib/storyJsonLd";
+import { getRelatedWords } from "@/lib/relatedWords";
 
 export function generateStaticParams() {
   return WORDS.map((w) => ({ slug: w.slug }));
@@ -18,12 +17,37 @@ export async function generateMetadata({
   const { slug } = await params;
   const word = getWordBySlug(slug);
   if (!word) return {};
+
+  // `teaser` is the field written to be read cold by a human — one
+  // sentence, no mid-thought opening, and deliberately distinct from
+  // `origin` (which is the full explanation and starts with "From Latin…"
+  // more often than not). Every teaser in the bank is ≤151 characters, so
+  // nothing needs truncating for a meta description.
+  const description = word.teaser;
+  const title = `${word.word}: the origin of the word — Curio`;
+
   return {
-    title: `${word.word} — Curio`,
-    description: word.origin,
+    title,
+    description,
+    // Relative on purpose: app/layout.tsx's metadataBase resolves it
+    // against CURIO_SITE_URL, so this can't drift from the sitemap's origin.
+    alternates: { canonical: `/story/${slug}` },
+    openGraph: {
+      // Next replaces the layout's openGraph wholesale rather than merging
+      // it, so the site-level fields have to be restated here.
+      type: "website",
+      siteName: "Curio",
+      title,
+      description,
+      url: `/story/${slug}`,
+    },
   };
 }
 
+// Nothing in this component may read cookies, headers, or Redis: every such
+// call opts all 1,147 prerendered paths back into per-request rendering.
+// The session-dependent parts (the personalized date, recordUserSeen) live
+// in app/api/story/[slug]/date/route.ts, fetched by components/StoryDate.tsx.
 export default async function StoryPage({
   params,
 }: {
@@ -33,27 +57,13 @@ export default async function StoryPage({
   const word = getWordBySlug(slug);
   if (!word) notFound();
 
-  // Prefer this account's own personalized date for the word (matching what
-  // they actually saw on Today/Collection) over the shared calendar's date —
-  // the two rotations are independent, so the shared date can be a stale day
-  // for someone whose personal rotation is showing this word right now.
-  const session = await auth();
-  if (session?.user?.id) after(() => recordUserSeen(session.user.id));
-  const joinedAtStr = session?.user?.id ? await getUserJoinedAt(session.user.id) : null;
-  const personalEntry =
-    session?.user?.id && joinedAtStr
-      ? (await resolveHistoryForUser(session.user.id, new Date(joinedAtStr + "T00:00:00Z"))).find(
-          (d) => d.word.slug === slug
-        )
-      : undefined;
-  const historyEntry = personalEntry ?? (await resolveHistory()).find((d) => d.word.slug === slug);
-  const date = historyEntry
-    ? new Date(historyEntry.date + "T00:00:00Z").toLocaleDateString("en-US", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-      })
-    : undefined;
-
-  return <StoryView word={word} date={date} />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildStoryJsonLd(word)) }}
+      />
+      <StoryView word={word} related={getRelatedWords(slug)} />
+    </>
+  );
 }
