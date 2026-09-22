@@ -35,6 +35,16 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
   },
+  // Google Search Console ownership proof for
+  // etymology-app-orcin.vercel.app, rendered as
+  // <meta name="google-site-verification"> on every page. Not a secret —
+  // it's public in the page source by design. Google re-checks it
+  // periodically, so removing it un-verifies the property; leave it in
+  // place even after verification succeeds. A custom domain needs its own
+  // property verified separately, but this same tag covers it.
+  verification: {
+    google: "w4M0-Qrh-T2gWNivDPcFGNahmUsPoyeXE2JqU99ZWfM",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
