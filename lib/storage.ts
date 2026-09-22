@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { SESSION_HINT_KEY } from "./sessionHintKey";
 
 const FAVORITES_KEY = "curio:favorites";
 const THEME_KEY = "curio:theme"; // "light" | "dark" | absent = system
@@ -161,7 +162,11 @@ export function markOnboarded() {
   notify();
 }
 
-export const SESSION_HINT_KEY = "curio:signedIn"; // "1" = this browser was signed in last time a session resolved
+// Re-exported for existing importers. The value itself lives in
+// lib/sessionHintKey.ts, outside this `"use client"` module, so the Server
+// Component that writes the pre-paint script can read the real string —
+// see that file's comment for the bug this arrangement prevents.
+export { SESSION_HINT_KEY };
 
 /** Optimistic "was this browser signed in?" hint, written whenever
  * useSession() resolves in components/Header.tsx and read BEFORE PAINT by

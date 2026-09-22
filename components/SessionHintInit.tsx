@@ -1,4 +1,4 @@
-import { SESSION_HINT_KEY } from "@/lib/storage";
+import { SESSION_HINT_KEY } from "@/lib/sessionHintKey";
 
 /** Reads lib/storage.ts's readSessionHint value BEFORE React hydrates and
  * sets a `data-signed-in` attribute on <html> so app/globals.css's
