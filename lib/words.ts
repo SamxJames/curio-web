@@ -13927,8 +13927,8 @@ export function getUniqueWordsMostRecent(today: Date = new Date()): HistoryDay[]
 }
 
 /** Simple deterministic string hash (djb2 variant) → 32-bit unsigned int.
- * Doesn't need to be cryptographically strong, just a stable per-user seed
- * so the same account always gets the same shuffle back. */
+ * Doesn't need to be cryptographically strong, just a stable seed for
+ * lib/puzzle.ts's per-day pick. */
 export function hashSeed(input: string): number {
   let hash = 5381;
   for (let i = 0; i < input.length; i++) {
@@ -13949,85 +13949,6 @@ export function mulberry32(seed: number): () => number {
   };
 }
 
-/** Deterministic per-account shuffle of WORDS (Fisher-Yates driven by a
- * seeded PRNG) — every account gets its own fixed order, and the same
- * account always gets the same order back.
- *
- * The word for `anchorDate` (a new account's join date) is pinned to slot 0
- * rather than falling wherever the shuffle happens to put it: without this,
- * someone who saw a word on Today, then signed in, would immediately see a
- * *different* word from their newly-started personal rotation — a jarring
- * swap for no visible reason. Pinning it means their first personalized day
- * carries on from what they already saw; every day after that is the normal
- * per-account shuffle. */
-export function getPersonalOrder(userId: string, anchorDate: Date): WordEntry[] {
-  const anchorWord = getWordForDate(anchorDate);
-  const rand = mulberry32(hashSeed(userId));
-  const rest = WORDS.filter((w) => w.slug !== anchorWord.slug);
-  for (let i = rest.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [rest[i], rest[j]] = [rest[j], rest[i]];
-  }
-  return [anchorWord, ...rest];
-}
-
-/** Resolves which word a single daily-digest recipient should get: the
- * shared calendar word for anonymous subscribers (or accounts with no
- * recorded join date), otherwise that account's own personalized rotation —
- * matching what they'd already see on the signed-in Today page, instead of
- * a second word that only ever shows up in their inbox. Takes the account
- * lookup already resolved rather than performing it itself, so this stays a
- * pure, easily-tested function; see app/api/cron/send-daily/route.ts for the
- * Redis lookups that feed it. */
-export function getDigestWordForSubscriber(
-  userId: string | null,
-  joinedAtStr: string | null,
-  now: Date,
-  sharedWord: WordEntry
-): WordEntry {
-  if (!userId || !joinedAtStr) return sharedWord;
-  return getWordForUser(userId, new Date(joinedAtStr + "T00:00:00Z"), now);
-}
-
-function daysBetweenUtcMidnights(start: Date, end: Date): number {
-  const startUtc = Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate());
-  const endUtc = Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate());
-  return Math.floor((endUtc - startUtc) / DAY_MS);
-}
-
-/** Personalized word-of-the-day for a signed-in account: same rotation
- * length as the shared list, shuffled per account, anchored to their join
- * date instead of the global calendar anchor used by getWordForDate. */
-export function getWordForUser(userId: string, joinedAt: Date, today: Date = new Date()): WordEntry {
-  const order = getPersonalOrder(userId, joinedAt);
-  const dayIndex = daysBetweenUtcMidnights(joinedAt, today);
-  const idx = ((dayIndex % order.length) + order.length) % order.length;
-  return order[idx];
-}
-
-/** Every day from a user's join date through today, most recent first,
- * using their personal word order instead of the shared calendar mapping. */
-export function getHistoryForUser(
-  userId: string,
-  joinedAt: Date,
-  today: Date = new Date()
-): HistoryDay[] {
-  const order = getPersonalOrder(userId, joinedAt);
-  const totalDays = daysBetweenUtcMidnights(joinedAt, today);
-  const joinedUtcMidnight = Date.UTC(
-    joinedAt.getUTCFullYear(),
-    joinedAt.getUTCMonth(),
-    joinedAt.getUTCDate()
-  );
-  const days: HistoryDay[] = [];
-  for (let i = totalDays; i >= 0; i--) {
-    const d = new Date(joinedUtcMidnight + i * DAY_MS);
-    const idx = ((i % order.length) + order.length) % order.length;
-    days.push({ date: dayKey(d), word: order[idx] });
-  }
-  return days;
-}
-
 // --- Locking layer -----------------------------------------------------
 //
 // Every function above is a pure recomputation over the CURRENT `WORDS`
@@ -14035,33 +13956,30 @@ export function getHistoryForUser(
 // modulo-based index that depends on its length, which silently changes
 // the word already shown for a given calendar date or account-day — see
 // the 8→26-word batch commit that flipped today's global word mid-day.
-// getPersonalOrder is worse: its Fisher-Yates shuffle depends on the
-// array's full length at shuffle time, so growing it reshuffles a
-// signed-in account's *entire* personal order, not just the newly added
-// slots.
 //
 // The functions below wrap the pure ones with a "lock on first serve"
-// layer in Redis: the first time a given date (or account-day) is
-// resolved, whatever the pure function currently computes is persisted
-// under that date/account, and every later call returns the persisted
-// word regardless of how WORDS changes afterward. Nothing is persisted
-// for a date that's never been asked for, so future, not-yet-served days
-// are free to shift as content is added — only what's already been shown
-// is locked. Everything here is a no-op passthrough to the pure functions
-// when Upstash isn't configured (lib/redis.ts's usual fallback).
+// layer in Redis: the first time a given date is resolved, whatever the
+// pure function currently computes is persisted under that date/account,
+// and every later call returns the persisted word regardless of how WORDS
+// changes afterward. Nothing is persisted for a date that's never been
+// asked for, so future, not-yet-served days are free to shift as content
+// is added — only what's already been shown is locked. Everything here is
+// a no-op passthrough to the pure functions when Upstash isn't configured
+// (lib/redis.ts's usual fallback).
 //
 // lib/puzzle.ts deliberately keeps its own separate, unlocked
 // implementation of this same date math (see wordForDateFrom there) — its
 // anti-spoiler window is already documented as tolerant of this kind of
 // drift, and locking it would conflict with how its eligibility pool is
 // validated.
+//
+// Accounts used to have their own per-account locks too
+// (curio:user:<id>:wordFor:<date>) — removed with the per-account rotation
+// on 2026-09-26. Those Redis keys are deliberately left in place, unread,
+// as a cheap revert path; see handover.md before deleting them.
 
 function wordOfDayKey(dateStr: string): string {
   return `curio:wordoftheday:${dateStr}`;
-}
-
-function userWordKey(userId: string, dateStr: string): string {
-  return `curio:user:${userId}:wordFor:${dateStr}`;
 }
 
 /** Returns the word locked in under `key`, or computes and locks in
@@ -14160,55 +14078,3 @@ export async function resolveUniqueWordsMostRecent(today: Date = new Date()): Pr
   return unique;
 }
 
-/** Stable counterpart to getWordForUser. */
-export async function resolveWordForUser(
-  userId: string,
-  joinedAt: Date,
-  today: Date = new Date()
-): Promise<WordEntry> {
-  const dateStr = dayKey(today);
-  return resolveLocked(userWordKey(userId, dateStr), () => getWordForUser(userId, joinedAt, today));
-}
-
-/** Stable counterpart to getHistoryForUser. getPersonalOrder is computed
- * once up front and reused as the fallback for every not-yet-locked day in
- * the range, rather than once per day — it's the same shuffle regardless of
- * which day is asking, so there's no reason to redo it per entry. */
-export async function resolveHistoryForUser(
-  userId: string,
-  joinedAt: Date,
-  today: Date = new Date()
-): Promise<HistoryDay[]> {
-  const totalDays = daysBetweenUtcMidnights(joinedAt, today);
-  const joinedUtcMidnight = Date.UTC(
-    joinedAt.getUTCFullYear(),
-    joinedAt.getUTCMonth(),
-    joinedAt.getUTCDate()
-  );
-  const order = getPersonalOrder(userId, joinedAt);
-  const offsets: number[] = [];
-  for (let i = totalDays; i >= 0; i--) offsets.push(i);
-
-  const words = await resolveLockedMany(
-    offsets.map((i) => {
-      const d = new Date(joinedUtcMidnight + i * DAY_MS);
-      const idx = ((i % order.length) + order.length) % order.length;
-      return { key: userWordKey(userId, dayKey(d)), compute: () => order[idx] };
-    })
-  );
-  return offsets.map((i, pos) => ({
-    date: dayKey(new Date(joinedUtcMidnight + i * DAY_MS)),
-    word: words[pos],
-  }));
-}
-
-/** Stable counterpart to getDigestWordForSubscriber. */
-export async function resolveDigestWordForSubscriber(
-  userId: string | null,
-  joinedAtStr: string | null,
-  now: Date,
-  sharedWord: WordEntry
-): Promise<WordEntry> {
-  if (!userId || !joinedAtStr) return sharedWord;
-  return resolveWordForUser(userId, new Date(joinedAtStr + "T00:00:00Z"), now);
-}

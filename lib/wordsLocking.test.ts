@@ -25,16 +25,12 @@ vi.mock("./redis", () => ({ redis: fakeRedis, usingUpstash: true }));
 const {
   WORDS,
   getWordForDate,
-  getWordForUser,
   resolveWordForDate,
   resolveTodayWord,
   resolveHistory,
   resolveHistorySince,
   daysSinceStart,
   resolveUniqueWordsMostRecent,
-  resolveWordForUser,
-  resolveHistoryForUser,
-  resolveDigestWordForSubscriber,
 } = await import("./words");
 
 beforeEach(() => {
@@ -96,61 +92,6 @@ describe("resolveHistory", () => {
 
     const unique = await resolveUniqueWordsMostRecent(today);
     expect(unique[0].word).toEqual(lockedWord);
-  });
-});
-
-describe("resolveWordForUser / resolveHistoryForUser", () => {
-  const joinedAt = new Date("2026-01-01T00:00:00Z");
-
-  it("locks a signed-in account's word per day, independent of the global lock", async () => {
-    const today = new Date("2026-01-02T00:00:00Z");
-    const expected = getWordForUser("user-1", joinedAt, today);
-    const result = await resolveWordForUser("user-1", joinedAt, today);
-    expect(result).toEqual(expected);
-    expect(fakeRedis.store.get("curio:user:user-1:wordFor:2026-01-02")).toBe(expected.slug);
-  });
-
-  it("a locked account-day overrides what the current personal shuffle would produce", async () => {
-    const today = new Date("2026-01-02T00:00:00Z");
-    const liveWord = getWordForUser("user-1", joinedAt, today);
-    const lockedWord = WORDS.find((w) => w.slug !== liveWord.slug)!;
-    fakeRedis.store.set("curio:user:user-1:wordFor:2026-01-02", lockedWord.slug);
-
-    const result = await resolveWordForUser("user-1", joinedAt, today);
-    expect(result).toEqual(lockedWord);
-  });
-
-  it("resolveHistoryForUser mixes locked and freshly-locked days correctly", async () => {
-    const today = new Date("2026-01-03T00:00:00Z");
-    const liveDay1 = getWordForUser("user-1", joinedAt, new Date("2026-01-02T00:00:00Z"));
-    const lockedDay1 = WORDS.find((w) => w.slug !== liveDay1.slug)!;
-    fakeRedis.store.set("curio:user:user-1:wordFor:2026-01-02", lockedDay1.slug);
-
-    const history = await resolveHistoryForUser("user-1", joinedAt, today);
-    expect(history.find((d) => d.date === "2026-01-02")!.word).toEqual(lockedDay1);
-    expect(history.find((d) => d.date === "2026-01-03")!.word).toEqual(
-      getWordForUser("user-1", joinedAt, today)
-    );
-  });
-});
-
-describe("resolveDigestWordForSubscriber", () => {
-  it("falls back to the shared word when there's no linked account", async () => {
-    const now = new Date("2026-01-05T00:00:00Z");
-    const sharedWord = getWordForDate(now);
-    const result = await resolveDigestWordForSubscriber(null, null, now, sharedWord);
-    expect(result).toEqual(sharedWord);
-  });
-
-  it("uses (and locks) the account's personalized word when both userId and join date are known", async () => {
-    const now = new Date("2026-01-05T00:00:00Z");
-    const sharedWord = getWordForDate(now);
-    const joinedAtStr = "2026-01-01";
-    const expected = getWordForUser("user-1", new Date(joinedAtStr + "T00:00:00Z"), now);
-
-    const result = await resolveDigestWordForSubscriber("user-1", joinedAtStr, now, sharedWord);
-    expect(result).toEqual(expected);
-    expect(fakeRedis.store.get("curio:user:user-1:wordFor:2026-01-05")).toBe(expected.slug);
   });
 });
 

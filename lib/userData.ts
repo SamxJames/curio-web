@@ -6,8 +6,8 @@ function joinedKey(userId: string): string {
   return `curio:user:${userId}:joinedAt`;
 }
 
-/** Records the UTC calendar date (YYYY-MM-DD) an account was created, used
- * to anchor its personalized word rotation. `nx: true` makes this a no-op
+/** Records the UTC calendar date (YYYY-MM-DD) an account was created, which
+ * marks where the account's History starts. `nx: true` makes this a no-op
  * if it's ever called twice for the same user (e.g. a duplicate event). */
 export async function recordUserJoined(userId: string, date: Date = new Date()): Promise<void> {
   if (!redis) return;

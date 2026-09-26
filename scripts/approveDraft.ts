@@ -54,7 +54,7 @@ const WORDS_DECLARATION = "export const WORDS: WordEntry[] = [";
 
 /** Matches an array literal's closing bracket — a `];` that starts its own
  * line (optionally indented) — but NOT an inline `= [];` such as
- * lib/words.ts's `const days: HistoryDay[] = [];` inside getHistoryForUser
+ * lib/words.ts's `const days: HistoryDay[] = [];` inside getHistory
  * (there `[` and `]` share a line, so this pattern can't match there). */
 const ARRAY_CLOSING_BRACKET_PATTERN = /\r?\n[ \t]*\];/;
 
@@ -124,7 +124,7 @@ export function appendDraftToWordsFile(draft: DraftEntry, wordsFilePath: string)
  * a prior run — this is what makes re-running content:approve --batch on a
  * drafts directory safe) or duplicated across two files in the same batch —
  * either would otherwise corrupt WORDS with two entries sharing one slug,
- * breaking every lookup keyed by it (getWordBySlug, getPersonalOrder, …). */
+ * breaking every lookup keyed by it (getWordBySlug, getRelatedWords, …). */
 export function validateDraftFiles(
   draftPaths: string[],
   existingWordsSource: string
