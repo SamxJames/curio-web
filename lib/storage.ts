@@ -7,6 +7,7 @@ const FAVORITES_KEY = "curio:favorites";
 const THEME_KEY = "curio:theme"; // "light" | "dark" | absent = system
 const ONBOARDED_KEY = "curio:onboarded";
 const SUBSCRIBED_KEY = "curio:subscribed";
+const ARRIVED_FROM_EMAIL_KEY = "curio:arrivedFromEmail"; // sessionStorage, not localStorage — see hasArrivedFromEmailThisSession
 
 // Every localStorage-backed value in this module goes through this same
 // tiny pub-sub so components can read it with useSyncExternalStore instead
@@ -163,10 +164,14 @@ export function markOnboarded() {
   notify();
 }
 
-/** "This browser joined the email, or has arrived from one." A display hint
+/** "This browser has actually joined the email" — set only by a real signup
+ * succeeding (EmailSignupInline's markSubscribedHere call). A display hint
  * only, like the session hint below: it hides a story page's signup pitch
- * (components/StoryFrontDoor.tsx) and nothing else. Not cleared on
- * unsubscribe — worst case, a lapsed subscriber doesn't see the pitch. */
+ * (components/StoryFrontDoor.tsx) and nothing else. Persists across
+ * sessions, and is not cleared on unsubscribe — worst case, a lapsed
+ * subscriber doesn't see the pitch. Arriving from a digest link does NOT
+ * set this: see hasArrivedFromEmailThisSession below for why that's
+ * session-only instead. */
 export function hasSubscribedHere(): boolean {
   if (typeof window === "undefined") return false;
   try {
@@ -186,6 +191,39 @@ export function markSubscribedHere() {
   if (typeof window === "undefined" || hasSubscribedHere()) return;
   try {
     window.localStorage.setItem(SUBSCRIBED_KEY, "1");
+  } catch {
+    return;
+  }
+  notify();
+}
+
+/** "This tab arrived from a digest email link this session" (utm_source=email,
+ * see lib/emailArrival.ts) — sessionStorage, not localStorage. A subscriber
+ * who forwards the digest URL, or copies it out of an in-app browser, hands
+ * the recipient a link that looks identical to their own; if that arrival
+ * persisted, it would hide the signup pitch forever for exactly the person
+ * it's meant to reach. Scoping it to the tab's session (cleared when the tab
+ * closes) means the pitch only disappears while someone is reading the
+ * email's own link, not for every future visit. */
+export function hasArrivedFromEmailThisSession(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.sessionStorage.getItem(ARRIVED_FROM_EMAIL_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** Server snapshot is `false`, matching useHasSubscribedHere — the static
+ * HTML always includes the pitch. */
+export function useHasArrivedFromEmailThisSession(): boolean {
+  return useSyncExternalStore(subscribe, hasArrivedFromEmailThisSession, () => false);
+}
+
+export function markArrivedFromEmailThisSession() {
+  if (typeof window === "undefined" || hasArrivedFromEmailThisSession()) return;
+  try {
+    window.sessionStorage.setItem(ARRIVED_FROM_EMAIL_KEY, "1");
   } catch {
     return;
   }

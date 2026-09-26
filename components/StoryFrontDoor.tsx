@@ -3,25 +3,32 @@
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import EmailSignupInline from "./EmailSignupInline";
-import { markSubscribedHere, useHasSubscribedHere } from "@/lib/storage";
+import {
+  markArrivedFromEmailThisSession,
+  useHasArrivedFromEmailThisSession,
+  useHasSubscribedHere,
+} from "@/lib/storage";
 import { isEmailArrival } from "@/lib/emailArrival";
 
 /** A story page's front door for someone who arrived from search: what
  * Curio is, and how to get tomorrow's word. Hidden for anyone this browser
- * knows already gets the email — a digest link (utm_source=email, see
- * lib/email.ts) or a signup here — since subscribers land on story pages
- * every morning and shouldn't be pitched the thing they already have. */
+ * knows already gets the email — a real signup here (persists forever) or a
+ * digest link this session (utm_source=email, see lib/email.ts; forgotten
+ * once the tab closes, so a forwarded or copied link doesn't hide the pitch
+ * for whoever opens it next) — since subscribers land on story pages every
+ * morning and shouldn't be pitched the thing they already have. */
 export default function StoryFrontDoor() {
   const subscribedHere = useHasSubscribedHere();
+  const arrivedFromEmailThisSession = useHasArrivedFromEmailThisSession();
   // Pinned open after a signup on this page, so the "You're in" message
   // isn't unmounted the instant markSubscribedHere() flips the flag.
   const [justJoined, setJustJoined] = useState(false);
 
   useEffect(() => {
-    if (isEmailArrival(window.location.search)) markSubscribedHere();
+    if (isEmailArrival(window.location.search)) markArrivedFromEmailThisSession();
   }, []);
 
-  if (subscribedHere && !justJoined) return null;
+  if ((subscribedHere || arrivedFromEmailThisSession) && !justJoined) return null;
 
   return (
     <section aria-label="About Curio" className="mt-12 border-t border-line pt-8">

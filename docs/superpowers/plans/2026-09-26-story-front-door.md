@@ -4,7 +4,7 @@
 
 **Goal:** Tell someone who lands on `/story/[slug]` from search what Curio is, and how to get tomorrow's word, without adding a feed, a backlog or new navigation.
 
-**Architecture:** A new client component, `StoryFrontDoor`, puts one line of copy and the existing `EmailSignupInline` right after the story. It hides for visitors this browser knows already get the email. A localStorage flag records that, set when someone joins or arrives from a digest link, and digest links now carry `utm_source=email`. The "Today's word is ___ →" link reads today's word from `/api/story/[slug]/date`, the uncached route the page already fetches for its "featured on" line, so every story page stays static. The "Browse all words →" link to `/history` is removed.
+**Architecture:** A new client component, `StoryFrontDoor`, puts one line of copy and the existing `EmailSignupInline` right after the story. It hides for visitors this browser knows already get the email: a localStorage flag records an actual signup (permanent), and a sessionStorage flag records arriving from a digest link (cleared when the tab closes, so a forwarded or copied digest URL can't permanently hide the pitch for whoever opens it next). Digest links carry `utm_source=email`. The "Today's word is ___ →" link reads today's word from `/api/story/[slug]/date`, the uncached route the page already fetches for its "featured on" line, so every story page stays static. The "Browse all words →" link to `/history` is removed.
 
 **Tech Stack:** Next.js 16 App Router, React 19, TypeScript, Tailwind v4 tokens, Vitest (node environment).
 
@@ -17,7 +17,7 @@
 - If the story isn't today's word, show a small link: "Today's word is ___ →".
 - "Browse all words →" currently points at `/history`, which is a personal view. **Decision:** remove it. `getRelatedWords` always returns alphabetical neighbours (see `lib/relatedWords.ts`), so "All words A–Z →" (to `/words`) already renders on every story page, and a second link to `/words` would repeat it.
 - Keep the related-word and A–Z links as they are. No header nav items.
-- **Decision (subscribers):** the digest links subscribers to story pages every morning, so the line and signup are hidden (a) on visits from a digest link (`utm_source=email`), and (b) on any browser that has joined via `EmailSignupInline` or arrived from a digest link before. The "Today's word" link is not hidden.
+- **Decision (subscribers):** the digest links subscribers to story pages every morning, so the line and signup are hidden (a) on visits from a digest link (`utm_source=email`), for the rest of that browsing session, and (b) permanently on any browser that has joined via `EmailSignupInline`. **Revised post-launch review:** an email arrival must not persist past the session (localStorage) the way a real signup does — a subscriber forwarding or copying the digest URL would otherwise make the recipient's browser hide the pitch forever, which is the exact prospect the pitch is for. So (a) is sessionStorage-backed and (b) alone is permanent. The "Today's word" link is not hidden.
 - Out of scope: streaks, unread counts, "X of N", "you missed", random/explore, per-user send times, a fifth nav item, push/PWA, leaderboards, new word content.
 
 ## Global Constraints
@@ -340,19 +340,21 @@ git commit -m "feat: name today's word on older story pages; drop the /history l
 
 **Interfaces:**
 - Consumes: `isEmailArrival(search: string): boolean` from `lib/emailArrival.ts` (Task 1).
-- Produces: `hasSubscribedHere(): boolean`, `useHasSubscribedHere(): boolean` and `markSubscribedHere(): void` from `lib/storage.ts`; a default-export `StoryFrontDoor` component with no props.
+- Produces: `hasSubscribedHere(): boolean`, `useHasSubscribedHere(): boolean` and `markSubscribedHere(): void` (localStorage, permanent — a real signup) plus `hasArrivedFromEmailThisSession(): boolean`, `useHasArrivedFromEmailThisSession(): boolean` and `markArrivedFromEmailThisSession(): void` (sessionStorage, cleared when the tab closes — a digest-link arrival) from `lib/storage.ts`; a default-export `StoryFrontDoor` component with no props.
 
 There is no unit test for this task. The repo's Vitest runs in `node` with no DOM or localStorage, and the only pure logic here (`isEmailArrival`) is tested in Task 1. Step 5 does the verification in the browser.
 
 - [ ] **Step 1: Add the flag to lib/storage.ts**
 
-Add `const SUBSCRIBED_KEY = "curio:subscribed";` next to the other keys at the top. After `markOnboarded`, add:
+Add `const SUBSCRIBED_KEY = "curio:subscribed";` and `const ARRIVED_FROM_EMAIL_KEY = "curio:arrivedFromEmail";` (sessionStorage, not localStorage) next to the other keys at the top. After `markOnboarded`, add:
 
 ```ts
-/** "This browser joined the email, or has arrived from one." A display hint
- * only, like the session hint below: it hides a story page's signup pitch
- * (components/StoryFrontDoor.tsx) and nothing else. Not cleared on
- * unsubscribe — worst case, a lapsed subscriber doesn't see the pitch. */
+/** "This browser has actually joined the email" — set only by a real signup.
+ * A display hint only, like the session hint below: it hides a story page's
+ * signup pitch (components/StoryFrontDoor.tsx) and nothing else. Persists
+ * across sessions; not cleared on unsubscribe — worst case, a lapsed
+ * subscriber doesn't see the pitch. Arriving from a digest link does NOT
+ * set this — see hasArrivedFromEmailThisSession below. */
 export function hasSubscribedHere(): boolean {
   if (typeof window === "undefined") return false;
   try {
@@ -372,6 +374,36 @@ export function markSubscribedHere() {
   if (typeof window === "undefined" || hasSubscribedHere()) return;
   try {
     window.localStorage.setItem(SUBSCRIBED_KEY, "1");
+  } catch {
+    return;
+  }
+  notify();
+}
+
+/** "This tab arrived from a digest link this session" — sessionStorage, not
+ * localStorage. A subscriber who forwards or copies the digest URL hands
+ * the recipient a link that looks identical to their own; if the arrival
+ * persisted, it would hide the pitch forever for exactly the person it's
+ * meant to reach. Session-scoping means it only disappears while someone
+ * is reading the email's own link, not on every future visit. */
+export function hasArrivedFromEmailThisSession(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.sessionStorage.getItem(ARRIVED_FROM_EMAIL_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** Server snapshot is `false`, matching useHasSubscribedHere. */
+export function useHasArrivedFromEmailThisSession(): boolean {
+  return useSyncExternalStore(subscribe, hasArrivedFromEmailThisSession, () => false);
+}
+
+export function markArrivedFromEmailThisSession() {
+  if (typeof window === "undefined" || hasArrivedFromEmailThisSession()) return;
+  try {
+    window.sessionStorage.setItem(ARRIVED_FROM_EMAIL_KEY, "1");
   } catch {
     return;
   }
@@ -402,25 +434,32 @@ Update the component's doc comment: it is used on the arrival hero, `/play`'s po
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import EmailSignupInline from "./EmailSignupInline";
-import { markSubscribedHere, useHasSubscribedHere } from "@/lib/storage";
+import {
+  markArrivedFromEmailThisSession,
+  useHasArrivedFromEmailThisSession,
+  useHasSubscribedHere,
+} from "@/lib/storage";
 import { isEmailArrival } from "@/lib/emailArrival";
 
 /** A story page's front door for someone who arrived from search: what
  * Curio is, and how to get tomorrow's word. Hidden for anyone this browser
- * knows already gets the email — a digest link (utm_source=email, see
- * lib/email.ts) or a signup here — since subscribers land on story pages
- * every morning and shouldn't be pitched the thing they already have. */
+ * knows already gets the email — a real signup here (persists forever) or a
+ * digest link this session (utm_source=email, see lib/email.ts; forgotten
+ * once the tab closes, so a forwarded or copied link doesn't hide the pitch
+ * for whoever opens it next) — since subscribers land on story pages every
+ * morning and shouldn't be pitched the thing they already have. */
 export default function StoryFrontDoor() {
   const subscribedHere = useHasSubscribedHere();
+  const arrivedFromEmailThisSession = useHasArrivedFromEmailThisSession();
   // Pinned open after a signup on this page, so the "You're in" message
   // isn't unmounted the instant markSubscribedHere() flips the flag.
   const [justJoined, setJustJoined] = useState(false);
 
   useEffect(() => {
-    if (isEmailArrival(window.location.search)) markSubscribedHere();
+    if (isEmailArrival(window.location.search)) markArrivedFromEmailThisSession();
   }, []);
 
-  if (subscribedHere && !justJoined) return null;
+  if ((subscribedHere || arrivedFromEmailThisSession) && !justJoined) return null;
 
   return (
     <section aria-label="About Curio" className="mt-12 border-t border-line pt-8">
@@ -444,11 +483,11 @@ In `components/StoryView.tsx`, import `StoryFrontDoor from "./StoryFrontDoor"` a
 - [ ] **Step 5: Check it live (signed out, no real signup)**
 
 Do **not** submit the signup form. It writes to the shared production Upstash (see `handover.md`, "Important: local dev and production point at the same Upstash database").
-1. In a fresh browser profile (or after `localStorage.removeItem("curio:subscribed")`), open `/story/<word>`. The line and the Join field show after the story, above "More words".
-2. Open `/story/<word>?utm_source=email`. The block disappears after hydration, and `localStorage.getItem("curio:subscribed")` is `"1"`.
-3. Navigate to another story without the query. The block stays hidden.
-4. Remove the key and reload. The block is back.
-5. Check the success path without a network write. In the browser console, temporarily override `window.fetch` to return `new Response(JSON.stringify({ ok: true }), { status: 200 })` for `/api/subscribe`, type an email and press Join. "You're in. Tomorrow's word arrives in the morning." must stay visible, and the flag must now be `"1"`. Reload to drop the override. The block is now hidden.
+1. In a fresh browser profile (or after `localStorage.removeItem("curio:subscribed")` and `sessionStorage.removeItem("curio:arrivedFromEmail")`), open `/story/<word>`. The line and the Join field show after the story, above "More words".
+2. Open `/story/<word>?utm_source=email`. The block disappears after hydration, and `sessionStorage.getItem("curio:arrivedFromEmail")` is `"1"` — `localStorage.getItem("curio:subscribed")` stays untouched.
+3. Navigate to another story without the query, in the same tab. The block stays hidden (sessionStorage flag still set).
+4. Open the same `?utm_source=email` URL in a fresh tab (or after clearing session storage). The block shows again — an email arrival doesn't persist past its session, so a forwarded or copied digest link can't permanently hide the pitch for whoever opens it next.
+5. Check the success path without a network write. In the browser console, temporarily override `window.fetch` to return `new Response(JSON.stringify({ ok: true }), { status: 200 })` for `/api/subscribe`, type an email and press Join. "You're in. Tomorrow's word arrives in the morning." must stay visible, and `localStorage.getItem("curio:subscribed")` must now be `"1"`. Reload to drop the override. The block is now hidden — and stays hidden in a fresh tab, unlike the session-only email-arrival flag.
 6. Tab order: after the story text, Tab reaches the email field, then Join.
 
 - [ ] **Step 6: Run the whole suite, lint and a build**
