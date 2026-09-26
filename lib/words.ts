@@ -14114,19 +14114,35 @@ export async function resolveTodayWord(now: Date = new Date()): Promise<WordEntr
   return resolveWordForDate(now);
 }
 
-/** Stable counterpart to getHistory. */
-export async function resolveHistory(today: Date = new Date()): Promise<HistoryDay[]> {
-  const totalDays = daysSinceStart(today);
+/** Every shared-calendar day from `from` (clamped to START_DATE) through
+ * `today`, most recent first, each resolved through the same
+ * curio:wordoftheday lock — the one code path both anonymous History and an
+ * account's History read, so the two can't drift apart. */
+async function resolveSharedRange(from: Date, today: Date): Promise<HistoryDay[]> {
+  const first = Math.max(0, daysSinceStart(from));
+  const last = daysSinceStart(today);
   const dates: Date[] = [];
-  for (let i = totalDays; i >= 0; i--) dates.push(new Date(START_DATE + i * DAY_MS));
+  for (let i = last; i >= first; i--) dates.push(new Date(START_DATE + i * DAY_MS));
 
   const words = await resolveLockedMany(
-    dates.map((d) => ({
-      key: wordOfDayKey(dayKey(d)),
-      compute: () => getWordForDate(d),
-    }))
+    dates.map((d) => ({ key: wordOfDayKey(dayKey(d)), compute: () => getWordForDate(d) }))
   );
   return dates.map((d, i) => ({ date: dayKey(d), word: words[i] }));
+}
+
+/** Stable counterpart to getHistory. */
+export async function resolveHistory(today: Date = new Date()): Promise<HistoryDay[]> {
+  return resolveSharedRange(new Date(START_DATE), today);
+}
+
+/** An account's History: the shared days since it joined. Starts at the
+ * join date on purpose — earlier days would be manufactured history for
+ * days the account never experienced. */
+export async function resolveHistorySince(
+  joinedAt: Date,
+  today: Date = new Date()
+): Promise<HistoryDay[]> {
+  return resolveSharedRange(joinedAt, today);
 }
 
 /** Stable counterpart to getUniqueWordsMostRecent, built from resolveHistory

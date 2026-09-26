@@ -29,6 +29,8 @@ const {
   resolveWordForDate,
   resolveTodayWord,
   resolveHistory,
+  resolveHistorySince,
+  daysSinceStart,
   resolveUniqueWordsMostRecent,
   resolveWordForUser,
   resolveHistoryForUser,
@@ -149,5 +151,82 @@ describe("resolveDigestWordForSubscriber", () => {
     const result = await resolveDigestWordForSubscriber("user-1", joinedAtStr, now, sharedWord);
     expect(result).toEqual(expected);
     expect(fakeRedis.store.get("curio:user:user-1:wordFor:2026-01-05")).toBe(expected.slug);
+  });
+});
+
+describe("resolveHistorySince (an account's History)", () => {
+  it("covers exactly the shared days from the join date through today, newest first", async () => {
+    const history = await resolveHistorySince(
+      new Date("2026-01-03T00:00:00Z"),
+      new Date("2026-01-05T00:00:00Z")
+    );
+    expect(history.map((d) => d.date)).toEqual(["2026-01-05", "2026-01-04", "2026-01-03"]);
+  });
+
+  it("returns nothing when the join date is after today", async () => {
+    const history = await resolveHistorySince(
+      new Date("2026-01-06T00:00:00Z"),
+      new Date("2026-01-05T00:00:00Z")
+    );
+    expect(history).toEqual([]);
+  });
+
+  it("gives an account the same word an anonymous visitor gets, day by day", async () => {
+    const today = new Date("2026-01-06T00:00:00Z");
+    const account = await resolveHistorySince(new Date("2026-01-02T00:00:00Z"), today);
+    const anonymous = await resolveHistory(today);
+    for (const day of account) {
+      expect(day.word).toEqual(anonymous.find((d) => d.date === day.date)!.word);
+    }
+    expect(account[0].word).toEqual(await resolveWordForDate(today));
+  });
+
+  it("honours the same shared lock as anonymous visitors, even when it disagrees with live computation", async () => {
+    // Proves both paths read one Redis key rather than merely computing the
+    // same formula — a content batch that shifts getWordForDate can't split them.
+    const today = new Date("2026-01-05T00:00:00Z");
+    const lockedWord = WORDS.find((w) => w.slug !== getWordForDate(today).slug)!;
+    fakeRedis.store.set("curio:wordoftheday:2026-01-05", lockedWord.slug);
+
+    const account = await resolveHistorySince(new Date("2026-01-01T00:00:00Z"), today);
+    expect(account[0].word).toEqual(lockedWord);
+    expect(await resolveWordForDate(today)).toEqual(lockedWord);
+  });
+});
+
+describe("past shared days are immutable", () => {
+  const today = new Date("2026-01-10T00:00:00Z");
+
+  function restore(original: typeof WORDS) {
+    WORDS.splice(0, WORDS.length, ...original);
+  }
+
+  it("once served, a past date's word survives any reordering of the word bank", async () => {
+    const before = await resolveHistory(today);
+    const original = WORDS.slice();
+    WORDS.reverse();
+    try {
+      expect(await resolveHistory(today)).toEqual(before);
+    } finally {
+      restore(original);
+    }
+  });
+
+  it("reordering only slots after today leaves every past date's pick unchanged, locked or not", () => {
+    const todayIndex = daysSinceStart(today);
+    const pastBefore = Array.from({ length: todayIndex + 1 }, (_, i) =>
+      getWordForDate(new Date(Date.UTC(2026, 0, 1 + i))).slug
+    );
+    const original = WORDS.slice();
+    const future = WORDS.splice(todayIndex + 1);
+    WORDS.push(...future.reverse());
+    try {
+      const pastAfter = Array.from({ length: todayIndex + 1 }, (_, i) =>
+        getWordForDate(new Date(Date.UTC(2026, 0, 1 + i))).slug
+      );
+      expect(pastAfter).toEqual(pastBefore);
+    } finally {
+      restore(original);
+    }
   });
 });
