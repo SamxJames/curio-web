@@ -507,7 +507,9 @@ gone; its data is not: `curio:user:<id>:wordFor:<date>` keys are left in
 Redis, unread and unwritten, as a cheap revert path — safe to delete in a
 later cleanup. There was exactly one account at the cutover (the owner's;
 the owner's spouse is an email subscriber, not an account). Its
-`joinedAt` was reset to the cutover date by a one-off script
+`joinedAt` was reset from 2026-09-11 to the cutover date, **2026-09-27**
+(not the 2026-09-26 deploy day: that day the account had been shown its
+old personal word, not the shared one), by a one-off script
 (`scripts/resetJoinedAt.ts`, deleted after it ran — see git history; the
 pre-reset value is in the local, gitignored `backups/`), so its History
 starts clean instead of showing shared words it was never shown. Accepted
@@ -937,6 +939,9 @@ front door on story pages are still to come):
   eligible pool, so the puzzle answer changes on the UTC day this
   deploys; a player who solved it earlier that day sees their solved state
   against a different word. Deploying just after 00:00 UTC avoids it.
+  The owner chose to deploy mid-day on 2026-09-26 anyway (pre-launch,
+  two users); the reset ran straight after, and a re-run confirmed it was
+  a no-op.
 
 ## Workflow notes for whoever picks this up
 
