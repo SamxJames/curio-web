@@ -1,6 +1,6 @@
 # Curio — Handover
 
-Last updated: 2026-09-26, after the move to `curioword.com` and the switch to one shared daily word for everyone — see "Decisions" and "This session (2026-09-26)" below. This doc exists so
+Last updated: 2026-09-26, after the move to `curioword.com`, the switch to one shared daily word for everyone, and a front door on story pages. See "Decisions" and the two "This session (2026-09-26…)" sections below; Phase 3 of the pre-launch brief (Bluesky posts) is next. This doc exists so
 a fresh Claude Code session (or a human) can pick up without re-deriving
 all of the above from git log.
 
@@ -921,8 +921,8 @@ review and fix wave described above.
 
 ## This session (2026-09-26): domain cutover + one shared word
 
-Two phases of a pre-launch brief (a third, Bluesky link cards, and a
-front door on story pages are still to come):
+Two phases of a pre-launch brief (the front door on story pages followed
+in the next section; Phase 3, Bluesky link cards, is still to come):
 
 - **Phase 0 — `curioword.com`** (see "Domain cutover" above).
 - **Phase 1 — one shared word for everyone.** Plan:
@@ -957,6 +957,52 @@ front door on story pages are still to come):
   The owner chose to deploy mid-day on 2026-09-26 anyway (pre-launch,
   two users); the reset ran straight after, and a re-run confirmed it was
   a no-op.
+
+## This session (2026-09-26, cont.): a front door on story pages
+
+Phase 2 of the pre-launch brief. Plan:
+`docs/superpowers/plans/2026-09-26-story-front-door.md` (its "Brief"
+holds the owner's choices). Search visitors land on `/story/[slug]`, and
+nothing there said what Curio is.
+
+- **The front door** (`components/StoryFrontDoor.tsx`) comes right after
+  the story, before "More words". It is one line, "This is Curio: one
+  word's origin story, every morning. No feed, no backlog." (the owner
+  picked it from three drafts), plus the existing `EmailSignupInline`.
+  It's in the static HTML; only hiding happens after hydration.
+- **Who doesn't see it:** a browser that joined through
+  `EmailSignupInline` anywhere (`curio:subscribed` in localStorage, set
+  on success), and a browsing session that arrived from a digest email
+  (`curio:arrivedFromEmail` in sessionStorage). Digest story links now
+  carry `utm_source=email&utm_medium=email&utm_campaign=daily-word`
+  (`lib/email.ts` `digestStoryUrl`). The email arrival is session-only on
+  purpose: a forwarded digest link would otherwise hide the pitch for
+  good from the person it was forwarded to (a final-review finding).
+  Both flags are display hints only, and unsubscribing doesn't clear
+  them.
+- **"Today's word is ___ →"** sits in the bottom block, where "Browse
+  all words →" (→ `/history`, a personal view) used to be, and only shows
+  on words that aren't today's. `/api/story/[slug]/date` now returns
+  `today: { slug, word }` next to `date`, and `lib/useStoryDay.ts` makes
+  the one request per view that feeds both the date line and this link.
+  `StoryDate` is presentational now. The pages stay ● SSG, 1,147 paths.
+- **Removed, not re-pointed:** "Browse all words". "All words A–Z →"
+  (→ `/words`) already renders on every story page, because
+  `getRelatedWords` always returns alphabetical neighbours.
+- **Coupling to keep in mind:** `EmailSignupInline` calls
+  `onSubscribed()` before `markSubscribedHere()`, and `StoryFrontDoor`
+  pins itself open with `flushSync`. Swap that order and the "You're in"
+  message unmounts. Vitest has no DOM, so no test covers it; it was
+  checked in the browser with a stubbed `/api/subscribe`.
+- **Known, accepted:** a subscriber sees the front door collapse just
+  after hydration. It's below the fold, so it doesn't count toward CLS.
+  If it ever matters, a pre-paint `data-subscribed` attribute (like
+  `SessionHintInit`) would fix it.
+- Tests: 200 → 205. Lint: the same 3 pre-existing warnings.
+- Tooling note: the browser pane's `preview_start` always launches from
+  the main checkout's `.claude/launch.json`, even in a worktree session.
+  So the live checks ran after the local fast-forward merge to `master`,
+  before pushing.
 
 ## Workflow notes for whoever picks this up
 
