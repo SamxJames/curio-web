@@ -47,7 +47,8 @@ export async function generateMetadata({
 // Nothing in this component may read cookies, headers, or Redis: every such
 // call opts all 1,147 prerendered paths back into per-request rendering.
 // The session-dependent parts (the featured-on date, recordUserSeen) live
-// in app/api/story/[slug]/date/route.ts, fetched by components/StoryDate.tsx.
+// in app/api/story/[slug]/date/route.ts, fetched by lib/useStoryDay.ts,
+// called from components/StoryView.tsx.
 export default async function StoryPage({
   params,
 }: {

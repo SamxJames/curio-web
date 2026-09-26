@@ -6,6 +6,7 @@ import { SESSION_HINT_KEY } from "./sessionHintKey";
 const FAVORITES_KEY = "curio:favorites";
 const THEME_KEY = "curio:theme"; // "light" | "dark" | absent = system
 const ONBOARDED_KEY = "curio:onboarded";
+const SUBSCRIBED_KEY = "curio:subscribed";
 
 // Every localStorage-backed value in this module goes through this same
 // tiny pub-sub so components can read it with useSyncExternalStore instead
@@ -159,6 +160,35 @@ export function useHasOnboarded(): boolean {
 export function markOnboarded() {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(ONBOARDED_KEY, "1");
+  notify();
+}
+
+/** "This browser joined the email, or has arrived from one." A display hint
+ * only, like the session hint below: it hides a story page's signup pitch
+ * (components/StoryFrontDoor.tsx) and nothing else. Not cleared on
+ * unsubscribe — worst case, a lapsed subscriber doesn't see the pitch. */
+export function hasSubscribedHere(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(SUBSCRIBED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** Server snapshot is `false`, so the static HTML includes the pitch —
+ * strangers from search are who it's for. */
+export function useHasSubscribedHere(): boolean {
+  return useSyncExternalStore(subscribe, hasSubscribedHere, () => false);
+}
+
+export function markSubscribedHere() {
+  if (typeof window === "undefined" || hasSubscribedHere()) return;
+  try {
+    window.localStorage.setItem(SUBSCRIBED_KEY, "1");
+  } catch {
+    return;
+  }
   notify();
 }
 

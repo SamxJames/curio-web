@@ -2,15 +2,17 @@
 
 import { useState } from "react";
 import { track } from "@/lib/analytics";
+import { markSubscribedHere } from "@/lib/storage";
 import Button from "@/components/ui/Button";
 import TextField from "@/components/ui/TextField";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
 /** The single-field email capture pill — used on the arrival hero (first
- * homepage view) and, unmodified, on /play's post-game funnel. Fires the
- * same "signup_submitted" event from both places, since it's genuinely the
- * same action either way. */
+ * homepage view), /play's post-game funnel, and story pages
+ * (StoryFrontDoor). Fires the same "signup_submitted" event from every
+ * place, since it's genuinely the same action either way, and records
+ * markSubscribedHere() on success. */
 export default function EmailSignupInline({ onSubscribed }: { onSubscribed?: () => void }) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
@@ -30,7 +32,10 @@ export default function EmailSignupInline({ onSubscribed }: { onSubscribed?: () 
       if (!res.ok) throw new Error(data.error ?? "Something went wrong.");
       setStatus("success");
       track("signup_submitted");
+      // Callback first: StoryFrontDoor uses it to pin itself open so this
+      // "You're in" message survives the flag flipping just below.
       onSubscribed?.();
+      markSubscribedHere();
     } catch (err) {
       setStatus("error");
       setErrorMessage(err instanceof Error ? err.message : "Something went wrong.");

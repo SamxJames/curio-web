@@ -11,6 +11,7 @@ import { useStoryDay } from "@/lib/useStoryDay";
 import EtymologyLineage from "./EtymologyLineage";
 import Button from "@/components/ui/Button";
 import StoryDate from "./StoryDate";
+import StoryFrontDoor from "./StoryFrontDoor";
 
 const SECTIONS: { key: keyof Pick<WordEntry, "origin" | "journey" | "related">; label: string }[] = [
   { key: "origin", label: "Origin" },
@@ -120,6 +121,8 @@ export default function StoryView({ word, related }: { word: WordEntry; related:
           </section>
         ))}
       </div>
+
+      <StoryFrontDoor />
 
       {related.peers.length + related.neighbours.length > 0 && (
         <section className="mt-12">
