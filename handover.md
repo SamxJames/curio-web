@@ -1,18 +1,76 @@
 # Curio — Handover
 
-Last updated: 2026-09-20, after a session that made the 1,147 word-story pages statically prerendered and discoverable (sitemap, robots.txt, canonical URLs, `DefinedTerm` JSON-LD, an A–Z index, and deterministic inter-page linking) — see "This session (2026-09-20): search discoverability" below. This doc exists so
+Last updated: 2026-09-26, after the move to `curioword.com` and the switch to one shared daily word for everyone — see "Decisions" and "This session (2026-09-26)" below. This doc exists so
 a fresh Claude Code session (or a human) can pick up without re-deriving
 all of the above from git log.
 
 ## What this is
 
 Curio is a daily-word-etymology app: one word a day, its origin story, an
-optional email digest, accounts with synced favorites and a personalized
-word order, and (as of this session) a personal "collection" view and a
+optional email digest, accounts with synced favorites and a History of
+the shared words since they joined, a personal "collection" view and a
 Bluesky presence. Tagline/positioning: **"one word, one story, every day —
 no feed, no backlog to catch up on."** That positioning is a real
 constraint, not just marketing copy — it's already shaped a couple of
 decisions below (see "Rejected: retroactive history backfill").
+
+## Product principle: archive, never backlog
+
+Curio may let people *pull* any word — the story pages, the A–Z list and
+related-word links are fine. Curio must never *push* unread-ness. That
+rules out:
+
+- counts of words not yet seen, or "X of 1,147";
+- "you missed" messaging;
+- streaks, or completion percentages;
+- manufactured history for days a user didn't experience.
+
+Test every future feature against this rule. (Also in `AGENTS.md`, which
+`CLAUDE.md` imports.)
+
+## Decisions
+
+### 2026-09-26 — Chose a shared word (A) over per-account rotation (B)
+
+Why:
+- The family-and-friends launch depends on "did you see today's word?".
+- The puzzle can only avoid recent *and* upcoming daily words if the
+  schedule is shared.
+- Bluesky, email, the site and story pages must agree on the day's word.
+- It removes the slot-0 join-day pin workaround and a second code path.
+- A shared word lets us judge word quality per day.
+
+Revisit ~4 weeks after the F&F launch, if:
+1. Dud days visibly lower next-day returns → fix by reordering the shared
+   schedule, not per-user rotation.
+2. 2+ users report "I'd already read today's word" → build a "You read
+   this on <date>" note.
+3. Near-zero social mentions after week 2 → consider hybrids, not B.
+4. The shared cycle nears wrap-around (currently 2029-02-21 at 1,147
+   words).
+
+### 2026-09-26 — `/collection` stays as it is
+
+The owner delegated the call. `/collection` keeps its counts subline and
+language band: they only ever count words already shown, never unseen
+ones, so they pass the archive-vs-backlog rule. Turning Collection into
+favourites would be a redesign outside the pre-launch phase. Favourites
+remain the "Favorites" filter inside `/history`.
+
+### 2026-09-26 — How the shared schedule works (reported, not changed)
+
+A date's word is `WORDS[daysSinceStart(date) % WORDS.length]`, locked in
+Redis (`curio:wordoftheday:<date>`) the first time it's resolved. `WORDS`
+positions 0–25 are the original hand-picked words; 26–1,146 are
+alphabetical (batch-append order), so from 2026-09-27 the schedule marches
+alphabetically (czar, dagger, dahlia, …). All days 2026-01-01..2026-09-26
+are locked. **Future days can be hand-reordered safely by permuting only
+positions after today's index** (268 on 2026-09-26) — that leaves every past
+date's formula result unchanged, locked or not (`lib/wordsLocking.test.ts`
+pins this). Moving words into or out of past positions is protected for
+display by the locks, but `/play`'s windows use the formula, not the
+locks. A dated schedule file would be the cleaner long-term mechanism if
+front-loading becomes a regular need.
 
 **Live at:** https://curioword.com (since 2026-09-26 — see "Domain
 cutover" below; `www.curioword.com` and the old
@@ -163,14 +221,13 @@ launch, so Google never split indexing across two hosts.
 - `lib/words.ts` — the word content (`WORDS: WordEntry[]`) and all the
   date/rotation logic. This is the single most important file to read
   before touching anything content- or history-related. Key exports:
-  - `getTodayWord()` / `getHistory()` — the shared, calendar-based
-    experience every anonymous visitor sees (same word for everyone on a
-    given date).
-  - `getWordForUser(userId, joinedAt, today?)` / `getHistoryForUser(...)`
-    — the *personalized* experience for signed-in accounts: a seeded
-    shuffle of `WORDS` unique to that user id (`getPersonalOrder`),
-    advancing one word per day since they joined. Pure, deterministic,
-    fully unit-tested in `lib/words.test.ts`.
+  - `getWordForDate()` / `getHistory()` — the pure calendar formula; app
+    code goes through the locked `resolveTodayWord(now?)` /
+    `resolveHistory()` instead (same word for everyone on a given date).
+  - `resolveHistorySince(joinedAt, today?)` — an account's History: the
+    shared-calendar days since it joined, through the same locks as
+    `resolveHistory`. There is no per-account rotation since 2026-09-26
+    (see "Decisions").
   - `getUniqueWordsMostRecent()` — one entry per word, most-recently-seen
     first, deduped. This is what "All words"/"All" on the History page
     actually shows — see "Known limitation: 8 words" below for why this
@@ -187,8 +244,8 @@ launch, so Google never split indexing across two hosts.
   Completely separate system from accounts; the two are only *linked* by
   looking up a signed-in user's own email against this store (see
   `app/account/page.tsx`) — there's no persisted link record.
-- `lib/userData.ts` — per-account server data: join date (anchors
-  personalization) and favorites (Redis Set), all keyed
+- `lib/userData.ts` — per-account server data: join date (where the
+  account's History starts) and favorites (Redis Set), all keyed
   `curio:user:<id>:...`. Never collides with `lib/db.ts`'s
   `curio:subscriber:`/`curio:hour:` keys or the Auth.js adapter's
   `curio:auth:` keys — if you add new Redis keys, keep using one of these
@@ -249,6 +306,12 @@ launch, so Google never split indexing across two hosts.
   success" order works.
 - `scripts/extractEtymology.ts` / `rewriteEtymology.ts` / `approveDraft.ts`
   — the content pipeline, see "Growing the word list" below.
+- `lib/day.ts` — the one clock (2026-09-26): `dayKey`/`dayStart`/`formatDay`,
+  always UTC. Home, the digest, Bluesky, `/play`, story-page dates and
+  History all derive and format "today" through it; `app/sharedDay.test.ts`
+  drives the real home/cron/story-date paths at the 00:00 UTC boundary to
+  prove they agree. Don't add a bare `toLocaleDateString` or
+  `toISOString().slice(0, 10)` for a user-facing day anywhere else.
 - `lib/siteUrl.ts` — the one place `CURIO_SITE_URL` (+ `http://localhost:3000`
   fallback) gets read for building absolute URLs (`siteUrl()`,
   `absoluteUrl(path)`). `app/layout.tsx`'s `metadataBase` and every new SEO
@@ -272,8 +335,8 @@ launch, so Google never split indexing across two hosts.
   not `Article` — see the design spec for why) and `serializeJsonLd()` (the
   `<`-escaping needed to embed JSON safely inside a `<script>` tag).
 - `app/api/story/[slug]/date/route.ts` — the route handler that now owns
-  everything session-dependent for a story page: the personalized/shared
-  "featured on" date and the `recordUserSeen` side effect that used to live
+  everything session-dependent for a story page: the shared "featured on"
+  date and the `recordUserSeen` side effect that used to live
   in the page body. Exists so `app/story/[slug]/page.tsx` itself never
   calls `auth()`/reads cookies/hits Redis, which is what keeps the page
   statically prerenderable. Fetched client-side by
@@ -325,21 +388,22 @@ dump), not a code task — don't invent etymologies to pad the list; if you
 add more, the batch tooling below already exists and is proven at this
 scale, real cost was ~$0.0076/word all-in (including retries).
 
-**`/play` is now open** — the eligible pool (words not shown in 30+ days)
-comfortably clears `PUZZLE_MIN_POOL_SIZE` (10) at this word count, verified
+**`/play` is now open** — the eligible pool (words not shown as the daily
+word in the last 30 days *and* not scheduled in the next 30, since
+2026-09-26; structural pool = `WORDS.length − 60`) comfortably clears `PUZZLE_MIN_POOL_SIZE` (10) at this word count, verified
 live (a real puzzle rendered, not just code review). If the word count
 ever somehow dropped back under ~40, it would honestly close again — that
 behavior is unchanged, just no longer reachable at 1,147.
 
 **Important, if you ever grow `WORDS` again:** confirm `81d8203`'s
 word-locking layer (see `lib/words.ts`'s "Locking layer" section, and
-`resolveTodayWord`/`resolveWordForUser`/etc.) is still in place and used by
+`resolveTodayWord`/`resolveHistory`/`resolveHistorySince`) is still in place and used by
 every page. Before that fix existed, growing the array retroactively
 shifted the calendar-index math for every already-served date — it
 actually happened once, mid-day, during the 8→26 batch. The locking layer
 persists each date's word in Redis the first time it's resolved, so later
 growth can't move history out from under someone who already saw it. Don't
-revert to the plain `getWordForDate`/`getWordForUser`/etc. call sites in
+revert to the plain `getWordForDate`/`getHistory` call sites in
 `app/`.
 
 **The pipeline is no longer just scaffolded — it's been run against real
@@ -429,15 +493,26 @@ at 26 words — now genuinely live at 1,147, not hypothetical:**
 
 Passwordless magic-link sign-in (Resend email, no passwords stored).
 Session strategy is `"database"` (Upstash-backed via
-`@auth/upstash-redis-adapter`), not JWT. A brand-new account gets a
-personal word rotation anchored to its join date (`recordUserJoined`,
-fired from an Auth.js `createUser` event) — day 0 is
-`getPersonalOrder(userId)[0]`, day 1 is `[1]`, etc., wrapping every
-`WORDS.length` days. Anonymous visitors and anonymous email subscribers
-are completely unaffected by any of this — they keep seeing the shared,
-calendar-based word-of-the-day exactly as before accounts existed. That
-separation was a deliberate constraint from the start and should stay
-that way unless the user explicitly asks to change it.
+`@auth/upstash-redis-adapter`), not JWT. Every visitor, account holder,
+digest recipient, `/play` and Bluesky get the same shared calendar word on
+a given date. An account's `joinedAt` (`recordUserJoined`, fired from
+Auth.js's `createUser` event) marks where its History starts — shared
+days from then to today, as a neutral dated list — and favorites sync
+across devices.
+
+**Reversed 2026-09-26, at the owner's explicit request** (see
+"Decisions"): accounts used to get a per-account shuffled rotation
+(`getPersonalOrder`, with a slot-0 pin for the join day). The code is
+gone; its data is not: `curio:user:<id>:wordFor:<date>` keys are left in
+Redis, unread and unwritten, as a cheap revert path — safe to delete in a
+later cleanup. There was exactly one account at the cutover (the owner's;
+the owner's spouse is an email subscriber, not an account). Its
+`joinedAt` was reset to the cutover date by a one-off script
+(`scripts/resetJoinedAt.ts`, deleted after it ran — see git history; the
+pre-reset value is in the local, gitignored `backups/`), so its History
+starts clean instead of showing shared words it was never shown. Accepted
+side effect: the admin portal shows that account joining on the cutover
+date.
 
 ## Rejected: retroactive history backfill
 
@@ -826,6 +901,42 @@ the ones worth knowing about):
 This was done via the `superpowers` subagent-driven-development process,
 one task per commit (`git log 8149041..HEAD`), plus the final whole-branch
 review and fix wave described above.
+
+## This session (2026-09-26): domain cutover + one shared word
+
+Two phases of a pre-launch brief (a third, Bluesky link cards, and a
+front door on story pages are still to come):
+
+- **Phase 0 — `curioword.com`** (see "Domain cutover" above).
+- **Phase 1 — one shared word for everyone.** Plan:
+  `docs/superpowers/plans/2026-09-26-shared-daily-word.md` (its "Brief"
+  holds the owner's decisions and amendments). Via subagent-driven
+  development, 8 tasks + a final whole-branch review and one fix wave:
+  1. `lib/day.ts`, the one UTC clock.
+  2. `resolveHistorySince`, plus tests that past shared days are
+     immutable.
+  3. Home, `/history`, `/collection` and the story date read the shared
+     calendar. Copy changed: "Your word · {date}" / "{date}" → "Today's
+     word · {date}"; History's "Your personal word order — one new word a
+     day since you joined. It'll grow day by day; browse all words in the
+     meantime." → "Each day's word since you joined. Browse all words any
+     time."; "Your first word arrives tomorrow morning." and "You're in.
+     Your first word arrives tomorrow." → "Tomorrow's word arrives in the
+     morning." / "You're in. Tomorrow's word arrives in the morning."
+     History's date labels were also formatted in the viewer's local
+     timezone (a US viewer saw each word under the previous day) — fixed.
+  4. The digest sends every subscriber the shared word from one `now`;
+     `getUserIdByEmail` deleted.
+  5. `/play` also avoids the next 30 shared days.
+  6. The per-account rotation code deleted (data kept — see "Accounts").
+  7. `app/sharedDay.test.ts`, the cross-surface consistency suite.
+  8. `scripts/resetJoinedAt.ts` (dry run by default, backup first,
+     idempotent, `--dry-run` + `--apply` rejected).
+  Tests: 197 → 208. Lint: the same 3 pre-existing warnings.
+- **Deploy-day note:** adding the next-30 exclusion changes `/play`'s
+  eligible pool, so the puzzle answer changes on the UTC day this
+  deploys; a player who solved it earlier that day sees their solved state
+  against a different word. Deploying just after 00:00 UTC avoids it.
 
 ## Workflow notes for whoever picks this up
 
