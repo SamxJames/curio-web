@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import type { WordEntry } from "./words";
+import { dayKey, formatDay } from "./day";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
@@ -98,11 +99,7 @@ function buildSignInHtml(url: string) {
 }
 
 export async function sendDailyDigest(email: string, word: WordEntry, date: Date) {
-  const dateStr = date.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  });
+  const dateStr = formatDay(dayKey(date));
   const storyUrl = `${SITE_URL}/story/${word.slug}`;
   const unsubscribeUrl = `${SITE_URL}/api/unsubscribe?token=${unsubscribeToken(email)}`;
   const html = buildDigestHtml(word, dateStr, unsubscribeUrl);

@@ -66,20 +66,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 });
 
-/** Looks up the signed-in account (if any) tied to an email address, so the
- * daily-digest cron can personalize an otherwise-anonymous subscriber's word
- * — see lib/words.ts's getDigestWordForSubscriber. Returns null when Upstash
- * isn't configured (no adapter to query) or no account matches. */
-export async function getUserIdByEmail(email: string): Promise<string | null> {
-  const user = await adapter?.getUserByEmail?.(email);
-  return user?.id ?? null;
-}
-
-/** The reverse lookup of getUserIdByEmail — an account's email address
- * given its id, for the admin portal's "who has signed up" view (it
- * already has every account's id and join date from
- * lib/userData.ts's getAllUserActivity, but not their email, since that
- * lives only in the Auth.js adapter's own user record). Uses the
+/** An account's email address given its id, for the admin portal's
+ * "who has signed up" view (it already has every account's id and join
+ * date from lib/userData.ts's getAllUserActivity, but not their email,
+ * since that lives only in the Auth.js adapter's own user record). Uses the
  * adapter's standard `getUser` method rather than reading its Redis keys
  * directly, so this stays correct even if the adapter's internal key
  * naming ever changes. Returns null when Upstash isn't configured or the
