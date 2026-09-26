@@ -139,6 +139,16 @@ describe("one shared word, every surface", () => {
     expect(body.today).toEqual({ slug: today.slug, word: today.word });
   });
 
+  it("today is null, not a throw, when the system clock is before the shared calendar starts", async () => {
+    vi.setSystemTime(new Date("2025-12-31T00:00:00.000Z"));
+    const res = await storyDate(new Request("http://localhost"), {
+      params: Promise.resolve({ slug: "sideburns" }),
+    });
+    const body = (await res.json()) as { today: { slug: string; word: string } | null };
+
+    expect(body.today).toBeNull();
+  });
+
   it("every surface moves to the next word at the same instant, 00:00 UTC", async () => {
     const before = await everySurfaceAt("2026-09-26T23:59:59.999Z");
     fakeRedis.store.clear();

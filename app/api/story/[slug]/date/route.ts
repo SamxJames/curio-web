@@ -30,7 +30,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
   const history = await resolveHistory();
   const historyEntry = history.find((d) => d.word.slug === slug);
   const date = historyEntry ? formatDay(historyEntry.date) : null;
-  const today = { slug: history[0].word.slug, word: history[0].word.word };
+  // history can be empty (e.g. system clock before the shared calendar's
+  // START_DATE) — guard the head rather than assume one exists.
+  const today = history.length > 0 ? { slug: history[0].word.slug, word: history[0].word.word } : null;
 
   // Every request must reach the function so recordUserSeen fires for
   // signed-in visitors — never let a CDN answer this.
