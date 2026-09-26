@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { planJoinedAtReset } from "./resetJoinedAt";
+import { planJoinedAtReset, parseArgs } from "./resetJoinedAt";
 
 const joined = {
   "curio:user:a:joinedAt": "2026-09-10",
@@ -37,5 +37,40 @@ describe("planJoinedAtReset", () => {
 
   it("rejects a malformed cutover date", () => {
     expect(() => planJoinedAtReset(joined, "27/09/2026", "2026-09-27")).toThrow();
+  });
+
+  it("computes historyTo as the later of proposed and today (so future cutover doesn't backtrack)", () => {
+    const [p] = planJoinedAtReset(
+      { "curio:user:x:joinedAt": "2026-09-10" },
+      "2026-10-05", // cutover later than today
+      "2026-09-26"  // today
+    );
+    expect(p).toMatchObject({ proposed: "2026-10-05", historyFrom: "2026-10-05", historyTo: "2026-10-05" });
+  });
+});
+
+describe("parseArgs", () => {
+  it("parses --cutover=YYYY-MM-DD correctly", () => {
+    expect(parseArgs(["--cutover=2026-09-27"])).toEqual({ apply: false, cutover: "2026-09-27" });
+  });
+
+  it("detects --apply flag", () => {
+    expect(parseArgs(["--cutover=2026-09-27", "--apply"])).toEqual({ apply: true, cutover: "2026-09-27" });
+  });
+
+  it("treats --dry-run as a no-op (apply false)", () => {
+    expect(parseArgs(["--cutover=2026-09-27", "--dry-run"])).toEqual({ apply: false, cutover: "2026-09-27" });
+  });
+
+  it("neither --dry-run nor --apply defaults to apply false", () => {
+    expect(parseArgs(["--cutover=2026-09-27"])).toEqual({ apply: false, cutover: "2026-09-27" });
+  });
+
+  it("throws if both --dry-run and --apply are passed", () => {
+    expect(() => parseArgs(["--cutover=2026-09-27", "--dry-run", "--apply"])).toThrow();
+  });
+
+  it("returns undefined cutover if not provided", () => {
+    expect(parseArgs(["--apply"])).toEqual({ apply: true, cutover: undefined });
   });
 });

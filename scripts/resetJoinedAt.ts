@@ -25,6 +25,21 @@ export type AccountPlan = {
   historyTo: string;
 };
 
+export type ParsedArgs = {
+  apply: boolean;
+  cutover: string | undefined;
+};
+
+export function parseArgs(args: string[]): ParsedArgs {
+  const dryRun = args.includes("--dry-run");
+  const apply = args.includes("--apply");
+  if (dryRun && apply) {
+    throw new Error("Cannot pass both --dry-run and --apply");
+  }
+  const cutover = args.find((a) => a.startsWith("--cutover="))?.slice("--cutover=".length);
+  return { apply, cutover };
+}
+
 export function planJoinedAtReset(
   joined: Record<string, string>,
   cutover: string,
@@ -35,6 +50,7 @@ export function planJoinedAtReset(
     .filter(([key]) => JOINED.test(key))
     .map(([key, current]) => {
       const proposed = current < cutover ? cutover : current;
+      const historyTo = proposed > today ? proposed : today;
       return {
         key,
         userId: key.match(JOINED)![1],
@@ -42,15 +58,21 @@ export function planJoinedAtReset(
         proposed,
         changes: proposed !== current,
         historyFrom: proposed,
-        historyTo: today,
+        historyTo,
       };
     });
 }
 
 async function main() {
   const args = process.argv.slice(2);
-  const apply = args.includes("--apply");
-  const cutover = args.find((a) => a.startsWith("--cutover="))?.slice("--cutover=".length);
+  let parsed: ParsedArgs;
+  try {
+    parsed = parseArgs(args);
+  } catch (err) {
+    console.error(err instanceof Error ? err.message : String(err));
+    process.exit(1);
+  }
+  const { apply, cutover } = parsed;
   if (!cutover) {
     console.error("Usage: npx tsx --env-file=.env.local scripts/resetJoinedAt.ts --cutover=YYYY-MM-DD [--dry-run | --apply]");
     process.exit(1);
