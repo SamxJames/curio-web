@@ -31,7 +31,7 @@ vi.mock("next/server", async (importOriginal) => ({
   ...(await importOriginal<typeof import("next/server")>()),
   after: vi.fn(),
 }));
-vi.mock("@/components/HomeContent", () => ({ default: () => null }));
+vi.mock("@/components/HomeContent", () => ({ default: vi.fn(() => null) }));
 vi.mock("@/components/ServerSessionMarker", () => ({ default: () => null }));
 vi.mock("@/lib/db", () => ({
   getAllSubscribers: vi.fn(async () => ["anon@example.com", "account-holder@example.com"]),
@@ -60,13 +60,16 @@ const { GET: storyDate } = await import("@/app/api/story/[slug]/date/route");
 const { resolveWordForDate } = await import("@/lib/words");
 const { sendDailyDigest } = await import("@/lib/email");
 const { formatDay } = await import("@/lib/day");
+const { default: HomeContent } = await import("@/components/HomeContent");
 
 type HomeTree = ReactElement<{ children: ReactElement<{ word: { slug: string } }>[] }>;
 
 async function homeWordSlug(signedIn: boolean) {
   session.current = signedIn ? { user: { id: "user-1" } } : null;
   const tree = (await TodayPage()) as HomeTree;
-  return tree.props.children[1].props.word.slug;
+  const homeContentEl = tree.props.children.find((child) => child.type === HomeContent);
+  if (!homeContentEl) throw new Error("HomeContent not found among TodayPage's children");
+  return homeContentEl.props.word.slug;
 }
 
 async function everySurfaceAt(iso: string) {

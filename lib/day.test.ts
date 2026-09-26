@@ -19,6 +19,10 @@ describe("the one clock", () => {
   });
 
   it("formats a day as its UTC date for a viewer west of UTC", () => {
+    // Guard: prove TZ actually took effect for this process, or the
+    // assertions below would pass vacuously even with a broken TZ setup.
+    expect(new Date("2026-09-26T00:00:00Z").getDate()).toBe(25);
+
     expect(formatDay("2026-09-26")).toBe("Saturday, September 26");
     expect(formatDay("2026-09-26", { month: "short", day: "numeric" })).toBe("Sep 26");
   });

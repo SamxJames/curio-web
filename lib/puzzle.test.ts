@@ -104,10 +104,10 @@ describe("getEligiblePuzzleWords", () => {
   it("excludes today's own word even though its raw days-since-shown would satisfy the threshold", () => {
     // The explicit `w.slug === todayWord.slug` guard in
     // getEligiblePuzzleWords is required, not decorative. wordForDateFrom's
-    // rotation has period LARGE_WORD_LIST.length (40), so searching
+    // rotation has period LARGE_WORD_LIST.length (70), so searching
     // backward from `today` for today's own word's slug finds a match
-    // again at exactly i = 40 days ago (one full rotation earlier) — and
-    // 40 >= PUZZLE_MIN_DAYS_SINCE_SHOWN (30). Without the guard, that
+    // again at exactly i = 70 days ago (one full rotation earlier) — and
+    // 70 >= PUZZLE_MIN_DAYS_SINCE_SHOWN (30). Without the guard, that
     // wraparound match would make today's own word satisfy the
     // days-since-shown threshold and incorrectly qualify as eligible. This
     // hand-confirms that exact case and asserts the guard actually excludes

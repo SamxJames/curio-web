@@ -106,8 +106,9 @@ async function main() {
     return;
   }
 
-  mkdirSync("backups", { recursive: true });
-  const backupPath = join("backups", `joinedAt-${cutover}-${Date.now()}.json`);
+  const backupsDir = join(__dirname, "..", "backups");
+  mkdirSync(backupsDir, { recursive: true });
+  const backupPath = join(backupsDir, `joinedAt-${cutover}-${Date.now()}.json`);
   writeFileSync(
     backupPath,
     JSON.stringify({ takenAt: new Date().toISOString(), cutover, joinedAt: Object.fromEntries(toWrite.map((p) => [p.key, p.current])) }, null, 2)

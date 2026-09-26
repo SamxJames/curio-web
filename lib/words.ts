@@ -13875,15 +13875,11 @@ export function daysSinceStart(date: Date): number {
 
 /** Deterministic word-of-the-day: same date always maps to the same word,
  *  for every visitor and in every emailed digest, with no server-side
- *  scheduling beyond the hourly send job. */
+ *  scheduling beyond the once-daily cron send job. */
 export function getWordForDate(date: Date): WordEntry {
   const index =
     ((daysSinceStart(date) % WORDS.length) + WORDS.length) % WORDS.length;
   return WORDS[index];
-}
-
-export function getTodayWord(): WordEntry {
-  return getWordForDate(new Date());
 }
 
 export function getWordBySlug(slug: string): WordEntry | undefined {
@@ -13959,7 +13955,7 @@ export function mulberry32(seed: number): () => number {
 //
 // The functions below wrap the pure ones with a "lock on first serve"
 // layer in Redis: the first time a given date is resolved, whatever the
-// pure function currently computes is persisted under that date/account,
+// pure function currently computes is persisted under that date,
 // and every later call returns the persisted word regardless of how WORDS
 // changes afterward. Nothing is persisted for a date that's never been
 // asked for, so future, not-yet-served days are free to shift as content

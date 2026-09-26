@@ -18,10 +18,6 @@ import EmailSignupInline from "./EmailSignupInline";
 import Button from "@/components/ui/Button";
 import TextField from "@/components/ui/TextField";
 
-function todayDateString(): string {
-  return dayKey();
-}
-
 const CLUE_LABELS = ["First clue", "Second clue", "Third clue"] as const;
 
 export default function PuzzleGame({
@@ -31,7 +27,7 @@ export default function PuzzleGame({
   word: WordEntry;
   puzzleNumber: number;
 }) {
-  const puzzleDate = todayDateString();
+  const puzzleDate = dayKey();
   const localState = usePlayState(puzzleDate);
   const stats = usePuzzleStats();
   const { status: sessionStatus } = useSession();
