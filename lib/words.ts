@@ -13861,6 +13861,54 @@ export const WORDS: WordEntry[] = [
   },
 ];
 
+// --- Launch schedule (2026-09-26) ----------------------------------------
+//
+// The calendar formula serves WORDS in array order, and everything after
+// the first 26 hand-picked words was appended in alphabetical batch order —
+// so the daily word was marching through the bank A to Z. Every position
+// from SCHEDULE_REORDER_FROM on had never been served when this was added,
+// so it's reordered here, in place: a hand-picked opening run for the
+// friends-and-family launch, then everything else in a stable
+// pseudo-random order. Positions before it are untouched, so no past
+// date's word moves (the Redis locks would protect them anyway, but
+// lib/puzzle.ts's windows read the live formula). The WORDS literal above
+// stays in approval order on purpose: scripts/approveDraft.ts appends to it
+// by text, and a newly approved word lands somewhere in the shuffled tail,
+// shifting only not-yet-served days.
+
+/** Index 2026-09-27 maps to — the first day never served. */
+const SCHEDULE_REORDER_FROM = 269;
+
+/** Opening run for the launch, in serving order (2026-09-27 onwards). */
+const LAUNCH_OPENERS = [
+  "dinner", "fiasco", "sideburns", "ketchup", "jeans", "panic", "silhouette",
+  "dungeon", "fee", "freelance", "jungle", "marathon", "nickel", "pencil",
+  "tabby", "torpedo", "tulip", "vaccine", "porcelain", "happiness", "dunce",
+  "tangerine", "thesaurus", "potpourri", "gargoyle", "satellite", "maverick",
+];
+
+function scheduleUnservedTail(words: WordEntry[]): void {
+  const tail = words.slice(SCHEDULE_REORDER_FROM);
+  const openers = LAUNCH_OPENERS.map((slug) => {
+    const word = tail.find((w) => w.slug === slug);
+    if (!word) throw new Error(`Launch opener "${slug}" isn't in the unserved part of WORDS`);
+    return word;
+  });
+  // Ordering by a per-slug key (not a seeded shuffle of positions) keeps
+  // everyone else's relative order stable when a new word is added. The raw
+  // hash is run through mulberry32 first: similar spellings hash to nearby
+  // values, which left "leopard, leotard, lenient" back to back.
+  const key = (slug: string) => mulberry32(hashSeed(slug))();
+  const rest = tail
+    .filter((w) => !LAUNCH_OPENERS.includes(w.slug))
+    .map((w) => ({ w, k: key(w.slug) }))
+    .sort((a, b) => a.k - b.k || a.w.slug.localeCompare(b.w.slug))
+    .map(({ w }) => w);
+  words.splice(SCHEDULE_REORDER_FROM, tail.length, ...openers, ...rest);
+}
+
+scheduleUnservedTail(WORDS);
+
 /** Anchor date for the deterministic daily rotation (UTC midnight). */
 const START_DATE = Date.UTC(2026, 0, 1); // 2026-01-01
 

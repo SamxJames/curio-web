@@ -77,3 +77,31 @@ describe("getUniqueWordsMostRecent", () => {
     expect(unique.length).toBeGreaterThan(0);
   });
 });
+
+describe("launch schedule", () => {
+  const day = (iso: string) => getWordForDate(new Date(iso + "T00:00:00Z")).slug;
+
+  it("leaves every already-served position alone", () => {
+    expect(WORDS[0].slug).toBe("quarantine");
+    expect(day("2026-09-26")).toBe("custard");
+    // Positions 26..268 were served in alphabetical batch order; they must
+    // still be exactly that order, or past dates' live picks would move.
+    const served = WORDS.slice(26, 269).map((w) => w.word.toLowerCase());
+    expect(served).toEqual([...served].sort((a, b) => a.localeCompare(b, "en")));
+  });
+
+  it("opens the friends-and-family launch with the hand-picked run", () => {
+    expect(["2026-09-27", "2026-09-28", "2026-09-29"].map(day)).toEqual(["dinner", "fiasco", "sideburns"]);
+  });
+
+  it("no longer marches through the rest of the bank alphabetically", () => {
+    const upcoming = Array.from({ length: 60 }, (_, i) =>
+      getWordForDate(new Date(Date.UTC(2026, 8, 27 + i))).word.toLowerCase()
+    );
+    expect(upcoming).not.toEqual([...upcoming].sort((a, b) => a.localeCompare(b, "en")));
+  });
+
+  it("is still a permutation of the whole bank", () => {
+    expect(new Set(WORDS.map((w) => w.slug)).size).toBe(WORDS.length);
+  });
+});

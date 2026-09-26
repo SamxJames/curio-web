@@ -57,14 +57,29 @@ ones, so they pass the archive-vs-backlog rule. Turning Collection into
 favourites would be a redesign outside the pre-launch phase. Favourites
 remain the "Favorites" filter inside `/history`.
 
-### 2026-09-26 — How the shared schedule works (reported, not changed)
+### 2026-09-26 — The shared schedule: no more A-to-Z march
 
 A date's word is `WORDS[daysSinceStart(date) % WORDS.length]`, locked in
-Redis (`curio:wordoftheday:<date>`) the first time it's resolved. `WORDS`
-positions 0–25 are the original hand-picked words; 26–1,146 are
-alphabetical (batch-append order), so from 2026-09-27 the schedule marches
-alphabetically (czar, dagger, dahlia, …). All days 2026-01-01..2026-09-26
-are locked. **Future days can be hand-reordered safely by permuting only
+Redis (`curio:wordoftheday:<date>`) the first time it's resolved. The
+`WORDS` literal is in approval order: 0–25 hand-picked, then alphabetical
+batches — so until 2026-09-26 the daily word marched A to Z. The owner
+ruled that out. `lib/words.ts`'s "Launch schedule" block now reorders every
+never-served position (index 269 = 2026-09-27 onward) in place at module
+load: a 27-word hand-picked opening run for the friends-and-family launch
+(dinner, fiasco, sideburns, ketchup, jeans, panic, silhouette, …), then the
+rest in a stable pseudo-random order keyed per slug. Positions 0–268
+(everything served through 2026-09-26) are untouched and tested. A newly
+approved word lands somewhere in the shuffled tail and shifts only
+not-yet-served days. To change the opening run, edit `LAUNCH_OPENERS` —
+but only words whose day hasn't been served yet, and before 00:00 UTC of
+the first day you want to affect (a day's word locks on first view).
+
+Phase 3 (Bluesky) format chosen 2026-09-26: **(a)** teaser first, then
+`word · lineage arrows`, then `#etymology #wordoftheday`, with the link in
+an embed card — fits 300 graphemes for every word in the bank (max 291,
+"wine").
+
+The rule for any future reordering: **Future days can be hand-reordered safely by permuting only
 positions after today's index** (268 on 2026-09-26) — that leaves every past
 date's formula result unchanged, locked or not (`lib/wordsLocking.test.ts`
 pins this). Moving words into or out of past positions is protected for
