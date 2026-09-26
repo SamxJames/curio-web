@@ -1,4 +1,5 @@
 import { redis } from "./redis";
+import { DAY_MS, dayKey } from "./day";
 
 export type WordEntry = {
   slug: string;
@@ -13862,7 +13863,6 @@ export const WORDS: WordEntry[] = [
 
 /** Anchor date for the deterministic daily rotation (UTC midnight). */
 const START_DATE = Date.UTC(2026, 0, 1); // 2026-01-01
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 export function daysSinceStart(date: Date): number {
   const utcMidnight = Date.UTC(
@@ -13899,7 +13899,7 @@ export function getHistory(today: Date = new Date()): HistoryDay[] {
   for (let i = totalDays; i >= 0; i--) {
     const d = new Date(START_DATE + i * DAY_MS);
     days.push({
-      date: d.toISOString().slice(0, 10),
+      date: dayKey(d),
       word: getWordForDate(d),
     });
   }
@@ -14023,7 +14023,7 @@ export function getHistoryForUser(
   for (let i = totalDays; i >= 0; i--) {
     const d = new Date(joinedUtcMidnight + i * DAY_MS);
     const idx = ((i % order.length) + order.length) % order.length;
-    days.push({ date: d.toISOString().slice(0, 10), word: order[idx] });
+    days.push({ date: dayKey(d), word: order[idx] });
   }
   return days;
 }
@@ -14106,12 +14106,12 @@ async function resolveLockedMany(
 /** Stable counterpart to getWordForDate: locks in the word for `date` the
  * first time it's resolved, so a later content batch can't change it. */
 export async function resolveWordForDate(date: Date): Promise<WordEntry> {
-  const dateStr = date.toISOString().slice(0, 10);
+  const dateStr = dayKey(date);
   return resolveLocked(wordOfDayKey(dateStr), () => getWordForDate(date));
 }
 
-export async function resolveTodayWord(): Promise<WordEntry> {
-  return resolveWordForDate(new Date());
+export async function resolveTodayWord(now: Date = new Date()): Promise<WordEntry> {
+  return resolveWordForDate(now);
 }
 
 /** Stable counterpart to getHistory. */
@@ -14122,11 +14122,11 @@ export async function resolveHistory(today: Date = new Date()): Promise<HistoryD
 
   const words = await resolveLockedMany(
     dates.map((d) => ({
-      key: wordOfDayKey(d.toISOString().slice(0, 10)),
+      key: wordOfDayKey(dayKey(d)),
       compute: () => getWordForDate(d),
     }))
   );
-  return dates.map((d, i) => ({ date: d.toISOString().slice(0, 10), word: words[i] }));
+  return dates.map((d, i) => ({ date: dayKey(d), word: words[i] }));
 }
 
 /** Stable counterpart to getUniqueWordsMostRecent, built from resolveHistory
@@ -14150,7 +14150,7 @@ export async function resolveWordForUser(
   joinedAt: Date,
   today: Date = new Date()
 ): Promise<WordEntry> {
-  const dateStr = today.toISOString().slice(0, 10);
+  const dateStr = dayKey(today);
   return resolveLocked(userWordKey(userId, dateStr), () => getWordForUser(userId, joinedAt, today));
 }
 
@@ -14177,11 +14177,11 @@ export async function resolveHistoryForUser(
     offsets.map((i) => {
       const d = new Date(joinedUtcMidnight + i * DAY_MS);
       const idx = ((i % order.length) + order.length) % order.length;
-      return { key: userWordKey(userId, d.toISOString().slice(0, 10)), compute: () => order[idx] };
+      return { key: userWordKey(userId, dayKey(d)), compute: () => order[idx] };
     })
   );
   return offsets.map((i, pos) => ({
-    date: new Date(joinedUtcMidnight + i * DAY_MS).toISOString().slice(0, 10),
+    date: dayKey(new Date(joinedUtcMidnight + i * DAY_MS)),
     word: words[pos],
   }));
 }
