@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Share } from "lucide-react";
 import type { WordEntry } from "@/lib/words";
 import { isCorrectGuess, buildPuzzleShareText } from "@/lib/puzzle";
+import { dayKey } from "@/lib/day";
 import {
   usePlayState,
   savePlayState,
@@ -18,7 +19,7 @@ import Button from "@/components/ui/Button";
 import TextField from "@/components/ui/TextField";
 
 function todayDateString(): string {
-  return new Date().toISOString().slice(0, 10);
+  return dayKey();
 }
 
 const CLUE_LABELS = ["First clue", "Second clue", "Third clue"] as const;

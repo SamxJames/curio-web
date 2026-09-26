@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   PUZZLE_MIN_DAYS_SINCE_SHOWN,
+  PUZZLE_MIN_DAYS_UNTIL_SHOWN,
   PUZZLE_MIN_POOL_SIZE,
   getEligiblePuzzleWords,
   getPuzzleForDate,
@@ -8,7 +9,7 @@ import {
   buildPuzzleResultGrid,
   buildPuzzleShareText,
 } from "./puzzle";
-import { daysSinceStart, hashSeed, mulberry32 } from "./words";
+import { daysSinceStart, getWordForDate, hashSeed, mulberry32 } from "./words";
 import type { WordEntry } from "./words";
 
 function makeWord(slug: string): WordEntry {
@@ -35,25 +36,26 @@ function makeWord(slug: string): WordEntry {
 // here.
 const SMALL_WORD_LIST: WordEntry[] = Array.from({ length: 5 }, (_, i) => makeWord(`small-${i}`));
 
-// A synthetic 40-word list — large enough for its rotation period (40 days)
-// to comfortably exceed PUZZLE_MIN_DAYS_SINCE_SHOWN (30). This is the only
-// way to test the "pool becomes non-empty" path with numbers pinned down
-// exactly, independent of how many real words happen to exist right now.
-const LARGE_WORD_LIST: WordEntry[] = Array.from({ length: 40 }, (_, i) => makeWord(`word-${i}`));
+// A synthetic 70-word list — large enough for its rotation period (70 days)
+// to comfortably exceed PUZZLE_MIN_DAYS_SINCE_SHOWN (30) plus
+// PUZZLE_MIN_DAYS_UNTIL_SHOWN (30). This is the only way to test the "pool
+// becomes non-empty" path with numbers pinned down exactly, independent of
+// how many real words happen to exist right now.
+const LARGE_WORD_LIST: WordEntry[] = Array.from({ length: 70 }, (_, i) => makeWord(`word-${i}`));
 
-// A 35-word list has an eligible pool of exactly 5 (rotation period 35,
-// PUZZLE_MIN_DAYS_SINCE_SHOWN 30 -> days-since-shown values 30..34 are
-// eligible, i.e. 35 - 30 = 5 words) — below PUZZLE_MIN_POOL_SIZE (10), so
+// A 65-word list has an eligible pool of exactly 5 (rotation period 65,
+// PUZZLE_MIN_DAYS_SINCE_SHOWN 30 + PUZZLE_MIN_DAYS_UNTIL_SHOWN 30 = 60 days
+// excluded, i.e. 65 - 60 = 5 words) — below PUZZLE_MIN_POOL_SIZE (10), so
 // the pool-size gate should suppress it to [] even though it's genuinely
 // non-empty before that gate is applied.
-const BELOW_MIN_POOL_WORD_LIST: WordEntry[] = Array.from({ length: 35 }, (_, i) =>
+const BELOW_MIN_POOL_WORD_LIST: WordEntry[] = Array.from({ length: 65 }, (_, i) =>
   makeWord(`below-${i}`)
 );
 
-// A 41-word list has an eligible pool of exactly 11 (41 - 30), just above
+// A 71-word list has an eligible pool of exactly 11 (71 - 60), just above
 // PUZZLE_MIN_POOL_SIZE — confirms the gate doesn't over-suppress a pool
 // that already clears the threshold.
-const ABOVE_MIN_POOL_WORD_LIST: WordEntry[] = Array.from({ length: 41 }, (_, i) =>
+const ABOVE_MIN_POOL_WORD_LIST: WordEntry[] = Array.from({ length: 71 }, (_, i) =>
   makeWord(`above-${i}`)
 );
 
@@ -135,6 +137,27 @@ describe("getEligiblePuzzleWords", () => {
     expect(pool.length).toBeGreaterThan(0);
     expect(elapsed).toBeLessThan(200);
   });
+
+  it("excludes every word scheduled as the daily word in the next PUZZLE_MIN_DAYS_UNTIL_SHOWN days", () => {
+    const today = new Date("2026-06-01T00:00:00Z");
+    const pool = getEligiblePuzzleWords(today, LARGE_WORD_LIST).map((w) => w.slug);
+    expect(pool.length).toBeGreaterThan(0);
+    for (let i = 1; i <= PUZZLE_MIN_DAYS_UNTIL_SHOWN; i++) {
+      const day = new Date(today.getTime() + i * 24 * 60 * 60 * 1000);
+      const n = LARGE_WORD_LIST.length;
+      const upcoming = LARGE_WORD_LIST[((daysSinceStart(day) % n) + n) % n];
+      expect(pool).not.toContain(upcoming.slug);
+    }
+  });
+
+  it("with the real word bank, never picks a shared daily word from the last or next 30 days", () => {
+    const today = new Date("2026-09-26T00:00:00Z");
+    const pool = new Set(getEligiblePuzzleWords(today).map((w) => w.slug));
+    for (let i = -29; i <= PUZZLE_MIN_DAYS_UNTIL_SHOWN; i++) {
+      const day = new Date(today.getTime() + i * 24 * 60 * 60 * 1000);
+      expect(pool.has(getWordForDate(day).slug)).toBe(false);
+    }
+  });
 });
 
 describe("PUZZLE_MIN_POOL_SIZE gate", () => {
@@ -195,7 +218,7 @@ describe("getPuzzleForDate", () => {
     // without claiming a false no-repeat-until-exhausted guarantee (the
     // pool's own membership shifts daily as words age in/out, which makes
     // that guarantee provably hard to promise — see getPuzzleForDate's doc
-    // comment). The threshold here is deliberately high (30 of 40 words):
+    // comment). The threshold here is deliberately high (30 of 70 words):
     // a re-review confirmed the OLD buggy `dayCount % pool.length`
     // positional index also reaches 25 distinct words over this same
     // 200-day window despite its severe skip/repeat pathology, so a lower

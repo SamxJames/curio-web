@@ -1,6 +1,5 @@
 import { WORDS, type WordEntry, daysSinceStart, hashSeed, mulberry32 } from "./words";
-
-const DAY_MS = 24 * 60 * 60 * 1000;
+import { DAY_MS, dayKey, dayStart } from "./day";
 
 /** A word only becomes eligible for the daily puzzle once this many days
  * have passed since it last ran as the shared daily word — keeps the
@@ -11,13 +10,27 @@ const DAY_MS = 24 * 60 * 60 * 1000;
  * null case. */
 export const PUZZLE_MIN_DAYS_SINCE_SHOWN = 30;
 
+/** …and at least this many days before it next runs as the shared daily
+ * word — so the puzzle can't spoil tomorrow's word either. Only possible
+ * because everyone shares one schedule (2026-09-26). */
+export const PUZZLE_MIN_DAYS_UNTIL_SHOWN = 30;
+
+function upcomingSlugs(today: Date, words: WordEntry[]): Set<string> {
+  const slugs = new Set<string>();
+  for (let i = 1; i <= PUZZLE_MIN_DAYS_UNTIL_SHOWN; i++) {
+    slugs.add(wordForDateFrom(words, new Date(today.getTime() + i * DAY_MS)).slug);
+  }
+  return slugs;
+}
+
 /** /play doesn't open until the eligible pool reaches this size — below
  * it, the daily selection either has no variety at all (pool size 1) or
  * an unacceptably high repeat rate relative to what's been validated (see
  * getPuzzleForDate's doc comment for why the rate depends on pool size).
  * 10 matches the pool size this algorithm was actually validated against
- * during development (a 40-word bank, since pool size is structurally
- * `words.length - PUZZLE_MIN_DAYS_SINCE_SHOWN`). */
+ * during development (a 70-word synthetic bank, since pool size is
+ * structurally `words.length - PUZZLE_MIN_DAYS_SINCE_SHOWN -
+ * PUZZLE_MIN_DAYS_UNTIL_SHOWN`). */
 export const PUZZLE_MIN_POOL_SIZE = 10;
 
 /** The word shown on `date` under the same deterministic rotation
@@ -68,19 +81,9 @@ function daysSinceShownMap(today: Date, words: WordEntry[]): Map<string, number>
  * list to exercise the non-empty case, which the real (currently
  * 1,147-word) list clears comfortably.
  *
- * Scope note: this anti-spoiler gate protects the SHARED/anonymous daily
- * word experience specifically — it filters against getWordForDate's
- * calendar-based rotation, the one thing every player (signed in or not)
- * sees on Today and in the Bluesky post. A signed-in account also has its
- * own PERSONALIZED rotation (getWordForUser, from an earlier plan), and
- * this gate does not — and structurally cannot — account for what that
- * particular account happens to have seen recently under it. That's a
- * deliberate, accepted scope boundary: filtering per-user against each
- * account's own history would mean a different puzzle per player, which
- * breaks "the same puzzle for everyone, one shareable result grid" that
- * this whole feature is built around. So the guarantee this function
- * actually provides is "not recently shown as the shared daily word," not
- * "unspoiled for every individual player."
+ * Scope note: both windows are checked against getWordForDate's calendar
+ * rotation, which since 2026-09-26 is the one word every visitor, account
+ * and digest recipient sees — so the guarantee holds for every player.
  *
  * Also returns an empty pool — even when the raw filtered pool is
  * non-empty — until the pool reaches PUZZLE_MIN_POOL_SIZE. A pool that's
@@ -94,8 +97,10 @@ export function getEligiblePuzzleWords(
 ): WordEntry[] {
   const todayWord = wordForDateFrom(words, today);
   const recentlyShown = daysSinceShownMap(today, words);
+  const upcoming = upcomingSlugs(today, words);
   const filtered = words.filter((w) => {
     if (w.slug === todayWord.slug) return false;
+    if (upcoming.has(w.slug)) return false;
     const days = recentlyShown.get(w.slug);
     return days !== undefined && days >= PUZZLE_MIN_DAYS_SINCE_SHOWN;
   });
@@ -136,8 +141,8 @@ function rawPuzzlePick(today: Date, words: WordEntry[]): RawPick | null {
  * rather than opening as soon as the pool is merely non-empty. Deterministic per calendar
  * day: the same date always yields the same puzzle for every player,
  * called any number of times. Selection is a per-day seeded pseudo-random
- * pick from the CURRENTLY eligible pool (same hashSeed/mulberry32 PRNG
- * lib/words.ts uses for per-account personalization), not a positional
+ * pick from the CURRENTLY eligible pool (lib/words.ts's hashSeed/mulberry32
+ * PRNG), not a positional
  * index into the pool — the pool's own membership shifts by roughly one
  * word per day as words age in and out of eligibility, and a naive
  * `dayCount % pool.length` index compounds with that daily shift into a
@@ -198,8 +203,8 @@ export function getPuzzleForDate(
   return { word: chosen, puzzleNumber: dayCount + 1 };
 }
 
-export function getTodayPuzzle(): Puzzle | null {
-  return getPuzzleForDate(new Date());
+export function getTodayPuzzle(now: Date = new Date()): Puzzle | null {
+  return getPuzzleForDate(dayStart(dayKey(now)));
 }
 
 function normalizeGuess(s: string): string {

@@ -3,7 +3,7 @@ import { getTodayPuzzle } from "@/lib/puzzle";
 
 export const metadata = { title: "Daily puzzle — Curio" };
 
-// getTodayPuzzle() is date-dependent (via `new Date()`), same as
+// getTodayPuzzle() is date-dependent (via lib/day.ts's clock), same as
 // app/page.tsx and app/history/page.tsx — those get dynamic rendering for
 // free because they call auth(), but this route doesn't, so it needs the
 // opt-in explicitly. Without this, Next statically prerenders the page at

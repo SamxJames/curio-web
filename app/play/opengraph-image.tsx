@@ -6,7 +6,7 @@ export const alt = "Curio — Daily Puzzle";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-// getTodayPuzzle() is date-dependent (via `new Date()`), same as the /play page
+// getTodayPuzzle() is date-dependent (via lib/day.ts's clock), same as the /play page
 // — without this, Next statically prerenders the image at build time and keeps
 // serving that frozen puzzle until the next deploy, rather than recomputing
 // today's puzzle on every request.
