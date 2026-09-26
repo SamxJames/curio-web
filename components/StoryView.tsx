@@ -7,6 +7,7 @@ import type { WordEntry } from "@/lib/words";
 import type { RelatedWords } from "@/lib/relatedWords";
 import { isFavorite, toggleFavorite, useClientOnlyValue } from "@/lib/storage";
 import { track } from "@/lib/analytics";
+import { useStoryDay } from "@/lib/useStoryDay";
 import EtymologyLineage from "./EtymologyLineage";
 import Button from "@/components/ui/Button";
 import StoryDate from "./StoryDate";
@@ -18,6 +19,8 @@ const SECTIONS: { key: keyof Pick<WordEntry, "origin" | "journey" | "related">; 
 ];
 
 export default function StoryView({ word, related }: { word: WordEntry; related: RelatedWords }) {
+  const day = useStoryDay(word.slug);
+
   useEffect(() => {
     track("story_view");
   }, []);
@@ -62,7 +65,7 @@ export default function StoryView({ word, related }: { word: WordEntry; related:
         Today
       </Link>
 
-      <StoryDate slug={word.slug} />
+      <StoryDate date={day?.date ?? null} />
 
       <h1 className="font-serif text-5xl leading-none">{word.word}</h1>
       <p className="mt-3 font-sans text-sm text-ink-soft">
@@ -167,19 +170,21 @@ export default function StoryView({ word, related }: { word: WordEntry; related:
         </section>
       )}
 
-      <div className="mt-12 border-t border-line pt-8">
-        <Link
-          href="/history"
-          className="font-sans text-sm text-ink-soft transition-colors hover:text-ink"
-        >
-          Browse all words &rarr;
-        </Link>
-      </div>
-
-      <div className="mt-4">
+      <div className="mt-12 space-y-4 border-t border-line pt-8">
+        {/* Only for a word that isn't today's: the one pointer from an old
+         * story to the live day. "Browse all words" (to /history, a
+         * personal view) was removed; "All words A–Z" above covers it. */}
+        {day?.today && day.today.slug !== word.slug && (
+          <Link
+            href={`/story/${day.today.slug}`}
+            className="block font-sans text-sm text-ink-soft transition-colors hover:text-ink"
+          >
+            Today&apos;s word is {day.today.word} &rarr;
+          </Link>
+        )}
         <Link
           href="/play"
-          className="font-sans text-xs text-ink-faint transition-colors hover:text-ink-soft"
+          className="block font-sans text-xs text-ink-faint transition-colors hover:text-ink-soft"
         >
           Try today&apos;s puzzle &rarr;
         </Link>

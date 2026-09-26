@@ -89,8 +89,11 @@ async function everySurfaceAt(iso: string) {
   const res = await storyDate(new Request("http://localhost"), {
     params: Promise.resolve({ slug: signedOut }),
   });
-  const { date } = (await res.json()) as { date: string | null };
-  return { signedOut, signedIn, digests, blueskyText, date };
+  const { date, today } = (await res.json()) as {
+    date: string | null;
+    today: { slug: string; word: string } | null;
+  };
+  return { signedOut, signedIn, digests, blueskyText, date, today };
 }
 
 beforeEach(() => {
@@ -119,8 +122,22 @@ describe("one shared word, every surface", () => {
       expect(s.digests).toEqual([expected.slug, expected.slug]);
       expect(s.blueskyText).toContain(expected.word);
       expect(s.date).toBe(formatDay(iso.slice(0, 10)));
+      expect(s.today).toEqual({ slug: expected.slug, word: expected.word });
     }
   );
+
+  it("a story page for another word still names today's word", async () => {
+    vi.setSystemTime(new Date("2026-09-26T09:00:00.000Z"));
+    const today = await resolveWordForDate(new Date("2026-09-26T09:00:00.000Z"));
+    const other = today.slug === "sideburns" ? "fiasco" : "sideburns";
+
+    const res = await storyDate(new Request("http://localhost"), {
+      params: Promise.resolve({ slug: other }),
+    });
+    const body = (await res.json()) as { today: { slug: string; word: string } | null };
+
+    expect(body.today).toEqual({ slug: today.slug, word: today.word });
+  });
 
   it("every surface moves to the next word at the same instant, 00:00 UTC", async () => {
     const before = await everySurfaceAt("2026-09-26T23:59:59.999Z");
