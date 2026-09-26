@@ -38,6 +38,18 @@ export function buildDigestSubject(
   return `${truncated}…`;
 }
 
+/** The digest's story link. Tagged like lib/bluesky.ts's links, and for a
+ * second reason: the story page reads utm_source=email to hide its signup
+ * pitch from people who already get this email (see
+ * components/StoryFrontDoor.tsx). */
+export function digestStoryUrl(slug: string): string {
+  const url = new URL(`/story/${slug}`, SITE_URL);
+  url.searchParams.set("utm_source", "email");
+  url.searchParams.set("utm_medium", "email");
+  url.searchParams.set("utm_campaign", "daily-word");
+  return url.toString();
+}
+
 /** Shared chrome for every Curio email (daily digest, sign-in link, etc.) so
  * they read as one product rather than a mix of a custom template and
  * whatever a library's stock default looks like — the latter is also a
@@ -56,7 +68,7 @@ function buildShell(bodyHtml: string): string {
 }
 
 function buildDigestHtml(word: WordEntry, dateStr: string, unsubscribeUrl: string) {
-  const storyUrl = `${SITE_URL}/story/${word.slug}`;
+  const storyUrl = digestStoryUrl(word.slug);
   return buildShell(`
       <p style="font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:0.02em;color:#5b665f;margin:0 0 24px;">
         Curio &middot; ${dateStr}
@@ -100,7 +112,7 @@ function buildSignInHtml(url: string) {
 
 export async function sendDailyDigest(email: string, word: WordEntry, date: Date) {
   const dateStr = formatDay(dayKey(date));
-  const storyUrl = `${SITE_URL}/story/${word.slug}`;
+  const storyUrl = digestStoryUrl(word.slug);
   const unsubscribeUrl = `${SITE_URL}/api/unsubscribe?token=${unsubscribeToken(email)}`;
   const html = buildDigestHtml(word, dateStr, unsubscribeUrl);
   // A plain-text alternative alongside the HTML body isn't just a nicety —

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildDigestSubject } from "./email";
+import { buildDigestSubject, digestStoryUrl } from "./email";
 
 describe("buildDigestSubject", () => {
   it("returns a short teaser unchanged", () => {
@@ -32,5 +32,15 @@ describe("buildDigestSubject", () => {
     const teaser = "T".repeat(100);
     const subject = buildDigestSubject(teaser);
     expect(subject.length).toBeLessThanOrEqual(61);
+  });
+});
+
+describe("digestStoryUrl", () => {
+  it("links to the story page, tagged so the page knows the reader came from the digest", () => {
+    const url = new URL(digestStoryUrl("sideburns"));
+    expect(url.pathname).toBe("/story/sideburns");
+    expect(url.searchParams.get("utm_source")).toBe("email");
+    expect(url.searchParams.get("utm_medium")).toBe("email");
+    expect(url.searchParams.get("utm_campaign")).toBe("daily-word");
   });
 });
