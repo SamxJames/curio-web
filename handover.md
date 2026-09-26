@@ -14,10 +14,12 @@ no feed, no backlog to catch up on."** That positioning is a real
 constraint, not just marketing copy — it's already shaped a couple of
 decisions below (see "Rejected: retroactive history backfill").
 
-**Live at:** https://etymology-app-orcin.vercel.app
+**Live at:** https://curioword.com (since 2026-09-26 — see "Domain
+cutover" below; `www.curioword.com` and the old
+`etymology-app-orcin.vercel.app` both 308-redirect here)
 **Vercel project:** `etymology-app` (⚠️ not literally named
-`etymology-app-orcin` — that's just its domain, which got a random suffix
-from a name collision. See "Vercel gotcha" below if you ever need to
+`etymology-app-orcin` — that was just its original vercel.app domain, which
+got a random suffix from a name collision. See "Vercel gotcha" below if you ever need to
 re-link this directory.)
 **GitHub remote:** `github.com/SamxJames/curio-web`, `master` is the
 default and only branch. Vercel's Git integration auto-deploys `master` to
@@ -56,7 +58,7 @@ persistent. Required vars, from `.env.example`:
 
 ```
 RESEND_API_KEY
-CURIO_FROM_EMAIL          # "Curio <onboarding@resend.dev>" in prod today
+CURIO_FROM_EMAIL          # "Curio <hello@curioword.com>" in prod since 2026-09-26
 UPSTASH_REDIS_REST_URL
 UPSTASH_REDIS_REST_TOKEN
 CURIO_SITE_URL            # http://localhost:3000 locally
@@ -117,11 +119,44 @@ cat .vercel/project.json   # should show projectName: "etymology-app"
 
 `vercel link --project <name> --yes` **silently creates a new empty
 project** if no project with that exact literal name exists — it does not
-error. The live domain is `etymology-app-orcin.vercel.app`, but the
+error. The original vercel.app domain is `etymology-app-orcin.vercel.app`, but the
 project itself is named `etymology-app` (domain got a random suffix from a
 name collision when it was created). If you ever need to re-link, use
 `vercel project ls` first to find the real project name behind a domain —
 don't assume the domain and the project name match.
+
+## Domain cutover (2026-09-26)
+
+Curio moved from `etymology-app-orcin.vercel.app` to **`curioword.com`**
+(registered at Cloudflare Registrar) right before the family-and-friends
+launch, so Google never split indexing across two hosts.
+
+- **DNS lives at Cloudflare**, not Vercel. Records: `A @ 76.76.21.21`,
+  `CNAME www cname.vercel-dns.com`, Resend's `resend._domainkey` TXT,
+  `send` MX + TXT (SPF), `rsend` CNAME, `_dmarc` TXT (`p=none` — tighten
+  to `quarantine` after a few weeks of clean sends), a
+  `google-site-verification` TXT, and Cloudflare Email Routing's own apex
+  MX/SPF. **Every Vercel/Resend record must be "DNS only" (grey cloud).**
+  Cloudflare proxies new records by default; proxied, Vercel can't issue
+  certs and Resend can't verify `rsend`. This bit the first attempt.
+- **Vercel:** `curioword.com` is primary; `www.curioword.com` and
+  `etymology-app-orcin.vercel.app` are project domains with a 308 redirect
+  to it (path and query preserved), set via `vercel api
+  /v9/projects/<id>/domains/<name> -X PATCH`. The Vercel MCP connector
+  could see the team but not its projects, so the CLI was used throughout.
+- **Env (Production):** `CURIO_SITE_URL=https://curioword.com`,
+  `CURIO_FROM_EMAIL=Curio <hello@curioword.com>`. Resend domain
+  `curioword.com` is verified (us-east-1).
+- **Search Console:** Domain property for `curioword.com` with the sitemap
+  submitted.
+- **Verified live:** canonicals, `og:url`, `og:image`, `DefinedTerm`
+  JSON-LD, `robots.txt` and all 1,152 sitemap `<loc>`s use
+  `curioword.com`; magic link and a manually-triggered digest delivered
+  from `hello@curioword.com`; the Bluesky post links to `curioword.com`.
+- **Gotcha:** `.env.local`'s `CRON_SECRET` does **not** match
+  Production's, so a local `curl` to the prod cron 401s. To trigger a real
+  digest by hand, use Vercel → Settings → Cron Jobs → Run (it posts to
+  Bluesky too — the 2026-09-26 test run made a second post that day).
 
 ## Architecture map
 
