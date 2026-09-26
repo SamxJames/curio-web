@@ -50,3 +50,6 @@ next-env.d.ts
 # local Claude Code tooling config (e.g. dev-server launch config for the
 # Browser preview tool) — not part of the app
 /.claude/
+
+# one-off script backups
+/backups/
