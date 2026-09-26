@@ -5,16 +5,14 @@ import type { WordEntry } from "@/lib/words";
 export default function TodayHero({
   word,
   date,
-  isPersonalized,
 }: {
   word: WordEntry;
   date: string;
-  isPersonalized: boolean;
 }) {
   return (
     <section className="mx-auto flex max-w-page flex-col items-start px-6 py-20">
       <p className="font-sans text-xs tracking-wide text-ink-faint">
-        {isPersonalized ? <>Your word &middot; {date}</> : date}
+        Today&apos;s word &middot; {date}
       </p>
 
       <h1 className="mt-6 font-serif text-6xl leading-none sm:text-7xl">{word.word}</h1>

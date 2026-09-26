@@ -39,7 +39,7 @@ export default function EmailSignupInline({ onSubscribed }: { onSubscribed?: () 
 
   if (status === "success") {
     return (
-      <p role="status" className="font-sans text-sm text-ink-soft">You&apos;re in. Your first word arrives tomorrow.</p>
+      <p role="status" className="font-sans text-sm text-ink-soft">You&apos;re in. Tomorrow&apos;s word arrives in the morning.</p>
     );
   }
 

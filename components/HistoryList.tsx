@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Heart, Search } from "lucide-react";
 import { toggleFavorite, useFavorites } from "@/lib/storage";
+import { formatDay } from "@/lib/day";
 import Button from "@/components/ui/Button";
 import IconButton from "@/components/ui/IconButton";
 import TextField from "@/components/ui/TextField";
@@ -31,10 +32,7 @@ const PAGE_SIZE = 60;
 function groupByMonth(entries: HistoryPreview[]): { label: string; entries: HistoryPreview[] }[] {
   const groups: { label: string; entries: HistoryPreview[] }[] = [];
   for (const entry of entries) {
-    const label = new Date(entry.date + "T00:00:00Z").toLocaleDateString("en-US", {
-      month: "long",
-      year: "numeric",
-    });
+    const label = formatDay(entry.date, { month: "long", year: "numeric" });
     const current = groups[groups.length - 1];
     if (current && current.label === label) current.entries.push(entry);
     else groups.push({ label, entries: [entry] });
@@ -51,8 +49,8 @@ export default function HistoryList({
    * to look at on day one instead of only their (necessarily sparse) own
    * history. */
   allEntries: HistoryPreview[];
-  /** This account's personal word order, one entry per day since they
-   * joined — present only when signed in. */
+  /** The shared words since this account joined, one entry per day
+   * (lib/words.ts's resolveHistorySince). Null when signed out. */
   personalEntries?: HistoryPreview[] | null;
 }) {
   const hasPersonal = !!personalEntries;
@@ -146,8 +144,8 @@ export default function HistoryList({
 
       {filter === "mine" && (
         <p className="mb-6 font-sans text-sm text-ink-faint">
-          Your personal word order — one new word a day since you joined. It&apos;ll grow day by
-          day; browse <Button variant="link" className="inline" onClick={() => setFilter("all")}>all words</Button> in the meantime.
+          Each day&apos;s word since you joined. Browse{" "}
+          <Button variant="link" className="inline" onClick={() => setFilter("all")}>all words</Button> any time.
         </p>
       )}
 
@@ -171,10 +169,7 @@ export default function HistoryList({
           <ul>
             {entries.map(({ date, word }) => {
               const favorited = favorites.has(word.slug);
-              const displayDate = new Date(date + "T00:00:00Z").toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-              });
+              const displayDate = formatDay(date, { month: "short", day: "numeric" });
               return (
                 <li key={date} className="border-b border-line py-4 first:pt-0 last:border-0">
                   <div className="flex items-center justify-between gap-4">

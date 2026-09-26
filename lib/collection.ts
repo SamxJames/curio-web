@@ -1,3 +1,4 @@
+import { dayStart, formatDay } from "./day";
 import type { HistoryDay } from "./words";
 
 const ENGLISH = "English";
@@ -46,10 +47,7 @@ function monthKey(dateStr: string): string {
 }
 
 export function monthLabel(dateStr: string): string {
-  return new Date(dateStr + "T00:00:00Z").toLocaleDateString("en-US", {
-    month: "long",
-    timeZone: "UTC",
-  });
+  return formatDay(dateStr, { month: "long" });
 }
 
 /** Groups consecutive entries sharing a calendar month. Entries are assumed
@@ -72,9 +70,9 @@ export function groupByMonth(entries: HistoryDay[]): WordGroup[] {
  * (lib/words.ts callers, HistoryList) because the design spec calls for
  * this order specifically here. */
 export function formatShortDate(dateStr: string): string {
-  const d = new Date(dateStr + "T00:00:00Z");
-  const month = d.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" });
-  return `${d.getUTCDate()} ${month}`;
+  const month = formatDay(dateStr, { month: "short" });
+  const day = dayStart(dateStr).getUTCDate();
+  return `${day} ${month}`;
 }
 
 const NUMBER_WORDS = [

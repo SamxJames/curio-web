@@ -1,3 +1,4 @@
+import { dayKey } from "./day";
 import { redis } from "./redis";
 import type { PlayState } from "./storage";
 
@@ -10,7 +11,7 @@ function joinedKey(userId: string): string {
  * if it's ever called twice for the same user (e.g. a duplicate event). */
 export async function recordUserJoined(userId: string, date: Date = new Date()): Promise<void> {
   if (!redis) return;
-  const dateStr = date.toISOString().slice(0, 10);
+  const dateStr = dayKey(date);
   await redis.set(joinedKey(userId), dateStr, { nx: true });
 }
 
@@ -36,7 +37,7 @@ function lastSeenKey(userId: string): string {
 export async function recordUserSeen(userId: string, date: Date = new Date()): Promise<void> {
   if (!redis) return;
   try {
-    const dateStr = date.toISOString().slice(0, 10);
+    const dateStr = dayKey(date);
     const key = lastSeenKey(userId);
     const existing = await redis.get<string>(key);
     if (existing === dateStr) return;

@@ -19,17 +19,15 @@ import TodayHero from "./TodayHero";
 export default function HomeContent({
   word,
   date,
-  isPersonalized,
 }: {
   word: WordEntry;
   date: string;
-  isPersonalized: boolean;
 }) {
   const showArrival = useShowArrival();
 
   return showArrival ? (
     <ArrivalHero word={word} date={date} />
   ) : (
-    <TodayHero word={word} date={date} isPersonalized={isPersonalized} />
+    <TodayHero word={word} date={date} />
   );
 }

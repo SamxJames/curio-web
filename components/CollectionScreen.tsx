@@ -34,8 +34,8 @@ export default function CollectionScreen({
   entries,
   tab,
 }: {
-  /** This account's seen-words, newest first — one entry per day since
-   * joining (lib/words.ts's getHistoryForUser). */
+  /** The shared words since this account joined, newest first
+   * (lib/words.ts's resolveHistorySince). */
   entries: HistoryDay[];
   tab: Tab;
 }) {
@@ -100,7 +100,7 @@ export default function CollectionScreen({
       {tab === "collection" ? (
         totalWords === 0 ? (
           <p className="mt-7 font-serif text-base text-ink-soft italic">
-            Your first word arrives tomorrow morning.
+            Tomorrow&apos;s word arrives in the morning.
           </p>
         ) : (
           <CollectionBody

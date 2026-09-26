@@ -3,7 +3,7 @@ import { after } from "next/server";
 import CollectionScreen from "@/components/CollectionScreen";
 import { auth } from "@/lib/auth";
 import { getUserJoinedAt, recordUserSeen } from "@/lib/userData";
-import { resolveHistoryForUser } from "@/lib/words";
+import { resolveHistorySince } from "@/lib/words";
 
 export const metadata = { title: "Your collection — Curio" };
 
@@ -19,7 +19,7 @@ export default async function CollectionPage({
   const { tab } = await searchParams;
   const joinedAtStr = await getUserJoinedAt(session.user.id);
   const entries = joinedAtStr
-    ? await resolveHistoryForUser(session.user.id, new Date(joinedAtStr + "T00:00:00Z"))
+    ? await resolveHistorySince(new Date(joinedAtStr + "T00:00:00Z"))
     : [];
 
   return <CollectionScreen entries={entries} tab={tab === "history" ? "history" : "collection"} />;
