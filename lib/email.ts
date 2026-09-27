@@ -1,23 +1,14 @@
 import { Resend } from "resend";
 import type { WordEntry } from "./words";
 import { dayKey, formatDay } from "./day";
+import { absoluteUrl, siteUrl } from "./siteUrl";
+import { signUnsubscribeToken } from "./unsubscribeToken";
+import { sendInBatches, type SendOutcome } from "./digestSend";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 const FROM_ADDRESS = process.env.CURIO_FROM_EMAIL ?? "Curio <word@curio.example>";
-const SITE_URL = process.env.CURIO_SITE_URL ?? "http://localhost:3000";
-
-/** Not cryptographically secure — good enough to keep an unsubscribe link
- * from being casually guessed for a v1. Swap for a signed (HMAC) token
- * before relying on this for anything sensitive. */
-export function unsubscribeToken(email: string): string {
-  return Buffer.from(email.trim().toLowerCase()).toString("base64url");
-}
-
-export function decodeUnsubscribeToken(token: string): string {
-  return Buffer.from(token, "base64url").toString("utf-8");
-}
 
 const DEFAULT_SUBJECT_MAX_LENGTH = 60;
 
@@ -43,7 +34,7 @@ export function buildDigestSubject(
  * pitch from people who already get this email (see
  * components/StoryFrontDoor.tsx). */
 export function digestStoryUrl(slug: string): string {
-  const url = new URL(`/story/${slug}`, SITE_URL);
+  const url = new URL(`/story/${slug}`, siteUrl());
   url.searchParams.set("utm_source", "email");
   url.searchParams.set("utm_medium", "email");
   url.searchParams.set("utm_campaign", "daily-word");
@@ -110,36 +101,80 @@ function buildSignInHtml(url: string) {
       </p>`);
 }
 
-export async function sendDailyDigest(email: string, word: WordEntry, date: Date) {
+/** Signed, so the link can only unsubscribe the address it was sent to. The
+ * same URL is the List-Unsubscribe target: a GET lands on a confirm page,
+ * and only a POST (the page's button, or a mailbox's one-click) unsubscribes. */
+export function unsubscribeUrl(email: string, secret: string): string {
+  const url = new URL(absoluteUrl("/api/unsubscribe"));
+  url.searchParams.set("token", signUnsubscribeToken(email, secret));
+  return url.toString();
+}
+
+export type DigestMessage = {
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+  headers: Record<string, string>;
+};
+
+/** One subscriber's digest. Always exactly one recipient: the unsubscribe
+ * link and headers are specific to them, so a shared to/cc/bcc would let
+ * one person unsubscribe another. */
+export function buildDigestMessage(email: string, word: WordEntry, date: Date, secret: string): DigestMessage {
   const dateStr = formatDay(dayKey(date));
   const storyUrl = digestStoryUrl(word.slug);
-  const unsubscribeUrl = `${SITE_URL}/api/unsubscribe?token=${unsubscribeToken(email)}`;
-  const html = buildDigestHtml(word, dateStr, unsubscribeUrl);
-  // A plain-text alternative alongside the HTML body isn't just a nicety —
-  // HTML-only email is itself a spam signal most filters weigh directly.
-  const text = `${word.word} (${word.respelling}, ${word.partOfSpeech})\n\n${word.origin}\n\nRead the full story: ${storyUrl}\n\nUnsubscribe: ${unsubscribeUrl}`;
-  // The word itself stays prominent in the body (the <h1> in the HTML, the
-  // first line of the plain-text version) — only the subject line changed,
-  // so curiosity about the *teaser* survives long enough to get the email
-  // opened, instead of being spent in the inbox preview.
-  const subject = buildDigestSubject(word.teaser);
-
-  if (!resend) {
-    // Local/dev fallback: no RESEND_API_KEY configured, so log instead of sending.
-    console.log(`[curio:email:dev-fallback] would send "${subject}" to ${email}`);
-    return { id: "dev-fallback", sent: false as const };
-  }
-
-  const { data, error } = await resend.emails.send({
+  const unsubscribe = unsubscribeUrl(email, secret);
+  return {
     from: FROM_ADDRESS,
     to: email,
-    subject,
-    html,
-    text,
-  });
+    // The word stays prominent in the body (the <h1>, and the text version's
+    // first line); only the subject carries the teaser, so curiosity about it
+    // survives long enough to get the email opened.
+    subject: buildDigestSubject(word.teaser),
+    html: buildDigestHtml(word, dateStr, unsubscribe),
+    // HTML-only email is itself a spam signal most filters weigh directly.
+    text: `${word.word} (${word.respelling}, ${word.partOfSpeech})\n\n${word.origin}\n\nRead the full story: ${storyUrl}\n\nUnsubscribe: ${unsubscribe}`,
+    // RFC 2369 + RFC 8058: mailbox providers show their own unsubscribe
+    // button from these and weigh them for inbox placement.
+    headers: {
+      "List-Unsubscribe": `<${unsubscribe}>`,
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    },
+  };
+}
 
-  if (error) throw new Error(`Resend send failed: ${error.message}`);
-  return { id: data?.id, sent: true as const };
+/** The morning digest for every subscriber, through Resend's batch endpoint
+ * (see lib/digestSend.ts for chunking, retries and idempotency). `runKey`
+ * must be unique per run, because Resend dedupes on it for 24 hours. */
+export async function sendDailyDigests(
+  emails: string[],
+  word: WordEntry,
+  date: Date,
+  opts: { secret: string; runKey: string; deadline?: number; onSent?: (recipients: string[]) => Promise<void> }
+): Promise<SendOutcome> {
+  const messages = emails.map((email) => buildDigestMessage(email, word, date, opts.secret));
+
+  if (!resend) {
+    // Local/dev fallback: no RESEND_API_KEY configured, so log instead of
+    // sending. A count, never the addresses.
+    if (messages.length > 0) {
+      console.log(`[curio:email:dev-fallback] would send "${messages[0].subject}" to ${messages.length} subscriber(s)`);
+    }
+    if (messages.length > 0) await opts.onSent?.(messages.map((m) => m.to));
+    return { attempted: messages.length, sent: messages.length, failed: 0, errors: [], failedRecipients: [] };
+  }
+
+  const client = resend;
+  return sendInBatches(messages, {
+    keyPrefix: opts.runKey,
+    deadline: opts.deadline,
+    onSent: opts.onSent,
+    // Permissive: one malformed address shouldn't sink the other 99 in its chunk.
+    sendBatch: (chunk, idempotencyKey) =>
+      client.batch.send(chunk, { batchValidation: "permissive", idempotencyKey }),
+  });
 }
 
 /** Sends the Auth.js magic-link sign-in email, replacing the library's stock

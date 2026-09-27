@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
-import { buildDigestSubject, digestStoryUrl } from "./email";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { buildDigestMessage, buildDigestSubject, digestStoryUrl, sendDailyDigests, unsubscribeUrl } from "./email";
+import { verifyUnsubscribeToken } from "./unsubscribeToken";
 
 describe("buildDigestSubject", () => {
   it("returns a short teaser unchanged", () => {
@@ -42,5 +43,54 @@ describe("digestStoryUrl", () => {
     expect(url.searchParams.get("utm_source")).toBe("email");
     expect(url.searchParams.get("utm_medium")).toBe("email");
     expect(url.searchParams.get("utm_campaign")).toBe("daily-word");
+  });
+});
+
+const word = {
+  slug: "custard", word: "custard", respelling: "KUS-terd", partOfSpeech: "noun",
+  teaser: "A pie filling that started as a crust.", origin: "From crustade.",
+  journey: "", related: "", lineage: ["Old French", "English"],
+};
+
+describe("unsubscribe links and headers", () => {
+  beforeEach(() => vi.stubEnv("CURIO_SITE_URL", "https://curio.example/"));
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("builds the link from CURIO_SITE_URL with a signed token", () => {
+    const url = new URL(unsubscribeUrl("Sam@Example.com", "s3cret"));
+    expect(url.origin + url.pathname).toBe("https://curio.example/api/unsubscribe");
+    expect(verifyUnsubscribeToken(url.searchParams.get("token")!, "s3cret")).toBe("sam@example.com");
+  });
+
+  it("gives each digest one recipient, its own link, and both List-Unsubscribe headers", () => {
+    const msg = buildDigestMessage("sam@example.com", word as never, new Date("2026-09-27T09:00:00Z"), "s3cret");
+    const link = unsubscribeUrl("sam@example.com", "s3cret");
+
+    expect(msg.to).toBe("sam@example.com");
+    expect(msg).not.toHaveProperty("cc");
+    expect(msg).not.toHaveProperty("bcc");
+    expect(msg.headers).toEqual({
+      "List-Unsubscribe": `<${link}>`,
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    });
+    expect(msg.html).toContain(link);
+    expect(msg.text).toContain(`Unsubscribe: ${link}`);
+    expect(msg.subject).toBe(word.teaser);
+  });
+});
+
+describe("sendDailyDigests dev fallback (no RESEND_API_KEY)", () => {
+  it("logs a subject and a count, sends nothing, and never logs addresses", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    const out = await sendDailyDigests(["a@example.com", "b@example.com"], word as never, new Date(), {
+      secret: "s3cret",
+      runKey: "k",
+    });
+    const logged = log.mock.calls.flat().join(" ");
+    log.mockRestore();
+
+    expect(out).toEqual({ attempted: 2, sent: 2, failed: 0, errors: [], failedRecipients: [] });
+    expect(logged).toContain("2 subscriber");
+    expect(logged).not.toContain("@example.com");
   });
 });

@@ -36,7 +36,11 @@ vi.mock("@/components/ServerSessionMarker", () => ({ default: () => null }));
 vi.mock("@/lib/db", () => ({
   getAllSubscribers: vi.fn(async () => ["anon@example.com", "account-holder@example.com"]),
 }));
-vi.mock("@/lib/email", () => ({ sendDailyDigest: vi.fn(async () => undefined) }));
+vi.mock("@/lib/email", () => ({
+  sendDailyDigests: vi.fn(async (emails: string[]) => ({
+    attempted: emails.length, sent: emails.length, failed: 0, errors: [], failedRecipients: [],
+  })),
+}));
 vi.mock("@atproto/api", () => ({
   AtpAgent: class {
     login = vi.fn(async () => {});
@@ -58,7 +62,7 @@ const { default: TodayPage } = await import("@/app/page");
 const { GET: cron } = await import("@/app/api/cron/send-daily/route");
 const { GET: storyDate } = await import("@/app/api/story/[slug]/date/route");
 const { resolveWordForDate } = await import("@/lib/words");
-const { sendDailyDigest } = await import("@/lib/email");
+const { sendDailyDigests } = await import("@/lib/email");
 const { formatDay } = await import("@/lib/day");
 const { default: HomeContent } = await import("@/components/HomeContent");
 
@@ -83,7 +87,9 @@ async function everySurfaceAt(iso: string) {
       headers: { authorization: "Bearer test-secret" },
     })
   );
-  const digests = vi.mocked(sendDailyDigest).mock.calls.map((c) => c[1].slug);
+  const digests = vi
+    .mocked(sendDailyDigests)
+    .mock.calls.flatMap(([emails, w]) => emails.map(() => w.slug));
   const blueskyText = posted[0]?.text ?? "";
 
   const res = await storyDate(new Request("http://localhost"), {
