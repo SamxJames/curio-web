@@ -178,7 +178,7 @@ nothing, posts nothing, and logs loudly instead. It signs every
 unsubscribe link and `List-Unsubscribe` header (`lib/unsubscribeToken.ts`),
 so changing its value doesn't just fail future sends — it breaks every
 unsubscribe link already sent under the old value. Don't rotate it the
-way `CRON_SECRET` gets rotated below; there's no cheap re-send to recover
+way `CRON_SECRET` is to be rotated below; there's no cheap re-send to recover
 those links.
 
 **Important:** local dev and production point at the *same* Upstash
@@ -186,7 +186,11 @@ database (there's only one Upstash instance for this whole project).
 Testing locally with real credentials writes real data — favorites,
 subscriptions, accounts — into the same store production reads from. This
 has been fine at this project's traffic level, but don't assume local
-testing is sandboxed.
+testing is sandboxed. The one deliberate exception is the daily send's run
+locks and pending set (`lib/digestRuns.ts`): they only use Redis when
+`VERCEL_ENV === "production"`, so a local `curl localhost:3000/api/cron/send-daily`
+can't claim production's day locks (which would make the real 09:00 run
+skip everyone) or overwrite its pending set.
 
 ## Deploying
 
@@ -252,12 +256,14 @@ launch, so Google never split indexing across two hosts.
 
 **Where the secret comes from.** The production `CRON_SECRET` is a
 *sensitive* Vercel variable: neither the dashboard nor `vercel env pull`
-can show it. The current value is the one set in the 2026-09-27 rotation
-(Task 9) and is kept in the owner's password manager as "Curio
-CRON_SECRET (production)". `.env.local`'s `CRON_SECRET` is a different,
-local-only value. If the stored one is ever lost, rotate it with `vercel
-env add CRON_SECRET production --sensitive --force` and redeploy; Vercel
-Cron picks up the new value automatically.
+can show it. **Pending until the deploy step (plan Task 9): nothing has
+been rotated yet.** Task 9 rotates it once, to a value the owner keeps in
+their password manager as "Curio CRON_SECRET (production)"; until then no
+such entry exists and the current production value can't be read back, so
+these commands can't be run. `.env.local`'s `CRON_SECRET` is a
+different, local-only value. The rotation (and, if the stored one is ever
+lost, any later one) is `vercel env add CRON_SECRET production --sensitive
+--force` and a redeploy; Vercel Cron picks up the new value automatically.
 
 **Loading it into a Git Bash shell without it landing in shell history:**
 
@@ -281,9 +287,19 @@ curl -sS -H "Authorization: Bearer $CURIO_CRON_SECRET" "https://curioword.com/ap
 **Reading the response:** `attempted`/`sent`/`failed` are this run's email
 counts, `bluesky` is whether this run posted, and `alreadyRan: { email,
 bluesky }` says which channels were skipped because today's lock was
-already held. `failed > 0` → run `?resend=failed`. Today's failed
-addresses are in Upstash at `curio:digest:failed:<YYYY-MM-DD>` (7-day TTL,
-inspection only; see Amendments).
+already held. `failed > 0` → run `?resend=failed`.
+
+Invocation timed out / no JSON response → the set holds exactly the
+not-yet-confirmed addresses; run `?resend=failed` (an in-flight batch at
+the moment of the kill may be re-sent — check Resend's email log for
+today first if that matters).
+
+Today's not-yet-confirmed addresses are in Upstash at
+`curio:digest:failed:<YYYY-MM-DD>` (7-day TTL, inspection only; see
+Amendments). A scheduled or forced run seeds it with every recipient
+before sending anything, and each address leaves it as soon as its chunk
+is accepted — so per-email rejections, failed chunks and anything a killed
+run never reached are all still in it.
 
 **Known limitation:** a failed Bluesky post can only be retried with
 `?force=1&bluesky=1`, which also re-emails everyone — there's no
@@ -349,7 +365,7 @@ duplicate.
   tokens (`normaliseEmail`, `unsubscribeSecret`, `signUnsubscribeToken`,
   `verifyUnsubscribeToken`, `maskEmail`). Pure `node:crypto`, no Resend
   import, so the unsubscribe route/page don't pull in the email client.
-  `unsubscribeSecret()` returns `undefined` if `UNSUBSCRIBE_SECRET` is
+  `unsubscribeSecret()` returns `null` if `UNSUBSCRIBE_SECRET` is
   unset outside dev, which is what makes the cron route's fail-closed
   check possible.
 - `lib/digestSend.ts` (new, 2026-09-27) — the sequential, rate-limit-aware
@@ -359,10 +375,12 @@ duplicate.
   emails safely" primitive `lib/email.ts` calls into.
 - `lib/digestRuns.ts` (new, 2026-09-27) — per-UTC-day run locks
   (`claimRun`, `releaseRun`) for the email and Bluesky channels, plus the
-  day's failed-recipient set (`recordFailures`, `removeFailures`,
-  `getFailures`). Redis-backed (`SET NX EX`) in production, an in-memory
-  `Set`/`Map` fallback in local dev without Upstash — a second run against
-  the same `next dev` process is still a no-op, but a restart forgets it.
+  day's pending set of not-yet-confirmed recipients (`seedPending`,
+  `removeFailures`, `getFailures`). Redis-backed (`SET NX EX`) only when
+  `VERCEL_ENV === "production"` — local dev shares production's Upstash,
+  so anywhere else it's an in-memory `Set`/`Map`, even with Upstash
+  configured. A second run against the same `next dev` process is still a
+  no-op, but a restart forgets it.
 - `components/EtymologyLineage.tsx` — the "Latin → Italian → English"
   breadcrumb, driven by `WordEntry.lineage` (an array of language names,
   see below).
@@ -689,20 +707,10 @@ reason, not just "ran out of time":
   documented 10 req/s limit close to moot at this subscriber count, but
   the owner hasn't independently confirmed the account's actual limit
   under Resend → Settings → Usage.
-- **An in-flight Resend batch call has no timeout** (2026-09-27) — the
-  240s send budget only stops new chunks or retries from *starting*; a
-  chunk already in flight when the budget is hit can still run to
-  completion, leaving roughly 60s of headroom before the route's own
-  300s `maxDuration`.
 - **An unrecognised override value falls through to a normal scheduled
   run** (2026-09-27) — e.g. `?force=true` (not `1`) is silently treated as
   no override at all, not rejected. Still requires `CRON_SECRET` for any
   override path, so this isn't an auth gap, just a quietly-ignored typo.
-- **A forced run killed mid-send leaves the morning's failure set in
-  place** (2026-09-27) — `?force=1` doesn't clear `curio:digest:failed:<day>`
-  before it starts, only `recordFailures` at the end replaces it. If the
-  process is killed before that, the day's failure set still reflects the
-  earlier run, not the forced one in progress.
 
 ## A real bug worth remembering (Lightning CSS + `outline` shorthand)
 
@@ -1162,8 +1170,11 @@ the Bluesky post each claim their own per-UTC-day Redis lock
 (`curio:digest:run:<day>` / `curio:digest:bluesky:<day>`, `SET NX EX`)
 before sending — a second run that day, including Vercel's own manual
 **Run** button, is a no-op. A partial failure does **not** release the
-lock (that would re-send to everyone who already got it); instead the
-failed addresses go into a 7-day `curio:digest:failed:<day>` Redis set.
+lock (that would re-send to everyone who already got it); instead a
+7-day `curio:digest:failed:<day>` Redis set holds everyone not yet
+confirmed sent — seeded with every recipient before a scheduled or forced
+run sends, each address removed as its chunk is accepted (see "The
+final-review fix wave" below).
 `?resend=failed` (requires `CRON_SECRET`) re-sends only to addresses
 still in that set **and** still subscribed, never posts to Bluesky, and
 removes each address from the set as its own chunk succeeds (`SREM` per
@@ -1185,10 +1196,34 @@ without failing the response — the counts still come back. The email
 result is settled and its failures recorded **before** the Bluesky result
 is awaited, even though both start concurrently — a hung or slow Bluesky
 call can no longer delay (or, via an unhandled rejection, silently drop)
-recording that day's email failures.
+recording that day's email failures. (The end-of-run `recordFailures`
+this paragraph describes was replaced by seeding in the final-review fix
+wave below.)
 
-**The dev-lock behaviour.** Without Upstash, the run locks and the
-failure set live in the dev server process's memory
+**The final-review fix wave.** A whole-branch review found four issues:
+- *A local cron run could cancel production's send.* Local dev shares
+  production's Upstash, so a local `curl` would have claimed production's
+  day locks and wiped its failure set. `lib/digestRuns.ts` now uses Redis
+  only when `VERCEL_ENV === "production"`, in memory otherwise.
+- *A hung or killed send left nothing to recover from.* The failure set
+  was only written at the end of the run. Now a scheduled or forced run
+  seeds it with every recipient (`seedPending`) right after claiming its
+  locks and before sending, and every mode removes each accepted chunk
+  (`onSent` → `removeFailures`). The set means "not yet confirmed sent",
+  so a run killed at 300s leaves exactly the unsent addresses for
+  `?resend=failed`. A seed failure releases the locks this run claimed and
+  returns 500 with nothing sent or posted. Each Resend batch request now
+  times out after 30s (`BATCH_TIMEOUT_MS` in `lib/email.ts`) as a
+  retryable error, and a 409 `concurrent_idempotent_requests` is retried
+  (both reuse the same idempotency key).
+- *A test race:* the real-store one-click unsubscribe test moved into
+  `lib/db.test.ts`, so only one test file writes `.data/subscribers.json`.
+- *An unredacted log:* the whole-send-rejected fallback now passes its
+  error through `redactAddresses()`.
+
+**The dev-lock behaviour.** Outside production (`VERCEL_ENV` not
+`"production"`), even with Upstash configured, the run locks and the
+pending set live in the dev server process's memory
 (`resetDigestRunsMemory()` for tests) — a second run against the same
 `next dev` is still a no-op, a restart forgets everything. `force` still
 needs a `CRON_SECRET` even locally, so a forced local run needs one in
@@ -1208,7 +1243,7 @@ in the brief) means those links now land on `/unsubscribed?ok=0`, which
 already tells the reader to reply to a digest instead. Accepted with two
 subscribers total (the owner and their spouse).
 
-**Test and lint counts.** 205 → 301 tests (29 files). Lint: the same 3
+**Test and lint counts.** 205 → 309 tests (28 files). Lint: the same 3
 pre-existing warnings as every prior session
 (`lib/puzzle.test.ts:3`, `scripts/approveDraft.test.ts:36,211`).
 
