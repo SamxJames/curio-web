@@ -70,4 +70,10 @@ describe("buildRobots", () => {
   it("points at the absolute sitemap URL", () => {
     expect(buildRobots().sitemap).toBe("https://curio.example/sitemap.xml");
   });
+
+  it("disallows the unsubscribe confirm page and its API route", () => {
+    const { disallow } = buildRobots().rules;
+    expect(disallow).toContain("/unsubscribe");
+    expect(disallow).toContain("/api/");
+  });
 });
