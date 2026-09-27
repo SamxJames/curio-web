@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { getAllSubscribers, getAllSubscriberRecords, removeSubscriber, upsertSubscriber } from "./db";
+import { NextRequest } from "next/server";
+import { getAllSubscribers, getAllSubscriberRecords, getSubscriberByEmail, removeSubscriber, upsertSubscriber } from "./db";
+import { POST as unsubscribePost } from "@/app/api/unsubscribe/route";
+import { signUnsubscribeToken, unsubscribeSecret } from "./unsubscribeToken";
 
 // These exercise the local-JSON-fallback path (no Upstash env vars set in
 // the test environment), the same path a zero-config `npm run dev` uses —
@@ -63,5 +66,34 @@ describe("getAllSubscriberRecords", () => {
     const records = await getAllSubscriberRecords();
 
     expect(records.map((r) => r.email)).not.toContain(testEmails[0]);
+  });
+});
+
+// Lives here rather than beside the route: it writes the real
+// `.data/subscribers.json`, and test files run in parallel workers, so
+// every real-store test shares this one (serially run) file.
+describe("POST /api/unsubscribe against the real subscriber store", () => {
+  const email = "already-removed@example.com";
+
+  afterEach(async () => {
+    await removeSubscriber(email);
+  });
+
+  it("returns 200 for a valid one-click token whose address is already gone", async () => {
+    await upsertSubscriber(email);
+    await removeSubscriber(email);
+    expect(await getSubscriberByEmail(email)).toBeNull();
+
+    const token = signUnsubscribeToken(email, unsubscribeSecret()!);
+    const res = await unsubscribePost(
+      new NextRequest(`http://localhost/api/unsubscribe?token=${encodeURIComponent(token)}`, {
+        method: "POST",
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+        body: "List-Unsubscribe=One-Click",
+      })
+    );
+
+    expect(res.status).toBe(200);
+    expect(await getSubscriberByEmail(email)).toBeNull();
   });
 });
