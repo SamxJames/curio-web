@@ -42,6 +42,19 @@ export async function claimRun(channel: Channel, day: string, opts: { force?: bo
   return (await redis.set(key, value, { nx: true, ex: RUN_TTL_SECONDS })) === "OK";
 }
 
+/** Releases a lock this run claimed but couldn't use — e.g. the route
+ * claimed email's lock, then the Bluesky claim itself threw. Without this,
+ * a Redis error after a claim would strand the day as "already ran" with
+ * nothing actually sent. */
+export async function releaseRun(channel: Channel, day: string): Promise<void> {
+  const key = runKey(channel, day);
+  if (!redis) {
+    memoryRuns.delete(key);
+    return;
+  }
+  await redis.del(key);
+}
+
 /** Replaces the day's set of addresses whose digest failed after retries.
  * Stored, never logged. */
 export async function recordFailures(day: string, emails: string[]): Promise<void> {

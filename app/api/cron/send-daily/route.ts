@@ -4,7 +4,7 @@ import { sendDailyDigests } from "@/lib/email";
 import { postDailyWordToBluesky } from "@/lib/bluesky";
 import { resolveTodayWord } from "@/lib/words";
 import { unsubscribeSecret } from "@/lib/unsubscribeToken";
-import { claimRun, getFailures, recordFailures, removeFailures } from "@/lib/digestRuns";
+import { claimRun, getFailures, recordFailures, releaseRun, removeFailures } from "@/lib/digestRuns";
 import { dayKey } from "@/lib/day";
 
 /** Vercel Hobby with Fluid compute allows up to 300s (the project default
@@ -70,13 +70,30 @@ export async function GET(req: NextRequest) {
   // Read before claiming anything: a failed read must not leave a lock
   // behind with nothing sent.
   const subscribers = await getAllSubscribers();
+  const subscriberSet = new Set(subscribers);
   const recipients = resendFailed
-    ? (await getFailures(day)).filter((email) => subscribers.includes(email))
+    ? (await getFailures(day)).filter((email) => subscriberSet.has(email))
     : subscribers;
 
   const mode = resendFailed ? "resend-failed" : force ? "force" : "scheduled";
-  const sendEmail = resendFailed || (await claimRun("email", day, { force }));
-  const postBluesky = !resendFailed && (await claimRun("bluesky", day, { force: repostBluesky }));
+  let sendEmail = false;
+  let postBluesky = false;
+  try {
+    sendEmail = resendFailed || (await claimRun("email", day, { force }));
+    postBluesky = !resendFailed && (await claimRun("bluesky", day, { force: repostBluesky }));
+  } catch (err) {
+    // A claim throwing partway through must not strand today as
+    // "already ran" with nothing sent: release whatever this run did
+    // manage to claim (best effort — logged, not thrown, if that itself
+    // fails), then let the error surface as this request's 500.
+    const claimedEmailLock = sendEmail && !resendFailed;
+    if (claimedEmailLock) {
+      await releaseRun("email", day).catch((releaseErr) =>
+        console.error(`[curio:digest] failed to release the email lock for ${day} after a claim error:`, releaseErr)
+      );
+    }
+    throw err;
+  }
   const alreadyRan = { email: !resendFailed && !sendEmail, bluesky: !resendFailed && !postBluesky };
 
   if (!sendEmail && !postBluesky) {
@@ -87,31 +104,49 @@ export async function GET(req: NextRequest) {
   // "scheduled" is stable within the day; overrides get a unique key, or
   // Resend would dedupe a deliberate re-send against the morning's run.
   const runKey = `curio-digest-${day}-${mode === "scheduled" ? "scheduled" : `${mode}-${started}`}`;
-  const [emailResult, blueskyResult] = await Promise.allSettled([
-    sendEmail
-      ? sendDailyDigests(recipients, word, now, {
-          secret: unsubscribe,
-          runKey,
-          deadline: started + SEND_BUDGET_MS,
-          // A resend forgets each address as its chunk succeeds, so a second
-          // resend (even after this one dies) can't double-send.
-          onSent: resendFailed ? (sent) => removeFailures(day, sent) : undefined,
-        })
-      : Promise.resolve({ attempted: 0, sent: 0, failed: 0, errors: [], failedRecipients: [] }),
-    postBluesky ? postDailyWordToBluesky(word, now) : Promise.resolve({ posted: false }),
-  ]);
+  // Both start concurrently, but only email carries a timing budget, so a
+  // hung Bluesky call must never delay recording today's failures: await
+  // and fully process the email result (including recordFailures) first,
+  // then await Bluesky separately.
+  const emailPromise = sendEmail
+    ? sendDailyDigests(recipients, word, now, {
+        secret: unsubscribe,
+        runKey,
+        deadline: started + SEND_BUDGET_MS,
+        // A resend forgets each address as its chunk succeeds, so a second
+        // resend (even after this one dies) can't double-send.
+        onSent: resendFailed ? (sent) => removeFailures(day, sent) : undefined,
+      })
+    : Promise.resolve({ attempted: 0, sent: 0, failed: 0, errors: [], failedRecipients: [] });
+  const blueskyPromise = postBluesky ? postDailyWordToBluesky(word, now) : Promise.resolve({ posted: false });
+  // Settled immediately (not just awaited later): otherwise a Bluesky
+  // rejection while the email result is still being processed above would
+  // surface as an unhandled rejection instead of being caught here.
+  const blueskySettled = blueskyPromise.then(
+    (result) => result.posted,
+    () => false
+  );
 
-  const email =
-    emailResult.status === "fulfilled"
-      ? emailResult.value
-      : { attempted: recipients.length, sent: 0, failed: recipients.length, errors: [String(emailResult.reason)], failedRecipients: recipients };
+  const email = await emailPromise.catch((err) => ({
+    attempted: recipients.length,
+    sent: 0,
+    failed: recipients.length,
+    errors: [String(err)],
+    failedRecipients: recipients,
+  }));
   // Scheduled and forced runs replace the set with their own failures. A
   // resend only ever removes from it (above): its failures are already in it.
-  if (sendEmail && !resendFailed) await recordFailures(day, email.failedRecipients);
+  if (sendEmail && !resendFailed) {
+    try {
+      await recordFailures(day, email.failedRecipients);
+    } catch (err) {
+      console.error(`[curio:digest] failed to record ${email.failedRecipients.length} ${mode} ${day} failure(s):`, err);
+    }
+  }
   if (email.failed > 0) {
     console.error(`[curio:digest] ${mode} ${day}: ${email.failed} of ${email.attempted} digests failed:`, email.errors);
   }
-  const bluesky = blueskyResult.status === "fulfilled" ? blueskyResult.value.posted : false;
+  const bluesky = await blueskySettled;
   console.log(
     `[curio:digest] ${mode} ${day}: sent ${email.sent} of ${email.attempted}; bluesky ${postBluesky ? (bluesky ? "posted" : "failed") : "skipped"}`
   );

@@ -40,7 +40,7 @@ vi.mock("./redis", () => ({
   usingUpstash: true,
 }));
 
-const { claimRun, getFailures, recordFailures, removeFailures, resetDigestRunsMemory } = await import("./digestRuns");
+const { claimRun, getFailures, recordFailures, releaseRun, removeFailures, resetDigestRunsMemory } = await import("./digestRuns");
 
 const THREE_DAYS = 3 * 24 * 60 * 60;
 const SEVEN_DAYS = 7 * 24 * 60 * 60;
@@ -71,6 +71,12 @@ describe.each([
     await claimRun("email", "2026-09-27");
     expect(await claimRun("email", "2026-09-27", { force: true })).toBe(true);
     expect(await claimRun("email", "2026-09-27")).toBe(false);
+  });
+
+  it("releases a claimed lock so a fresh claim succeeds again", async () => {
+    await claimRun("email", "2026-09-27");
+    await releaseRun("email", "2026-09-27");
+    expect(await claimRun("email", "2026-09-27")).toBe(true);
   });
 
   it("records a day's failures, replacing the previous set, and clears it when empty", async () => {

@@ -1,9 +1,11 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
+import { dayKey } from "@/lib/day";
 
-const { fake } = vi.hoisted(() => {
+const { fake, sharedWord } = vi.hoisted(() => {
   const store = new Map<string, unknown>();
   return {
+    sharedWord: { slug: "custard", word: "custard" },
     fake: {
       store,
       set: vi.fn(async (k: string, v: string, o?: { nx?: boolean; ex?: number }) => {
@@ -31,7 +33,7 @@ const { fake } = vi.hoisted(() => {
 });
 
 vi.mock("@/lib/redis", () => ({ redis: fake, usingUpstash: true }));
-vi.mock("@/lib/words", () => ({ resolveTodayWord: vi.fn(async () => ({ slug: "custard", word: "custard" })) }));
+vi.mock("@/lib/words", () => ({ resolveTodayWord: vi.fn(async () => sharedWord) }));
 vi.mock("@/lib/db", () => ({
   getAllSubscribers: vi.fn(async () => ["anon@example.com", "account-holder@example.com"]),
 }));
@@ -49,6 +51,8 @@ const { GET, maxDuration } = await import("./route");
 const { getAllSubscribers } = await import("@/lib/db");
 const { sendDailyDigests } = await import("@/lib/email");
 const { postDailyWordToBluesky } = await import("@/lib/bluesky");
+const { resolveTodayWord } = await import("@/lib/words");
+const { claimRun, getFailures } = await import("@/lib/digestRuns");
 
 function cronRequest() {
   return new NextRequest("http://localhost/api/cron/send-daily", {
@@ -91,12 +95,21 @@ describe("GET /api/cron/send-daily", () => {
     const body = await (await GET(cronRequest())).json();
 
     expect(sendDailyDigests).toHaveBeenCalledTimes(1);
-    const [recipients] = vi.mocked(sendDailyDigests).mock.calls[0];
+    const [recipients, digestWord] = vi.mocked(sendDailyDigests).mock.calls[0];
     expect(recipients).toEqual(["anon@example.com", "account-holder@example.com"]);
+    expect(digestWord).toBe(sharedWord);
+    expect(vi.mocked(postDailyWordToBluesky).mock.calls[0][0]).toBe(sharedWord);
     expect(body).toEqual({
       word: "custard", attempted: 2, sent: 2, failed: 0, bluesky: true,
       alreadyRan: { email: false, bluesky: false },
     });
+  });
+
+  it("resolves the word and dates every send from one instant", async () => {
+    await GET(cronRequest());
+    const now = vi.mocked(resolveTodayWord).mock.calls[0][0];
+    expect(vi.mocked(sendDailyDigests).mock.calls[0][2]).toBe(now);
+    expect(vi.mocked(postDailyWordToBluesky).mock.calls[0][1]).toBe(now);
   });
 
   it("rejects a request without the cron secret", async () => {
@@ -267,5 +280,64 @@ describe("GET /api/cron/send-daily", () => {
     } finally {
       vi.unstubAllEnvs();
     }
+  });
+
+  it("a claim failure releases any lock already claimed, so a following run sends normally", async () => {
+    const defaultSet = fake.set.getMockImplementation()!;
+    fake.set.mockImplementationOnce(defaultSet); // email claim: succeeds as normal
+    fake.set.mockImplementationOnce(async () => {
+      throw new Error("redis unavailable"); // bluesky claim: the Redis call itself throws
+    });
+
+    await expect(GET(cronRequest())).rejects.toThrow("redis unavailable");
+    expect(sendDailyDigests).not.toHaveBeenCalled();
+    expect(postDailyWordToBluesky).not.toHaveBeenCalled();
+
+    // The email lock this run did claim must have been released, or this
+    // plain re-run would see it as already-ran and send nothing.
+    const body = await (await GET(cronRequest())).json();
+    expect(sendDailyDigests).toHaveBeenCalledTimes(1);
+    expect(body).toMatchObject({ attempted: 2, sent: 2, alreadyRan: { email: false, bluesky: false } });
+  });
+
+  it("a recordFailures failure still returns the counts, logging an error without addresses", async () => {
+    vi.mocked(sendDailyDigests).mockResolvedValueOnce({
+      attempted: 2, sent: 1, failed: 1,
+      errors: ["rate_limit_exceeded: x"],
+      failedRecipients: ["account-holder@example.com"],
+    });
+    fake.del.mockImplementationOnce(async () => {
+      throw new Error("redis unavailable");
+    });
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const body = await (await GET(cronRequest())).json();
+    const logged = error.mock.calls.flat().map(String).join(" ");
+    error.mockRestore();
+
+    expect(body).toMatchObject({ attempted: 2, sent: 1, failed: 1 });
+    expect(logged).not.toContain("@example.com");
+  });
+
+  it("a scheduled run's failures replace the day's previously recorded set", async () => {
+    await failBothThisMorning(); // records both addresses as failed
+    vi.mocked(sendDailyDigests).mockResolvedValueOnce({
+      attempted: 2, sent: 1, failed: 1, errors: ["rate_limit_exceeded: y"],
+      failedRecipients: ["anon@example.com"],
+    });
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    await GET(cronRequestTo("?force=1"));
+    error.mockRestore();
+
+    expect(await getFailures(dayKey(new Date()))).toEqual(["anon@example.com"]);
+  });
+
+  it("when only the email lock is already held, a plain run still posts to Bluesky", async () => {
+    await claimRun("email", dayKey(new Date()));
+
+    const body = await (await GET(cronRequest())).json();
+
+    expect(sendDailyDigests).not.toHaveBeenCalled();
+    expect(postDailyWordToBluesky).toHaveBeenCalledTimes(1);
+    expect(body).toMatchObject({ bluesky: true, alreadyRan: { email: true, bluesky: false } });
   });
 });
