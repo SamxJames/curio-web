@@ -3,7 +3,7 @@ import type { WordEntry } from "./words";
 import { dayKey, formatDay } from "./day";
 import { absoluteUrl, siteUrl } from "./siteUrl";
 import { signUnsubscribeToken } from "./unsubscribeToken";
-import { sendInBatches, type SendOutcome } from "./digestSend";
+import { sendInBatches, type BatchResult, type SendOutcome } from "./digestSend";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
@@ -173,8 +173,32 @@ export async function sendDailyDigests(
     onSent: opts.onSent,
     // Permissive: one malformed address shouldn't sink the other 99 in its chunk.
     sendBatch: (chunk, idempotencyKey) =>
-      client.batch.send(chunk, { batchValidation: "permissive", idempotencyKey }),
+      withBatchTimeout(client.batch.send(chunk, { batchValidation: "permissive", idempotencyKey })),
   });
+}
+
+/** Per batch request. The sender only checks its 240s budget between
+ * attempts, so without a cap one hung request could run into the 300s
+ * kill; with it, an attempt started just before 240s still settles by
+ * ~270s, leaving time to respond. */
+export const BATCH_TIMEOUT_MS = 30_000;
+
+/** A timeout comes back as a retryable application_error, like a network
+ * failure. Retrying is safe: it reuses the same idempotency key. */
+function withBatchTimeout(request: Promise<BatchResult>): Promise<BatchResult> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<BatchResult>((resolve) => {
+    timer = setTimeout(
+      () =>
+        resolve({
+          data: null,
+          error: { name: "application_error", statusCode: null, message: "Resend batch request timed out" },
+          headers: null,
+        }),
+      BATCH_TIMEOUT_MS
+    );
+  });
+  return Promise.race([request, timeout]).finally(() => clearTimeout(timer));
 }
 
 /** Sends the Auth.js magic-link sign-in email, replacing the library's stock

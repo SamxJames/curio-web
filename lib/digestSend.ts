@@ -21,7 +21,8 @@ export type SendOutcome = {
   sent: number;
   failed: number;
   errors: string[];
-  /** For lib/digestRuns.ts's failed set only. Never log this. */
+  /** Who wasn't accepted. Never log this. (The cron's pending set is kept
+   * through `onSent` instead, so it survives a run killed partway.) */
   failedRecipients: string[];
 };
 
@@ -38,7 +39,15 @@ export function redactAddresses(message: string): string {
 
 // Quota errors come back as 429 too, but no amount of waiting fixes them.
 const NEVER_RETRY = new Set(["daily_quota_exceeded", "monthly_quota_exceeded"]);
-const ALWAYS_RETRY = new Set(["rate_limit_exceeded", "application_error", "internal_server_error"]);
+// concurrent_idempotent_requests is the 409 a retry gets while Resend is
+// still processing the original request under the same key; its docs say
+// to retry it.
+const ALWAYS_RETRY = new Set([
+  "rate_limit_exceeded",
+  "application_error",
+  "internal_server_error",
+  "concurrent_idempotent_requests",
+]);
 
 function isRetryable(error: BatchError): boolean {
   if (NEVER_RETRY.has(error.name)) return false;
@@ -79,8 +88,8 @@ export async function sendInBatches<T extends { to: string }>(
     now?: () => number;
     /** Epoch ms. No retry wait or new chunk may start past it. */
     deadline?: number;
-    /** Awaited after each accepted chunk with its accepted recipients, so a
-     * resend can forget them before the next chunk: a run that dies partway
+    /** Awaited after each accepted chunk with its accepted recipients, so the
+     * cron can forget them before the next chunk: a run that dies partway
      * leaves only the not-yet-sent addresses behind. */
     onSent?: (recipients: string[]) => Promise<void>;
   }

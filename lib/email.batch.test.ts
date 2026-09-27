@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { WordEntry } from "./words";
 
 const { batchSend } = vi.hoisted(() => ({
@@ -22,7 +22,7 @@ vi.mock("resend", () => ({
 vi.stubEnv("RESEND_API_KEY", "re_test_key");
 vi.stubEnv("CURIO_SITE_URL", "https://curio.example");
 
-const { sendDailyDigests } = await import("./email");
+const { BATCH_TIMEOUT_MS, sendDailyDigests } = await import("./email");
 const { verifyUnsubscribeToken } = await import("./unsubscribeToken");
 
 const word = {
@@ -71,5 +71,43 @@ describe("sendDailyDigests (Resend configured)", () => {
       { batchValidation: "permissive", idempotencyKey: "curio-digest-2026-09-27-scheduled-1" },
     ]);
     expect(out).toMatchObject({ attempted: 101, sent: 101, failed: 0 });
+  });
+});
+
+describe("sendDailyDigests: a hung batch request", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("times out as a retryable error and retries under the same idempotency key, leaving no timer behind", async () => {
+    vi.useFakeTimers();
+    batchSend.mockImplementationOnce(() => new Promise<never>(() => {})); // never settles
+    const run = sendDailyDigests(["r0@example.com"], word, new Date("2026-09-27T09:00:00Z"), {
+      secret: "s3cret",
+      runKey: "curio-digest-2026-09-27-scheduled",
+    });
+
+    await vi.advanceTimersByTimeAsync(BATCH_TIMEOUT_MS - 1);
+    expect(batchSend).toHaveBeenCalledTimes(1); // still waiting
+    await vi.advanceTimersByTimeAsync(1); // times out…
+    await vi.advanceTimersByTimeAsync(1_000); // …then the first 1s backoff
+    const out = await run;
+
+    expect(BATCH_TIMEOUT_MS).toBe(30_000);
+    expect(batchSend.mock.calls.map(([, o]) => o)).toEqual([
+      { batchValidation: "permissive", idempotencyKey: "curio-digest-2026-09-27-scheduled-0" },
+      { batchValidation: "permissive", idempotencyKey: "curio-digest-2026-09-27-scheduled-0" },
+    ]);
+    expect(out).toMatchObject({ attempted: 1, sent: 1, failed: 0 });
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("clears the timeout when the request settles normally", async () => {
+    vi.useFakeTimers();
+    await sendDailyDigests(["r0@example.com"], word, new Date("2026-09-27T09:00:00Z"), {
+      secret: "s3cret",
+      runKey: "curio-digest-2026-09-27-scheduled",
+    });
+    expect(vi.getTimerCount()).toBe(0);
   });
 });

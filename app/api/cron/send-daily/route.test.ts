@@ -52,7 +52,7 @@ const { getAllSubscribers } = await import("@/lib/db");
 const { sendDailyDigests } = await import("@/lib/email");
 const { postDailyWordToBluesky } = await import("@/lib/bluesky");
 const { resolveTodayWord } = await import("@/lib/words");
-const { claimRun, getFailures } = await import("@/lib/digestRuns");
+const { claimRun, getFailures, seedPending } = await import("@/lib/digestRuns");
 
 function cronRequest() {
   return new NextRequest("http://localhost/api/cron/send-daily", {
@@ -66,6 +66,7 @@ function cronRequestTo(query: string, auth = "Bearer test-secret") {
   });
 }
 
+// No chunk accepted, so onSent never fires and both stay in the seeded set.
 async function failBothThisMorning() {
   vi.mocked(sendDailyDigests).mockResolvedValueOnce({
     attempted: 2, sent: 0, failed: 2, errors: ["rate_limit_exceeded: x"],
@@ -82,12 +83,15 @@ beforeEach(() => {
   vi.clearAllMocks();
   fake.store.clear();
   process.env.CRON_SECRET = "test-secret";
+  // lib/digestRuns.ts only uses Redis (here, the fake) in production.
+  vi.stubEnv("VERCEL_ENV", "production");
   // The route logs its own success-path summary; keep test output pristine.
   log = vi.spyOn(console, "log").mockImplementation(() => {});
 });
 
 afterEach(() => {
   log.mockRestore();
+  vi.unstubAllEnvs();
 });
 
 describe("GET /api/cron/send-daily", () => {
@@ -300,34 +304,66 @@ describe("GET /api/cron/send-daily", () => {
     expect(body).toMatchObject({ attempted: 2, sent: 2, alreadyRan: { email: false, bluesky: false } });
   });
 
-  it("a recordFailures failure still returns the counts, logging an error without addresses", async () => {
-    vi.mocked(sendDailyDigests).mockResolvedValueOnce({
-      attempted: 2, sent: 1, failed: 1,
-      errors: ["rate_limit_exceeded: x"],
-      failedRecipients: ["account-holder@example.com"],
+  it("a scheduled run seeds every recipient as pending before sending, and a clean send empties the set", async () => {
+    let pendingAtSend: string[] = [];
+    vi.mocked(sendDailyDigests).mockImplementationOnce(async (emails, _w, _d, opts) => {
+      pendingAtSend = await getFailures(dayKey(new Date()));
+      await opts.onSent?.(emails);
+      return { attempted: emails.length, sent: emails.length, failed: 0, errors: [], failedRecipients: [] };
     });
-    fake.del.mockImplementationOnce(async () => {
-      throw new Error("redis unavailable");
+
+    await GET(cronRequest());
+
+    expect(pendingAtSend.sort()).toEqual(["account-holder@example.com", "anon@example.com"]);
+    expect(await getFailures(dayKey(new Date()))).toEqual([]);
+  });
+
+  it("a scheduled run killed after one chunk leaves exactly the unsent addresses, and logs no address", async () => {
+    vi.mocked(sendDailyDigests).mockImplementationOnce(async (emails, _w, _d, opts) => {
+      await opts.onSent?.([emails[0]]); // first chunk went out…
+      throw new Error(`function killed while sending to ${emails[1]}`); // …then the run died
     });
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     const body = await (await GET(cronRequest())).json();
     const logged = error.mock.calls.flat().map(String).join(" ");
     error.mockRestore();
 
-    expect(body).toMatchObject({ attempted: 2, sent: 1, failed: 1 });
+    const [recipients] = vi.mocked(sendDailyDigests).mock.calls[0];
+    expect(await getFailures(dayKey(new Date()))).toEqual([recipients[1]]);
+    expect(body).toMatchObject({ attempted: 2, sent: 0, failed: 2 });
+    expect(logged).toContain("function killed");
     expect(logged).not.toContain("@example.com");
   });
 
-  it("a scheduled run's failures replace the day's previously recorded set", async () => {
-    await failBothThisMorning(); // records both addresses as failed
-    vi.mocked(sendDailyDigests).mockResolvedValueOnce({
-      attempted: 2, sent: 1, failed: 1, errors: ["rate_limit_exceeded: y"],
-      failedRecipients: ["anon@example.com"],
+  it("a seed failure releases both locks and sends nothing, so a following run sends normally", async () => {
+    fake.del.mockImplementationOnce(async () => {
+      throw new Error("redis unavailable"); // seedPending's DEL, after both claims succeeded
+    });
+
+    await expect(GET(cronRequest())).rejects.toThrow("redis unavailable");
+    expect(sendDailyDigests).not.toHaveBeenCalled();
+    expect(postDailyWordToBluesky).not.toHaveBeenCalled();
+
+    const body = await (await GET(cronRequest())).json();
+    expect(sendDailyDigests).toHaveBeenCalledTimes(1);
+    expect(postDailyWordToBluesky).toHaveBeenCalledTimes(1);
+    expect(body).toMatchObject({ attempted: 2, sent: 2, bluesky: true, alreadyRan: { email: false, bluesky: false } });
+  });
+
+  it("a forced run re-seeds, replacing the day's previous set", async () => {
+    await seedPending(dayKey(new Date()), ["since-unsubscribed@example.com"]);
+    vi.mocked(sendDailyDigests).mockImplementationOnce(async (_emails, _w, _d, opts) => {
+      await opts.onSent?.(["account-holder@example.com"]);
+      return {
+        attempted: 2, sent: 1, failed: 1, errors: ["rate_limit_exceeded: y"],
+        failedRecipients: ["anon@example.com"],
+      };
     });
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     await GET(cronRequestTo("?force=1"));
     error.mockRestore();
 
+    expect(vi.mocked(sendDailyDigests).mock.calls[0][3].onSent).toBeDefined();
     expect(await getFailures(dayKey(new Date()))).toEqual(["anon@example.com"]);
   });
 

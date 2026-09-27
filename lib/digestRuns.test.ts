@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { fake } = vi.hoisted(() => {
   const store = new Map<string, unknown>();
@@ -40,7 +40,7 @@ vi.mock("./redis", () => ({
   usingUpstash: true,
 }));
 
-const { claimRun, getFailures, recordFailures, releaseRun, removeFailures, resetDigestRunsMemory } = await import("./digestRuns");
+const { claimRun, getFailures, releaseRun, removeFailures, resetDigestRunsMemory, seedPending } = await import("./digestRuns");
 
 const THREE_DAYS = 3 * 24 * 60 * 60;
 const SEVEN_DAYS = 7 * 24 * 60 * 60;
@@ -54,6 +54,12 @@ describe.each([
     fake.store.clear();
     fake.ttls.clear();
     resetDigestRunsMemory();
+    // Redis is only used in production (see lib/digestRuns.ts).
+    vi.stubEnv("VERCEL_ENV", "production");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it("claims a day once; a second claim that day is refused", async () => {
@@ -79,18 +85,18 @@ describe.each([
     expect(await claimRun("email", "2026-09-27")).toBe(true);
   });
 
-  it("records a day's failures, replacing the previous set, and clears it when empty", async () => {
-    await recordFailures("2026-09-27", ["a@example.com", "b@example.com"]);
+  it("seeds a day's pending set, replacing the previous one, and clears it when empty", async () => {
+    await seedPending("2026-09-27", ["a@example.com", "b@example.com"]);
     expect((await getFailures("2026-09-27")).sort()).toEqual(["a@example.com", "b@example.com"]);
-    await recordFailures("2026-09-27", ["b@example.com"]);
+    await seedPending("2026-09-27", ["b@example.com"]);
     expect(await getFailures("2026-09-27")).toEqual(["b@example.com"]);
-    await recordFailures("2026-09-27", []);
+    await seedPending("2026-09-27", []);
     expect(await getFailures("2026-09-27")).toEqual([]);
     expect(await getFailures("2026-09-28")).toEqual([]);
   });
 
-  it("removes addresses one chunk at a time as a resend succeeds, so a second resend skips them", async () => {
-    await recordFailures("2026-09-27", ["a@example.com", "b@example.com", "c@example.com"]);
+  it("removes addresses one chunk at a time as they're sent, so a resend skips them", async () => {
+    await seedPending("2026-09-27", ["a@example.com", "b@example.com", "c@example.com"]);
     await removeFailures("2026-09-27", ["a@example.com"]);
     await removeFailures("2026-09-27", ["c@example.com", "not-there@example.com"]);
     expect(await getFailures("2026-09-27")).toEqual(["b@example.com"]);
@@ -104,14 +110,54 @@ describe("digest runs, Upstash keys", () => {
     fake.enabled = true;
     fake.store.clear();
     fake.ttls.clear();
+    vi.stubEnv("VERCEL_ENV", "production");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it("uses SET NX with a 3-day TTL for locks and a 7-day TTL for failures, under curio:digest:", async () => {
     await claimRun("email", "2026-09-27");
     await claimRun("bluesky", "2026-09-27");
-    await recordFailures("2026-09-27", ["a@example.com"]);
+    await seedPending("2026-09-27", ["a@example.com"]);
     expect(fake.set).toHaveBeenCalledWith("curio:digest:run:2026-09-27", expect.any(String), { nx: true, ex: THREE_DAYS });
     expect(fake.ttls.get("curio:digest:bluesky:2026-09-27")).toBe(THREE_DAYS);
     expect(fake.ttls.get("curio:digest:failed:2026-09-27")).toBe(SEVEN_DAYS);
+  });
+});
+
+// Local dev shares production's Upstash: a local cron run must never claim
+// production's locks or touch its pending set.
+describe.each([
+  ["unset", undefined],
+  ["preview", "preview"],
+  ["development", "development"],
+])("digest runs, Upstash configured but VERCEL_ENV %s", (_label, vercelEnv) => {
+  beforeEach(() => {
+    fake.enabled = true;
+    fake.store.clear();
+    resetDigestRunsMemory();
+    vi.clearAllMocks();
+    vi.stubEnv("VERCEL_ENV", vercelEnv);
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("keeps locks and the pending set in memory, never touching Redis", async () => {
+    expect(await claimRun("email", "2026-09-27")).toBe(true);
+    expect(await claimRun("email", "2026-09-27")).toBe(false);
+    expect(await claimRun("bluesky", "2026-09-27", { force: true })).toBe(true);
+    await releaseRun("bluesky", "2026-09-27");
+    await seedPending("2026-09-27", ["a@example.com", "b@example.com"]);
+    await removeFailures("2026-09-27", ["a@example.com"]);
+    expect(await getFailures("2026-09-27")).toEqual(["b@example.com"]);
+
+    for (const fn of [fake.set, fake.del, fake.sadd, fake.srem, fake.smembers, fake.expire]) {
+      expect(fn).not.toHaveBeenCalled();
+    }
+    expect(fake.store.size).toBe(0);
   });
 });

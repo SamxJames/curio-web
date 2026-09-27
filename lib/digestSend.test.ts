@@ -124,6 +124,16 @@ describe("sendInBatches: retries", () => {
     expect(out.failed).toBe(2);
   });
 
+  it("retries a 409 concurrent_idempotent_requests (Resend still processing the same key)", async () => {
+    const sendBatch = vi
+      .fn<SendBatch<Msg>>()
+      .mockResolvedValueOnce(fail("concurrent_idempotent_requests", 409))
+      .mockImplementation(async (c) => ok(c));
+    const out = await sendInBatches(messages(1), { sendBatch, keyPrefix: "run", sleep: noSleep() });
+    expect(sendBatch.mock.calls.map(([, key]) => key)).toEqual(["run-0", "run-0"]);
+    expect(out.sent).toBe(1);
+  });
+
   it("treats a thrown error like a network failure and retries it", async () => {
     const sendBatch = vi
       .fn<SendBatch<Msg>>()

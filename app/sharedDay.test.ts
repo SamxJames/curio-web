@@ -130,6 +130,9 @@ beforeEach(() => {
   process.env.CRON_SECRET = "test-secret";
   process.env.BLUESKY_IDENTIFIER = "curio.test";
   process.env.BLUESKY_APP_PASSWORD = "test-app-password";
+  // The cron's day locks only use Redis (here, the fake, cleared above) in
+  // production; elsewhere they'd persist in memory across these tests.
+  vi.stubEnv("VERCEL_ENV", "production");
   // The cron route logs its own success-path summary; keep test output pristine.
   log = vi.spyOn(console, "log").mockImplementation(() => {});
 });
@@ -137,6 +140,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.useRealTimers();
   log.mockRestore();
+  vi.unstubAllEnvs();
 });
 
 describe("one shared word, every surface", () => {
