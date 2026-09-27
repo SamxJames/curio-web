@@ -19,10 +19,14 @@ the reasoning behind the pivot; this README covers what's actually built here.
   inline email + delivery-hour signup, skippable. Replaces the app's
   notification-permission step.
 - **Email digest** — `/api/subscribe` captures `{email, hour}`.
-  `/api/cron/send-daily` (wired to run hourly via `vercel.json`) sends
-  each hour's subscribers that day's word, with the Origin section inline
-  and a link back to the full story. `/api/unsubscribe` handles the
-  unsubscribe link every email includes.
+  `/api/cron/send-daily` runs once a day at 09:00 UTC (`vercel.json`; the
+  Hobby plan allows one run a day) and sends every subscriber the day's
+  shared word through Resend's batch endpoint. It's idempotent per UTC day
+  (`?resend=failed`, `?force=1` and `?force=1&bluesky=1`, all with
+  `CRON_SECRET`, for deliberate re-sends; see `handover.md`). Every digest
+  carries a signed unsubscribe link plus `List-Unsubscribe` / one-click
+  headers; opening the link shows a confirm page, and only its button (or a
+  mail app's one-click) unsubscribes.
 - **Light/dark mode** — follows system preference by default; the header
   toggle cycles System → Light → Dark, stored in `localStorage`.
 - **Attribution** (`/attribution`) — the CC BY-SA notice for Wiktionary /
@@ -70,13 +74,14 @@ curl http://localhost:3000/api/cron/send-daily
 ## Deploying
 
 The natural fit is Vercel (matches Next.js, and `vercel.json` already
-configures the hourly cron):
+configures the daily cron):
 
 1. Push this to a git repo, import it into Vercel.
 2. Set the environment variables from `.env.example` in the Vercel project
    settings — at minimum `RESEND_API_KEY`, `CURIO_FROM_EMAIL`,
    `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `CURIO_SITE_URL`
-   (your production domain), and `CRON_SECRET`.
+   (your production domain), `CRON_SECRET`, and `UNSUBSCRIBE_SECRET`
+   (required: without it the daily send refuses to run).
 3. Vercel Cron picks up `vercel.json` automatically on deploy — no extra
    configuration needed.
 4. Create a free Upstash Redis database and a Resend account/domain to get
@@ -88,6 +93,4 @@ configures the hourly cron):
   (currently only 8 placeholder entries).
 - Wire up real Upstash + Resend credentials and send a real test digest.
 - Decide on a production domain for `CURIO_SITE_URL` and sender address.
-- The unsubscribe link uses a base64 token (not signed/HMAC'd) — fine for
-  a v1, worth hardening before wider traffic.
 - No automated tests yet.

@@ -1,6 +1,9 @@
 # Curio — Handover
 
-Last updated: 2026-09-26, after the move to `curioword.com`, the switch to one shared daily word for everyone, and a front door on story pages. See "Decisions" and the two "This session (2026-09-26…)" sections below; Phase 3 of the pre-launch brief (Bluesky posts) is next. This doc exists so
+Last updated: 2026-09-27, after hardening the daily email digest (Resend
+batch sending, per-day run locks, and signed one-click unsubscribe) ahead
+of the family-and-friends launch. See "This session (2026-09-27)" below;
+Phase 3 of the pre-launch brief (Bluesky posts) is still next. This doc exists so
 a fresh Claude Code session (or a human) can pick up without re-deriving
 all of the above from git log.
 
@@ -136,6 +139,7 @@ UPSTASH_REDIS_REST_URL
 UPSTASH_REDIS_REST_TOKEN
 CURIO_SITE_URL            # http://localhost:3000 locally
 CRON_SECRET
+UNSUBSCRIBE_SECRET        # node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 AUTH_SECRET               # node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 BLUESKY_IDENTIFIER        # curiodaily.bsky.social — public handle, not a secret
 BLUESKY_APP_PASSWORD      # generated in Bluesky's own Settings -> App Passwords, never the account login password
@@ -166,6 +170,16 @@ added this session, since an unauthenticated hit on that route now sends a
 real digest to every subscriber *and* posts to the real Bluesky account,
 not just a read. Confirm it's actually set in Vercel before relying on
 that route being safe.
+
+`UNSUBSCRIBE_SECRET` (added 2026-09-27) fails closed the same way, but
+unconditionally in production, not just on a missing check: the digest
+route reads it before claiming any lock, and if it's unset it sends
+nothing, posts nothing, and logs loudly instead. It signs every
+unsubscribe link and `List-Unsubscribe` header (`lib/unsubscribeToken.ts`),
+so changing its value doesn't just fail future sends — it breaks every
+unsubscribe link already sent under the old value. Don't rotate it the
+way `CRON_SECRET` gets rotated below; there's no cheap re-send to recover
+those links.
 
 **Important:** local dev and production point at the *same* Upstash
 database (there's only one Upstash instance for this whole project).
@@ -227,9 +241,58 @@ launch, so Google never split indexing across two hosts.
   `curioword.com`; magic link and a manually-triggered digest delivered
   from `hello@curioword.com`; the Bluesky post links to `curioword.com`.
 - **Gotcha:** `.env.local`'s `CRON_SECRET` does **not** match
-  Production's, so a local `curl` to the prod cron 401s. To trigger a real
-  digest by hand, use Vercel → Settings → Cron Jobs → Run (it posts to
-  Bluesky too — the 2026-09-26 test run made a second post that day).
+  Production's, so a local `curl` to the prod cron 401s. As of 2026-09-27
+  the daily send is idempotent per UTC day, so Vercel → Settings → Cron
+  Jobs → **Run** is now a no-op on a day that has already run (it can't
+  add query parameters, so it can't trigger `?force=1` or
+  `?resend=failed` either) — see "Re-sending the digest by hand
+  (production)" below for how to actually trigger a deliberate re-send.
+
+### Re-sending the digest by hand (production)
+
+**Where the secret comes from.** The production `CRON_SECRET` is a
+*sensitive* Vercel variable: neither the dashboard nor `vercel env pull`
+can show it. The current value is the one set in the 2026-09-27 rotation
+(Task 9) and is kept in the owner's password manager as "Curio
+CRON_SECRET (production)". `.env.local`'s `CRON_SECRET` is a different,
+local-only value. If the stored one is ever lost, rotate it with `vercel
+env add CRON_SECRET production --sensitive --force` and redeploy; Vercel
+Cron picks up the new value automatically.
+
+**Loading it into a Git Bash shell without it landing in shell history:**
+
+```bash
+read -rs CURIO_CRON_SECRET && export CURIO_CRON_SECRET   # paste, then Enter
+```
+
+**Commands** (same UTC day as the send; each prints the JSON response):
+
+```bash
+# Only today's failed recipients who are still subscribed. Never posts to Bluesky. Safe to repeat.
+curl -sS -H "Authorization: Bearer $CURIO_CRON_SECRET" "https://curioword.com/api/cron/send-daily?resend=failed"
+
+# Every subscriber again. Bluesky posts only if it hasn't already today.
+curl -sS -H "Authorization: Bearer $CURIO_CRON_SECRET" "https://curioword.com/api/cron/send-daily?force=1"
+
+# Every subscriber again AND a second Bluesky post.
+curl -sS -H "Authorization: Bearer $CURIO_CRON_SECRET" "https://curioword.com/api/cron/send-daily?force=1&bluesky=1"
+```
+
+**Reading the response:** `attempted`/`sent`/`failed` are this run's email
+counts, `bluesky` is whether this run posted, and `alreadyRan: { email,
+bluesky }` says which channels were skipped because today's lock was
+already held. `failed > 0` → run `?resend=failed`. Today's failed
+addresses are in Upstash at `curio:digest:failed:<YYYY-MM-DD>` (7-day TTL,
+inspection only; see Amendments).
+
+**Known limitation:** a failed Bluesky post can only be retried with
+`?force=1&bluesky=1`, which also re-emails everyone — there's no
+Bluesky-only re-send. On a Bluesky-outage day, the actual choice is
+between skipping the post entirely and re-emailing every subscriber to
+get it retried. Keeping the lock after an ambiguous Bluesky failure (a
+throw, a network error, an unclear response) is the deliberately safe
+default: it's easy to retry a missed post by hand later, hard to un-send a
+duplicate.
 
 ## Architecture map
 
@@ -262,9 +325,10 @@ launch, so Google never split indexing across two hosts.
 - `lib/userData.ts` — per-account server data: join date (where the
   account's History starts) and favorites (Redis Set), all keyed
   `curio:user:<id>:...`. Never collides with `lib/db.ts`'s
-  `curio:subscriber:`/`curio:hour:` keys or the Auth.js adapter's
-  `curio:auth:` keys — if you add new Redis keys, keep using one of these
-  three prefixes, not a bare new one.
+  `curio:subscriber:`/`curio:hour:` keys, the Auth.js adapter's
+  `curio:auth:` keys, `curio:wordoftheday:` (the word-locking layer), or
+  `curio:digest:` (the daily-send locks and failure set, below) — if you
+  add new Redis keys, keep using one of these prefixes, not a bare new one.
 - `lib/storage.ts` — client-side localStorage (favorites, theme,
   onboarded flag). Favorites here are the *fast local cache* for every
   visitor, signed in or not; `toggleFavorite` fires a best-effort
@@ -275,7 +339,30 @@ launch, so Google never split indexing across two hosts.
 - `lib/email.ts` — all outbound email (daily digest + the sign-in magic
   link) goes through here, sharing one branded HTML template shell
   (`buildShell`). If you touch the sign-in email, this is the file, not
-  Auth.js's provider config.
+  Auth.js's provider config. As of 2026-09-27 it builds the unsubscribe URL
+  via `absoluteUrl()`/`siteUrl()` from `lib/siteUrl.ts` instead of spelling
+  out its own `CURIO_SITE_URL ?? localhost` fallback — the last deferred
+  item from 2026-09-20's siteUrl cleanup, closed because this session
+  rewrote the unsubscribe URL anyway. `sendDailyDigests` now sends through
+  `lib/digestSend.ts`'s batch sender rather than looping single sends.
+- `lib/unsubscribeToken.ts` (new, 2026-09-27) — HMAC-SHA256 unsubscribe
+  tokens (`normaliseEmail`, `unsubscribeSecret`, `signUnsubscribeToken`,
+  `verifyUnsubscribeToken`, `maskEmail`). Pure `node:crypto`, no Resend
+  import, so the unsubscribe route/page don't pull in the email client.
+  `unsubscribeSecret()` returns `undefined` if `UNSUBSCRIBE_SECRET` is
+  unset outside dev, which is what makes the cron route's fail-closed
+  check possible.
+- `lib/digestSend.ts` (new, 2026-09-27) — the sequential, rate-limit-aware
+  Resend batch sender (`sendInBatches`, chunks of 100, retry-after-aware
+  backoff, capped retries). Knows nothing about Resend's client directly
+  or about words/subscribers — it's the reusable "send N single-recipient
+  emails safely" primitive `lib/email.ts` calls into.
+- `lib/digestRuns.ts` (new, 2026-09-27) — per-UTC-day run locks
+  (`claimRun`, `releaseRun`) for the email and Bluesky channels, plus the
+  day's failed-recipient set (`recordFailures`, `removeFailures`,
+  `getFailures`). Redis-backed (`SET NX EX`) in production, an in-memory
+  `Set`/`Map` fallback in local dev without Upstash — a second run against
+  the same `next dev` process is still a no-op, but a restart forgets it.
 - `components/EtymologyLineage.tsx` — the "Latin → Italian → English"
   breadcrumb, driven by `WordEntry.lineage` (an array of language names,
   see below).
@@ -330,9 +417,10 @@ launch, so Google never split indexing across two hosts.
 - `lib/siteUrl.ts` — the one place `CURIO_SITE_URL` (+ `http://localhost:3000`
   fallback) gets read for building absolute URLs (`siteUrl()`,
   `absoluteUrl(path)`). `app/layout.tsx`'s `metadataBase` and every new SEO
-  surface below go through it. `lib/email.ts` and `lib/bluesky.ts` still
-  spell out the same fallback inline — deliberately not refactored this
-  session, see "Deferred" under "This session (2026-09-20)".
+  surface below go through it, and as of 2026-09-27 so does `lib/email.ts`
+  (see above). Only `lib/bluesky.ts` still spells out the same fallback
+  inline — left alone this session, same reasoning as 2026-09-20's
+  original deferral.
 - `lib/seoRoutes.ts` — `PUBLIC_ROUTES` (the 5 crawlable routes: `/`,
   `/history`, `/words`, `/play`, `/attribution`), `DISALLOWED_PATHS` (the
   account/auth/API paths blocked in `robots.txt` and left out of the
@@ -589,6 +677,32 @@ reason, not just "ran out of time":
   `@atproto/api`. Still true and unaddressed: no guard for a hypothetical
   word+URL combination alone exceeding 300 characters (unlikely with the
   current word bank, still a cheap follow-up if it ever comes up).
+- **Double opt-in on `/api/subscribe`** (2026-09-27 email hardening) —
+  planned before public promotion, out of scope for this pre-launch pass
+  since the family-and-friends list is small and known.
+- **The unverified inbox-placement effect of `List-Unsubscribe` /
+  `List-Unsubscribe-Post`** (2026-09-27) — judge this after a few weeks of
+  real sends, alongside tightening `_dmarc`'s `p=none` to `quarantine`
+  (see "Domain cutover").
+- **The Resend account's real rate limit** (2026-09-27) — the sender is
+  sequential in chunks of 100, which the plan's flags note makes the
+  documented 10 req/s limit close to moot at this subscriber count, but
+  the owner hasn't independently confirmed the account's actual limit
+  under Resend → Settings → Usage.
+- **An in-flight Resend batch call has no timeout** (2026-09-27) — the
+  240s send budget only stops new chunks or retries from *starting*; a
+  chunk already in flight when the budget is hit can still run to
+  completion, leaving roughly 60s of headroom before the route's own
+  300s `maxDuration`.
+- **An unrecognised override value falls through to a normal scheduled
+  run** (2026-09-27) — e.g. `?force=true` (not `1`) is silently treated as
+  no override at all, not rejected. Still requires `CRON_SECRET` for any
+  override path, so this isn't an auth gap, just a quietly-ignored typo.
+- **A forced run killed mid-send leaves the morning's failure set in
+  place** (2026-09-27) — `?force=1` doesn't clear `curio:digest:failed:<day>`
+  before it starts, only `recordFailures` at the end replaces it. If the
+  process is killed before that, the day's failure set still reflects the
+  earlier run, not the forced one in progress.
 
 ## A real bug worth remembering (Lightning CSS + `outline` shorthand)
 
@@ -1003,6 +1117,115 @@ nothing there said what Curio is.
   the main checkout's `.claude/launch.json`, even in a worktree session.
   So the live checks ran after the local fast-forward merge to `master`,
   before pushing.
+
+## This session (2026-09-27): email hardening
+
+A 2026-09-26 review found the daily digest unsafe to point at even a few
+dozen family-and-friends subscribers: it sent one email per subscriber in
+an unthrottled loop (no Resend batching, no rate-limit handling), a
+second cron run in the same day would just re-send to everyone, and the
+unsubscribe token was a plain unsigned `base64(email)`. Plan:
+`docs/superpowers/plans/2026-09-27-email-hardening.md` (its "Brief" and
+"Amendments at approval" hold the owner's decisions; "What I found, and
+flags" holds the ones this session had to pick and the proposed rulings —
+almost all approved as written). 9 tasks via the `superpowers`
+subagent-driven-development process, TDD per task, plus a final
+whole-branch review and fix wave.
+
+**Fix 1 — a digest fan-out that respects Resend's limits.**
+`lib/digestSend.ts` sends through `resend.batch.send` in sequential
+chunks of 100 (Resend's documented max), retrying a 429/5xx with
+`retry-after`-aware backoff, capped at ~3 retries; anything still failing
+after that counts as `failed`, never thrown. Each email in a batch keeps
+its own `to`, unsubscribe link and `List-Unsubscribe` headers — never
+`cc`/`bcc`, never several subscribers sharing a `to`. The dev fallback
+(`RESEND_API_KEY` unset) still logs-instead-of-sends, but now logs a
+subject and a **count**, not each address — the old per-address log line
+is gone, in line with "never log subscriber addresses."
+
+**Fix 2 — signed, scanner-safe, one-click unsubscribe.**
+`lib/unsubscribeToken.ts` replaces the old `base64(email)` with
+`base64url(normalisedEmail) + "." + base64url(hmac)`, HMAC-SHA256 over a
+new `UNSUBSCRIBE_SECRET`, verified with `crypto.timingSafeEqual`. A
+legacy unsigned token is rejected outright — see "Old emails' unsubscribe
+links now go to `ok=0`" below. `GET /api/unsubscribe` only ever redirects to
+`/unsubscribe?token=…`, a `noindex` confirm page (masked address, one
+`components/ui/Button` that POSTs); `POST` is the only thing that can
+actually unsubscribe, whether from that page's form or a mail client's
+RFC 8058 one-click (`List-Unsubscribe=One-Click` body, token in the query
+string). Repeating a POST for an address that's already gone still
+returns success (a real test asserts this against `lib/db.ts`'s local-JSON
+store, not a mock).
+
+**Idempotency and the partial-failure/re-send story.** The email run and
+the Bluesky post each claim their own per-UTC-day Redis lock
+(`curio:digest:run:<day>` / `curio:digest:bluesky:<day>`, `SET NX EX`)
+before sending — a second run that day, including Vercel's own manual
+**Run** button, is a no-op. A partial failure does **not** release the
+lock (that would re-send to everyone who already got it); instead the
+failed addresses go into a 7-day `curio:digest:failed:<day>` Redis set.
+`?resend=failed` (requires `CRON_SECRET`) re-sends only to addresses
+still in that set **and** still subscribed, never posts to Bluesky, and
+removes each address from the set as its own chunk succeeds (`SREM` per
+chunk, not a replace at the end) — so re-running `?resend=failed` after
+one that died partway can't double-send. `?force=1` re-sends email to
+everyone; Bluesky only re-posts if `&bluesky=1` is added too (unrecognised
+combinations, like `bluesky=1` without `force=1`, are a 400). The
+response always carries `alreadyRan: { email, bluesky }`, each true only
+when that channel was skipped because the lock was already held — a
+`resend=failed` run reports both `false`, since it bypasses the email
+lock by design and never touches Bluesky.
+
+**The Task 6 fix round (after review).** `releaseRun(channel, day)` was
+added to `lib/digestRuns.ts`: if the route claims one lock and then the
+next claim throws, it releases what it actually claimed (best-effort,
+logged not thrown) and returns 500, instead of stranding the day as
+"already ran" with nothing sent. `recordFailures` failing is now logged
+without failing the response — the counts still come back. The email
+result is settled and its failures recorded **before** the Bluesky result
+is awaited, even though both start concurrently — a hung or slow Bluesky
+call can no longer delay (or, via an unhandled rejection, silently drop)
+recording that day's email failures.
+
+**The dev-lock behaviour.** Without Upstash, the run locks and the
+failure set live in the dev server process's memory
+(`resetDigestRunsMemory()` for tests) — a second run against the same
+`next dev` is still a no-op, a restart forgets everything. `force` still
+needs a `CRON_SECRET` even locally, so a forced local run needs one in
+`.env.local` (already there, deliberately different from Production's).
+
+**The one-click-400 choice.** The brief said an invalid token "goes to
+`/unsubscribed?ok=0`" — fine for a browser form POST, meaningless for a
+one-click POST, which comes from a mailbox provider's server with no
+redirect to follow. Ruling: an invalid one-click POST returns **400** and
+changes nothing; an invalid *form* POST still redirects to
+`/unsubscribed?ok=0` as specified.
+
+**Old emails' unsubscribe links now go to `ok=0`.** Every digest sent
+before this deploy, including the morning of 2026-09-27 itself, carries
+the old unsigned `base64(email)` token. Rejecting legacy tokens (approved
+in the brief) means those links now land on `/unsubscribed?ok=0`, which
+already tells the reader to reply to a digest instead. Accepted with two
+subscribers total (the owner and their spouse).
+
+**Test and lint counts.** 205 → 301 tests (29 files). Lint: the same 3
+pre-existing warnings as every prior session
+(`lib/puzzle.test.ts:3`, `scripts/approveDraft.test.ts:36,211`).
+
+This was done via the `superpowers` subagent-driven-development process,
+one task per commit (`git log 6b15a47..HEAD`). The plan's Task 8
+(controller-only, not a subagent) still needs to run: a clean-install
+verification (`rm -rf node_modules .next && npm ci`, then `npm test`,
+`npm run lint`, `npm run build`), a real local send with a real
+`RESEND_API_KEY` and `UNSUBSCRIBE_SECRET` in `.env.local` (Upstash vars
+unset so the local JSON store holds only a test address, checking both
+`List-Unsubscribe` headers, the confirm page's masking, and that a plain
+`GET` on the unsubscribe link removes nothing), and a final whole-branch
+review.
+
+### Verification
+
+Pending — filled in after the clean-install check and the real local send.
 
 ## Workflow notes for whoever picks this up
 
