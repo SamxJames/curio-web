@@ -24,7 +24,7 @@ const fail = (name: string, statusCode: number | null, headers: Record<string, s
   headers,
 });
 
-const noSleep = () => vi.fn(async () => {});
+const noSleep = () => vi.fn<(ms: number) => Promise<void>>(async () => {});
 
 describe("chunk", () => {
   it("never exceeds the batch maximum of 100", () => {
