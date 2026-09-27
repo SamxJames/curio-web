@@ -7,17 +7,32 @@ import { NextRequest } from "next/server";
 // faked — so this fails if any one of them starts resolving the day or
 // the word differently from the rest.
 const { fakeRedis, session, posted } = vi.hoisted(() => {
-  const store = new Map<string, string>();
+  const store = new Map<string, unknown>();
   return {
     fakeRedis: {
       store,
       get: vi.fn(async (k: string) => store.get(k) ?? null),
-      set: vi.fn(async (k: string, v: string, o?: { nx?: boolean }) => {
+      set: vi.fn(async (k: string, v: string, o?: { nx?: boolean; ex?: number }) => {
         if (o?.nx && store.has(k)) return null;
         store.set(k, v);
         return "OK";
       }),
       mget: vi.fn(async (...ks: string[]) => ks.map((k) => store.get(k) ?? null)),
+      del: vi.fn(async (k: string) => (store.delete(k) ? 1 : 0)),
+      sadd: vi.fn(async (k: string, ...members: string[]) => {
+        const s = (store.get(k) as Set<string>) ?? new Set<string>();
+        members.forEach((m) => s.add(m));
+        store.set(k, s);
+        return members.length;
+      }),
+      srem: vi.fn(async (k: string, ...members: string[]) => {
+        const s = store.get(k) as Set<string> | undefined;
+        let n = 0;
+        members.forEach((m) => (n += s?.delete(m) ? 1 : 0));
+        return n;
+      }),
+      smembers: vi.fn(async (k: string) => [...((store.get(k) as Set<string>) ?? [])]),
+      expire: vi.fn(async () => 1),
     },
     session: { current: null as null | { user: { id: string } } },
     posted: [] as { text: string }[],
@@ -37,9 +52,12 @@ vi.mock("@/lib/db", () => ({
   getAllSubscribers: vi.fn(async () => ["anon@example.com", "account-holder@example.com"]),
 }));
 vi.mock("@/lib/email", () => ({
-  sendDailyDigests: vi.fn(async (emails: string[]) => ({
-    attempted: emails.length, sent: emails.length, failed: 0, errors: [], failedRecipients: [],
-  })),
+  sendDailyDigests: vi.fn(
+    async (emails: string[], _w: unknown, _d: Date, opts: { onSent?: (r: string[]) => Promise<void> }) => {
+      if (emails.length > 0) await opts.onSent?.(emails);
+      return { attempted: emails.length, sent: emails.length, failed: 0, errors: [], failedRecipients: [] };
+    }
+  ),
 }));
 vi.mock("@atproto/api", () => ({
   AtpAgent: class {
@@ -102,6 +120,8 @@ async function everySurfaceAt(iso: string) {
   return { signedOut, signedIn, digests, blueskyText, date, today };
 }
 
+let log: ReturnType<typeof vi.spyOn>;
+
 beforeEach(() => {
   fakeRedis.store.clear();
   posted.length = 0;
@@ -110,10 +130,13 @@ beforeEach(() => {
   process.env.CRON_SECRET = "test-secret";
   process.env.BLUESKY_IDENTIFIER = "curio.test";
   process.env.BLUESKY_APP_PASSWORD = "test-app-password";
+  // The cron route logs its own success-path summary; keep test output pristine.
+  log = vi.spyOn(console, "log").mockImplementation(() => {});
 });
 
 afterEach(() => {
   vi.useRealTimers();
+  log.mockRestore();
 });
 
 describe("one shared word, every surface", () => {
