@@ -1,6 +1,6 @@
 import { getWordForDate } from "./words";
 import { DAY_MS, dayKey, dayStart } from "./day";
-import { buildBlueskyPost, buildStoryCard, graphemeLength, type StoryCard } from "./bluesky";
+import { buildBlueskyPost, buildStoryCard, graphemeLength, type StoryCard } from "./blueskyPost";
 
 export type PreviewRow = { day: string; word: string; text: string; graphemes: number; card: StoryCard };
 
