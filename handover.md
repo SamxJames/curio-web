@@ -1,11 +1,11 @@
 # Curio — Handover
 
-Last updated: 2026-09-27, after hardening the daily email digest (Resend
-batch sending, per-day run locks, and signed one-click unsubscribe) ahead
-of the family-and-friends launch. See "This session (2026-09-27)" below;
-Phase 3 of the pre-launch brief (Bluesky posts) is still next. This doc exists so
-a fresh Claude Code session (or a human) can pick up without re-deriving
-all of the above from git log.
+Last updated: 2026-09-28, after Bluesky link cards (Phase 3 of the
+pre-launch brief). See "This session (2026-09-28): Bluesky link cards
+(Phase 3)" below — the pre-launch brief is now complete apart from its
+own verification (production posting hasn't happened yet). This doc
+exists so a fresh Claude Code session (or a human) can pick up without
+re-deriving all of the above from git log.
 
 ## What this is
 
@@ -81,6 +81,16 @@ Phase 3 (Bluesky) format chosen 2026-09-26: **(a)** teaser first, then
 `word · lineage arrows`, then `#etymology #wordoftheday`, with the link in
 an embed card — fits 300 graphemes for every word in the bank (max 291,
 "wine").
+
+### 2026-09-28 — Phase 3 shipped: Bluesky link cards
+
+Format (a) as chosen above, plus the card itself: the link moved out of
+the post text into a Bluesky external embed, with the story's own title
+(`lib/storyTitle.ts`'s `storyPageTitle(word)` — the same string the story
+page's `<title>`/`og:title` use, so the card and the page it opens can't
+drift apart) and a fixed description, `CARD_DESCRIPTION` in
+`lib/blueskyPost.ts`: "One word's origin story, every morning. No feed, no
+backlog." — not the teaser, since that's already the post's first line.
 
 The rule for any future reordering: **Future days can be hand-reordered safely by permuting only
 positions after today's index** (268 on 2026-09-26) — that leaves every past
@@ -282,6 +292,9 @@ curl -sS -H "Authorization: Bearer $CURIO_CRON_SECRET" "https://curioword.com/ap
 
 # Every subscriber again AND a second Bluesky post.
 curl -sS -H "Authorization: Bearer $CURIO_CRON_SECRET" "https://curioword.com/api/cron/send-daily?force=1&bluesky=1"
+
+# Bluesky only, no email at all — for a day whose post failed or went out wrong.
+curl -sS -H "Authorization: Bearer $CURIO_CRON_SECRET" "https://curioword.com/api/cron/send-daily?repost=bluesky"
 ```
 
 **Reading the response:** `attempted`/`sent`/`failed` are this run's email
@@ -301,14 +314,15 @@ before sending anything, and each address leaves it as soon as its chunk
 is accepted — so per-email rejections, failed chunks and anything a killed
 run never reached are all still in it.
 
-**Known limitation:** a failed Bluesky post can only be retried with
-`?force=1&bluesky=1`, which also re-emails everyone — there's no
-Bluesky-only re-send. On a Bluesky-outage day, the actual choice is
-between skipping the post entirely and re-emailing every subscriber to
-get it retried. Keeping the lock after an ambiguous Bluesky failure (a
-throw, a network error, an unclear response) is the deliberately safe
-default: it's easy to retry a missed post by hand later, hard to un-send a
-duplicate.
+**`?repost=bluesky` (added 2026-09-28)** is the Bluesky-only re-send: it
+forces just the Bluesky lock and posts once, touching no email lock and
+no pending set. It **posts publicly every time it's run** (the force is
+unconditional), so run it once per real re-post, not as a check. It's
+rejected with 400 combined with `force`, `resend` or `bluesky=1`, and 401
+without `CRON_SECRET`, same as the other overrides. Keeping the lock after
+an ambiguous Bluesky failure (a throw, a network error, an unclear
+response) is still the deliberately safe default: it's easy to retry a
+missed post by hand with this, hard to un-send a duplicate.
 
 ## Architecture map
 
@@ -387,14 +401,38 @@ duplicate.
 - `lib/collection.ts` — pure aggregation/formatting for `/collection`
   (language-count stats, month grouping, date formatting) — see "Your
   collection" below.
-- `lib/bluesky.ts` — `buildBlueskyPost` (pure, tested) builds the ≤300-char
-  post text (truncates the teaser, never the word or link);
-  `postDailyWordToBluesky` does the real `@atproto/api` login/post, wrapped
-  in try/catch with a `console.error` on failure (the daily cron runs
-  unattended — this is the only signal a real posting failure would ever
-  surface). Same "log instead of send when unconfigured" fallback as
-  `lib/email.ts`/`lib/db.ts` when `BLUESKY_IDENTIFIER`/`BLUESKY_APP_PASSWORD`
-  aren't set.
+- `lib/blueskyPost.ts` (new, 2026-09-28) — the pure builders, no
+  `@atproto/api` import: `buildBlueskyPost(word)` (the ≤300-grapheme post
+  text — teaser, then word · lineage, then the hashtags, no URL; only the
+  teaser is ever truncated) and `buildStoryCard(word)` (the link card:
+  UTM-tagged story URL, `storyPageTitle`'s title, `CARD_DESCRIPTION`, and
+  the story's Open Graph image URL as `thumbUrl`). Split out of
+  `lib/bluesky.ts` because the `tsx` preview script crashed loading
+  `@atproto/api` — its `multiformats` dependency is ESM-only, and a
+  `lib/package.json` `{type: module}` workaround was rejected since it
+  would change module semantics for everything else in `lib/`. If you add
+  a new pure Bluesky helper, it goes here, not in `lib/bluesky.ts`.
+- `lib/bluesky.ts` — re-exports `lib/blueskyPost.ts`'s builders (so
+  existing importers keep working unchanged) and keeps the network side:
+  `postDailyWordToBluesky` builds the post and the card, then posts with
+  an `app.bsky.embed.external` embed carrying the card's link, title and
+  description, plus a thumbnail uploaded from the story's OG image
+  (`uploadThumb`) — any failure there (fetch error, non-image, over
+  `THUMB_MAX_BYTES`, upload rejected) just posts without a `thumb` and
+  logs a warning; the daily post never fails over its picture. Uses
+  `lib/siteUrl.ts` throughout now, wrapped in try/catch with a
+  `console.error` on failure (the daily cron runs unattended — this is the
+  only signal a real posting failure would ever surface). Same "log
+  instead of send when unconfigured" fallback as `lib/email.ts`/`lib/db.ts`
+  when `BLUESKY_IDENTIFIER`/`BLUESKY_APP_PASSWORD` aren't set.
+- `lib/blueskyPreview.ts` (new, 2026-09-28) — `buildBlueskyPreview(from,
+  days)`, feeding `npm run bluesky:preview -- [days] [from]`
+  (`scripts/previewBlueskyPosts.ts`). Read-only: it uses the plain
+  calendar formula (`getWordForDate`), never `resolveTodayWord`/Redis,
+  because resolving a future day would lock its word just by previewing
+  it. Prints each of the next N UTC days' exact post text, grapheme count
+  and card, plus a caveat that these are what will post unless `WORDS` or
+  `LAUNCH_OPENERS` change before that day arrives.
 - `lib/useShowArrival.ts` — the one shared "should this visitor see the
   first-time arrival hero" hook, consumed by both `components/Header.tsx`
   and `components/HomeContent.tsx` so they can't independently drift.
@@ -436,9 +474,8 @@ duplicate.
   fallback) gets read for building absolute URLs (`siteUrl()`,
   `absoluteUrl(path)`). `app/layout.tsx`'s `metadataBase` and every new SEO
   surface below go through it, and as of 2026-09-27 so does `lib/email.ts`
-  (see above). Only `lib/bluesky.ts` still spells out the same fallback
-  inline — left alone this session, same reasoning as 2026-09-20's
-  original deferral.
+  (see above); as of 2026-09-28, so does `lib/blueskyPost.ts` — it was the
+  last file still spelling out the same fallback inline.
 - `lib/seoRoutes.ts` — `PUBLIC_ROUTES` (the 5 crawlable routes: `/`,
   `/history`, `/words`, `/play`, `/attribution`), `DISALLOWED_PATHS` (the
   account/auth/API paths blocked in `robots.txt` and left out of the
@@ -599,10 +636,6 @@ at 26 words — now genuinely live at 1,147, not hypothetical:**
   about. Worth a proper look (pagination, or windowing) if it ever feels
   sluggish on a real device — proposed approach unchanged: cap eagerly
   rendered groups behind "show more," with search bypassing the cap.
-- **`lib/bluesky.ts`'s `buildBlueskyPost` doesn't bound `word + url`
-  itself** — still true, still not a practical risk (the math needs a
-  ~94+ character single headword; nothing in the real 1,147-word bank gets
-  remotely close). Theoretical gap, unaddressed, low priority.
 - **`lib/puzzle.ts`'s eligibility scan was O(n²) — fixed 2026-09-18.** The
   old per-word `daysSinceLastShown` (~56ms per `getEligiblePuzzleWords`
   call at 1,147 words, ×2 per `/play` render) is gone, replaced by
@@ -692,9 +725,10 @@ reason, not just "ran out of time":
 - **`lib/bluesky.ts`'s post-failure path now has automated test coverage
   (2026-09-18, see "This session" below)** — `lib/bluesky.test.ts` covers
   success, login failure, post failure, and unconfigured, all via a mocked
-  `@atproto/api`. Still true and unaddressed: no guard for a hypothetical
-  word+URL combination alone exceeding 300 characters (unlikely with the
-  current word bank, still a cheap follow-up if it ever comes up).
+  `@atproto/api`. The word+URL length concern this bullet used to note is
+  gone as of 2026-09-28: the link moved into the card, so the post text is
+  just `teaser + word · lineage + hashtags`, measured across all 1,147
+  words at a maximum of 291 graphemes (`lib/bluesky.test.ts`).
 - **Double opt-in on `/api/subscribe`** (2026-09-27 email hardening) —
   planned before public promotion, out of scope for this pre-launch pass
   since the family-and-friends list is small and known.
@@ -1294,11 +1328,77 @@ Done 2026-09-28, before any push or deploy:
   the wrapped body link still lands on the confirm page. Whether Curio
   wants tracking is an owner decision; it's a per-domain setting in
   Resend, so check the `curioword.com` domain's settings.
-- **Not verified yet:** production. See "Deploy" in
-  `docs/superpowers/plans/2026-09-27-email-hardening.md` (Task 9):
-  `UNSUBSCRIBE_SECRET` and the rotated `CRON_SECRET` must be in Vercel
-  Production before the push, and the morning after, check
-  `attempted === sent` and no 429s.
+- **Production, deployed 2026-09-28 17:42 UTC (commit `1225383`).**
+  `UNSUBSCRIBE_SECRET` was added and `CRON_SECRET` rotated in Vercel
+  Production beforehand, per "Deploy" in
+  `docs/superpowers/plans/2026-09-27-email-hardening.md` (Task 9).
+  Non-sending production smoke checks passed: a bad-token GET redirects
+  via the confirm page to `ok=0`; `robots.txt` has `Disallow:
+  /unsubscribe`; a bad one-click POST returns 400; the cron without the
+  secret returns 401. **Not verified yet:** the first real scheduled run
+  (2026-09-29 09:00 UTC) — check `attempted === sent` and no 429s once
+  it's happened.
+
+## This session (2026-09-28): Bluesky link cards (Phase 3)
+
+Phase 3 of the pre-launch brief, the last one — see "Decisions" above for
+what shipped and why. Plan:
+`docs/superpowers/plans/2026-09-28-bluesky-link-cards.md` (its "Brief"
+holds the owner's decisions and this session's findings). 5 tasks via the
+`superpowers` subagent-driven-development process, TDD per task:
+
+1. **The post text and the card, as pure builders** — `buildBlueskyPost`
+   dropped its URL argument entirely (format (a): teaser, then word ·
+   lineage, then hashtags, nothing else) and `buildStoryCard` was added
+   for the link, title, description and thumbnail. **Re-measured across
+   all 1,147 words with `Intl.Segmenter`: the format tops out at 291
+   graphemes ("wine", 8 languages), never truncating the word or
+   lineage** — the owner's proposed defaults (Decisions 1–3 above) held up
+   against the real word bank.
+2. **The link card posts with a thumbnail** — `postDailyWordToBluesky`
+   uploads the story's own Open Graph image as the embed's `thumb`; a
+   failed fetch, wrong content type, oversized image or failed upload logs
+   a warning and posts the card without one, never blocking the post
+   itself.
+3. **`npm run bluesky:preview -- [days] [from]`** — read-only, prints the
+   next N days' exact post text and card, so the owner can read what will
+   post before anything goes out. **Still pending (Task 6):** running it
+   against production (`CURIO_SITE_URL=https://curioword.com npm run
+   bluesky:preview -- 7`) and getting the owner's sign-off on those 7
+   posts — nothing deploys until that happens.
+4. **`?repost=bluesky`** (Decision 4, included) — a Bluesky-only re-post
+   for the cron, closing the "no Bluesky-only re-send" gap the
+   2026-09-27 session's Known limitation had left; see "Re-sending the
+   digest by hand (production)" above.
+5. **Docs** (this section).
+
+**The pure/network split, worth knowing if you touch either file:** the
+pure builders live in `lib/blueskyPost.ts` (no `@atproto/api` import).
+`lib/bluesky.ts` re-exports them and keeps the network code. Reason: the
+`tsx` preview script crashed loading `@atproto/api`, because its
+`multiformats` dependency is ESM-only. A `lib/package.json` `{type:
+module}` workaround was tried and rejected — it would have changed module
+semantics for all of `lib/`, not just the Bluesky files. Add new pure
+Bluesky logic to `lib/blueskyPost.ts`, not `lib/bluesky.ts`.
+
+**Also on this branch, merged from master:** a puzzle change (`17d6f4b`)
+— the third clue now also shows "N letters, starts with X"
+(`buildLetterHint` in `lib/puzzle.ts`), and "Guess N of 3" sits above the
+guess box. The rules are unchanged: a wrong guess or "I need another
+clue" both use a turn.
+
+**Test and lint counts.** 313 → 327 tests. Lint: the same 3 pre-existing
+warnings as every prior session (`lib/puzzle.test.ts:3`,
+`scripts/approveDraft.test.ts:36,211`).
+
+This was done via the `superpowers` subagent-driven-development process,
+one task per commit (`git log 8c6dfd7..HEAD`), with a reviewed fix round
+folded into Task 3 (the `lib/blueskyPost.ts` split above). The
+whole-branch review, preview approval and deploy are Task 6, still ahead.
+
+### Verification
+
+Pending — filled in after the preview approval and the first real post.
 
 ## Workflow notes for whoever picks this up
 

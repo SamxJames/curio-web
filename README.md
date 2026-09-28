@@ -33,6 +33,13 @@ the reasoning behind the pivot; this README covers what's actually built here.
   Wiktextract content, linked from the footer. This was an open compliance
   item on the mobile app too — it's included from the start here rather
   than left for later.
+- **Bluesky** (`@curiodaily.bsky.social`) — the same daily cron posts the
+  word: a teaser, then `word · lineage arrows`, then `#etymology
+  #wordoftheday` (format (a)), with the story link moved out of the text
+  into a link card (the story's own title, a fixed description, and its
+  Open Graph image as a thumbnail). `npm run bluesky:preview -- [days]
+  [from]` prints what the next days' posts will look like, read-only, for
+  review before anything goes out.
 
 ## Content
 
