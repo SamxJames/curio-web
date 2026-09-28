@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Share } from "lucide-react";
 import type { WordEntry } from "@/lib/words";
-import { isCorrectGuess, buildPuzzleShareText } from "@/lib/puzzle";
+import { isCorrectGuess, buildPuzzleShareText, buildLetterHint } from "@/lib/puzzle";
 import { dayKey } from "@/lib/day";
 import {
   usePlayState,
@@ -125,23 +125,33 @@ export default function PuzzleGame({
             <div key={i}>
               <p className="font-sans text-xs tracking-wide text-ink-faint">{CLUE_LABELS[i]}</p>
               <p className="mt-1 font-serif text-lg leading-relaxed text-ink">{word.clues[i]}</p>
+              {i === 2 && (
+                <p className="mt-1 font-sans text-sm text-ink-soft">{buildLetterHint(word.word)}</p>
+              )}
             </div>
           ))}
 
-          <form onSubmit={handleGuess} className="mt-6 flex gap-2">
-            <div className="min-w-0 flex-1">
-              <TextField
-                type="text"
-                value={guess}
-                onChange={(e) => setGuess(e.target.value)}
-                placeholder="Type your guess…"
-                aria-label="Your guess"
-              />
-            </div>
-            <Button type="submit">
-              Guess
-            </Button>
-          </form>
+          {/* One turn per clue: a wrong guess or "another clue" both move on,
+              and a wrong guess on the third ends the game. */}
+          <div className="mt-6">
+            <p aria-live="polite" className="font-sans text-sm text-ink-soft">
+              Guess {state.cluesRevealed} of 3
+            </p>
+            <form onSubmit={handleGuess} className="mt-2 flex gap-2">
+              <div className="min-w-0 flex-1">
+                <TextField
+                  type="text"
+                  value={guess}
+                  onChange={(e) => setGuess(e.target.value)}
+                  placeholder="Type your guess…"
+                  aria-label="Your guess"
+                />
+              </div>
+              <Button type="submit">
+                Guess
+              </Button>
+            </form>
+          </div>
           {wrongFlash && (
             <p role="alert" className="font-sans text-sm text-danger">Not quite — here&apos;s another clue.</p>
           )}

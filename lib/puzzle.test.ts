@@ -8,8 +8,9 @@ import {
   isCorrectGuess,
   buildPuzzleResultGrid,
   buildPuzzleShareText,
+  buildLetterHint,
 } from "./puzzle";
-import { daysSinceStart, getWordForDate, hashSeed, mulberry32 } from "./words";
+import { WORDS, daysSinceStart, getWordForDate, hashSeed, mulberry32 } from "./words";
 import type { WordEntry } from "./words";
 
 function makeWord(slug: string): WordEntry {
@@ -355,5 +356,25 @@ describe("buildPuzzleShareText", () => {
     // for a leak that structurally cannot occur.
     const text = buildPuzzleShareText(1, null, "https://example.com");
     expect(text.split("\n")).toHaveLength(3);
+  });
+});
+
+describe("buildLetterHint", () => {
+  it("gives the letter count and the first letter, capitalised", () => {
+    expect(buildLetterHint("fiasco")).toBe("6 letters, starts with F");
+  });
+
+  it("works for capitalised answers", () => {
+    expect(buildLetterHint("Wednesday")).toBe("9 letters, starts with W");
+  });
+
+  it("says 'letter' for a one-letter answer", () => {
+    expect(buildLetterHint("a")).toBe("1 letter, starts with A");
+  });
+
+  it("gives a hint for every word in the bank", () => {
+    for (const w of WORDS) {
+      expect(buildLetterHint(w.word)).toMatch(/^\d+ letters?, starts with [A-Z]$/);
+    }
   });
 });

@@ -265,3 +265,13 @@ export function buildPuzzleShareText(
   const grid = buildPuzzleResultGrid(cluesUsedToSolve);
   return `Curio puzzle #${puzzleNumber}\n${grid}\n${domain}`;
 }
+
+/** Shown under the third clue so the last clue is a strong hint rather
+ * than just the most specific etymology fact — those often still don't
+ * point at the modern word. Deterministic, so every word in the bank gets
+ * one without any content changes. */
+export function buildLetterHint(answer: string): string {
+  const letters = answer.replace(/[^\p{L}]/gu, "");
+  const noun = letters.length === 1 ? "letter" : "letters";
+  return `${letters.length} ${noun}, starts with ${letters[0].toUpperCase()}`;
+}
