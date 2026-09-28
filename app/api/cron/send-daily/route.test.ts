@@ -376,4 +376,38 @@ describe("GET /api/cron/send-daily", () => {
     expect(postDailyWordToBluesky).toHaveBeenCalledTimes(1);
     expect(body).toMatchObject({ bluesky: true, alreadyRan: { email: true, bluesky: false } });
   });
+
+  it("?repost=bluesky posts to Bluesky only — no email, locks and pending set untouched", async () => {
+    await GET(cronRequest()); // this morning's run: email + Bluesky
+    vi.clearAllMocks();
+
+    const body = await (await GET(cronRequestTo("?repost=bluesky"))).json();
+
+    expect(postDailyWordToBluesky).toHaveBeenCalledTimes(1);
+    expect(sendDailyDigests).not.toHaveBeenCalled();
+    expect(body).toMatchObject({ attempted: 0, sent: 0, failed: 0, bluesky: true, alreadyRan: { email: false, bluesky: false } });
+    // A later plain run is still a no-op on both channels.
+    const again = await (await GET(cronRequest())).json();
+    expect(again.alreadyRan).toEqual({ email: true, bluesky: true });
+  });
+
+  it.each(["?repost=bluesky&force=1", "?repost=bluesky&resend=failed", "?repost=bluesky&bluesky=1", "?repost=email"])(
+    "rejects %s with 400 and does nothing",
+    async (query) => {
+      const res = await GET(cronRequestTo(query));
+      expect(res.status).toBe(400);
+      expect(postDailyWordToBluesky).not.toHaveBeenCalled();
+      expect(sendDailyDigests).not.toHaveBeenCalled();
+    }
+  );
+
+  it("?repost=bluesky without the secret is refused", async () => {
+    expect((await GET(cronRequestTo("?repost=bluesky", ""))).status).toBe(401);
+    expect(postDailyWordToBluesky).not.toHaveBeenCalled();
+  });
+
+  it("?bluesky=1 on its own is still a 400 that posts nothing (the deploy check relies on it)", async () => {
+    expect((await GET(cronRequestTo("?bluesky=1"))).status).toBe(400);
+    expect(postDailyWordToBluesky).not.toHaveBeenCalled();
+  });
 });

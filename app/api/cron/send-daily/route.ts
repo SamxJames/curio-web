@@ -33,7 +33,9 @@ const SEND_BUDGET_MS = 240_000;
  *   subscribed; each leaves the set as its chunk succeeds. Never posts.
  * - `?force=1` — every subscriber again. Bluesky still only posts if it
  *   hasn't today...
- * - `?force=1&bluesky=1` — ...unless this is added. */
+ * - `?force=1&bluesky=1` — ...unless this is added.
+ * - `?repost=bluesky` — re-posts to Bluesky only, forcing just that lock;
+ *   email, its lock and the pending set are left alone. */
 export async function GET(req: NextRequest) {
   const secret = process.env.CRON_SECRET;
   if (!secret && process.env.NODE_ENV === "production") {
@@ -50,7 +52,8 @@ export async function GET(req: NextRequest) {
   const force = params.get("force") === "1";
   const resendFailed = params.get("resend") === "failed";
   const repostBluesky = params.get("bluesky") === "1";
-  if ((force || resendFailed || repostBluesky) && !secret) {
+  const repost = params.get("repost");
+  if ((force || resendFailed || repostBluesky || repost !== null) && !secret) {
     return NextResponse.json({ error: "Overrides require CRON_SECRET" }, { status: 401 });
   }
   if ((force && resendFailed) || (repostBluesky && !force)) {
@@ -58,6 +61,9 @@ export async function GET(req: NextRequest) {
       { error: "Use force=1 (optionally with bluesky=1) or resend=failed" },
       { status: 400 }
     );
+  }
+  if (repost !== null && (repost !== "bluesky" || force || resendFailed || repostBluesky)) {
+    return NextResponse.json({ error: "?repost=bluesky cannot be combined with other overrides" }, { status: 400 });
   }
 
   // Unverifiable unsubscribe links must never go out. Checked before any
@@ -72,6 +78,20 @@ export async function GET(req: NextRequest) {
   const now = new Date();
   const day = dayKey(now);
   const word = await resolveTodayWord(now);
+
+  // Bluesky-only re-post: for a day whose post failed or went out wrong.
+  // Forces only the Bluesky lock; email, its lock and the pending set are
+  // left alone, so this can never re-send a digest.
+  if (repost === "bluesky") {
+    await claimRun("bluesky", day, { force: true });
+    const { posted } = await postDailyWordToBluesky(word, now);
+    console.log(`[curio:digest] repost-bluesky ${day}: bluesky ${posted ? "posted" : "failed"}`);
+    return NextResponse.json({
+      word: word.slug, attempted: 0, sent: 0, failed: 0, bluesky: posted,
+      alreadyRan: { email: false, bluesky: false },
+    });
+  }
+
   // Read before claiming anything: a failed read must not leave a lock
   // behind with nothing sent.
   const subscribers = await getAllSubscribers();
