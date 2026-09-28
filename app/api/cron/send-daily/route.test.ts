@@ -45,7 +45,7 @@ vi.mock("@/lib/email", () => ({
     }
   ),
 }));
-vi.mock("@/lib/bluesky", () => ({ postDailyWordToBluesky: vi.fn(async () => ({ posted: true })) }));
+vi.mock("@/lib/bluesky", () => ({ postDailyWordToBluesky: vi.fn(async () => ({ posted: true, thumb: true })) }));
 
 const { GET, maxDuration } = await import("./route");
 const { getAllSubscribers } = await import("@/lib/db");
@@ -107,6 +107,15 @@ describe("GET /api/cron/send-daily", () => {
       word: "custard", attempted: 2, sent: 2, failed: 0, bluesky: true,
       alreadyRan: { email: false, bluesky: false },
     });
+  });
+
+  it("logs \"posted without image\" when the post succeeded but the thumbnail didn't, so a silent image miss shows up in the log", async () => {
+    vi.mocked(postDailyWordToBluesky).mockResolvedValueOnce({ posted: true, thumb: false });
+
+    await GET(cronRequest());
+
+    const logged = log.mock.calls.flat().map(String).join(" ");
+    expect(logged).toContain("posted without image");
   });
 
   it("resolves the word and dates every send from one instant", async () => {

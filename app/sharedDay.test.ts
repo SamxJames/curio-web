@@ -134,6 +134,10 @@ beforeEach(() => {
   // The cron's day locks only use Redis (here, the fake, cleared above) in
   // production; elsewhere they'd persist in memory across these tests.
   vi.stubEnv("VERCEL_ENV", "production");
+  // postDailyWordToBluesky refuses to post in production without a real
+  // CURIO_SITE_URL (it would link and thumbnail to localhost) — this test
+  // simulates production, so it needs one set like the real deployment.
+  vi.stubEnv("CURIO_SITE_URL", "https://example.com");
   // The cron route logs its own success-path summary; keep test output pristine.
   log = vi.spyOn(console, "log").mockImplementation(() => {});
   // The Bluesky post now fetches its own story's Open Graph image for a

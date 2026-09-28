@@ -1,6 +1,7 @@
 import { AtpAgent, RichText } from "@atproto/api";
 import type { WordEntry } from "./words";
 import { buildBlueskyPost, buildStoryCard } from "./blueskyPost";
+import { siteUrl } from "./siteUrl";
 
 // The pure post/card builders live in ./blueskyPost (no @atproto/api import,
 // so tsx scripts can load them standalone); re-exported here so existing
@@ -41,7 +42,7 @@ async function uploadThumb(agent: AtpAgent, thumbUrl: string) {
 export async function postDailyWordToBluesky(
   word: WordEntry,
   date: Date
-): Promise<{ posted: boolean }> {
+): Promise<{ posted: boolean; thumb: boolean }> {
   const identifier = process.env.BLUESKY_IDENTIFIER;
   const appPassword = process.env.BLUESKY_APP_PASSWORD;
   const text = buildBlueskyPost(word);
@@ -49,7 +50,15 @@ export async function postDailyWordToBluesky(
 
   if (!identifier || !appPassword) {
     console.log(`[curio:bluesky:dev-fallback] would post: ${text}\n[card] ${card.title} — ${card.uri}`);
-    return { posted: false };
+    return { posted: false, thumb: false };
+  }
+
+  // A misconfigured CURIO_SITE_URL in production would otherwise post a
+  // real public card whose link and thumbnail point at localhost — refuse
+  // rather than log in and post something broken.
+  if (process.env.VERCEL_ENV === "production" && siteUrl().startsWith("http://localhost")) {
+    console.error("[curio:bluesky] CURIO_SITE_URL is not set in production — not posting a card that links to localhost");
+    return { posted: false, thumb: false };
   }
 
   try {
@@ -79,13 +88,13 @@ export async function postDailyWordToBluesky(
       createdAt: date.toISOString(),
     });
 
-    return { posted: true };
+    return { posted: true, thumb: thumb !== undefined };
   } catch (err) {
     // The daily cron runs unattended with nobody watching its response —
     // without this log, a real posting failure (bad credentials, a
     // revoked app password, rate limiting) would be indistinguishable
     // from "just not configured" and could go unnoticed indefinitely.
     console.error("[curio:bluesky] post failed:", err);
-    return { posted: false };
+    return { posted: false, thumb: false };
   }
 }

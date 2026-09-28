@@ -84,8 +84,10 @@ export async function GET(req: NextRequest) {
   // left alone, so this can never re-send a digest.
   if (repost === "bluesky") {
     await claimRun("bluesky", day, { force: true });
-    const { posted } = await postDailyWordToBluesky(word, now);
-    console.log(`[curio:digest] repost-bluesky ${day}: bluesky ${posted ? "posted" : "failed"}`);
+    const { posted, thumb } = await postDailyWordToBluesky(word, now);
+    console.log(
+      `[curio:digest] repost-bluesky ${day}: bluesky ${posted ? (thumb ? "posted" : "posted without image") : "failed"}`
+    );
     return NextResponse.json({
       word: word.slug, attempted: 0, sent: 0, failed: 0, bluesky: posted,
       alreadyRan: { email: false, bluesky: false },
@@ -147,13 +149,15 @@ export async function GET(req: NextRequest) {
         onSent: (sent) => removeFailures(day, sent),
       })
     : Promise.resolve({ attempted: 0, sent: 0, failed: 0, errors: [], failedRecipients: [] });
-  const blueskyPromise = postBluesky ? postDailyWordToBluesky(word, now) : Promise.resolve({ posted: false });
+  const blueskyPromise = postBluesky
+    ? postDailyWordToBluesky(word, now)
+    : Promise.resolve({ posted: false, thumb: false });
   // Settled immediately (not just awaited later): otherwise a Bluesky
   // rejection while the email result is still being processed above would
   // surface as an unhandled rejection instead of being caught here.
   const blueskySettled = blueskyPromise.then(
-    (result) => result.posted,
-    () => false
+    (result) => result,
+    () => ({ posted: false, thumb: false })
   );
 
   // Rejections, failed chunks and a whole-send rejection need no recording
@@ -170,7 +174,9 @@ export async function GET(req: NextRequest) {
   }
   const bluesky = await blueskySettled;
   console.log(
-    `[curio:digest] ${mode} ${day}: sent ${email.sent} of ${email.attempted}; bluesky ${postBluesky ? (bluesky ? "posted" : "failed") : "skipped"}`
+    `[curio:digest] ${mode} ${day}: sent ${email.sent} of ${email.attempted}; bluesky ${
+      postBluesky ? (bluesky.posted ? (bluesky.thumb ? "posted" : "posted without image") : "failed") : "skipped"
+    }`
   );
 
   return NextResponse.json({
@@ -178,7 +184,7 @@ export async function GET(req: NextRequest) {
     attempted: email.attempted,
     sent: email.sent,
     failed: email.failed,
-    bluesky,
+    bluesky: bluesky.posted,
     alreadyRan,
   });
 }
