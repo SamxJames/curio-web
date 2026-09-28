@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { WordEntry } from "./words";
+import { WORDS } from "./words";
+import { storyPageTitle } from "./storyTitle";
 
 function word(teaser: string): WordEntry {
   return {
@@ -49,49 +51,67 @@ vi.mock("@atproto/api", () => ({
 // this whole file regardless of where it's written, so one import already
 // sees the mocked @atproto/api; a second, earlier-looking import of the
 // same module wouldn't get an unmocked version, it would just be redundant.
-const { buildBlueskyPost, postDailyWordToBluesky } = await import("./bluesky");
+const { buildBlueskyPost, buildStoryCard, graphemeLength, CARD_DESCRIPTION, postDailyWordToBluesky } =
+  await import("./bluesky");
+
+const ORIGINAL_ENV = { ...process.env };
 
 describe("buildBlueskyPost", () => {
-  it("includes the word, teaser, and link", () => {
-    const post = buildBlueskyPost(word("A short teaser."), URL);
-    expect(post).toContain("quarantine");
-    expect(post).toContain("A short teaser.");
-    expect(post).toContain(URL);
+  it("is the teaser, then word · lineage, then the hashtags — and no link", () => {
+    expect(buildBlueskyPost(word("A short teaser."))).toBe(
+      "A short teaser.\n\nquarantine · Latin → Italian → English\n\n#etymology #wordoftheday"
+    );
   });
 
-  it("stays within 300 characters", () => {
-    const longTeaser = "T".repeat(400);
-    const post = buildBlueskyPost(word(longTeaser), URL);
-    expect(post.length).toBeLessThanOrEqual(300);
+  it("fits every word in the bank in 300 graphemes without truncating anything", () => {
+    for (const w of WORDS) {
+      const post = buildBlueskyPost(w);
+      expect(graphemeLength(post)).toBeLessThanOrEqual(300);
+      expect(post.startsWith(w.teaser)).toBe(true);
+      expect(post).not.toContain("…");
+    }
   });
 
-  it("truncates the teaser, never the word or link, when too long", () => {
-    const longTeaser = "T".repeat(400);
-    const post = buildBlueskyPost(word(longTeaser), URL);
-    expect(post).toContain("quarantine");
-    expect(post).toContain(URL);
+  it("truncates only the teaser, by graphemes, if a teaser were ever too long", () => {
+    const post = buildBlueskyPost(word("T".repeat(400)));
+    expect(graphemeLength(post)).toBeLessThanOrEqual(300);
     expect(post).toContain("…");
+    expect(post).toContain("quarantine · Latin → Italian → English");
+    expect(post.endsWith("#etymology #wordoftheday")).toBe(true);
   });
 
-  it("leaves a short teaser untruncated", () => {
-    const post = buildBlueskyPost(word("Short."), URL);
-    expect(post).not.toContain("…");
+  it("counts graphemes, not UTF-16 units", () => {
+    expect(graphemeLength("é👍🏽")).toBe(2);
   });
 });
 
-const ORIGINAL_ENV = { ...process.env };
+describe("buildStoryCard", () => {
+  beforeEach(() => {
+    process.env.CURIO_SITE_URL = "https://example.com/";
+  });
+  afterEach(() => {
+    process.env = { ...ORIGINAL_ENV };
+  });
+
+  it("links the UTM-tagged story page, titled like the page itself", () => {
+    const card = buildStoryCard(word("A teaser."));
+    expect(card.uri).toBe(URL);
+    expect(card.title).toBe(storyPageTitle(word("A teaser.")));
+    expect(card.title).toBe("quarantine: the origin of the word — Curio");
+    expect(card.description).toBe(CARD_DESCRIPTION);
+    expect(card.thumbUrl).toBe("https://example.com/story/quarantine/opengraph-image");
+  });
+});
 
 describe("postDailyWordToBluesky", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.BLUESKY_IDENTIFIER = "curiodaily.bsky.social";
     process.env.BLUESKY_APP_PASSWORD = "app-password";
-    // postDailyWordToBluesky builds its own story URL internally (via
-    // buildStoryUrl + CURIO_SITE_URL, same fallback pattern as
-    // lib/email.ts) rather than accepting one as a parameter — pinning it
-    // here to the same origin the top-level URL constant uses is what lets
-    // the success test below assert the posted text contains that exact
-    // UTM-tagged link.
+    // CURIO_SITE_URL is read by lib/siteUrl.ts (same fallback pattern as
+    // lib/email.ts). The post text itself no longer contains a link — the
+    // link now lives in the card, added in Task 2 — but this stays set for
+    // parity with the rest of the cron path.
     process.env.CURIO_SITE_URL = "https://example.com";
     mockLogin.mockResolvedValue(undefined);
     mockPost.mockResolvedValue(undefined);
@@ -115,7 +135,8 @@ describe("postDailyWordToBluesky", () => {
     expect(mockDetectFacets).toHaveBeenCalledTimes(1);
     expect(mockPost).toHaveBeenCalledTimes(1);
     const postedText = mockPost.mock.calls[0][0].text;
-    expect(postedText).toContain(URL);
+    expect(postedText).not.toContain("http");
+    expect(postedText).toContain("#etymology #wordoftheday");
   });
 
   it("catches a login failure, logs it, and reports posted: false without throwing", async () => {

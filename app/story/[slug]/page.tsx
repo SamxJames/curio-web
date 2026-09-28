@@ -4,6 +4,7 @@ import StoryView from "@/components/StoryView";
 import { WORDS, getWordBySlug } from "@/lib/words";
 import { buildStoryJsonLd, serializeJsonLd } from "@/lib/storyJsonLd";
 import { getRelatedWords } from "@/lib/relatedWords";
+import { storyPageTitle } from "@/lib/storyTitle";
 
 export function generateStaticParams() {
   return WORDS.map((w) => ({ slug: w.slug }));
@@ -24,7 +25,7 @@ export async function generateMetadata({
   // more often than not). Every teaser in the bank is ≤151 characters, so
   // nothing needs truncating for a meta description.
   const description = word.teaser;
-  const title = `${word.word}: the origin of the word — Curio`;
+  const title = storyPageTitle(word);
 
   return {
     title,
