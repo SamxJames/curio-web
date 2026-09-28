@@ -1248,19 +1248,57 @@ pre-existing warnings as every prior session
 (`lib/puzzle.test.ts:3`, `scripts/approveDraft.test.ts:36,211`).
 
 This was done via the `superpowers` subagent-driven-development process,
-one task per commit (`git log 6b15a47..HEAD`). The plan's Task 8
-(controller-only, not a subagent) still needs to run: a clean-install
-verification (`rm -rf node_modules .next && npm ci`, then `npm test`,
-`npm run lint`, `npm run build`), a real local send with a real
-`RESEND_API_KEY` and `UNSUBSCRIBE_SECRET` in `.env.local` (Upstash vars
-unset so the local JSON store holds only a test address, checking both
-`List-Unsubscribe` headers, the confirm page's masking, and that a plain
-`GET` on the unsubscribe link removes nothing), and a final whole-branch
-review.
+one task per commit (`git log 6b15a47..HEAD`), plus a final whole-branch
+review whose four Important findings were fixed in one wave (prod-only
+locks, the pending set seeded before sending, the 30s batch timeout, the
+test race on `.data/subscribers.json`, one unredacted log line).
 
 ### Verification
 
-Pending — filled in after the clean-install check and the real local send.
+Done 2026-09-28, before any push or deploy:
+
+- **Clean install:** `rm -rf node_modules .next && npm ci`, then
+  `npm test` (309/309, 28 files), `npm run lint` (the same 3 warnings),
+  `npm run build` (passes; `/story/[slug]` still `●` at 1,147 paths,
+  `/unsubscribe` and `/api/unsubscribe` `ƒ`). `app/account/page.tsx` is
+  byte-identical to before this work, so the account email toggle is
+  unchanged.
+- **Real local send** to the owner's own Gmail, through a restricted
+  sending-only Resend key, with Upstash commented out of `.env.local`
+  (local JSON store holding only that address) and Bluesky unconfigured.
+  The cron returned `sent 1 of 1`; a second run returned
+  `alreadyRan: { email: true, bluesky: true }` and sent nothing.
+- **"Show original":** both `List-Unsubscribe` and
+  `List-Unsubscribe-Post: List-Unsubscribe=One-Click` present, and both
+  DKIM signatures' `h=` lists cover them (Gmail/Yahoo only honour
+  one-click on signed headers). DKIM/SPF/DMARC pass. Single recipient;
+  the plain-text part carries the same unsubscribe URL.
+- **Unsubscribe flow:** opening the GET link on its own landed on
+  `/unsubscribe` showing `s***@gmail.com` and removed nothing; the button
+  removed the address (`/unsubscribed?ok=1`). A signature tampered in the
+  middle, and another address's payload with this signature, were both
+  rejected (form → `ok=0`, one-click → 400, confirm page → `ok=0`) with the
+  address still subscribed. A valid one-click POST returned 200 and
+  removed it; repeating it returned 200. A legacy `base64(email)` token
+  goes to `ok=0`.
+- **Gotcha found while testing:** flipping only the *last* character of
+  the signature often isn't tampering. A 32-byte HMAC's final base64url
+  character carries 4 data bits plus 2 padding bits that decoding
+  discards, so e.g. `…CAI` and `…CAJ` are the same signature for the same
+  address. Not a vulnerability (it can't target a different address), but
+  flip a middle character when testing by hand.
+- **Noticed, not changed:** Resend click and open tracking are on for the
+  sending domain used in the test: the HTML body's links (including the
+  body's Unsubscribe link) were wrapped in an `awstrack.me` redirect,
+  plus a tracking pixel. The `List-Unsubscribe` header isn't wrapped, and
+  the wrapped body link still lands on the confirm page. Whether Curio
+  wants tracking is an owner decision; it's a per-domain setting in
+  Resend, so check the `curioword.com` domain's settings.
+- **Not verified yet:** production. See "Deploy" in
+  `docs/superpowers/plans/2026-09-27-email-hardening.md` (Task 9):
+  `UNSUBSCRIBE_SECRET` and the rotated `CRON_SECRET` must be in Vercel
+  Production before the push, and the morning after, check
+  `attempted === sent` and no 429s.
 
 ## Workflow notes for whoever picks this up
 
