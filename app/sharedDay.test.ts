@@ -65,6 +65,7 @@ vi.mock("@atproto/api", () => ({
     post = vi.fn(async (record: { text: string }) => {
       posted.push(record);
     });
+    uploadBlob = vi.fn(async () => ({ data: { blob: { ref: "thumb" } } }));
   },
   RichText: class {
     text: string;
@@ -135,12 +136,21 @@ beforeEach(() => {
   vi.stubEnv("VERCEL_ENV", "production");
   // The cron route logs its own success-path summary; keep test output pristine.
   log = vi.spyOn(console, "log").mockImplementation(() => {});
+  // The Bluesky post now fetches its own story's Open Graph image for a
+  // thumbnail — stub fetch so this test never makes a real network request
+  // to localhost:3000 for it.
+  const png = new Uint8Array([137, 80, 78, 71]);
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => new Response(png, { status: 200, headers: { "content-type": "image/png" } }))
+  );
 });
 
 afterEach(() => {
   vi.useRealTimers();
   log.mockRestore();
   vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
 });
 
 describe("one shared word, every surface", () => {

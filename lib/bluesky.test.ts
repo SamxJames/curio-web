@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { AppBskyFeedPost } from "@atproto/api";
 import type { WordEntry } from "./words";
 import { WORDS } from "./words";
 import { storyPageTitle } from "./storyTitle";
@@ -25,17 +26,23 @@ const URL = "https://example.com/story/quarantine?utm_source=bluesky&utm_medium=
 // doc comment flags as running unattended in the daily cron with nobody
 // watching, so a real posting failure needs to degrade gracefully (logged,
 // not thrown) rather than break the rest of that cron run.
-const { mockLogin, mockPost, mockDetectFacets } = vi.hoisted(() => ({
+const { mockLogin, mockPost, mockDetectFacets, mockUploadBlob } = vi.hoisted(() => ({
   mockLogin: vi.fn(),
   mockPost: vi.fn(),
   mockDetectFacets: vi.fn(async () => {}),
+  mockUploadBlob: vi.fn(),
 }));
 
-vi.mock("@atproto/api", () => ({
+// The factory stays async so it can re-import the real @atproto/api and keep
+// its actual AppBskyFeedPost — this test validates real post records against
+// the real lexicon, not a hand-rolled shape that could drift from it.
+vi.mock("@atproto/api", async (importOriginal) => ({
+  AppBskyFeedPost: (await importOriginal<typeof import("@atproto/api")>()).AppBskyFeedPost,
   AtpAgent: vi.fn(function () {
     return {
       login: mockLogin,
       post: mockPost,
+      uploadBlob: mockUploadBlob,
     };
   }),
   RichText: vi.fn(function ({ text }: { text: string }) {
@@ -115,10 +122,21 @@ describe("postDailyWordToBluesky", () => {
     process.env.CURIO_SITE_URL = "https://example.com";
     mockLogin.mockResolvedValue(undefined);
     mockPost.mockResolvedValue(undefined);
+
+    // The thumbnail fetch is a real fetch() to the story's own OG image
+    // route — stub it so no test reaches the network, and default it to a
+    // small valid PNG so the happy path exercises the upload too.
+    const png = new Uint8Array([137, 80, 78, 71]);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(png, { status: 200, headers: { "content-type": "image/png" } }))
+    );
+    mockUploadBlob.mockResolvedValue({ data: { blob: { ref: "bafy-thumb" } } });
   });
 
   afterEach(() => {
     process.env = { ...ORIGINAL_ENV };
+    vi.unstubAllGlobals();
   });
 
   it("logs in, detects facets, posts, and reports success when the client succeeds", async () => {
@@ -171,5 +189,67 @@ describe("postDailyWordToBluesky", () => {
     expect(result).toEqual({ posted: false });
     expect(mockLogin).not.toHaveBeenCalled();
     expect(mockPost).not.toHaveBeenCalled();
+  });
+
+  it("posts the text with an external link card carrying the uploaded thumbnail — a valid post record", async () => {
+    const result = await postDailyWordToBluesky(word("A teaser."), new Date("2026-01-01T00:00:00Z"));
+    expect(result).toEqual({ posted: true });
+
+    expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+      "https://example.com/story/quarantine/opengraph-image",
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    );
+    expect(mockUploadBlob).toHaveBeenCalledWith(expect.any(Uint8Array), { encoding: "image/png" });
+
+    const record = mockPost.mock.calls[0][0];
+    expect(record.embed).toEqual({
+      $type: "app.bsky.embed.external",
+      external: {
+        uri: URL,
+        title: "quarantine: the origin of the word — Curio",
+        description: CARD_DESCRIPTION,
+        thumb: { ref: "bafy-thumb" },
+      },
+    });
+    // The mock's { ref: "bafy-thumb" } isn't a real BlobRef, so validating
+    // the full record would fail on that alone — strip it and validate the
+    // card's shape without it.
+    const { external } = record.embed;
+    const externalWithoutThumb = { uri: external.uri, title: external.title, description: external.description };
+    expect(
+      AppBskyFeedPost.validateRecord({
+        $type: "app.bsky.feed.post",
+        text: record.text,
+        createdAt: record.createdAt,
+        embed: { $type: "app.bsky.embed.external", external: externalWithoutThumb },
+      }).success
+    ).toBe(true);
+  });
+
+  it.each([
+    ["the image fetch fails", () => vi.mocked(fetch).mockRejectedValueOnce(new Error("timeout"))],
+    [
+      "the image is not an image",
+      () => vi.mocked(fetch).mockResolvedValueOnce(new Response("nope", { headers: { "content-type": "text/html" } })),
+    ],
+    [
+      "the image is too big",
+      () =>
+        vi
+          .mocked(fetch)
+          .mockResolvedValueOnce(new Response(new Uint8Array(1_000_001), { headers: { "content-type": "image/png" } })),
+    ],
+    ["the upload fails", () => mockUploadBlob.mockRejectedValueOnce(new Error("blob rejected"))],
+  ])("still posts the card, without a thumbnail, when %s", async (label, arrange) => {
+    void label;
+    arrange();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const result = await postDailyWordToBluesky(word("A teaser."), new Date("2026-01-01T00:00:00Z"));
+    warn.mockRestore();
+
+    expect(result).toEqual({ posted: true });
+    const external = mockPost.mock.calls[0][0].embed.external;
+    expect(external.uri).toBe(URL);
+    expect(external).not.toHaveProperty("thumb");
   });
 });
