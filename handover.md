@@ -322,7 +322,13 @@ rejected with 400 combined with `force`, `resend` or `bluesky=1`, and 401
 without `CRON_SECRET`, same as the other overrides. Keeping the lock after
 an ambiguous Bluesky failure (a throw, a network error, an unclear
 response) is still the deliberately safe default: it's easy to retry a
-missed post by hand with this, hard to un-send a duplicate.
+missed post by hand with this, hard to un-send a duplicate. It always
+posts **today's UTC word** and takes today's Bluesky lock, so run it
+before 00:00 UTC on the same day the original post failed — the owner is
+in the UK (UTC+1), so a late-evening run can cross into the next UTC day,
+posting tomorrow's word early and making the 09:00 run skip Bluesky.
+There's no way to re-post a past day. It also doesn't remove an earlier
+post: if the post "went out wrong", delete it in the Bluesky app first.
 
 ## Architecture map
 
@@ -1381,8 +1387,9 @@ module}` workaround was tried and rejected — it would have changed module
 semantics for all of `lib/`, not just the Bluesky files. Add new pure
 Bluesky logic to `lib/blueskyPost.ts`, not `lib/bluesky.ts`.
 
-**Also on this branch, merged from master:** a puzzle change (`17d6f4b`)
-— the third clue now also shows "N letters, starts with X"
+**This branch's base:** an unpushed local-master commit, a puzzle change
+(`17d6f4b`), deploys together with this branch — the third clue now also
+shows "N letters, starts with X"
 (`buildLetterHint` in `lib/puzzle.ts`), and "Guess N of 3" sits above the
 guess box. The rules are unchanged: a wrong guess or "I need another
 clue" both use a turn.

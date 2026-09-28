@@ -115,10 +115,7 @@ describe("postDailyWordToBluesky", () => {
     vi.clearAllMocks();
     process.env.BLUESKY_IDENTIFIER = "curiodaily.bsky.social";
     process.env.BLUESKY_APP_PASSWORD = "app-password";
-    // CURIO_SITE_URL is read by lib/siteUrl.ts (same fallback pattern as
-    // lib/email.ts). The post text itself no longer contains a link — the
-    // link now lives in the card, added in Task 2 — but this stays set for
-    // parity with the rest of the cron path.
+    // CURIO_SITE_URL feeds the card link and thumbnail URL.
     process.env.CURIO_SITE_URL = "https://example.com";
     mockLogin.mockResolvedValue(undefined);
     mockPost.mockResolvedValue(undefined);
@@ -139,9 +136,9 @@ describe("postDailyWordToBluesky", () => {
     vi.unstubAllGlobals();
   });
 
-  it("logs in, detects facets, posts, and reports success when the client succeeds", async () => {
+  it("logs in, detects facets, posts, and reports success (and a thumbnail) when the client succeeds", async () => {
     const result = await postDailyWordToBluesky(word("A teaser."), new Date("2026-01-01T00:00:00Z"));
-    expect(result).toEqual({ posted: true });
+    expect(result).toEqual({ posted: true, thumb: true });
     expect(mockLogin).toHaveBeenCalledWith({
       identifier: "curiodaily.bsky.social",
       password: "app-password",
@@ -163,7 +160,7 @@ describe("postDailyWordToBluesky", () => {
 
     const result = await postDailyWordToBluesky(word("A teaser."), new Date("2026-01-01T00:00:00Z"));
 
-    expect(result).toEqual({ posted: false });
+    expect(result).toEqual({ posted: false, thumb: false });
     expect(mockPost).not.toHaveBeenCalled();
     expect(consoleError).toHaveBeenCalledWith("[curio:bluesky] post failed:", expect.any(Error));
     consoleError.mockRestore();
@@ -175,7 +172,7 @@ describe("postDailyWordToBluesky", () => {
 
     const result = await postDailyWordToBluesky(word("A teaser."), new Date("2026-01-01T00:00:00Z"));
 
-    expect(result).toEqual({ posted: false });
+    expect(result).toEqual({ posted: false, thumb: false });
     expect(consoleError).toHaveBeenCalledWith("[curio:bluesky] post failed:", expect.any(Error));
     consoleError.mockRestore();
   });
@@ -186,14 +183,31 @@ describe("postDailyWordToBluesky", () => {
 
     const result = await postDailyWordToBluesky(word("A teaser."), new Date("2026-01-01T00:00:00Z"));
 
-    expect(result).toEqual({ posted: false });
+    expect(result).toEqual({ posted: false, thumb: false });
     expect(mockLogin).not.toHaveBeenCalled();
     expect(mockPost).not.toHaveBeenCalled();
   });
 
+  it("refuses to post in production when CURIO_SITE_URL isn't set (would link and thumbnail to localhost)", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.stubEnv("VERCEL_ENV", "production");
+    delete process.env.CURIO_SITE_URL;
+
+    const result = await postDailyWordToBluesky(word("A teaser."), new Date("2026-01-01T00:00:00Z"));
+
+    expect(result).toEqual({ posted: false, thumb: false });
+    expect(mockLogin).not.toHaveBeenCalled();
+    expect(mockPost).not.toHaveBeenCalled();
+    expect(consoleError).toHaveBeenCalledWith(
+      "[curio:bluesky] CURIO_SITE_URL is not set in production — not posting a card that links to localhost"
+    );
+    consoleError.mockRestore();
+    vi.unstubAllEnvs();
+  });
+
   it("posts the text with an external link card carrying the uploaded thumbnail — a valid post record", async () => {
     const result = await postDailyWordToBluesky(word("A teaser."), new Date("2026-01-01T00:00:00Z"));
-    expect(result).toEqual({ posted: true });
+    expect(result).toEqual({ posted: true, thumb: true });
 
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       "https://example.com/story/quarantine/opengraph-image",
@@ -247,7 +261,7 @@ describe("postDailyWordToBluesky", () => {
     const result = await postDailyWordToBluesky(word("A teaser."), new Date("2026-01-01T00:00:00Z"));
     warn.mockRestore();
 
-    expect(result).toEqual({ posted: true });
+    expect(result).toEqual({ posted: true, thumb: false });
     const external = mockPost.mock.calls[0][0].embed.external;
     expect(external.uri).toBe(URL);
     expect(external).not.toHaveProperty("thumb");
