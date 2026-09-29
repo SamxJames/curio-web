@@ -1341,9 +1341,14 @@ Done 2026-09-28, before any push or deploy:
   Non-sending production smoke checks passed: a bad-token GET redirects
   via the confirm page to `ok=0`; `robots.txt` has `Disallow:
   /unsubscribe`; a bad one-click POST returns 400; the cron without the
-  secret returns 401. **Not verified yet:** the first real scheduled run
-  (2026-09-29 09:00 UTC) — check `attempted === sent` and no 429s once
-  it's happened.
+  secret returns 401. **First real scheduled run, 2026-09-29, verified
+  in Resend's email log:** all 3 digests were accepted at 09:06:56 UTC
+  within 10 ms of each other (one batch request), each single-recipient,
+  all `delivered`, no duplicates, no failures. (The runtime log itself
+  wasn't readable by then: Vercel Hobby keeps runtime logs only briefly,
+  so check the cron's JSON/log within the hour, or use Resend's log
+  afterwards.) One of the 3 production subscribers is a leftover test
+  address, `samfillingham00+task8verify@gmail.com`.
 
 ## This session (2026-09-28): Bluesky link cards (Phase 3)
 
