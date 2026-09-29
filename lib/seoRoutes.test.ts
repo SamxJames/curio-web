@@ -71,6 +71,10 @@ describe("buildRobots", () => {
     expect(buildRobots().sitemap).toBe("https://curio.example/sitemap.xml");
   });
 
+  it("disallows the social image routes", () => {
+    expect(buildRobots().rules.disallow).toContain("/social/");
+  });
+
   it("disallows the unsubscribe confirm page and its API route", () => {
     const { disallow } = buildRobots().rules;
     expect(disallow).toContain("/unsubscribe");

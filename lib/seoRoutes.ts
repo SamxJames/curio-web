@@ -17,6 +17,8 @@ export const DISALLOWED_PATHS = [
   "/unsubscribe",
   "/unsubscribed",
   "/api/",
+  // Carousel JPEGs for Meta's fetcher, not pages.
+  "/social/",
 ] as const;
 
 export type SitemapEntry = {
