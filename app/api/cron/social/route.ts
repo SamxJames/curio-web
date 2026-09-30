@@ -46,7 +46,16 @@ export async function GET(req: NextRequest) {
     }
   } catch (err) {
     // Don't strand the day as "already ran" with nothing posted.
-    for (const channel of claimed) await releaseRun(channel, day).catch(() => {});
+    for (const channel of claimed) {
+      await releaseRun(channel, day).catch((releaseErr) => {
+        // Name only: an Upstash error message echoes the command. A stranded
+        // lock needs a `?repost=`, so it must at least be on record.
+        console.error(
+          `[curio:social] releasing ${channel} lock failed:`,
+          releaseErr instanceof Error ? releaseErr.name : "unknown"
+        );
+      });
+    }
     throw err;
   }
 

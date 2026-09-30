@@ -1,5 +1,6 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
+import { dayKey } from "@/lib/day";
 
 const { fake, sharedWord } = vi.hoisted(() => {
   const store = new Map<string, unknown>();
@@ -114,10 +115,22 @@ describe("GET /api/cron/social", () => {
   });
 
   it("releases any lock already claimed when a later claim throws", async () => {
-    fake.set.mockResolvedValueOnce("OK").mockRejectedValueOnce(new Error("redis down"));
+    // The Threads claim really writes to the store; the Instagram one throws.
+    const real = fake.set.getMockImplementation()!;
+    fake.set.mockImplementationOnce(real).mockRejectedValueOnce(new Error("redis down"));
     await expect(GET(cronRequest())).rejects.toThrow("redis down");
+    expect(fake.del).toHaveBeenCalledWith(`curio:digest:threads:${dayKey(new Date())}`);
     expect(fake.store.size).toBe(0);
     expect(postDailyWordToThreads).not.toHaveBeenCalled();
+  });
+
+  it("logs, by error name only, a lock release that itself fails, and still rethrows the claim error", async () => {
+    const real = fake.set.getMockImplementation()!;
+    fake.set.mockImplementationOnce(real).mockRejectedValueOnce(new Error("redis down"));
+    fake.del.mockRejectedValueOnce(new TypeError("del failed token=SECRET-abc"));
+    await expect(GET(cronRequest())).rejects.toThrow("redis down");
+    expect(error).toHaveBeenCalledWith("[curio:social] releasing threads lock failed:", "TypeError");
+    expect(JSON.stringify(error.mock.calls)).not.toContain("SECRET");
   });
 
   it("pins maxDuration to 300", () => expect(maxDuration).toBe(300));
