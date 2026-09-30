@@ -17,8 +17,9 @@ export const DISALLOWED_PATHS = [
   "/unsubscribe",
   "/unsubscribed",
   "/api/",
-  // Carousel JPEGs for Meta's fetcher, not pages.
-  "/social/",
+  // Not "/social/": Instagram must fetch the carousel JPEGs there, and a
+  // fetcher that honours robots.txt would be turned away. The slide route
+  // sends X-Robots-Tag: noindex instead.
 ] as const;
 
 export type SitemapEntry = {

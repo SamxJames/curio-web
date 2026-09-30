@@ -71,8 +71,11 @@ describe("buildRobots", () => {
     expect(buildRobots().sitemap).toBe("https://curio.example/sitemap.xml");
   });
 
-  it("disallows the social image routes", () => {
-    expect(buildRobots().rules.disallow).toContain("/social/");
+  // Meta's fetcher may honour robots.txt, and Instagram must fetch the
+  // carousel slides; the slide route sends X-Robots-Tag: noindex instead.
+  it("does not disallow the social image routes, and keeps them out of the sitemap", () => {
+    expect(buildRobots().rules.disallow.some((path) => path.startsWith("/social"))).toBe(false);
+    expect(buildSitemapEntries().some((e) => new URL(e.url).pathname.startsWith("/social/"))).toBe(false);
   });
 
   it("disallows the unsubscribe confirm page and its API route", () => {

@@ -44,7 +44,36 @@ describe("GET /social/carousel/[slug]/[slide]", () => {
     ["fiasco", "99"],
     ["fiasco", "1.5"],
     ["fiasco", "abc"],
-  ])("404s for %s / %s", async (slug, slide) => {
-    expect((await call(slug, slide)).status).toBe(404);
+  ])("404s for %s / %s, marked noindex", async (slug, slide) => {
+    const res = await call(slug, slide);
+    expect(res.status).toBe(404);
+    expect(res.headers.get("x-robots-tag")).toBe("noindex");
   });
+
+  // Meta's fetcher must be able to reach these (so robots.txt allows
+  // /social/), but they aren't pages: every response says noindex.
+  it("marks a rendered slide noindex", async () => {
+    const res = await call("fiasco", "1");
+    expect(res.status).toBe(200);
+    expect(res.headers.get("x-robots-tag")).toBe("noindex");
+  }, 30_000);
+
+  it("lets the CDN keep an all-Latin slide for a day", async () => {
+    const res = await call("ketchup", "1");
+    expect(res.status).toBe(200);
+    expect(res.headers.get("cache-control")).toBe("public, max-age=3600, s-maxage=86400");
+  }, 30_000);
+
+  it("never caches a slide that needs a Google Font (ketchup's 膎汁): a failed font fetch draws boxes", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const res = await call("ketchup", "3");
+    const logged = error.mock.calls.flat().map(String).join(" ");
+    error.mockRestore();
+    // The stub refused the font, and next/og only logged it: exactly the
+    // silent failure a cached 200 would have preserved.
+    expect(logged).toContain("Failed to load dynamic font");
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toBe("image/jpeg");
+    expect(res.headers.get("cache-control")).toBe("no-store");
+  }, 30_000);
 });
