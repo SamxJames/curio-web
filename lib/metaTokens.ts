@@ -18,19 +18,21 @@ const REFRESH: Record<MetaChannel, (token: string) => string> = {
 const key = (channel: MetaChannel) => `curio:social:token:${channel}`;
 
 /** The token to post with. Production keeps a refreshed copy in Redis
- * (the env value is only the seed); everywhere else just uses env, so a
+ * (the env value is the seed and the on switch); everywhere else just uses env, so a
  * local run can never read or rotate production's token. */
 export async function getMetaToken(channel: MetaChannel, now: Date = new Date()): Promise<string | null> {
   const envToken = process.env[ENV[channel]] || null;
   if (process.env.VERCEL_ENV !== "production" || !redis) return envToken;
+  // Env stays the off switch: removing the token in Vercel stops posting,
+  // even though Redis still holds a refreshed copy.
+  if (!envToken) return null;
 
   let stored = await redis.get<Stored>(key(channel));
-  if (envToken && (!stored || stored.seed !== envToken)) {
+  if (!stored || stored.seed !== envToken) {
     // First run, or the owner replaced the token in Vercel: start from it.
     // The epoch refreshedAt means "age unknown", so it's due for refresh.
     stored = { token: envToken, refreshedAt: new Date(0).toISOString(), seed: envToken };
   }
-  if (!stored) return null;
 
   if (now.getTime() - Date.parse(stored.refreshedAt) < REFRESH_AFTER_MS) return stored.token;
 

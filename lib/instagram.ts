@@ -1,8 +1,8 @@
 import type { WordEntry } from "./words";
-import { buildCarouselSlides, buildInstagramCaption } from "./socialPost";
+import { buildCarouselSlides, buildInstagramCaption, carouselSlideUrl } from "./socialPost";
 import { getMetaToken } from "./metaTokens";
-import { absoluteUrl, siteUrl } from "./siteUrl";
-import { SafeError, call, form, failureReason } from "./metaGraph";
+import { siteUrl } from "./siteUrl";
+import { SafeError, call, containerId, form, failureReason, tokenLookupFailed } from "./metaGraph";
 
 const API = "https://graph.instagram.com/v25.0";
 const POLL_EVERY_MS = 5_000;
@@ -10,12 +10,20 @@ const POLL_EVERY_MS = 5_000;
  * child container is created, so the carousel is normally ready within
  * seconds, and the cron has a 300s ceiling. */
 const POLL_TRIES = 12;
+const WARM_TIMEOUT_MS = 15_000;
 
-/** A create call's container id. A 200 without one must stop the post
- * rather than carry "undefined" into the next step. */
-function containerId(body: Record<string, unknown>): string {
-  if (typeof body.id !== "string" || !body.id) throw new SafeError("no container id");
-  return body.id;
+/** Fetches every slide ourselves, in order, before Meta does: a slide that
+ * 404s, errors or isn't a JPEG stops the post before anything is created,
+ * and a good one is rendered (and, if cacheable, at the CDN) by the time
+ * Meta asks for it. */
+async function warmSlides(urls: string[]): Promise<void> {
+  for (const [i, url] of urls.entries()) {
+    const res = await fetch(url, { signal: AbortSignal.timeout(WARM_TIMEOUT_MS) });
+    await res.arrayBuffer().catch(() => {}); // drain, so the connection is freed
+    const type = res.headers.get("content-type") ?? "";
+    if (res.status !== 200) throw new SafeError(`slide ${i + 1} not ready: ${res.status}`);
+    if (!type.startsWith("image/jpeg")) throw new SafeError(`slide ${i + 1} not ready: ${res.status} ${type || "no content-type"}`);
+  }
 }
 
 /** Today's word as an Instagram carousel (slides from
@@ -29,15 +37,12 @@ export async function postDailyCarouselToInstagram(
   let token: string | null = null;
 
   try {
-    const slideUrls = buildCarouselSlides(word).map((slide, i) => {
-      void slide;
-      return absoluteUrl(`/social/carousel/${word.slug}/${i + 1}`);
-    });
+    const slideUrls = Array.from(buildCarouselSlides(word).keys(), (i) => carouselSlideUrl(word, i + 1));
     const caption = buildInstagramCaption(word);
     // Inside the try: getMetaToken rejects when Redis is unavailable.
     const userId = process.env.INSTAGRAM_USER_ID;
     token = await getMetaToken("instagram").catch((err) => {
-      throw new SafeError(err instanceof Error ? err.message : "token lookup failed");
+      throw tokenLookupFailed(err);
     });
 
     if (!userId || !token) {
@@ -46,10 +51,14 @@ export async function postDailyCarouselToInstagram(
       );
       return { posted: false };
     }
-    if (process.env.VERCEL_ENV === "production" && siteUrl().startsWith("http://localhost")) {
-      console.error("[curio:instagram] CURIO_SITE_URL is not set in production — not posting");
+    // In every environment: a local .env.local with real tokens must not
+    // hand Meta localhost URLs either.
+    if (siteUrl().startsWith("http://localhost")) {
+      console.error("[curio:instagram] CURIO_SITE_URL points to localhost — not posting");
       return { posted: false };
     }
+
+    await warmSlides(slideUrls);
 
     // One at a time and in order: the carousel shows its children in this order.
     const children: string[] = [];
@@ -74,6 +83,8 @@ export async function postDailyCarouselToInstagram(
     if (!ready) throw new SafeError("container not ready");
 
     await call(`${API}/${userId}/media_publish`, form({ creation_id: carousel, access_token: token }));
+    // On record now, even if the other channel later gets the function killed.
+    console.log("[curio:instagram] posted");
     return { posted: true };
   } catch (err) {
     console.error("[curio:instagram] post failed:", failureReason(err, token));

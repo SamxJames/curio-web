@@ -18,6 +18,19 @@ export async function call(url: string, init?: RequestInit): Promise<Record<stri
   return body;
 }
 
+/** A create call's container id. A 200 without one must stop the post
+ * rather than carry "undefined" into the next step. */
+export function containerId(body: Record<string, unknown>): string {
+  if (typeof body.id !== "string" || !body.id) throw new SafeError("no container id");
+  return body.id;
+}
+
+/** A token lookup that rejected, by error name only: @upstash/redis puts the
+ * failed command's body in its message, and the token record is in it. */
+export function tokenLookupFailed(err: unknown): SafeError {
+  return new SafeError(`token lookup failed (${err instanceof Error ? err.name : "unknown"})`);
+}
+
 export const form = (fields: Record<string, string>) => ({
   method: "POST",
   headers: { "content-type": "application/x-www-form-urlencoded" },

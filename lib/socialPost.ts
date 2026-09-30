@@ -21,6 +21,12 @@ export function socialStoryUrl(word: WordEntry, channel: SocialChannel): string 
   return url.toString();
 }
 
+/** The public URL of a word's nth (1-based) carousel slide — what Meta
+ * fetches, the warm-up checks and the preview lists. */
+export function carouselSlideUrl(word: WordEntry, n: number): string {
+  return absoluteUrl(`/social/carousel/${word.slug}/${n}`);
+}
+
 function lineageLine(word: WordEntry): string {
   return `${word.word} · ${word.lineage.join(" → ")}`;
 }
@@ -77,4 +83,40 @@ export function buildCarouselSlides(word: WordEntry): Slide[] {
     ...parts.map((text, i) => ({ kind: "story" as const, text, index: i + 1, total: parts.length })),
     { kind: "outro" },
   ];
+}
+
+/** The fixed words drawn on the slides (lib/carouselImage.tsx), kept here
+ * so slideText sees everything a slide renders. */
+export const SLIDE_COPY = {
+  brand: "CURIO",
+  swipe: "Swipe →",
+  outroLine: "One word's origin story, every morning.",
+  outroSite: "curioword.com",
+  outroTagline: "No feed, no backlog.",
+} as const;
+
+/** The story slide's "2 / 3" label; none when there's only one. */
+export function storyLabel(slide: Extract<Slide, { kind: "story" }>): string | null {
+  return slide.total > 1 ? `${slide.index} / ${slide.total}` : null;
+}
+
+/** Every piece of text a slide draws, for needsFallbackFont. */
+export function slideText(slide: Slide): string {
+  switch (slide.kind) {
+    case "hook":
+      return [SLIDE_COPY.brand, slide.text, SLIDE_COPY.swipe].join("\n");
+    case "word":
+      return [slide.word, `${slide.respelling} · ${slide.partOfSpeech}`, slide.lineage].join("\n");
+    case "story":
+      return [storyLabel(slide) ?? "", slide.text].join("\n");
+    case "outro":
+      return [SLIDE_COPY.outroLine, SLIDE_COPY.outroSite, SLIDE_COPY.outroTagline].join("\n");
+  }
+}
+
+/** True when next/og will fetch a Google Font for some of this text (Han,
+ * Greek, Arabic…). That fetch can fail silently and draw boxes, so the
+ * slide route won't let a CDN keep such a slide. */
+export function needsFallbackFont(text: string): boolean {
+  return /[^\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}]/u.test(text);
 }

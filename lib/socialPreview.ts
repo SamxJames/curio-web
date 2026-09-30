@@ -1,16 +1,17 @@
 import { getWordForDate } from "./words";
 import { DAY_MS, dayKey, dayStart } from "./day";
-import { absoluteUrl } from "./siteUrl";
 import {
   buildCarouselSlides,
   buildInstagramCaption,
   buildThreadsPost,
+  carouselSlideUrl,
   socialStoryUrl,
   type Slide,
 } from "./socialPost";
 
 // Imports only the pure builders: lib/threads.ts, instagram.ts and
-// metaGraph.ts pull in tokens and Redis, and the preview must stay offline.
+// metaGraph.ts pull in tokens and Redis, and the preview must stay offline
+// (so no slide warm-up either; that's the poster's job at post time).
 
 export type SocialPreviewRow = {
   day: string;
@@ -38,7 +39,7 @@ export function buildSocialPreview(from: Date, days: number): SocialPreviewRow[]
       slides: buildCarouselSlides(word).map((slide, j) => ({
         n: j + 1,
         kind: slide.kind,
-        url: absoluteUrl(`/social/carousel/${word.slug}/${j + 1}`),
+        url: carouselSlideUrl(word, j + 1),
       })),
     };
   });

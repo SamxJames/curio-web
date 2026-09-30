@@ -4,15 +4,74 @@ import {
   buildCarouselSlides,
   buildInstagramCaption,
   buildThreadsPost,
+  carouselSlideUrl,
   INSTAGRAM_HASHTAGS,
+  needsFallbackFont,
+  slideText,
   socialStoryUrl,
   splitSentences,
+  storyLabel,
+  type Slide,
 } from "./socialPost";
 
 const ketchup = WORDS.find((w) => w.slug === "ketchup") as WordEntry;
 
 beforeEach(() => vi.stubEnv("CURIO_SITE_URL", "https://curioword.com"));
 afterEach(() => vi.unstubAllEnvs());
+
+describe("carouselSlideUrl", () => {
+  it("is the absolute, 1-based slide URL", () => {
+    expect(carouselSlideUrl(ketchup, 3)).toBe("https://curioword.com/social/carousel/ketchup/3");
+  });
+});
+
+describe("needsFallbackFont", () => {
+  it.each(["fiasco", "Old Norse ǭ, Middle English", "a → b · c — “d” 1 / 3", "café", ""])(
+    "is false for Latin, Common and Inherited text: %j",
+    (text) => expect(needsFallbackFont(text)).toBe(false)
+  );
+
+  it.each(["Hokkien 膎汁 (kê-chiap)", "Greek λόγος", "Arabic قهوة", "Hebrew שבת", "Russian водка"])(
+    "is true once any other script appears: %j",
+    (text) => expect(needsFallbackFont(text)).toBe(true)
+  );
+});
+
+describe("storyLabel", () => {
+  it("numbers the story slides, but a lone one gets no '1 / 1'", () => {
+    expect(storyLabel({ kind: "story", text: "t", index: 2, total: 3 })).toBe("2 / 3");
+    expect(storyLabel({ kind: "story", text: "t", index: 1, total: 1 })).toBeNull();
+    expect(slideText({ kind: "story", text: "t", index: 1, total: 1 })).not.toContain("1 / 1");
+  });
+});
+
+describe("slideText", () => {
+  // A Han character in each drawn field in turn: every one must reach the check.
+  const HAN = "汁";
+  const cases: [string, Slide][] = [
+    ["hook text", { kind: "hook", text: HAN }],
+    ["word", { kind: "word", word: HAN, respelling: "r", partOfSpeech: "noun", lineage: "a" }],
+    ["respelling", { kind: "word", word: "w", respelling: HAN, partOfSpeech: "noun", lineage: "a" }],
+    ["part of speech", { kind: "word", word: "w", respelling: "r", partOfSpeech: HAN, lineage: "a" }],
+    ["lineage", { kind: "word", word: "w", respelling: "r", partOfSpeech: "noun", lineage: HAN }],
+    ["story text", { kind: "story", text: HAN, index: 1, total: 2 }],
+  ];
+  it.each(cases)("includes the %s", (_field, slide) => {
+    expect(needsFallbackFont(slideText(slide))).toBe(true);
+  });
+
+  it("includes the fixed hook and outro copy, which is all Latin", () => {
+    expect(slideText({ kind: "hook", text: "t" })).toContain("CURIO");
+    expect(slideText({ kind: "outro" })).toContain("curioword.com");
+    expect(needsFallbackFont(slideText({ kind: "outro" }))).toBe(false);
+  });
+
+  it("flags ketchup's first story slide (膎汁) and not its hook", () => {
+    const slides = buildCarouselSlides(ketchup);
+    expect(needsFallbackFont(slideText(slides[2]))).toBe(true);
+    expect(needsFallbackFont(slideText(slides[0]))).toBe(false);
+  });
+});
 
 describe("socialStoryUrl", () => {
   it("tags the story link with the channel", () => {

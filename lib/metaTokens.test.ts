@@ -109,4 +109,16 @@ describe("getMetaToken in production", () => {
     expect(await getMetaToken("threads", NOW)).toBe("fresh");
     expect(vi.mocked(fetch).mock.calls[0][0]).toContain("access_token=seed-threads");
   });
+
+  it("returns null once the owner removes the env token, even with a stored token (env is the off switch)", async () => {
+    fake.store.set("curio:social:token:threads", {
+      token: "stored",
+      refreshedAt: NOW.toISOString(),
+      seed: "seed-threads",
+    });
+    vi.stubEnv("THREADS_ACCESS_TOKEN", "");
+    expect(await getMetaToken("threads", NOW)).toBeNull();
+    expect(fake.get).not.toHaveBeenCalled();
+    expect(fetch).not.toHaveBeenCalled();
+  });
 });

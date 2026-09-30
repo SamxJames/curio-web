@@ -2,7 +2,7 @@ import type { WordEntry } from "./words";
 import { buildThreadsPost, socialStoryUrl } from "./socialPost";
 import { getMetaToken } from "./metaTokens";
 import { siteUrl } from "./siteUrl";
-import { SafeError, call, form, failureReason } from "./metaGraph";
+import { SafeError, call, containerId, form, failureReason, tokenLookupFailed } from "./metaGraph";
 
 const API = "https://graph.threads.net/v1.0";
 const POLL_EVERY_MS = 5_000;
@@ -23,21 +23,22 @@ export async function postDailyWordToThreads(
     // Inside the try: getMetaToken rejects when Redis is unavailable.
     const userId = process.env.THREADS_USER_ID;
     token = await getMetaToken("threads").catch((err) => {
-      throw new SafeError(err instanceof Error ? err.message : "token lookup failed");
+      throw tokenLookupFailed(err);
     });
 
     if (!userId || !token) {
       console.log(`[curio:threads:dev-fallback] would post: ${text}\n[link] ${link}`);
       return { posted: false };
     }
-    if (process.env.VERCEL_ENV === "production" && siteUrl().startsWith("http://localhost")) {
-      console.error("[curio:threads] CURIO_SITE_URL is not set in production — not posting");
+    // In every environment: a local .env.local with real tokens must not
+    // post a localhost link either.
+    if (siteUrl().startsWith("http://localhost")) {
+      console.error("[curio:threads] CURIO_SITE_URL points to localhost — not posting");
       return { posted: false };
     }
 
-    const { id: container } = await call(
-      `${API}/${userId}/threads`,
-      form({ media_type: "TEXT", text, link_attachment: link, access_token: token })
+    const container = containerId(
+      await call(`${API}/${userId}/threads`, form({ media_type: "TEXT", text, link_attachment: link, access_token: token }))
     );
     for (let i = 0; i < POLL_TRIES; i++) {
       await sleep(POLL_EVERY_MS);
@@ -45,7 +46,9 @@ export async function postDailyWordToThreads(
       if (status === "FINISHED") break;
       if (status === "ERROR" || status === "EXPIRED") throw new SafeError(`container ${String(status)}`);
     }
-    await call(`${API}/${userId}/threads_publish`, form({ creation_id: String(container), access_token: token }));
+    await call(`${API}/${userId}/threads_publish`, form({ creation_id: container, access_token: token }));
+    // On record now, even if the other channel later gets the function killed.
+    console.log("[curio:threads] posted");
     return { posted: true };
   } catch (err) {
     console.error("[curio:threads] post failed:", failureReason(err, token));

@@ -1,7 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildSocialPreview } from "./socialPreview";
 import { getWordForDate } from "./words";
-import { buildCarouselSlides, buildInstagramCaption, buildThreadsPost } from "./socialPost";
+import { buildCarouselSlides, buildInstagramCaption, buildThreadsPost, carouselSlideUrl } from "./socialPost";
+
+afterEach(() => vi.unstubAllGlobals());
 
 describe("buildSocialPreview", () => {
   it("lists the next N UTC days, each with that day's calendar word and its exact posts", () => {
@@ -19,8 +21,15 @@ describe("buildSocialPreview", () => {
       r.slides.forEach((s, i) => {
         expect(s.n).toBe(i + 1);
         expect(s.kind).toBe(slides[i].kind);
-        expect(s.url.endsWith(`/social/carousel/${w.slug}/${i + 1}`)).toBe(true);
+        // The same URL the Instagram poster hands Meta.
+        expect(s.url).toBe(carouselSlideUrl(w, i + 1));
       });
     }
+  });
+
+  it("stays offline: no slide warm-up, no network at all", () => {
+    vi.stubGlobal("fetch", vi.fn());
+    buildSocialPreview(new Date("2026-10-01T15:00:00Z"), 7);
+    expect(fetch).not.toHaveBeenCalled();
   });
 });
