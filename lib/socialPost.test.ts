@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { WORDS, type WordEntry } from "./words";
 import {
@@ -5,6 +7,7 @@ import {
   buildInstagramCaption,
   buildThreadsPost,
   carouselSlideUrl,
+  GEIST_EXTRAS,
   INSTAGRAM_HASHTAGS,
   needsFallbackFont,
   slideText,
@@ -25,16 +28,116 @@ describe("carouselSlideUrl", () => {
   });
 });
 
+/** The code points a TrueType font maps to a real glyph, from its cmap's
+ * format 4 (BMP) and format 12 (full Unicode) subtables. Enough to check
+ * Geist; not a general font parser. */
+function cmapCodePoints(font: Buffer): Set<number> {
+  const dv = new DataView(font.buffer, font.byteOffset, font.byteLength);
+  let cmap = -1;
+  for (let i = 0; i < dv.getUint16(4); i++) {
+    const rec = 12 + i * 16;
+    if (font.toString("latin1", rec, rec + 4) === "cmap") cmap = dv.getUint32(rec + 8);
+  }
+  if (cmap < 0) throw new Error("no cmap table");
+  const covered = new Set<number>();
+  for (let i = 0; i < dv.getUint16(cmap + 2); i++) {
+    const sub = cmap + dv.getUint32(cmap + 4 + i * 8 + 4);
+    const format = dv.getUint16(sub);
+    if (format === 4) {
+      const segX2 = dv.getUint16(sub + 6);
+      const ends = sub + 14;
+      const starts = ends + segX2 + 2; // + reservedPad
+      const deltas = starts + segX2;
+      const rangeOffsets = deltas + segX2;
+      for (let s = 0; s < segX2 / 2; s++) {
+        const start = dv.getUint16(starts + s * 2);
+        const end = dv.getUint16(ends + s * 2);
+        const delta = dv.getUint16(deltas + s * 2);
+        const rangeOffset = dv.getUint16(rangeOffsets + s * 2);
+        for (let c = start; c <= end && c !== 0xffff; c++) {
+          let glyph = c;
+          if (rangeOffset !== 0) {
+            // idRangeOffset counts from its own slot in the array.
+            glyph = dv.getUint16(rangeOffsets + s * 2 + rangeOffset + (c - start) * 2);
+            if (glyph === 0) continue;
+          }
+          if ((glyph + delta) & 0xffff) covered.add(c);
+        }
+      }
+    } else if (format === 12) {
+      for (let g = 0; g < dv.getUint32(sub + 12); g++) {
+        const group = sub + 16 + g * 12;
+        const [first, last, glyph] = [0, 4, 8].map((o) => dv.getUint32(group + o));
+        for (let c = first; c <= last; c++) if (glyph + (c - first) !== 0) covered.add(c);
+      }
+    }
+  }
+  return covered;
+}
+
+// The font next/og actually draws with: any character outside it sends
+// next/og to Google Fonts, and that is what needsFallbackFont must catch.
+const GEIST = cmapCodePoints(
+  readFileSync(resolve(process.cwd(), "node_modules/next/dist/compiled/@vercel/og/Geist-Regular.ttf"))
+);
+const geistLacks = (text: string) =>
+  [...text].filter((ch) => ch !== "\n" && ch !== "\t" && !GEIST.has(ch.codePointAt(0) as number));
+
+describe("the Geist cmap reader", () => {
+  it("reads next/og's bundled Geist: ASCII yes, ǭ and Han no", () => {
+    expect(geistLacks("Aa0 ~")).toEqual([]);
+    expect(geistLacks("ǭ汁")).toEqual(["ǭ", "汁"]);
+  });
+});
+
 describe("needsFallbackFont", () => {
-  it.each(["fiasco", "Old Norse ǭ, Middle English", "a → b · c — “d” 1 / 3", "café", ""])(
-    "is false for Latin, Common and Inherited text: %j",
+  it.each(["fiasco", 'Plain ASCII: "quotes", 1 / 3 & (parens)!', "a → b · c — “d” ‘e’ – f…", "Swipe →", ""])(
+    "is false for ASCII and the few punctuation marks the copy uses: %j",
     (text) => expect(needsFallbackFont(text)).toBe(false)
   );
 
+  it("allows newlines and tabs", () => {
+    expect(needsFallbackFont("a\nb\tc")).toBe(false);
+  });
+
+  it.each([
+    "Old Norse ǭ, Middle English", // ǭ
+    "Proto-Indo-European *ǵʰer-", // ǵʰ
+    "*ḱerh₂-", // ḱ, subscript 2
+    "ǣ ḗ ʷ ṓ ˀ", // ǣ ḗ ʷ ṓ ˀ
+    "n̥", // combining ring below
+  ])("is true for Latin-extended and IPA characters Geist lacks: %j", (text) =>
+    expect(needsFallbackFont(text)).toBe(true)
+  );
+
   it.each(["Hokkien 膎汁 (kê-chiap)", "Greek λόγος", "Arabic قهوة", "Hebrew שבת", "Russian водка"])(
-    "is true once any other script appears: %j",
+    "is true for other scripts: %j",
     (text) => expect(needsFallbackFont(text)).toBe(true)
   );
+
+  it("is conservative: even an accented letter Geist may have counts", () => {
+    expect(needsFallbackFont("café")).toBe(true);
+    expect(needsFallbackFont("café")).toBe(true);
+  });
+
+  it("allows only characters next/og's Geist really has", () => {
+    const ascii = Array.from({ length: 0x7f - 0x20 }, (_, i) => String.fromCharCode(0x20 + i));
+    const allowed = [...ascii, ...GEIST_EXTRAS];
+    for (const ch of allowed) expect(needsFallbackFont(ch), ch).toBe(false);
+    // A Next upgrade whose Geist drops one of these fails here.
+    expect(geistLacks(allowed.join(""))).toEqual([]);
+  });
+
+  it("flags every slide in the bank that draws a character Geist lacks", () => {
+    const missed: string[] = [];
+    for (const word of WORDS) {
+      buildCarouselSlides(word).forEach((slide, i) => {
+        const text = slideText(slide);
+        if (geistLacks(text).length > 0 && !needsFallbackFont(text)) missed.push(`${word.slug}/${i + 1}`);
+      });
+    }
+    expect(missed).toEqual([]);
+  });
 });
 
 describe("storyLabel", () => {

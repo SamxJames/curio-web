@@ -114,9 +114,18 @@ export function slideText(slide: Slide): string {
   }
 }
 
-/** True when next/og will fetch a Google Font for some of this text (Han,
- * Greek, Arabic…). That fetch can fail silently and draw boxes, so the
- * slide route won't let a CDN keep such a slide. */
+/** The non-ASCII characters the slide copy uses that next/og's bundled
+ * Geist has (lib/socialPost.test.ts checks them against its cmap). */
+export const GEIST_EXTRAS = ["·", "→", "—", "–", "‘", "’", "“", "”", "…"] as const;
+
+const GEIST_SAFE = new RegExp(`^[\\x20-\\x7E\\n\\t${GEIST_EXTRAS.join("")}]*$`);
+
+/** True unless every character is one next/og's bundled font surely has.
+ * Geist is its only bundled font; any other character (Han, Greek, but also
+ * Latin letters such as ǭ or ḱ) makes it fetch Noto Sans from Google Fonts,
+ * and a failed fetch still draws the slide, with boxes, as a 200. The slide
+ * route won't let a CDN keep such a slide, so this errs towards true: an
+ * allowlist, not a guess at which scripts Geist covers. */
 export function needsFallbackFont(text: string): boolean {
-  return /[^\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}]/u.test(text);
+  return !GEIST_SAFE.test(text);
 }

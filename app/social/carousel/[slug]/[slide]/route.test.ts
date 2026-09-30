@@ -58,7 +58,7 @@ describe("GET /social/carousel/[slug]/[slide]", () => {
     expect(res.headers.get("x-robots-tag")).toBe("noindex");
   }, 30_000);
 
-  it("lets the CDN keep an all-Latin slide for a day", async () => {
+  it("lets the CDN keep an all-ASCII slide for a day", async () => {
     const res = await call("ketchup", "1");
     expect(res.status).toBe(200);
     expect(res.headers.get("cache-control")).toBe("public, max-age=3600, s-maxage=86400");
@@ -74,6 +74,17 @@ describe("GET /social/carousel/[slug]/[slide]", () => {
     expect(logged).toContain("Failed to load dynamic font");
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toBe("image/jpeg");
+    expect(res.headers.get("cache-control")).toBe("no-store");
+  }, 30_000);
+
+  // Latin script isn't enough: fiasco's origin ends in Proto-Germanic
+  // *flaskǭ, and Geist has no ǭ, so that glyph comes from Google Fonts too.
+  it("never caches a slide with a Latin-extended letter Geist lacks (fiasco's ǭ)", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const res = await call("fiasco", "3");
+    error.mockRestore();
+    expect(httpFetches.some((u) => u.startsWith("https://fonts.g"))).toBe(true);
+    expect(res.status).toBe(200);
     expect(res.headers.get("cache-control")).toBe("no-store");
   }, 30_000);
 });

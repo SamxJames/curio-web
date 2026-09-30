@@ -399,8 +399,9 @@ channel and the email/Bluesky locks not at all. The same caveats as
 - **A publish whose response was lost may already be live** (a timeout or
   dropped connection after Meta accepted it). Check the account before
   reposting.
-- **A carousel with boxes instead of letters** (non-Latin glyphs such as
-  Han, Greek or Arabic, in a story slide). This is a known residual risk.
+- **A carousel with boxes instead of letters** (any glyph Geist lacks:
+  Han, Greek or Arabic, but also Latin letters such as ǭ or ḱ, usually in
+  a story slide). This is a known residual risk.
   Those slides are never cached, and the poster warms every slide before
   posting, but if Google Fonts fails at the exact moment Meta fetches the
   slide, next/og still returns a 200 JPEG with boxes. Recover by deleting
@@ -600,9 +601,11 @@ the branch is deployed.
   draws one slide with `next/og`'s `ImageResponse` and `lib/ogTheme.ts`
   colours. Font size steps down for long story sentences. Slides use the
   renderer's default Geist regular — `fontWeight: 600` renders as regular,
-  the same as the story share images — and non-Latin glyphs (163 of the
-  1,147 `origin` texts have some) come from Google Fonts at render time;
-  ketchup's 膎汁 renders fine. A lone story slide (705 of 1,147 words have
+  the same as the story share images — and any glyph Geist lacks comes
+  from Google Fonts at render time: other scripts (163 of the 1,147
+  `origin` texts have some) and Latin-extended or IPA letters such as
+  fiasco's ǭ. Measured 2026-09-30, 334 slides across 304 words need such a
+  glyph. ketchup's 膎汁 renders fine. A lone story slide (705 of 1,147 words have
   one) carries no "1 / 1" label (2026-09-30). The fixed words on the slides
   live in `SLIDE_COPY` (`lib/socialPost.ts`).
 - `app/social/carousel/[slug]/[slide]/route.ts` (new, 2026-09-29) —
@@ -614,13 +617,24 @@ the branch is deployed.
   (2026-09-30): a fetcher that honours robots could be turned away, and
   Instagram has to fetch these. Every response, 200 and 404 alike, sends
   `X-Robots-Tag: noindex` instead, and `/social/` isn't in the sitemap.
-  **Caching:** an all-Latin slide is `public, max-age=3600,
-  s-maxage=86400`. A slide whose text has any character outside the Latin,
-  Common or Inherited scripts (`needsFallbackFont(slideText(slide))`) is
-  `no-store`: 180 slides across 156 words, all of them story slides. The
-  reason is that `next/og` swallows a failed Google Fonts download (it only
-  `console.error`s "Failed to load dynamic font") and draws boxes with a
-  200, and a CDN must not keep that copy for Meta. `sharp` (0.35.4) became
+  **Caching:** a slide whose text is printable ASCII plus only
+  `· → — – ‘ ’ “ ” …` is `public, max-age=3600, s-maxage=86400`. Any other
+  character (`needsFallbackFont(slideText(slide))`, 2026-09-30) makes it
+  `no-store`: 902 slides across 783 words (897 story slides, 5 word
+  slides), measured 2026-09-30. The reason is that Geist is `next/og`'s
+  only bundled font, anything it lacks is a Google Fonts download, and
+  `next/og` swallows a failed download (it only `console.error`s "Failed
+  to load dynamic font") and draws boxes with a 200, and a CDN must not
+  keep that copy for Meta. The rule is a deliberately conservative
+  allowlist, not a script check: the old "outside Latin, Common or
+  Inherited script" rule missed Latin letters Geist lacks (ǭ, ḱ, ʰ, …) on
+  157 slides. So it also catches letters such as ō or é that Geist does
+  have (568 of the 902 slides need no download); those slides just aren't
+  cached. `lib/socialPost.test.ts`
+  reads Geist's cmap from `node_modules/next` to check both that every
+  allowlisted character is in Geist and that every slide in the bank with
+  a character Geist lacks is flagged, so a Next upgrade that changes Geist
+  fails a test. `sharp` (0.35.4) became
   an explicit dependency; Next already pulled it in optionally.
 - `lib/metaGraph.ts` (new, 2026-09-29) — the plumbing shared by
   `lib/threads.ts` and `lib/instagram.ts`: `call` (a fetch with a 15s

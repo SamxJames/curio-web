@@ -70,7 +70,7 @@ function SlideBody({ slide }: { slide: Slide }) {
   }
 }
 
-/** PNG from next/og. Missing glyphs (Greek, Arabic, Han…) come from
+/** PNG from next/og. Glyphs Geist lacks (Greek, Han, but also ǭ…) come from
  * Google Fonts via ImageResponse's own dynamic font loading, the same as
  * the story Open Graph images. A failed download only logs and draws
  * boxes, so the slide route never lets a CDN cache those slides
