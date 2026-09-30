@@ -1,9 +1,10 @@
 # Curio — Handover
 
-Last updated: 2026-09-28, after Bluesky link cards (Phase 3 of the
-pre-launch brief). See "This session (2026-09-28): Bluesky link cards
-(Phase 3)" below — the pre-launch brief is now complete apart from its
-own verification (production posting hasn't happened yet). This doc
+Last updated: 2026-09-29, after the Threads + Instagram build (branch
+`social`, not yet merged or deployed). See "This session (2026-09-29):
+Threads + Instagram" below; the owner-side setup it needs is in "Threads +
+Instagram: owner setup". Before that, 2026-09-28 finished Bluesky link
+cards (Phase 3 of the pre-launch brief). This doc
 exists so a fresh Claude Code session (or a human) can pick up without
 re-deriving all of the above from git log.
 
@@ -100,6 +101,30 @@ display by the locks, but `/play`'s windows use the formula, not the
 locks. A dated schedule file would be the cleaner long-term mechanism if
 front-loading becomes a regular need.
 
+### 2026-09-29 — Threads and Instagram are channels, and the tokens are the on switch
+
+Once a day the shared word goes to **Threads** (a text post with a link
+card) and to **Instagram** (a 4–6 slide carousel of 1080×1350 JPEGs), both
+built only from the word's stored, reviewed fields: no new facts are
+written. The owner approved the plan's proposed defaults as written on
+2026-09-29 (channels, timing, text formats, the `sharp` dependency and the
+on-switch below); the plan
+(`docs/superpowers/plans/2026-09-29-threads-instagram.md`) holds them in
+full.
+
+- **A separate cron, `0 10 * * *`** (`/api/cron/social`), not bolted onto
+  the 09:00 digest. Hobby fires a daily cron anywhere in its scheduled
+  hour, so posts land 10:00–10:59 UTC, after the email and Bluesky post. A
+  slow Instagram upload can therefore never delay email.
+- **The tokens are the on switch.** It deploys with no Meta tokens set:
+  both posters then only log what they would have posted, like Bluesky
+  without its app password. Nothing posts until the owner has reviewed the
+  real slides at `https://curioword.com/social/carousel/<slug>/<n>`, set
+  the four env vars and redeployed.
+- Per-channel day locks, like email and Bluesky, so a repeated run can't
+  double-post; `?repost=threads|instagram` forces one channel (see
+  "Re-sending the digest by hand (production)").
+
 **Live at:** https://curioword.com (since 2026-09-26 — see "Domain
 cutover" below; `www.curioword.com` and the old
 `etymology-app-orcin.vercel.app` both 308-redirect here)
@@ -153,11 +178,25 @@ UNSUBSCRIBE_SECRET        # node -e "console.log(require('crypto').randomBytes(3
 AUTH_SECRET               # node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 BLUESKY_IDENTIFIER        # curiodaily.bsky.social — public handle, not a secret
 BLUESKY_APP_PASSWORD      # generated in Bluesky's own Settings -> App Passwords, never the account login password
+# Optional since 2026-09-29: without them /api/cron/social only logs what it would post.
+THREADS_USER_ID           # the Threads account's numeric user id
+THREADS_ACCESS_TOKEN      # long-lived; refreshed weekly into Redis in production (lib/metaTokens.ts)
+INSTAGRAM_USER_ID         # the professional Instagram account's numeric user id
+INSTAGRAM_ACCESS_TOKEN    # long-lived; refreshed weekly into Redis in production (lib/metaTokens.ts)
 ```
 
 `ANTHROPIC_API_KEY` (for `npm run content:rewrite`) is deliberately **not**
 in that list — it's local/dev-only tooling for the content pipeline, never
 needed by the deployed app, and isn't set in Vercel.
+
+The four Threads/Instagram vars are the on switch for those channels: with
+either of a channel's two vars missing it logs `[curio:threads:dev-fallback]` /
+`[curio:instagram:dev-fallback]` and posts nothing. The Vercel value is
+only the *seed* for the token: in production `lib/metaTokens.ts` keeps the
+live copy in Redis and refreshes it weekly, so replacing the Vercel value
+(after a revoked token, say) is how you re-seed it; everywhere else the env
+value is used as-is and Redis is never touched. See "Threads + Instagram:
+owner setup" for how the owner creates them.
 
 `CURIO_SITE_URL` matters more than it used to: `lib/bluesky.ts` builds the
 public Bluesky post's link from it (falling back to `http://localhost:3000`
@@ -330,6 +369,79 @@ posting tomorrow's word early and making the 09:00 run skip Bluesky.
 There's no way to re-post a past day. It also doesn't remove an earlier
 post: if the post "went out wrong", delete it in the Bluesky app first.
 
+### Re-sending the Threads / Instagram posts by hand (production)
+
+`/api/cron/social` (the 10:00 UTC cron) takes the same `CRON_SECRET` bearer
+as above. Its only override is `?repost=`, one channel at a time:
+
+```bash
+curl -sS -H "Authorization: Bearer $CURIO_CRON_SECRET" "https://curioword.com/api/cron/social?repost=threads"
+curl -sS -H "Authorization: Bearer $CURIO_CRON_SECRET" "https://curioword.com/api/cron/social?repost=instagram"
+```
+
+It forces just that channel's day lock and posts once, touching the other
+channel and the email/Bluesky locks not at all. The same caveats as
+`?repost=bluesky`:
+
+- **It posts today's UTC word only**, so run it before 00:00 UTC. The owner
+  is in the UK (UTC+1), so a late-evening run can cross into the next UTC
+  day, posting tomorrow's word early. There's no way to re-post a past day.
+- **It forces the lock and posts every time you run it.** Run it once per
+  real re-post, not as a check.
+- **It doesn't remove an earlier post.** If a post went out wrong, delete it
+  in the Threads or Instagram app first.
+- **A publish whose response was lost may already be live** (a timeout or
+  dropped connection after Meta accepted it). Check the account before
+  reposting.
+
+Rejected with 400 unless it is exactly one of `threads` / `instagram`, and
+with 401 without `CRON_SECRET`. Reading the response: `{ word, threads,
+instagram, alreadyRan }`, where `threads`/`instagram` say whether this run
+posted and `alreadyRan` says which channels a normal run skipped because
+the day's lock was held. A failed post logs `[curio:threads] post failed:`
+or `[curio:instagram] post failed:` with the reason (see the architecture
+map for what is and isn't logged), and — like Bluesky — keeps its lock, so
+a failure is retried by hand with `?repost=`, not automatically.
+
+## Threads + Instagram: owner setup
+
+**Posting is off until the four env vars are set in Vercel Production and
+the app is redeployed.** The tokens are the on switch: deployed without
+them, `/api/cron/social` runs at 10:00 UTC and only logs what it would
+post. Claude never does any of these steps (no accounts, no handling
+credentials):
+
+1. **Instagram:** create or choose a **professional** Instagram account for
+   Curio (Creator or Business), and set its bio link to
+   `https://curioword.com` (captions can't carry clickable links).
+2. **Threads:** create a Threads profile. Threads profiles are made from an
+   Instagram account.
+3. **Meta app:** at developers.facebook.com, create an app with two use
+   cases: **Access the Threads API** and **Instagram API with Instagram
+   Login**. Add the Curio Instagram and Threads accounts as testers, then
+   accept the invites in each app. The app can stay in development mode for
+   posting to your own tester accounts. If Meta asks for App Review before
+   `*_content_publish` works, stop and tell Claude; that's a blocker to plan
+   around.
+4. **Tokens:** generate a **long-lived** token for each channel with the
+   right scopes (Threads: `threads_basic`, `threads_content_publish`;
+   Instagram: `instagram_business_basic`,
+   `instagram_business_content_publish`). Note each account's user ID.
+5. **Vercel:** add the tokens and IDs to Production as sensitive variables.
+   Claude can run `vercel env add <NAME> production --sensitive` with the
+   owner pasting each value at the prompt:
+   - `THREADS_USER_ID`
+   - `THREADS_ACCESS_TOKEN`
+   - `INSTAGRAM_USER_ID`
+   - `INSTAGRAM_ACCESS_TOKEN`
+
+   Then redeploy; env changes only reach a new deployment.
+
+Review the real slides before step 5: `npm run social:preview -- 7` lists
+the next days' posts and slide URLs, and
+`https://curioword.com/social/carousel/<slug>/<n>` renders each slide once
+the branch is deployed.
+
 ## Architecture map
 
 - `lib/words.ts` — the word content (`WORDS: WordEntry[]`) and all the
@@ -363,8 +475,12 @@ post: if the post "went out wrong", delete it in the Bluesky app first.
   `curio:user:<id>:...`. Never collides with `lib/db.ts`'s
   `curio:subscriber:`/`curio:hour:` keys, the Auth.js adapter's
   `curio:auth:` keys, `curio:wordoftheday:` (the word-locking layer), or
-  `curio:digest:` (the daily-send locks and failure set, below) — if you
+  `curio:digest:` (the daily-send locks and failure set, below), or
+  `curio:social:` (the refreshed Threads/Instagram tokens,
+  `curio:social:token:<channel>`, production only) — if you
   add new Redis keys, keep using one of these prefixes, not a bare new one.
+  The social channels' day locks live under `curio:digest:` with the others:
+  `curio:digest:threads:<day>` and `curio:digest:instagram:<day>`.
 - `lib/storage.ts` — client-side localStorage (favorites, theme,
   onboarded flag). Favorites here are the *fast local cache* for every
   visitor, signed in or not; `toggleFavorite` fires a best-effort
@@ -394,7 +510,8 @@ post: if the post "went out wrong", delete it in the Bluesky app first.
   or about words/subscribers — it's the reusable "send N single-recipient
   emails safely" primitive `lib/email.ts` calls into.
 - `lib/digestRuns.ts` (new, 2026-09-27) — per-UTC-day run locks
-  (`claimRun`, `releaseRun`) for the email and Bluesky channels, plus the
+  (`claimRun`, `releaseRun`) for the email, Bluesky, Threads and Instagram
+  channels (the last two added 2026-09-29), plus the
   day's pending set of not-yet-confirmed recipients (`seedPending`,
   `removeFailures`, `getFailures`). Redis-backed (`SET NX EX`) only when
   `VERCEL_ENV === "production"` — local dev shares production's Upstash,
@@ -439,6 +556,88 @@ post: if the post "went out wrong", delete it in the Bluesky app first.
   it. Prints each of the next N UTC days' exact post text, grapheme count
   and card, plus a caveat that these are what will post unless `WORDS` or
   `LAUNCH_OPENERS` change before that day arrives.
+- `lib/socialPost.ts` (new, 2026-09-29) — the pure builders for Threads and
+  Instagram, no network: `buildThreadsPost(word)` (teaser, then `word ·
+  lineage`, then `#etymology`, under Threads' 500-character limit),
+  `buildInstagramCaption(word)` (teaser, `word · lineage`, "The full story
+  is at curioword.com (link in bio)." and five hashtags),
+  `buildCarouselSlides(word)` (the 4–6 slides: hook, word, one to three
+  story slides of `origin` split by `splitSentences`, outro) and
+  `socialStoryUrl` (the story link, tagged `utm_source=<channel>`).
+  Every sentence is a stored `WordEntry` field or a fixed Curio string, so
+  nothing is generated. `CAROUSEL_SIZE` is 1080×1350.
+- `lib/carouselImage.tsx` (new, 2026-09-29) — `renderSlidePng(slide)`
+  draws one slide with `next/og`'s `ImageResponse` and `lib/ogTheme.ts`
+  colours. Font size steps down for long story sentences. Slides use the
+  renderer's default Geist regular — `fontWeight: 600` renders as regular,
+  the same as the story share images — and non-Latin glyphs (163 of the
+  1,147 `origin` texts have some) come from Google Fonts at render time;
+  ketchup's 膎汁 renders fine.
+- `app/social/carousel/[slug]/[slide]/route.ts` (new, 2026-09-29) —
+  `/social/carousel/<slug>/<n>` serves one slide as **JPEG**: the PNG from
+  `renderSlidePng` goes through `sharp`, because Instagram accepts JPEG
+  only. Instagram fetches each slide from a public URL at publish time,
+  so this route has to be live and deterministic; 404 for an unknown slug
+  or a slide number out of range. Disallowed in robots (`/social/`): they
+  are images for Meta's fetcher, not pages. `sharp` (0.35.4) became an
+  explicit dependency; Next already pulled it in optionally.
+- `lib/metaGraph.ts` (new, 2026-09-29) — the plumbing shared by
+  `lib/threads.ts` and `lib/instagram.ts`: `call` (a fetch with a 15s
+  timeout that throws on a non-OK response), `form` (urlencoded POST
+  body), `SafeError` and `failureReason`. **The logging policy, worth
+  knowing before you touch a `console.error` here:** the status-poll URLs
+  carry `access_token` in their query string, so a raw fetch error could
+  echo a token. A `SafeError` (our own messages, and the message from
+  Meta's error JSON) is logged in full; any other error (a fetch rejection,
+  a timeout) is logged by *name only*; and as a backstop the raw and
+  URL-encoded token is redacted from whatever is logged. `lib/metaTokens.ts`
+  follows the same rule: an HTTP status or error name only.
+- `lib/metaTokens.ts` (new, 2026-09-29) — `getMetaToken(channel)`. Meta's
+  long-lived tokens last 60 days from their last refresh and can be
+  refreshed once 24h old, so in production (`VERCEL_ENV === "production"`)
+  it keeps the live token in Redis at `curio:social:token:<channel>` and
+  refreshes it weekly on the daily run. The Vercel env value is only the
+  seed: when it changes, the stored copy re-seeds from it (and is treated
+  as due for refresh). If a refresh fails it logs, keeps the old token and
+  retries tomorrow. Everywhere else (local, preview) it just returns the
+  env value and never reads or writes Redis, so a local run can't rotate
+  production's token. It can reject if Redis is down.
+- `lib/threads.ts` (new, 2026-09-29) — `postDailyWordToThreads(word)`:
+  create a TEXT container with `link_attachment` (Threads builds the link
+  card from the story page's own Open Graph tags), poll its status about
+  30s, then publish. **Never throws**: the token lookup is inside the
+  `try` too, since `getMetaToken` can reject. A failure logs
+  `[curio:threads] post failed:` and returns `{ posted: false }`;
+  unconfigured logs `[curio:threads:dev-fallback]`. In production it
+  refuses to post if `siteUrl()` is localhost.
+- `lib/instagram.ts` (new, 2026-09-29) — `postDailyCarouselToInstagram(word)`:
+  one child container per slide (created in order, from the public slide
+  URLs), a CAROUSEL container with the caption, a status poll (every 5s, up
+  to 60s, not Meta's suggested 5 minutes, because the images are fetched as
+  each child is created) and `media_publish`. Same never-throws,
+  dev-fallback and localhost guard as Threads, plus a "no container id"
+  error if a create call returns 200 without an id, so `undefined` can't
+  flow into the next step.
+- `lib/cronAuth.ts` (new, 2026-09-29) — `authorizeCron(req)`, the bearer
+  check shared by `/api/cron/send-daily` and `/api/cron/social`: fails
+  closed (401) without `CRON_SECRET` in production, and returns the secret
+  so a route can require it for its manual overrides. Pulled out of
+  send-daily, whose behaviour is unchanged.
+- `app/api/cron/social/route.ts` (new, 2026-09-29) — the 10:00 UTC social
+  cron (`vercel.json`). Claims each channel's day lock (`curio:digest:
+  threads:<day>` / `instagram:<day>`), then runs both channels with
+  `Promise.allSettled`, so one channel can't stop the other. The posters
+  never throw, but if one ever does it maps to `posted: false` and logs
+  `[curio:social] <channel> threw:` with the error name only. A lock is
+  kept after a failed post (it's easy to retry by hand with `?repost=`,
+  hard to un-send a duplicate). If claiming a lock itself throws, the
+  locks already claimed are released. `maxDuration` is 300s.
+- `lib/socialPreview.ts` (new, 2026-09-29) — `buildSocialPreview(from,
+  days)`, feeding `npm run social:preview -- [days] [from]`
+  (`scripts/previewSocialPosts.ts`). Read-only, like the Bluesky one: each
+  day's Threads text and link, Instagram caption and slide URLs, from the
+  plain calendar formula (never `resolveTodayWord`/Redis, so previewing
+  can't lock a future day's word).
 - `lib/useShowArrival.ts` — the one shared "should this visitor see the
   first-time arrival hero" hook, consumed by both `components/Header.tsx`
   and `components/HomeContent.tsx` so they can't independently drift.
@@ -747,6 +946,20 @@ reason, not just "ran out of time":
   documented 10 req/s limit close to moot at this subscriber count, but
   the owner hasn't independently confirmed the account's actual limit
   under Resend → Settings → Usage.
+- **Instagram's worst-case run is longer than the function's ceiling**
+  (2026-09-29). Every Meta call has a 15s timeout, so if they all hang the
+  Instagram run adds up to ~360s against `maxDuration` 300. It fails safe:
+  Vercel kills the function before `media_publish`, nothing posts, and the
+  day's lock stays claimed, so you recover with `?repost=instagram`. The
+  realistic run takes ~30–90s, so this was left alone rather than
+  shortening the timeouts for a case that would most likely mean Meta is
+  down anyway.
+- **Claude-written slide copy (v2) via the content pipeline** (2026-09-29).
+  The carousel is built only from stored fields (`origin` split a sentence
+  per slide), which is why it needed no new content review. Slides written
+  for the medium would need to go through the content pipeline with the
+  owner's review, like the rest of the word bank, not be generated at post
+  time.
 - **An unrecognised override value falls through to a normal scheduled
   run** (2026-09-27) — e.g. `?force=true` (not `1`) is silently treated as
   no override at all, not rejected. Still requires `CRON_SECRET` for any
@@ -1411,6 +1624,71 @@ whole-branch review, preview approval and deploy are Task 6, still ahead.
 ### Verification
 
 Pending — filled in after the preview approval and the first real post.
+
+## This session (2026-09-29): Threads + Instagram
+
+The owner asked to post the daily word on more channels and to make
+"word journey" carousels, reusing reviewed content only. Plan:
+`docs/superpowers/plans/2026-09-29-threads-instagram.md` (its "Brief"
+holds the checked facts and the owner's decisions). Built on branch
+`social` via the `superpowers` subagent-driven-development process, TDD per
+task, one commit per task (`git log a4f4710..HEAD`). **Not merged or
+deployed yet**, and nothing posts until the owner sets the tokens — see
+"Threads + Instagram: owner setup".
+
+**What landed** (details in the architecture map): the pure post and slide
+builders (`lib/socialPost.ts`); slide rendering and the JPEG route
+(`lib/carouselImage.tsx`, `/social/carousel/<slug>/<n>`); weekly token
+refresh into Redis (`lib/metaTokens.ts`); the shared Graph API plumbing
+(`lib/metaGraph.ts`) and the two posters (`lib/threads.ts`,
+`lib/instagram.ts`); shared cron auth (`lib/cronAuth.ts`); the 10:00 UTC
+`/api/cron/social`; and `npm run social:preview`.
+
+**Checked facts** (Meta's docs, 2026-09-29; the plan's Brief has the full
+list):
+
+- **Instagram takes JPEG only**, which is why slides go through `sharp`.
+  A carousel holds up to 10 items, and later images are cropped to the
+  first one's aspect ratio (hence every slide is 1080×1350).
+- **Media must be at a public URL at publish time** — Meta cURLs each slide
+  — so the slide route has to be deployed and reachable, and in production
+  the posters refuse to run if `CURIO_SITE_URL` would give a localhost URL.
+- **Tokens last 60 days** and can be refreshed once 24h old (each refresh
+  buys another 60), hence the weekly refresh in `lib/metaTokens.ts`.
+  Limits (250 Threads posts and 100 API-published Instagram posts per 24h)
+  are nowhere near one post a day.
+- **Hobby crons** run at most once a day, anywhere within the scheduled hour
+  (±59 min), so posts land 10:00–10:59 UTC.
+- **Unverified:** that Threads treats a post's single hashtag as its topic
+  tag (Meta's docs page 404'd), which is why the Threads text carries just
+  `#etymology`. The first real post will show how it renders; changing it is
+  a one-line edit in `buildThreadsPost`.
+
+**Decisions:** all of the plan's proposed defaults were approved as
+written on 2026-09-29 — see "2026-09-29 — Threads and Instagram are
+channels" under Decisions. Out of scope, deliberately: video/Reels, X,
+Mastodon, AI-written slide copy, replies or other engagement, analytics.
+Meta's AI-label rules target photorealistic AI media, so typographic cards
+don't trigger them; the owner can add a bio line anyway if they want to be
+open about how the stories are written.
+
+**Things that shipped beyond the plan text:**
+
+- `lib/metaGraph.ts` and its log-safety policy (architecture map): tokens
+  travel in status-poll URLs, so non-Meta errors are logged by name only.
+- Token lookup sits inside each poster's `try`, so a Redis outage is a
+  logged failure, not a throw into the cron.
+- The social cron runs both channels with `Promise.allSettled`, and
+  `authorizeCron` is shared with send-daily.
+- Instagram's "no container id" guard and the worst-case timing (Deferred
+  items).
+
+**Test and lint counts.** 330 → 397 tests. Lint: the same 3 pre-existing
+warnings as every prior session.
+
+### Verification
+
+Pending — filled in after the live slide review, token setup and the first real posts.
 
 ## Workflow notes for whoever picks this up
 

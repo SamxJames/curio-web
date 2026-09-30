@@ -40,6 +40,17 @@ the reasoning behind the pivot; this README covers what's actually built here.
   Open Graph image as a thumbnail). `npm run bluesky:preview -- [days]
   [from]` prints what the next days' posts will look like, read-only, for
   review before anything goes out.
+- **Threads + Instagram** — a separate daily cron, `/api/cron/social` at
+  10:00 UTC, posts the same word to Threads (a text post with a link card)
+  and to Instagram (a 4–6 slide 1080×1350 carousel, built only from the
+  word's stored fields and served as JPEG from
+  `/social/carousel/<slug>/<n>`). Each channel is idempotent per UTC day,
+  with `?repost=threads|instagram` (`CRON_SECRET`) for a deliberate
+  re-post. Nothing posts until the four `THREADS_*` / `INSTAGRAM_*` env
+  vars are set — without them the cron only logs — and the tokens are
+  refreshed weekly into Redis in production. `npm run social:preview --
+  [days] [from]` prints the next days' posts and slide URLs, read-only, for
+  review. Setup and operations are in `handover.md`.
 
 ## Content
 
