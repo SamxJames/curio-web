@@ -47,8 +47,9 @@ the reasoning behind the pivot; this README covers what's actually built here.
   `/social/carousel/<slug>/<n>`). Each channel is idempotent per UTC day,
   with `?repost=threads|instagram` (`CRON_SECRET`) for a deliberate
   re-post. Nothing posts until the four `THREADS_*` / `INSTAGRAM_*` env
-  vars are set — without them the cron only logs — and the tokens are
-  refreshed weekly into Redis in production. `npm run social:preview --
+  vars are set — without them the cron only logs, and removing a token
+  turns its channel off again — and the tokens are refreshed weekly into
+  Redis in production. `npm run social:preview --
   [days] [from]` prints the next days' posts and slide URLs, read-only, for
   review. Setup and operations are in `handover.md`.
 

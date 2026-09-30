@@ -120,7 +120,9 @@ full.
   both posters then only log what they would have posted, like Bluesky
   without its app password. Nothing posts until the owner has reviewed the
   real slides at `https://curioword.com/social/carousel/<slug>/<n>`, set
-  the four env vars and redeployed.
+  the four env vars and redeployed. It's also the off switch: removing a
+  channel's token in Vercel and redeploying stops that channel, even
+  though Redis still holds a refreshed copy.
 - Per-channel day locks, like email and Bluesky, so a repeated run can't
   double-post; `?repost=threads|instagram` forces one channel (see
   "Re-sending the Threads / Instagram posts by hand (production)").
@@ -397,6 +399,12 @@ channel and the email/Bluesky locks not at all. The same caveats as
 - **A publish whose response was lost may already be live** (a timeout or
   dropped connection after Meta accepted it). Check the account before
   reposting.
+- **A carousel with boxes instead of letters** (non-Latin glyphs such as
+  Han, Greek or Arabic, in a story slide). This is a known residual risk.
+  Those slides are never cached, and the poster warms every slide before
+  posting, but if Google Fonts fails at the exact moment Meta fetches the
+  slide, next/og still returns a 200 JPEG with boxes. Recover by deleting
+  the post in the Instagram app, then running `?repost=instagram`.
 
 Rejected with 400 unless it is exactly one of `threads` / `instagram`, and
 with 401 without `CRON_SECRET`. Reading the response: `{ word, threads,
@@ -445,6 +453,24 @@ Review the real slides before step 5: `npm run social:preview -- 7` lists
 the next days' posts and slide URLs, and
 `https://curioword.com/social/carousel/<slug>/<n>` renders each slide once
 the branch is deployed.
+
+**After the tokens are live:**
+
+- **The first post** is the next 10:xx UTC cron run. Or post straight away
+  with one `?repost=threads` and one `?repost=instagram` (see "Re-sending
+  the Threads / Instagram posts by hand").
+- **Expect `[curio:<channel>] token refresh failed: HTTP 400` on the first
+  production run(s).** A fresh seed counts as "age unknown", so it tries to
+  refresh at once, and Meta refuses to refresh a token less than 24h old.
+  This is harmless: it posts with the seed token, and retries the refresh
+  daily until it succeeds (then weekly).
+- **If the cron doesn't run for 60 days, both tokens expire** (a refresh
+  only happens on a run). Posts then fail with Meta's session-expired
+  error in `[curio:<channel>] post failed:`. To recover, generate a new
+  long-lived token, replace it in Vercel and redeploy. The changed env
+  value re-seeds Redis automatically.
+- **To turn a channel off**, remove its `*_ACCESS_TOKEN` from Vercel
+  Production and redeploy. The stored copy in Redis is then ignored.
 
 ## Architecture map
 
@@ -576,15 +602,26 @@ the branch is deployed.
   renderer's default Geist regular — `fontWeight: 600` renders as regular,
   the same as the story share images — and non-Latin glyphs (163 of the
   1,147 `origin` texts have some) come from Google Fonts at render time;
-  ketchup's 膎汁 renders fine.
+  ketchup's 膎汁 renders fine. A lone story slide (705 of 1,147 words have
+  one) carries no "1 / 1" label (2026-09-30). The fixed words on the slides
+  live in `SLIDE_COPY` (`lib/socialPost.ts`).
 - `app/social/carousel/[slug]/[slide]/route.ts` (new, 2026-09-29) —
   `/social/carousel/<slug>/<n>` serves one slide as **JPEG**: the PNG from
   `renderSlidePng` goes through `sharp`, because Instagram accepts JPEG
   only. Instagram fetches each slide from a public URL at publish time,
   so this route has to be live and deterministic; 404 for an unknown slug
-  or a slide number out of range. Disallowed in robots (`/social/`): they
-  are images for Meta's fetcher, not pages. `sharp` (0.35.4) became an
-  explicit dependency; Next already pulled it in optionally.
+  or a slide number out of range. **Not** disallowed in robots.txt
+  (2026-09-30): a fetcher that honours robots could be turned away, and
+  Instagram has to fetch these. Every response, 200 and 404 alike, sends
+  `X-Robots-Tag: noindex` instead, and `/social/` isn't in the sitemap.
+  **Caching:** an all-Latin slide is `public, max-age=3600,
+  s-maxage=86400`. A slide whose text has any character outside the Latin,
+  Common or Inherited scripts (`needsFallbackFont(slideText(slide))`) is
+  `no-store`: 180 slides across 156 words, all of them story slides. The
+  reason is that `next/og` swallows a failed Google Fonts download (it only
+  `console.error`s "Failed to load dynamic font") and draws boxes with a
+  200, and a CDN must not keep that copy for Meta. `sharp` (0.35.4) became
+  an explicit dependency; Next already pulled it in optionally.
 - `lib/metaGraph.ts` (new, 2026-09-29) — the plumbing shared by
   `lib/threads.ts` and `lib/instagram.ts`: `call` (a fetch with a 15s
   timeout that throws on a non-OK response), `form` (urlencoded POST
@@ -595,14 +632,24 @@ the branch is deployed.
   Meta's error JSON) is logged in full; any other error (a fetch rejection,
   a timeout) is logged by *name only*; and as a backstop the raw and
   URL-encoded token is redacted from whatever is logged. `lib/metaTokens.ts`
-  follows the same rule: an HTTP status or error name only.
+  follows the same rule: an HTTP status or error name only. **A rejected
+  token lookup is logged as `token lookup failed (<ErrorName>)`**
+  (`tokenLookupFailed`), never with its message, because `@upstash/redis`
+  builds its error message from the failed command's body (`…, command
+  was: [...]`), and a failing `set` of the token record contains the live
+  token. The redaction backstop can't catch that: the token isn't known
+  yet when the lookup fails. `containerId` (2026-09-30, used by both
+  posters) turns a create call's 200 without an `id` into "no container
+  id".
 - `lib/metaTokens.ts` (new, 2026-09-29) — `getMetaToken(channel)`. Meta's
   long-lived tokens last 60 days from their last refresh and can be
   refreshed once 24h old, so in production (`VERCEL_ENV === "production"`)
   it keeps the live token in Redis at `curio:social:token:<channel>` and
-  refreshes it weekly on the daily run. The Vercel env value is only the
-  seed: when it changes, the stored copy re-seeds from it (and is treated
-  as due for refresh). If a refresh fails it logs, keeps the old token and
+  refreshes it weekly on the daily run. The Vercel env value is the seed
+  **and the off switch**. When it changes, the stored copy re-seeds from
+  it and is treated as due for refresh. When it's removed, `getMetaToken`
+  returns null before reading Redis, so that channel stops posting even
+  though Redis still holds a token (2026-09-30). If a refresh fails it logs, keeps the old token and
   retries tomorrow. Everywhere else (local, preview) it just returns the
   env value and never reads or writes Redis, so a local run can't rotate
   production's token. It can reject if Redis is down.
@@ -612,16 +659,24 @@ the branch is deployed.
   30s, then publish. **Never throws**: the token lookup is inside the
   `try` too, since `getMetaToken` can reject. A failure logs
   `[curio:threads] post failed:` and returns `{ posted: false }`;
-  unconfigured logs `[curio:threads:dev-fallback]`. In production it
-  refuses to post if `siteUrl()` is localhost.
+  unconfigured logs `[curio:threads:dev-fallback]`. Success logs
+  `[curio:threads] posted`, without the text, so the post is on record
+  even if the other channel later gets the function killed. With a token
+  and user id present, it refuses to post if `siteUrl()` is localhost, in
+  **every** environment (2026-09-30), so a local `.env.local` holding real
+  tokens can't post a localhost link either. It logs `CURIO_SITE_URL points to
+  localhost — not posting`.
 - `lib/instagram.ts` (new, 2026-09-29) — `postDailyCarouselToInstagram(word)`:
   one child container per slide (created in order, from the public slide
   URLs), a CAROUSEL container with the caption, a status poll (every 5s, up
   to 60s, not Meta's suggested 5 minutes, because the images are fetched as
-  each child is created) and `media_publish`. Same never-throws,
-  dev-fallback and localhost guard as Threads, plus a "no container id"
-  error if a create call returns 200 without an id, so `undefined` can't
-  flow into the next step.
+  each child is created) and `media_publish`. The never-throws,
+  dev-fallback, success log, localhost guard and "no container id" check
+  all match Threads. **Warm-up (2026-09-30):** before any Meta call it GETs
+  every slide URL itself, in order, with a 15s timeout each. It needs a 200
+  with `content-type: image/jpeg`, and otherwise stops with `slide <n> not
+  ready: <status>` before anything is created on Instagram. The dev fallback and
+  `npm run social:preview` never warm anything.
 - `lib/cronAuth.ts` (new, 2026-09-29) — `authorizeCron(req)`, the bearer
   check shared by `/api/cron/send-daily` and `/api/cron/social`: fails
   closed (401) without `CRON_SECRET` in production, and returns the secret
@@ -635,7 +690,9 @@ the branch is deployed.
   `[curio:social] <channel> threw:` with the error name only. A lock is
   kept after a failed post (it's easy to retry by hand with `?repost=`,
   hard to un-send a duplicate). If claiming a lock itself throws, the
-  locks already claimed are released. `maxDuration` is 300s.
+  locks already claimed are released. A release that fails too logs
+  `[curio:social] releasing <channel> lock failed:` with the error name.
+  That day then needs a `?repost=`. `maxDuration` is 300s.
 - `lib/socialPreview.ts` (new, 2026-09-29) — `buildSocialPreview(from,
   days)`, feeding `npm run social:preview -- [days] [from]`
   (`scripts/previewSocialPosts.ts`). Read-only, like the Bluesky one: each
@@ -952,7 +1009,8 @@ reason, not just "ran out of time":
   under Resend → Settings → Usage.
 - **Instagram's worst-case run is longer than the function's ceiling**
   (2026-09-29). Every Meta call has a 15s timeout, so if they all hang the
-  Instagram run adds up to ~360s against `maxDuration` 300. It fails safe:
+  Instagram run adds up to ~360s against `maxDuration` 300. The slide
+  warm-up (2026-09-30: up to 6 GETs at 15s each) can add another 90s. It fails safe:
   Vercel kills the function before `media_publish`, nothing posts, and the
   day's lock stays claimed, so you recover with `?repost=instagram`. The
   realistic run takes ~30–90s, so this was left alone rather than
@@ -1655,8 +1713,9 @@ list):
   A carousel holds up to 10 items, and later images are cropped to the
   first one's aspect ratio (hence every slide is 1080×1350).
 - **Media must be at a public URL at publish time** — Meta cURLs each slide
-  — so the slide route has to be deployed and reachable, and in production
-  the posters refuse to run if `CURIO_SITE_URL` would give a localhost URL.
+  — so the slide route has to be deployed and reachable (and allowed in
+  robots.txt), and the posters refuse to run if `CURIO_SITE_URL` would give a
+  localhost URL. Since 2026-09-30 that applies in every environment, not just production.
 - **Tokens last 60 days** and can be refreshed once 24h old (each refresh
   buys another 60), hence the weekly refresh in `lib/metaTokens.ts`.
   Limits (250 Threads posts and 100 API-published Instagram posts per 24h)
@@ -1686,9 +1745,22 @@ open about how the stories are written.
   `authorizeCron` is shared with send-daily.
 - Instagram's "no container id" guard and the worst-case timing (Deferred
   items).
+- **Final-review fixes (2026-09-30)**, all in the architecture map:
+  - a token lookup failure is logged by error name only, since Upstash
+    error messages can carry the token;
+  - an unset env token turns a channel off even with a token in Redis;
+  - slides needing a Google Font are `no-store`, and Instagram warms every
+    slide before its first Meta call;
+  - `/social/` is allowed in robots.txt, with `X-Robots-Tag: noindex` on
+    the route instead;
+  - `[curio:<channel>] posted` success logs;
+  - the localhost guard applies in every environment;
+  - failed lock releases are logged;
+  - Threads now uses the "no container id" check;
+  - no "1 / 1" label on a lone story slide.
 
-**Test and lint counts.** 330 → 397 tests. Lint: the same 3 pre-existing
-warnings as every prior session.
+**Test and lint counts.** 330 → 397 tests, then 441 after the final-review
+fixes. Lint: the same 3 pre-existing warnings as every prior session.
 
 ### Verification
 
