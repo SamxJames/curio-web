@@ -92,14 +92,17 @@ curl http://localhost:3000/api/cron/send-daily
 ## Deploying
 
 The natural fit is Vercel (matches Next.js, and `vercel.json` already
-configures the daily cron):
+configures the two daily crons: the digest at 09:00 UTC and the
+Threads/Instagram posts at 10:00 UTC):
 
 1. Push this to a git repo, import it into Vercel.
 2. Set the environment variables from `.env.example` in the Vercel project
    settings — at minimum `RESEND_API_KEY`, `CURIO_FROM_EMAIL`,
    `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `CURIO_SITE_URL`
    (your production domain), `CRON_SECRET`, and `UNSUBSCRIBE_SECRET`
-   (required: without it the daily send refuses to run).
+   (required: without it the daily send refuses to run). Optionally, the
+   four `THREADS_*` / `INSTAGRAM_*` vars: without them the social cron only
+   logs, so they're what switches those posts on.
 3. Vercel Cron picks up `vercel.json` automatically on deploy — no extra
    configuration needed.
 4. Create a free Upstash Redis database and a Resend account/domain to get

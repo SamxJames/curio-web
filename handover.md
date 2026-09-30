@@ -123,7 +123,7 @@ full.
   the four env vars and redeployed.
 - Per-channel day locks, like email and Bluesky, so a repeated run can't
   double-post; `?repost=threads|instagram` forces one channel (see
-  "Re-sending the digest by hand (production)").
+  "Re-sending the Threads / Instagram posts by hand (production)").
 
 **Live at:** https://curioword.com (since 2026-09-26 — see "Domain
 cutover" below; `www.curioword.com` and the old
@@ -218,7 +218,9 @@ fails closed (401) when it's unset **and** `NODE_ENV === "production"` —
 added this session, since an unauthenticated hit on that route now sends a
 real digest to every subscriber *and* posts to the real Bluesky account,
 not just a read. Confirm it's actually set in Vercel before relying on
-that route being safe.
+that route being safe. `/api/cron/social` (2026-09-29) fails closed the same
+way, through the shared `authorizeCron` in `lib/cronAuth.ts`, and its
+`?repost=` override needs the secret to be set too (without it, 401).
 
 `UNSUBSCRIBE_SECRET` (added 2026-09-27) fails closed the same way, but
 unconditionally in production, not just on a missing check: the digest
@@ -248,8 +250,10 @@ vercel deploy --prod
 ```
 
 The directory is already linked (`.vercel/project.json`, gitignored). All
-production env vars are already set in Vercel — you're not starting from
-scratch. Confirm the link before deploying if anything seems off:
+the required production env vars are already set in Vercel — you're not
+starting from scratch. The exception is the four optional Threads/Instagram
+vars, which the owner sets themselves (they're the on switch for those
+channels; see "Threads + Instagram: owner setup"). Confirm the link before deploying if anything seems off:
 
 ```bash
 cat .vercel/project.json   # should show projectName: "etymology-app"
