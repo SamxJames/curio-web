@@ -6,10 +6,16 @@ const RUN_TTL_SECONDS = 3 * 24 * 60 * 60;
 /** The pending set keeps longer: a week's grace to notice and inspect it. */
 const FAILURES_TTL_SECONDS = 7 * 24 * 60 * 60;
 
-export type Channel = "email" | "bluesky";
+export type Channel = "email" | "bluesky" | "threads" | "instagram";
 
-const runKey = (channel: Channel, day: string) =>
-  channel === "email" ? `curio:digest:run:${day}` : `curio:digest:bluesky:${day}`;
+// Email keeps its original "run" key so existing locks stay valid.
+const RUN_KEY_PREFIX: Record<Channel, string> = {
+  email: "curio:digest:run:",
+  bluesky: "curio:digest:bluesky:",
+  threads: "curio:digest:threads:",
+  instagram: "curio:digest:instagram:",
+};
+const runKey = (channel: Channel, day: string) => `${RUN_KEY_PREFIX[channel]}${day}`;
 const failuresKey = (day: string) => `curio:digest:failed:${day}`;
 
 // Redis only in production. Local dev (and preview) can share production's

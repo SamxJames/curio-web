@@ -127,6 +127,33 @@ describe("digest runs, Upstash keys", () => {
   });
 });
 
+describe("digest runs, social channels", () => {
+  beforeEach(() => {
+    fake.enabled = true;
+    fake.store.clear();
+    fake.ttls.clear();
+    vi.stubEnv("VERCEL_ENV", "production");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("keeps Threads and Instagram independent of each other and of email/Bluesky, under their own keys", async () => {
+    for (const channel of ["email", "bluesky", "threads", "instagram"] as const) {
+      expect(await claimRun(channel, "2026-09-27")).toBe(true);
+    }
+    expect(await claimRun("threads", "2026-09-27")).toBe(false);
+    expect(await claimRun("instagram", "2026-09-27")).toBe(false);
+    expect([...fake.store.keys()].sort()).toEqual([
+      "curio:digest:bluesky:2026-09-27",
+      "curio:digest:instagram:2026-09-27",
+      "curio:digest:run:2026-09-27",
+      "curio:digest:threads:2026-09-27",
+    ]);
+  });
+});
+
 // Local dev shares production's Upstash: a local cron run must never claim
 // production's locks or touch its pending set.
 describe.each([

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { authorizeCron } from "@/lib/cronAuth";
 import { getAllSubscribers } from "@/lib/db";
 import { sendDailyDigests } from "@/lib/email";
 import { postDailyWordToBluesky } from "@/lib/bluesky";
@@ -37,16 +38,8 @@ const SEND_BUDGET_MS = 240_000;
  * - `?repost=bluesky` — re-posts to Bluesky only, forcing just that lock;
  *   email, its lock and the pending set are left alone. */
 export async function GET(req: NextRequest) {
-  const secret = process.env.CRON_SECRET;
-  if (!secret && process.env.NODE_ENV === "production") {
-    return NextResponse.json({ error: "CRON_SECRET is not configured" }, { status: 401 });
-  }
-  if (secret) {
-    const auth = req.headers.get("authorization");
-    if (auth !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-  }
+  const { secret, denied } = authorizeCron(req);
+  if (denied) return denied;
 
   const params = req.nextUrl.searchParams;
   const force = params.get("force") === "1";
