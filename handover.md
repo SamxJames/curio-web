@@ -1699,7 +1699,15 @@ whole-branch review, preview approval and deploy are Task 6, still ahead.
 
 ### Verification
 
-Pending — filled in after the preview approval and the first real post.
+Done.
+
+- **Preview approved, then deployed.** The owner approved the 7-day `bluesky:preview`, and the work deployed on 2026-09-29 at 20:32 UTC (`098c271`).
+- **Live posts checked on 2026-10-02**, via Bluesky's public `app.bsky.feed.getAuthorFeed`. The first three posts in the new format all match the preview: `ketchup` (09-30), `jeans` (10-01) and `panic` (10-02). Each one has:
+  - the text in format (a), with no URL;
+  - both `#etymology` and `#wordoftheday` as real tag facets;
+  - an `app.bsky.embed.external` card titled "{word}: the origin of the word — Curio", linking to the UTM-tagged story, with the word's image as thumbnail.
+- `ketchup` got the account's first like.
+- The 09-29 `sideburns` post, which went out before this deployed, is in the old format, as expected.
 
 ## This session (2026-09-29): Threads + Instagram
 
