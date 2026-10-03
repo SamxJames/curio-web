@@ -1,5 +1,5 @@
-// Weekly demand report: English Wiktionary pageviews for every word in
-// lib/words.ts, written to <out>/snapshots/<date>.json.
+// Weekly demand report: English Wiktionary pageviews and (when GSC_SERVICE_ACCOUNT_KEY is set) Google Search Console data
+// for every word in lib/words.ts, written to <out>/snapshots/<date>.json.
 // Usage: npm run demand:report -- [--out <dir>]   (default .reports/demand)
 import { WORDS } from "../lib/words";
 import { createFetcher } from "./demand/http";
@@ -32,6 +32,8 @@ async function main() {
     now: new Date(),
     outDir,
     wikiFetcher: createFetcher({ minGapMs: 100 }),
+    googleFetcher: createFetcher(),
+    env: process.env,
     log: (line) => console.log(`[demand-report] ${line}`),
   });
 
