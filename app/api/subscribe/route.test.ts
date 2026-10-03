@@ -103,11 +103,18 @@ describe("POST /api/subscribe (double opt-in)", () => {
     expect(claimDailyConfirmSlot).not.toHaveBeenCalled();
   });
 
-  it("returns a friendly JSON 500 and sends nothing when the daily-cap check throws", async () => {
+  it("returns a friendly JSON 500, sends nothing, and releases the address's cooldown when the daily-cap check throws", async () => {
     vi.mocked(claimDailyConfirmSlot).mockRejectedValueOnce(new Error("redis down"));
     const res = await POST(post({ email: "a@example.com" }));
     expect(res.status).toBe(500);
     expect(sendConfirmEmail).not.toHaveBeenCalled();
+    expect(releaseConfirmSend).toHaveBeenCalledWith("a@example.com");
+  });
+
+  it("does not release a cooldown it never claimed (lookup throws first)", async () => {
+    vi.mocked(getSubscriberByEmail).mockRejectedValueOnce(new Error("redis down"));
+    await POST(post({ email: "a@example.com" }));
+    expect(releaseConfirmSend).not.toHaveBeenCalled();
   });
 
   it("returns 502 and releases the cooldown when the send fails", async () => {

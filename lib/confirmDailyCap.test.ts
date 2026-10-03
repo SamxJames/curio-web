@@ -15,6 +15,20 @@ const { fake } = vi.hoisted(() => {
       }),
       expire: vi.fn(async (k: string, s: number) => (ttls.set(k, s), 1)),
       get: vi.fn(async (k: string) => counts.get(k) ?? null),
+      // One atomic round trip: INCR then EXPIRE, applied by exec().
+      multi: vi.fn(() => {
+        const ops: (() => Promise<unknown>)[] = [];
+        const chain = {
+          incr: (k: string) => (ops.push(() => fake.incr(k)), chain),
+          expire: (k: string, s: number) => (ops.push(() => fake.expire(k, s)), chain),
+          exec: async () => {
+            const out: unknown[] = [];
+            for (const op of ops) out.push(await op());
+            return out;
+          },
+        };
+        return chain;
+      }),
     },
   };
 });
@@ -56,10 +70,11 @@ describe("claimDailyConfirmSlot", () => {
     expect(await claimDailyConfirmSlot("2026-10-04")).toBe(true);
   });
 
-  it("sets an 8-day expiry on the day's first send only, so the weekly report can read a week back", async () => {
+  it("counts and sets the 8-day expiry in one atomic MULTI, every time, so the key can't be left without a TTL", async () => {
     await claimDailyConfirmSlot(DAY);
     await claimDailyConfirmSlot(DAY);
-    expect(fake.expire).toHaveBeenCalledTimes(1);
+    expect(fake.multi).toHaveBeenCalledTimes(2);
+    expect(fake.expire).toHaveBeenCalledTimes(2);
     expect(fake.ttls.get(KEY)).toBe(8 * 24 * 60 * 60);
   });
 
@@ -72,6 +87,7 @@ describe("claimDailyConfirmSlot", () => {
   it("allows without Upstash", async () => {
     fake.enabled = false;
     expect(await claimDailyConfirmSlot(DAY)).toBe(true);
+    expect(fake.incr).not.toHaveBeenCalled();
   });
 });
 

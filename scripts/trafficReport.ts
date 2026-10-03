@@ -1,6 +1,7 @@
 // Prints Curio's first-party traffic counters for the last N days: visits
 // requests (confirmation emails sent) and signups (confirmed) by source,
-// plus share taps. Read-only — HGETALL only, never a
+// plus share taps, and the last week of confirmation-email attempts
+// against the daily cap (lib/confirmDailyCap.ts). Read-only — HGETALL and GET only, never a
 // write. Needs UPSTASH_REDIS_REST_URL/TOKEN in .env.local (the weekly
 // check-in runs this). Prints counts only; no personal data exists here.
 // Usage: npm run traffic:report -- [days=28]
@@ -46,7 +47,7 @@ async function main() {
 
   // The keys live 8 days, so this looks back at most a week.
   const sends = await getDailyConfirmSends(Math.min(days, 7));
-  console.log(`\nconfirmation emails (cap ${DAILY_CONFIRM_CAP}/day):`);
+  console.log(`\nconfirmation-email attempts (cap ${DAILY_CONFIRM_CAP}/day; failed sends count too):`);
   for (const { day, sends: n } of sends) {
     const flag = n > DAILY_CONFIRM_CAP ? `  CAP REACHED (${n - DAILY_CONFIRM_CAP} requests not sent)` : "";
     console.log(`  ${day}  ${Math.min(n, DAILY_CONFIRM_CAP)}${flag}`);

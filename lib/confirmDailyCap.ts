@@ -18,8 +18,9 @@ const capKey = (day: string) => `curio:confirmsends:${day}`;
  * must not use up a real slot. Read at call time so tests can stub it. */
 export async function claimDailyConfirmSlot(day: string = dayKey()): Promise<boolean> {
   if (!redis || process.env.VERCEL_ENV !== "production") return true;
-  const n = await redis.incr(capKey(day));
-  if (n === 1) await redis.expire(capKey(day), KEY_TTL_SECONDS);
+  // One atomic MULTI, with the expiry refreshed on every send, so the
+  // day's key can never be left without a TTL.
+  const [n] = await redis.multi().incr(capKey(day)).expire(capKey(day), KEY_TTL_SECONDS).exec<[number, number]>();
   return n <= DAILY_CONFIRM_CAP;
 }
 

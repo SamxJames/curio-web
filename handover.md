@@ -1117,6 +1117,7 @@ reason, not just "ran out of time":
   - Past the cap, `/api/subscribe` gives the same pending reply, sends nothing and logs `[curio:subscribe] daily confirmation cap reached` (no address).
   - The cap is checked after the existing-subscriber and per-address cooldown checks, so those requests don't use a slot.
   - `npm run traffic:report` prints the last week's confirmation sends and flags any day that hit the cap. The weekly check-in sees this.
+  - The count is **attempts**: a send that then fails (502) still uses its slot, so a Resend outage could spend a day's 200. If the cap check itself errors, the person's 10-minute cooldown is released.
   - **Still open:**
     - There's no per-IP limit. One script can still use up a day's 200 slots, which delays real signups until midnight UTC but can't touch the rest of the Resend quota.
     - The sign-in send is still capped per address only.

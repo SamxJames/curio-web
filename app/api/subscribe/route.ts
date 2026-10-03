@@ -43,9 +43,11 @@ export async function POST(req: NextRequest) {
 
   // A Redis error here must not escape as an HTML 500 (the client's
   // res.json() would fail). Fail closed: no email is sent.
+  let claimed = false;
   try {
     if (await getSubscriberByEmail(address)) return NextResponse.json(PENDING);
     if (!(await claimConfirmSend(address))) return NextResponse.json(PENDING);
+    claimed = true;
     // Site-wide daily cap (lib/confirmDailyCap.ts), checked after the
     // per-address checks so a repeat or cooled-down request doesn't use a
     // slot. Past it the reply is unchanged; only the owner's log says so.
@@ -55,6 +57,9 @@ export async function POST(req: NextRequest) {
     }
   } catch (err) {
     console.error("[curio:subscribe] lookup failed:", err instanceof Error ? err.name : "unknown");
+    // Don't leave the person locked out for 10 minutes by a Redis blip
+    // that happened after their cooldown was claimed.
+    if (claimed) await releaseConfirmSend(address).catch(() => {});
     return NextResponse.json(
       { error: "Something went wrong on our side. Please try again in a few minutes." },
       { status: 500 }
