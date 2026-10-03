@@ -4,6 +4,7 @@ import { isTrafficSource } from "@/lib/traffic";
 import { recordTrafficEvent } from "@/lib/trafficStats";
 import { normaliseEmail, unsubscribeSecret } from "@/lib/unsubscribeToken";
 import { claimConfirmSend, releaseConfirmSend } from "@/lib/confirmCooldown";
+import { claimDailyConfirmSlot } from "@/lib/confirmDailyCap";
 import { confirmUrl, sendConfirmEmail } from "@/lib/email";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -45,6 +46,13 @@ export async function POST(req: NextRequest) {
   try {
     if (await getSubscriberByEmail(address)) return NextResponse.json(PENDING);
     if (!(await claimConfirmSend(address))) return NextResponse.json(PENDING);
+    // Site-wide daily cap (lib/confirmDailyCap.ts), checked after the
+    // per-address checks so a repeat or cooled-down request doesn't use a
+    // slot. Past it the reply is unchanged; only the owner's log says so.
+    if (!(await claimDailyConfirmSlot())) {
+      console.warn("[curio:subscribe] daily confirmation cap reached; not sending");
+      return NextResponse.json(PENDING);
+    }
   } catch (err) {
     console.error("[curio:subscribe] lookup failed:", err instanceof Error ? err.name : "unknown");
     return NextResponse.json(

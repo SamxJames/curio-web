@@ -7,6 +7,7 @@
 import { getTrafficDays } from "../lib/trafficStats";
 import { summarizeTraffic } from "../lib/traffic";
 import { usingUpstash } from "../lib/redis";
+import { DAILY_CONFIRM_CAP, getDailyConfirmSends } from "../lib/confirmDailyCap";
 
 const days = Number(process.argv[2] ?? 28);
 if (!Number.isInteger(days) || days < 1 || days > 90) {
@@ -41,6 +42,14 @@ async function main() {
       .filter(([f]) => f.startsWith("visit:"))
       .reduce((t, [, n]) => t + n, 0);
     console.log(`  ${day}  ${v}`);
+  }
+
+  // The keys live 8 days, so this looks back at most a week.
+  const sends = await getDailyConfirmSends(Math.min(days, 7));
+  console.log(`\nconfirmation emails (cap ${DAILY_CONFIRM_CAP}/day):`);
+  for (const { day, sends: n } of sends) {
+    const flag = n > DAILY_CONFIRM_CAP ? `  CAP REACHED (${n - DAILY_CONFIRM_CAP} requests not sent)` : "";
+    console.log(`  ${day}  ${Math.min(n, DAILY_CONFIRM_CAP)}${flag}`);
   }
 }
 

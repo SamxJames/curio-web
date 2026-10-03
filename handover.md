@@ -1111,12 +1111,15 @@ relitigate it — reuse that pattern.
 These were surfaced during review and deliberately not fixed — each has a
 reason, not just "ran out of time":
 
-- **No global or per-IP cap on confirmation sends** (2026-10-03). The
-  double opt-in cooldown is per address only, so a bot iterating unique
-  addresses can burn Resend quota. Matters before public promotion. A
-  suggested fix is a global daily cap (`INCR curio:confirmsends:<UTC day>`);
-  past the cap, return the same pending reply and send nothing. The sign-in
-  send has the same per-address-only limit.
+- **Daily cap on confirmation sends: done 2026-10-03.**
+  - `lib/confirmDailyCap.ts` allows at most **200 confirmation emails per UTC day** across all addresses, set by the owner.
+  - The count is `INCR curio:confirmsends:<UTC day>`, with an 8-day expiry, and is kept in production only.
+  - Past the cap, `/api/subscribe` gives the same pending reply, sends nothing and logs `[curio:subscribe] daily confirmation cap reached` (no address).
+  - The cap is checked after the existing-subscriber and per-address cooldown checks, so those requests don't use a slot.
+  - `npm run traffic:report` prints the last week's confirmation sends and flags any day that hit the cap. The weekly check-in sees this.
+  - **Still open:**
+    - There's no per-IP limit. One script can still use up a day's 200 slots, which delays real signups until midnight UTC but can't touch the rest of the Resend quota.
+    - The sign-in send is still capped per address only.
 - **Dev fallbacks have no production guard** (2026-10-03, pre-existing).
   The dev-mode fallbacks in `sendSignInEmail` and `sendDailyDigests` (log
   instead of send) aren't guarded against running in production the way

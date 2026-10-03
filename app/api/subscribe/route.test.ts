@@ -10,6 +10,7 @@ vi.mock("@/lib/confirmCooldown", () => ({
   claimConfirmSend: vi.fn(async () => true),
   releaseConfirmSend: vi.fn(async () => undefined),
 }));
+vi.mock("@/lib/confirmDailyCap", () => ({ claimDailyConfirmSlot: vi.fn(async () => true) }));
 vi.mock("@/lib/email", () => ({
   confirmUrl: vi.fn(() => "https://curioword.com/subscribe/confirm?token=t&utm_source=email"),
   sendConfirmEmail: vi.fn(async () => undefined),
@@ -20,6 +21,7 @@ const { getSubscriberByEmail, upsertSubscriber } = await import("@/lib/db");
 const { recordTrafficEvent } = await import("@/lib/trafficStats");
 const { claimConfirmSend, releaseConfirmSend } = await import("@/lib/confirmCooldown");
 const { confirmUrl, sendConfirmEmail } = await import("@/lib/email");
+const { claimDailyConfirmSlot } = await import("@/lib/confirmDailyCap");
 
 const post = (body: unknown) =>
   new NextRequest("http://localhost/api/subscribe", {
@@ -77,6 +79,34 @@ describe("POST /api/subscribe (double opt-in)", () => {
     const res = await POST(post({ email: "a@example.com" }));
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: "Something went wrong on our side. Please try again in a few minutes." });
+    expect(sendConfirmEmail).not.toHaveBeenCalled();
+  });
+
+  it("past the daily cap: same reply, nothing sent or counted, a log line with no address", async () => {
+    vi.mocked(claimDailyConfirmSlot).mockResolvedValueOnce(false);
+    const log = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const res = await POST(post({ email: "a@example.com" }));
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true, pending: true });
+    expect(sendConfirmEmail).not.toHaveBeenCalled();
+    expect(recordTrafficEvent).not.toHaveBeenCalled();
+    expect(log).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(log.mock.calls)).not.toContain("a@example.com");
+    log.mockRestore();
+  });
+
+  it("does not take a daily slot for an existing subscriber or a cooled-down address", async () => {
+    vi.mocked(getSubscriberByEmail).mockResolvedValueOnce({ email: "a@example.com", hour: 9, createdAt: "2026-09-01T00:00:00Z" });
+    await POST(post({ email: "a@example.com" }));
+    vi.mocked(claimConfirmSend).mockResolvedValueOnce(false);
+    await POST(post({ email: "b@example.com" }));
+    expect(claimDailyConfirmSlot).not.toHaveBeenCalled();
+  });
+
+  it("returns a friendly JSON 500 and sends nothing when the daily-cap check throws", async () => {
+    vi.mocked(claimDailyConfirmSlot).mockRejectedValueOnce(new Error("redis down"));
+    const res = await POST(post({ email: "a@example.com" }));
+    expect(res.status).toBe(500);
     expect(sendConfirmEmail).not.toHaveBeenCalled();
   });
 
