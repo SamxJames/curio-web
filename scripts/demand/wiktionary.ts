@@ -73,6 +73,7 @@ const PAGEVIEWS_API =
 const TITLE_BATCH = 50;
 
 type QueryResponse = {
+  error?: { code?: string };
   query?: {
     normalized?: { from: string; to: string }[];
     pages?: { title: string; missing?: boolean; invalid?: boolean }[];
@@ -96,9 +97,13 @@ export async function existingTitles(
     const response = await fetcher(`${MEDIAWIKI_API}?${params}`, { headers: HEADERS });
     if (!response.ok) throw new Error(`Wiktionary title lookup failed: HTTP ${response.status}`);
     const body = (await response.json()) as QueryResponse;
-    const normalized = new Map((body.query?.normalized ?? []).map((n) => [n.from, n.to]));
+    if (!body.query) {
+      const code = body.error?.code ? ` (${body.error.code})` : "";
+      throw new Error(`Wiktionary title lookup returned no query result${code}`);
+    }
+    const normalized = new Map((body.query.normalized ?? []).map((n) => [n.from, n.to]));
     const live = new Set(
-      (body.query?.pages ?? []).filter((p) => !p.missing && !p.invalid).map((p) => p.title)
+      (body.query.pages ?? []).filter((p) => !p.missing && !p.invalid).map((p) => p.title)
     );
     for (const title of batch) {
       const canonical = normalized.get(title) ?? title;

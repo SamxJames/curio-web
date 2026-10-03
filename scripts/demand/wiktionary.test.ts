@@ -152,6 +152,15 @@ describe("existingTitles", () => {
     const fetch = fakeFetch(() => jsonResponse("{}", 500));
     await expect(existingTitles(["a"], fetch)).rejects.toThrow("Wiktionary title lookup failed: HTTP 500");
   });
+
+  it("fails when the API returns an error instead of query results", async () => {
+    const fetch = fakeFetch(() =>
+      jsonResponse(JSON.stringify({ error: { code: "ratelimited", info: "You've exceeded your rate limit" } }))
+    );
+    const error = await existingTitles(["a"], fetch).catch((e) => e);
+    expect(error.message).toContain("ratelimited");
+    expect(error.message).not.toContain("exceeded");
+  });
 });
 
 describe("resolveTitles", () => {
