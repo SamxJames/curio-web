@@ -115,6 +115,7 @@ production, and `curio-web` is public).
      write**. "Metadata: Read-only" is added automatically. Leave
      everything else at "No access".
    - Click **Generate token**, then copy it.
+   - GitHub shows the token only once. Keep that page open until step 3 is done.
 3. **Store it as a secret on `curio-web`.** Run:
 
    ```powershell
@@ -132,5 +133,12 @@ Before it expires, either **regenerate** the same token (open it in
 <https://github.com/settings/personal-access-tokens> and click
 **Regenerate token**) or create a new one as in step 2. Then repeat step
 3, and delete the old token if you made a new one. An expired token makes
-the "Check out curio-reports" step fail, and GitHub emails you about the
-failed run.
+the "Check out curio-reports" step fail, the run shows as failed in the repo's
+**Actions** tab, and GitHub may email you depending on your notification settings.
+
+### If reports stop appearing
+
+GitHub turns off scheduled workflows in a public repo after 60 days with no
+repository activity. If `latest.md` stops updating, open `curio-web` →
+**Actions** → **Demand report** and click **Enable workflow**. You can also run
+it by hand there (**Run workflow**) or with `gh workflow run demand-report.yml --repo SamxJames/curio-web`.
