@@ -26,19 +26,23 @@ export default function TodayHero({
         {word.teaser}
       </p>
 
-      <Link
-        href={`/story/${word.slug}`}
-        className="mt-10 inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90"
-      >
-        Read the full story
-      </Link>
+      <div className="mt-10 flex flex-wrap items-center gap-3">
+        <Link
+          href={`/story/${word.slug}`}
+          className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90"
+        >
+          Read the full story
+        </Link>
 
-      <Link
-        href="/play"
-        className="mt-4 font-sans text-xs text-ink-faint transition-colors hover:text-ink-soft"
-      >
-        Feeling curious? Try today&apos;s puzzle &rarr;
-      </Link>
+        {/* Styled as Button's secondary variant — a Link, so it can't use
+         * the <button> primitive directly. */}
+        <Link
+          href="/play"
+          className="inline-flex items-center gap-2 rounded-full border border-line-strong px-5 py-2.5 font-sans text-sm text-ink-soft transition-colors hover:border-accent hover:text-ink"
+        >
+          Play today&apos;s puzzle
+        </Link>
+      </div>
     </section>
   );
 }

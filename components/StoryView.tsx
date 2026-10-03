@@ -192,9 +192,9 @@ export default function StoryView({ word, related }: { word: WordEntry; related:
         )}
         <Link
           href="/play"
-          className="block font-sans text-xs text-ink-faint transition-colors hover:text-ink-soft"
+          className="block font-sans text-sm font-medium text-accent transition-opacity hover:opacity-80"
         >
-          Try today&apos;s puzzle &rarr;
+          Play today&apos;s puzzle &rarr;
         </Link>
       </div>
     </article>
