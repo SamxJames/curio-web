@@ -15,6 +15,19 @@ const { fake } = vi.hoisted(() => {
         return h.get(f);
       }),
       expire: vi.fn(async (k: string, s: number) => (ttls.set(k, s), 1)),
+      multi: vi.fn(() => {
+        const ops: (() => Promise<unknown>)[] = [];
+        const chain = {
+          hincrby: (k: string, f: string, by: number) => (ops.push(() => fake.hincrby(k, f, by)), chain),
+          expire: (k: string, s: number) => (ops.push(() => fake.expire(k, s)), chain),
+          exec: async () => {
+            const out: unknown[] = [];
+            for (const op of ops) out.push(await op());
+            return out;
+          },
+        };
+        return chain;
+      }),
       hgetall: vi.fn(async (k: string) => {
         const h = hashes.get(k);
         return h ? Object.fromEntries(h) : null;
@@ -54,11 +67,20 @@ describe("recordTrafficEvent", () => {
     expect(TRAFFIC_TTL_SECONDS).toBe(90 * 24 * 60 * 60);
   });
 
+  it("writes the increment and the TTL in one multi() round trip per event", async () => {
+    await recordTrafficEvent({ kind: "signup", source: "email" }, "2026-10-03");
+    await recordTrafficEvent({ kind: "visit", source: "bluesky" }, "2026-10-03");
+    expect(fake.multi).toHaveBeenCalledTimes(2);
+    expect(fake.hincrby).toHaveBeenCalledWith("curio:traffic:2026-10-03", "signup:email", 1);
+    expect(fake.expire).toHaveBeenCalledTimes(2);
+  });
+
   it("writes nothing outside production (local dev shares production's Upstash)", async () => {
     vi.stubEnv("VERCEL_ENV", "preview");
     await recordTrafficEvent({ kind: "visit", source: "direct" }, "2026-10-03");
     vi.stubEnv("VERCEL_ENV", "");
     await recordTrafficEvent({ kind: "visit", source: "direct" }, "2026-10-03");
+    expect(fake.multi).not.toHaveBeenCalled();
     expect(fake.hincrby).not.toHaveBeenCalled();
   });
 

@@ -23,7 +23,12 @@ export function isTrafficSource(x: unknown): x is TrafficSource {
 const TAGGED: readonly TrafficSource[] = ["email", "bluesky", "threads", "instagram", "share"];
 
 const REFERRER_RULES: { source: TrafficSource; test: RegExp }[] = [
-  { source: "search", test: /(^|\.)(google\.[a-z.]+|bing\.com|duckduckgo\.com|search\.brave\.com|ecosia\.org|search\.yahoo\.com|yandex\.[a-z.]+)$/ },
+  // Google and Yandex are anchored to their search hosts so mail.google.com,
+  // docs.google.com and look-alikes such as google.evil.com stay "other".
+  {
+    source: "search",
+    test: /^(www\.)?google\.(com|[a-z]{2,3}|co\.[a-z]{2}|com\.[a-z]{2})$|(^|\.)(bing\.com|duckduckgo\.com|search\.brave\.com|ecosia\.org|search\.yahoo\.com)$|^(www\.)?yandex\.(ru|com|[a-z]{2,3}|com\.[a-z]{2})$/,
+  },
   { source: "bluesky", test: /(^|\.)bsky\.app$/ },
   { source: "threads", test: /(^|\.)threads\.(net|com)$/ },
   { source: "instagram", test: /(^|\.)instagram\.com$/ },

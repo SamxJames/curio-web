@@ -53,8 +53,8 @@ export default function AdminDashboard({
 
       <Section title="Where visitors come from">
         <p className="font-serif text-[13.5px] leading-[1.5] text-ink-soft italic">
-          Last 28 days, one visit per browser session, production only. Counting began with
-          the 2026-10 traffic-sources deploy. Signups count every successful subscribe, including repeats.
+          Last 28 days, one visit per browser tab session, production only. Counting began with
+          the traffic-sources deploy (2026-10). Signups count every successful subscribe, including repeats.
         </p>
         {traffic.rows.length === 0 ? (
           <p className="mt-3 font-serif text-[13.5px] text-ink-soft italic">No visits counted yet.</p>

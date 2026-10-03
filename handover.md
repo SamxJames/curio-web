@@ -452,8 +452,8 @@ first-party and with no personal data.
   user agent.
 - **90-day TTL.** Every write refreshes it on that day's key, so old days
   clean themselves up.
-- **Counting began with the 2026-10-03 session's deploy.** There's no
-  backfill for earlier days (see "Rejected: retroactive history backfill").
+- **Counting begins with the first production deploy of this work (no
+  backfill).** There's no history for earlier days.
 
 **Reading it:**
 
@@ -462,8 +462,22 @@ first-party and with no personal data.
 - `npm run traffic:report -- [days]` prints the same for 1–90 days (default
   28), plus visits by day. It is **read-only** (`HGETALL` only, never a
   write) and reads production through `UPSTASH_REDIS_REST_URL/TOKEN` in
-  `.env.local`. The weekly check-in runs it as `-- 7` and `-- 28`. An empty
-  table is normal until the first production visits are counted.
+  `.env.local`. The weekly check-in (scheduled routine
+  `curio-weekly-checkin`) runs it as `-- 7` and `-- 28`. An empty table is
+  normal until the first production visits are counted.
+
+**Caveats when reading the numbers:**
+
+- **Gmail web counts as "search" for untagged links.** Gmail on the web
+  routes link clicks through `www.google.com/url`, so a click on an
+  *untagged* link in Gmail web (e.g. a sign-in email) is credited to
+  `search`. The digest's links are tagged `utm_source=email` and are
+  unaffected.
+- **Your own visits count.** The owner's visits (e.g. `/admin`) and any
+  smoke-test visits are counted too, on a small base they can show.
+- **`direct`'s signup rate is inflated.** A signup from a tab with no
+  recorded arrival (an internal-referrer tab, or storage failing) falls
+  back to `direct` with no matching visit.
 
 ## Threads + Instagram: owner setup
 
@@ -1026,6 +1040,12 @@ reason, not just "ran out of time":
   doesn't defend against that axis. Real rate-limiting (or a second Resend
   API key just for auth) is still the fix for that case, and is still
   judged disproportionate to build at this project's traffic level.
+- **`POST /api/traffic` has no rate limit.** Each accepted event costs 2
+  Upstash commands (the `HINCRBY` and `EXPIRE`, sent as one `multi()`),
+  from the quota that auth, subscribers and digest locks share. It does
+  require a JSON content type and refuses cross-site `Sec-Fetch-Site`, but a
+  script can still send events directly. Same stance as the sign-in note
+  above: judged disproportionate at this scale.
 - **No TTL on Auth.js's Redis keys** (sessions/verification tokens never
   expire) — this is `@auth/upstash-redis-adapter`'s own behavior, not
   fixable without forking it. Fine at current scale; would want a
@@ -1846,7 +1866,8 @@ there are four channels (email, Bluesky, Threads, Instagram) plus search.
 Vercel Hobby's analytics can't say (see "Measuring growth (traffic
 sources)"). Plan: `docs/superpowers/plans/2026-10-03-traffic-sources.md`.
 Built on branch `feat/traffic-sources` via `superpowers` subagent-driven
-development, one commit per task. **Not merged or deployed yet.**
+development, one commit per task. **Merged to master locally; deploy
+pending owner go-ahead.**
 
 **What landed:**
 
@@ -1869,12 +1890,15 @@ development, one commit per task. **Not merged or deployed yet.**
 
 - A visit is one per browser tab session, not per person. Signups count
   every successful subscribe, including repeats.
-- Counts are production-only and start at the first deploy, so the first
-  days are partial. There's no history before it.
+- Counts are production-only and begin with the first production deploy
+  (no backfill), so the first days are partial. There's no history before it.
+- Also see the caveats list in "Measuring growth (traffic sources)": Gmail
+  web counting as `search` for untagged links, the owner's own visits
+  counting, and `direct`'s inflated signup rate.
 - The puzzle share arrives as `direct` unless the app the recipient taps it
   in sends a referrer.
 
-**Test and lint counts.** 483 tests passing at the end of the
+**Test and lint counts.** 488 tests passing at the end of the
 session's last task. Lint: the same pre-existing warnings as before.
 
 ### Verification

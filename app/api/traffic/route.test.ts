@@ -8,8 +8,8 @@ const { recordTrafficEvent } = await import("@/lib/trafficStats");
 
 const BROWSER = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15";
 
-function post(body: unknown, ua: string | null = BROWSER) {
-  const headers: Record<string, string> = { "content-type": "application/json" };
+function post(body: unknown, ua: string | null = BROWSER, extra: Record<string, string> = {}) {
+  const headers: Record<string, string> = { "content-type": "application/json", ...extra };
   if (ua) headers["user-agent"] = ua;
   return new NextRequest("http://localhost/api/traffic", {
     method: "POST",
@@ -37,6 +37,26 @@ describe("POST /api/traffic", () => {
     const res = await POST(post("{nope"));
     expect(res.status).toBe(400);
     expect(recordTrafficEvent).not.toHaveBeenCalled();
+  });
+
+  it("rejects a non-JSON content type with 415 and no write (no CORS-preflight-free posts)", async () => {
+    const res = await POST(
+      post(JSON.stringify({ kind: "visit", source: "search" }), BROWSER, { "content-type": "text/plain" })
+    );
+    expect(res.status).toBe(415);
+    expect(recordTrafficEvent).not.toHaveBeenCalled();
+  });
+
+  it("rejects a cross-site request with 403 and no write", async () => {
+    const res = await POST(post({ kind: "visit", source: "search" }, BROWSER, { "sec-fetch-site": "cross-site" }));
+    expect(res.status).toBe(403);
+    expect(recordTrafficEvent).not.toHaveBeenCalled();
+  });
+
+  it("accepts a same-origin request", async () => {
+    const res = await POST(post({ kind: "visit", source: "search" }, BROWSER, { "sec-fetch-site": "same-origin" }));
+    expect(res.status).toBe(204);
+    expect(recordTrafficEvent).toHaveBeenCalledWith({ kind: "visit", source: "search" });
   });
 
   it("quietly ignores bots: 204, no write", async () => {

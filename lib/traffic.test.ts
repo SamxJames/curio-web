@@ -36,6 +36,14 @@ describe("classifySource", () => {
     }
   });
 
+  it("anchors Google to its search hosts, not mail, docs or look-alikes", () => {
+    expect(classifySource("", "https://mail.google.com/", HOST)).toBe("other");
+    expect(classifySource("", "https://docs.google.com/", HOST)).toBe("other");
+    expect(classifySource("", "https://google.evil.com/", HOST)).toBe("other");
+    expect(classifySource("", "https://www.google.com.au/", HOST)).toBe("search");
+    expect(classifySource("", "https://google.de/", HOST)).toBe("search");
+  });
+
   it("buckets known social and community hosts", () => {
     expect(classifySource("", "https://bsky.app/profile/x", HOST)).toBe("bluesky");
     expect(classifySource("", "https://www.threads.net/", HOST)).toBe("threads");

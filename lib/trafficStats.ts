@@ -14,8 +14,9 @@ export const trafficKey = (day: string) => `curio:traffic:${day}`;
 export async function recordTrafficEvent(ev: TrafficEvent, day: string = dayKey()): Promise<void> {
   if (!redis || process.env.VERCEL_ENV !== "production") return;
   const key = trafficKey(day);
-  await redis.hincrby(key, eventField(ev), 1);
-  await redis.expire(key, TRAFFIC_TTL_SECONDS);
+  // One MULTI/EXEC round trip, so a failure between the two can't leave a
+  // counter without its TTL (and it halves the Upstash round trips).
+  await redis.multi().hincrby(key, eventField(ev), 1).expire(key, TRAFFIC_TTL_SECONDS).exec();
 }
 
 /** The last `days` UTC days (today included), keyed by day. Days with no

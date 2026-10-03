@@ -7,6 +7,16 @@ import { recordTrafficEvent } from "@/lib/trafficStats";
  * never surface an error to the page, so a recording failure still gets
  * 204. Bots get a silent 204 too: no point telling a crawler anything. */
 export async function POST(req: NextRequest) {
+  // A text/plain body would let any third-party page POST without a CORS
+  // preflight, so require JSON; and refuse browsers that say the request
+  // is cross-site. A missing Sec-Fetch-Site (older browsers, curl) is fine.
+  if (!req.headers.get("content-type")?.startsWith("application/json")) {
+    return NextResponse.json({ error: "Unsupported content type." }, { status: 415 });
+  }
+  const site = req.headers.get("sec-fetch-site");
+  if (site && site !== "same-origin") {
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+  }
   let body: unknown;
   try {
     body = await req.json();
