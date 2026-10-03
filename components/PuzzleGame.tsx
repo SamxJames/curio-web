@@ -6,6 +6,7 @@ import { Share } from "lucide-react";
 import type { WordEntry } from "@/lib/words";
 import { isCorrectGuess, buildPuzzleShareText, buildLetterHint } from "@/lib/puzzle";
 import { dayKey } from "@/lib/day";
+import { sendTrafficEvent } from "@/lib/trafficClient";
 import {
   usePlayState,
   savePlayState,
@@ -91,6 +92,7 @@ export default function PuzzleGame({
   }
 
   async function handleShare() {
+    sendTrafficEvent({ kind: "share", what: "puzzle" });
     const siteUrl = window.location.origin;
     const text = buildPuzzleShareText(puzzleNumber, state.cluesUsedToSolve, siteUrl);
     if (navigator.share) {

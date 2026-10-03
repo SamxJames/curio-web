@@ -250,12 +250,13 @@ export function buildPuzzleResultGrid(cluesUsedToSolve: 1 | 2 | 3 | null): strin
   ).join("");
 }
 
-/** The full share text — puzzle number, the result grid, and the bare
- * domain as plain text (deliberately not a link: a real URL would let
- * social platforms render a preview card, which this share is designed to
- * avoid — see this plan's Global Constraints). Derived from `siteUrl`
- * rather than hardcoded, so it always names this app's actual current
- * domain (see Flagged decision B). */
+/** The full share text — puzzle number, the result grid, and the puzzle's
+ * address (`curioword.com/play`) as plain text (deliberately not a link: a
+ * real URL would let social platforms render a preview card, which this
+ * share is designed to avoid — see this plan's Global Constraints). It
+ * names /play so a friend lands on the puzzle, not the homepage. Derived
+ * from `siteUrl` rather than hardcoded, so it always names this app's
+ * actual current domain (see Flagged decision B). */
 export function buildPuzzleShareText(
   puzzleNumber: number,
   cluesUsedToSolve: 1 | 2 | 3 | null,
@@ -263,7 +264,7 @@ export function buildPuzzleShareText(
 ): string {
   const domain = siteUrl.replace(/^https?:\/\//, "").replace(/\/$/, "");
   const grid = buildPuzzleResultGrid(cluesUsedToSolve);
-  return `Curio puzzle #${puzzleNumber}\n${grid}\n${domain}`;
+  return `Curio puzzle #${puzzleNumber}\n${grid}\n${domain}/play`;
 }
 
 /** Shown under the third clue so the last clue is a strong hint rather

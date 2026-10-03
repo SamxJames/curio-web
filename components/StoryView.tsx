@@ -7,6 +7,7 @@ import type { WordEntry } from "@/lib/words";
 import type { RelatedWords } from "@/lib/relatedWords";
 import { isFavorite, toggleFavorite, useClientOnlyValue } from "@/lib/storage";
 import { track } from "@/lib/analytics";
+import { sendTrafficEvent } from "@/lib/trafficClient";
 import { useStoryDay } from "@/lib/useStoryDay";
 import EtymologyLineage from "./EtymologyLineage";
 import Button from "@/components/ui/Button";
@@ -42,7 +43,11 @@ export default function StoryView({ word, related }: { word: WordEntry; related:
   }
 
   async function handleShare() {
-    const url = `${window.location.origin}/story/${word.slug}`;
+    // Tagged so a friend's visit counts as "share" (lib/traffic.ts). The
+    // page's canonical URL is untagged, so search engines still see one
+    // address per story.
+    const url = `${window.location.origin}/story/${word.slug}?utm_source=share`;
+    sendTrafficEvent({ kind: "share", what: "story" });
     if (canShare) {
       try {
         await navigator.share({ title: `${word.word} — Curio`, url });

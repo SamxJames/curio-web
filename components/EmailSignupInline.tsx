@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { track } from "@/lib/analytics";
 import { markSubscribedHere } from "@/lib/storage";
+import { getArrivalSource } from "@/lib/trafficClient";
 import Button from "@/components/ui/Button";
 import TextField from "@/components/ui/TextField";
 
@@ -26,7 +27,7 @@ export default function EmailSignupInline({ onSubscribed }: { onSubscribed?: () 
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, source: getArrivalSource() }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Something went wrong.");

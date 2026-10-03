@@ -341,13 +341,17 @@ describe("buildPuzzleResultGrid", () => {
 });
 
 describe("buildPuzzleShareText", () => {
-  it("includes the puzzle number, the grid, and the bare domain", () => {
-    const text = buildPuzzleShareText(142, 1, "https://etymology-app-orcin.vercel.app");
+  it("includes the puzzle number, the grid, and the puzzle's address as plain text", () => {
+    const text = buildPuzzleShareText(142, 1, "https://curioword.com");
     expect(text).toContain("Curio puzzle #142");
     expect(text).toContain("🟫⬜⬜");
-    expect(text).toContain("etymology-app-orcin.vercel.app");
+    expect(text.split("\n")[2]).toBe("curioword.com/play");
     expect(text).not.toContain("https://");
     expect(text).not.toContain("http://");
+  });
+
+  it("copes with a trailing slash on the site URL", () => {
+    expect(buildPuzzleShareText(1, 2, "https://curioword.com/").split("\n")[2]).toBe("curioword.com/play");
   });
 
   it("never reveals the word or clue text", () => {

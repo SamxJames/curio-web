@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import ThemeInit from "@/components/ThemeInit";
 import SessionHintInit from "@/components/SessionHintInit";
 import AccountFavoritesSync from "@/components/AccountFavoritesSync";
+import TrafficBeacon from "@/components/TrafficBeacon";
 import { siteUrl } from "@/lib/siteUrl";
 // Self-hosted (not next/font/google) so the app builds without reaching
 // fonts.googleapis.com at build time — works the same in dev, CI, and prod.
@@ -67,6 +68,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <AccountFavoritesSync />
           <main className="flex-1">{children}</main>
           <Footer />
+          <TrafficBeacon />
         </SessionProvider>
         <Analytics />
         <SpeedInsights />
