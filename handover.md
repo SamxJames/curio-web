@@ -416,6 +416,70 @@ or `[curio:instagram] post failed:` with the reason (see the architecture
 map for what is and isn't logged), and — like Bluesky — keeps its lock, so
 a failure is retried by hand with `?repost=`, not automatically.
 
+## Double opt-in (signup confirmation)
+
+Built 2026-10-03 (plan: `docs/superpowers/plans/2026-10-03-double-opt-in.md`).
+Anonymous signups no longer join the list straight away; the address has to
+be confirmed from its inbox first.
+
+**Flow:**
+
+1. The form (homepage, onboarding) POSTs `{ email, source? }` to
+   `/api/subscribe`. It stores nothing; it emails a signed link
+   (subject `Confirm your Curio subscription`) and replies
+   `200 { ok: true, pending: true }`.
+2. The link opens `/subscribe/confirm?token=...` (noindex). That page only
+   shows the masked address and a Confirm button; an invalid or expired
+   token redirects to `/subscribed?ok=0`.
+3. The button POSTs to `/api/subscribe/confirm?token=...`, which adds the
+   subscriber and redirects with a **303** to `/subscribed?ok=1` (or `ok=0`).
+
+**Why a button, not the link:** Outlook Safe Links and corporate mail
+scanners open every link in an email. If the GET confirmed, a scanner would
+confirm addresses a bot typed in. The emailed link never changes state;
+only the POST does (same pattern as unsubscribe).
+
+**Token (`lib/confirmToken.ts`):** `payloadB64.macB64`, both base64url. The
+payload is JSON `{"e": normalised email, "s": traffic source, "t": issued
+unix seconds}`. The MAC is HMAC-SHA256 over `"curio:confirm:v1:" + payloadB64`,
+compared with `timingSafeEqual`. It reuses `UNSUBSCRIBE_SECRET` with its own
+context string, so a confirm token can never pass as an unsubscribe token or
+the reverse; no new environment variable. Valid for 7 days
+(`CONFIRM_TTL_SECONDS`); one issued more than 300 seconds in the future is
+rejected (clock-skew allowance). **Nothing is stored for an unconfirmed
+address**: the expiry lives in the token, so there is nothing to clean up.
+Rotating `UNSUBSCRIBE_SECRET` invalidates outstanding confirm links as well
+as unsubscribe links.
+
+**Already subscribed, or cooling down:** `/api/subscribe` returns the same
+`200 { ok: true, pending: true }`, sends nothing and counts nothing, so the
+reply never reveals whether an address is on the list. The cooldown is
+`curio:confirmcooldown:<normalised email>`, `SET NX EX 600` (10 minutes, one
+confirmation email per address), released with `DEL` when the send fails so
+the person can retry at once. It is a no-op without Upstash.
+
+**Fail-closed paths:**
+
+- `503` when `UNSUBSCRIBE_SECRET` is missing in production (nothing sent).
+- `502` when the send fails (cooldown released).
+- `sendConfirmEmail` throws in production when Resend isn't configured
+  (it never logs an address or token); in dev it logs the link instead.
+- A Redis error on the cooldown claim surfaces as a 500 with no email sent.
+
+**Unaffected:** signed-in readers still subscribe directly from `/account`
+(their address was proven by the magic-link sign-in), and existing
+subscribers are grandfathered; nobody is asked to re-confirm.
+
+**Counters:** `request:<source>` is counted when a confirmation email is
+sent. `signup:<source>` is counted only on confirmation, against the source
+carried in the token, and not for an address that is already subscribed.
+Requests minus signups is roughly the confirmation drop-off. `/api/traffic`
+accepts only `visit` and `share`; a `signup` or `request` body is a 400.
+
+**Browser flag:** the "subscribed here" flag that hides the email pitch is
+set on `/subscribed?ok=1`, not when the form is submitted, so someone who
+mistypes their address still sees the signup box next time.
+
 ## Measuring growth (traffic sources)
 
 Vercel Web Analytics on the Hobby plan shows page views and referrers only:
@@ -433,10 +497,14 @@ first-party and with no personal data.
   `?utm_source=` tag (`email`, `bluesky`, `threads`, `instagram`, `share`),
   else the referrer's host (`search`, `reddit`, `hn`, or `other`), else
   `direct`. A referrer on curioword.com itself counts nothing.
-- `signup:<source>`: on every successful `/api/subscribe`, using the
-  source the signup form carried. **It counts every successful subscribe,
-  including an existing address subscribing again**, so a few repeats can
-  push a source's rate up slightly.
+- `request:<source>`: a confirmation email was sent (server-side, from
+  `/api/subscribe`). Not counted for an existing subscriber or a
+  cooled-down address.
+- `signup:<source>`: a **confirmed** subscriber, counted server-side when
+  the confirm button is pressed, against the source the signup form
+  carried (inside the token). An address that is already subscribed isn't
+  re-counted, so repeats no longer inflate it. Before double opt-in
+  (deployed with that work) it counted every successful subscribe.
 - `share:story` and `share:puzzle`: share taps. The story share URL carries
   `?utm_source=share`; the puzzle share text ends `curioword.com/play`
   (plain text, so a recipient arrives as `direct` or via their referrer).
@@ -448,7 +516,8 @@ first-party and with no personal data.
   a silent no-op, so testing can't inflate the numbers.
 - **No personal data.** Only the field names above are stored: no emails,
   IPs, user agents or referrer URLs. The server accepts only allowlisted
-  events (anything else is a 400 with no write), and bots are dropped by
+  events (`/api/traffic` takes `visit` and `share` only; `request` and
+  `signup` are recorded server-side) (anything else is a 400 with no write), and bots are dropped by
   user agent.
 - **90-day TTL.** Every write refreshes it on that day's key, so old days
   clean themselves up.
@@ -1081,8 +1150,17 @@ reason, not just "ran out of time":
   just `teaser + word · lineage + hashtags`, measured across all 1,147
   words at a maximum of 291 graphemes (`lib/bluesky.test.ts`).
 - **Double opt-in on `/api/subscribe`** (2026-09-27 email hardening) —
-  planned before public promotion, out of scope for this pre-launch pass
-  since the family-and-friends list is small and known.
+  **done 2026-10-03** (plan: `docs/superpowers/plans/2026-10-03-double-opt-in.md`;
+  see "Double opt-in (signup confirmation)"). Merged to master locally;
+  deploy pending owner go-ahead. Known limits, left as they are:
+  - Timing and outage side channels can reveal whether an address is
+    subscribed: a new address waits on a Resend send (or gets a 502), while
+    an existing one returns fast.
+  - The limit is per address only (10-minute cooldown); there is no per-IP
+    throttle.
+  - A double-click on Confirm can double-count a signup.
+  - A transient Redis error on confirm shows the "link may have expired"
+    copy.
 - **The unverified inbox-placement effect of `List-Unsubscribe` /
   `List-Unsubscribe-Post`** (2026-09-27) — judge this after a few weeks of
   real sends, alongside tightening `_dmarc`'s `p=none` to `quarantine`
@@ -1889,7 +1967,8 @@ development, one commit per task. **Deployed 2026-10-03 18:48 UTC
 **Caveats to remember when reading the numbers:**
 
 - A visit is one per browser tab session, not per person. Signups count
-  every successful subscribe, including repeats.
+  confirmed subscribers only (from the double opt-in deploy on); an
+  existing address subscribing again isn't re-counted.
 - Counts are production-only and begin with the first production deploy
   (no backfill), so the first days are partial. There's no history before it.
 - Also see the caveats list in "Measuring growth (traffic sources)": Gmail
@@ -1927,6 +2006,33 @@ Being local dev, none of these wrote to Redis.
 Still to check:
 - The `/admin` section needs the owner's sign-in.
 - First real numbers: the weekly check-in reports them.
+
+## This session (2026-10-03, later): double opt-in
+
+Before any public promotion (see `docs/launch-kit.md`), anonymous signups
+now confirm by email. Plan: `docs/superpowers/plans/2026-10-03-double-opt-in.md`.
+Built on branch `feat/double-opt-in`, one commit per task. **Status: merged
+to master locally; deploy pending owner go-ahead.** Design details are in
+"Double opt-in (signup confirmation)".
+
+**What landed:**
+
+- `lib/confirmToken.ts` (stateless signed 7-day token, context
+  `curio:confirm:v1:`) and `lib/confirmCooldown.ts` (10-minute per-address
+  cooldown).
+- `POST /api/subscribe` now emails a link instead of subscribing;
+  `sendConfirmEmail` / `confirmUrl` in `lib/email.ts`.
+- `/subscribe/confirm` (button page), `POST /api/subscribe/confirm` (303 to
+  `/subscribed?ok=1|0`) and `/subscribed`; both pages noindex and in
+  `DISALLOWED_PATHS`.
+- Counters: new `request:<source>`; `signup:<source>` only on confirmation;
+  `/api/traffic` no longer accepts `signup`.
+- The "subscribed here" browser flag moved to `/subscribed?ok=1`.
+
+**Verification:** pending. To do: a real send to an owner `+alias` address
+(the owner picks it), open the link, confirm, and check the subscriber
+appeared. Local dev writes to production Upstash, so confirming adds a real
+subscriber; consider confirming in production after the deploy instead.
 
 ## Workflow notes for whoever picks this up
 
