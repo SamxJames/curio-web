@@ -1176,8 +1176,8 @@ reason, not just "ran out of time":
   words at a maximum of 291 graphemes (`lib/bluesky.test.ts`).
 - **Double opt-in on `/api/subscribe`** (2026-09-27 email hardening) —
   **done 2026-10-03** (plan: `docs/superpowers/plans/2026-10-03-double-opt-in.md`;
-  see "Double opt-in (signup confirmation)"). Merged to master locally;
-  deploy pending owner go-ahead. Known limits, left as they are:
+  see "Double opt-in (signup confirmation)"). Deployed 2026-10-03 (20:24 UTC);
+  the daily cap followed at 20:35 UTC. Known limits, left as they are:
   - Timing and outage side channels can reveal whether an address is
     subscribed: a new address waits on a Resend send (or gets a 502), while
     an existing one returns fast.
@@ -2088,8 +2088,8 @@ signed-in experience in production was not clicked through.
 
 Before any public promotion (see `docs/launch-kit.md`), anonymous signups
 now confirm by email. Plan: `docs/superpowers/plans/2026-10-03-double-opt-in.md`.
-Built on branch `feat/double-opt-in`, one commit per task. **Status: merged
-to master locally; deploy pending owner go-ahead.** Design details are in
+Built on branch `feat/double-opt-in`, one commit per task. **Deployed 2026-10-03 at 20:24 UTC
+(commit 5c2b1ad); the 200/day cap followed at 20:35 UTC (d2186bb).** Design details are in
 "Double opt-in (signup confirmation)".
 
 **What landed:**
@@ -2106,10 +2106,21 @@ to master locally; deploy pending owner go-ahead.** Design details are in
   `/api/traffic` no longer accepts `signup`.
 - The "subscribed here" browser flag moved to `/subscribed?ok=1`.
 
-**Verification:** pending. To do: a real send to an owner `+alias` address
-(the owner picks it), open the link, confirm, and check the subscriber
-appeared. Local dev writes to production Upstash, so confirming adds a real
-subscriber; consider confirming in production after the deploy instead.
+**Verification: done in production on 2026-10-03.**
+
+Smoke checks against curioword.com:
+- `/api/traffic` with a `signup` body returns 400.
+- `/api/subscribe` with a non-string email returns 400.
+- A garbage token sends both the confirm page and the confirm POST to `/subscribed?ok=0`.
+
+Real send to the owner's `samfillingham00+optin@gmail.com`:
+- The confirmation email went out at 20:36 UTC, and Resend shows it delivered.
+- A second signup straight after got the same pending reply, and no second email was sent.
+- The owner opened the link and pressed Confirm.
+- The subscriber record appeared at 20:53 UTC.
+- `traffic:report` showed request 1, signup 1 (both `direct`; the request was made with curl), confirm-page visit 1 (`email`) and cap slots 1/200.
+
+That address is now a real subscriber. The owner can unsubscribe it from its first digest.
 
 ## Workflow notes for whoever picks this up
 

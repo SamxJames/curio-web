@@ -6,7 +6,7 @@ Prepared 2026-10-03 from the first weekly check-in ("Proposed Claude work #3").
 
 ## Before posting anything
 
-1. **Double opt-in ships first.** Double opt-in is built (2026-10-03) and goes live with the next deploy. That was decided before any public promotion (`handover.md`, "Deferred / parked items"). One wave of junk signups would hurt delivery for the digest and the sign-in emails, because they share a Resend quota. The game directories (section 1) send people to `/play`, where no signup is needed, but they still put the subscribe box in front of strangers. So everything here waits.
+1. **Double opt-in: live since 2026-10-03,** with a cap of 200 confirmation emails a day. That was decided before any public promotion (`handover.md`, "Deferred / parked items"). One wave of junk signups would hurt delivery for the digest and the sign-in emails, because they share a Resend quota. The game directories (section 1) send people to `/play`, where no signup is needed, but they still put the subscribe box in front of strangers. That prerequisite is now met.
 2. **Be upfront about how the stories are written.** Curio's `/attribution` page already says it: the facts come from Wiktionary (via Wiktextract), and the Origin, Journey and Related sections are rewritten by an offline language-model pass under a strict "don't invent anything" rule.
    - Several communities ban or dislike AI-written content. Never let a post imply the stories are hand-written.
    - Each section below includes the disclosure line where it matters.
