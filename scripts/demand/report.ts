@@ -1,4 +1,4 @@
-﻿// The weekly demand report, built from a snapshot (and, for week-on-week,
+// The weekly demand report, built from a snapshot (and, for week-on-week,
 // the previous one). Pure: no I/O and no clock, so every rule here is
 // testable against fixtures.
 import type { GscRow, SearchConsoleData, Snapshot, WordDemand } from "./types";
@@ -238,7 +238,7 @@ const pageLink = (path: string) => `[${path}](${SITE}${path})`;
 
 function wordCell(w: WordDemand): string {
   const link = `[${w.word}](${SITE}/story/${w.slug})`;
-  return w.title && w.title !== w.word ? `${link} (as “${w.title}")` : link;
+  return w.title && w.title !== w.word ? `${link} (as "${w.title}")` : link;
 }
 
 function table(headers: string[], rows: string[][]): string[] {
@@ -406,5 +406,3 @@ export function renderReport(current: Snapshot, previous: Snapshot | null): stri
 
   return `${out.join("\n")}\n`;
 }
-
-

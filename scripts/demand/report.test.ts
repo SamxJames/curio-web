@@ -240,4 +240,11 @@ describe("renderReport", () => {
     ];
     expect(renderReport(snapshot, null)).toContain("| a\\*b\\_\\[c\\]\\<d\\> |");
   });
+
+  it("uses curly quotes for alternative titles in wordCell", () => {
+    const snapshot = makeSnapshot();
+    snapshot.wiktionary.words = [word("december", 9000, { word: "December", title: "december" })];
+    const md = renderReport(snapshot, null);
+    expect(md).toContain('(as "december")');
+  });
 });
