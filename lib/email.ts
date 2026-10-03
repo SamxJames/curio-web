@@ -157,6 +157,9 @@ export function buildConfirmMessage(email: string, url: string) {
 export async function sendConfirmEmail(email: string, url: string): Promise<void> {
   const msg = buildConfirmMessage(email, url);
   if (!resend) {
+    // Fail closed in production: never log an address or a live token, and
+    // never let the caller believe an email went out when none did.
+    if (process.env.NODE_ENV === "production") throw new Error("Resend not configured");
     console.log(`[curio:email:dev-fallback] would send "${msg.subject}" to ${email}: ${url}`);
     return;
   }
