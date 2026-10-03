@@ -6,6 +6,8 @@ import path from "node:path";
 import { vi } from "vitest";
 import type { FetchLike } from "./http";
 import type { ServiceAccountKey } from "./searchConsole";
+import type { SearchConsoleData, Snapshot, WordDemand } from "./types";
+import { lastCompleteMonths } from "./wiktionary";
 
 export function fixture(name: string): string {
   return readFileSync(path.join(__dirname, "..", "__fixtures__", "demand", name), "utf8");
@@ -84,4 +86,57 @@ export function googleRoute(url: string, init?: RequestInit): Response | null {
     if (name) return jsonResponse(fixture(name));
   }
   return null;
+}
+
+/** A week's snapshot for the report tests: nine words, with Search Console
+ * data from the gsc-*.json fixtures. The 8 words with a page and views put
+ * quarantine and December in the top quarter. */
+export const MONTHS = lastCompleteMonths(new Date("2026-10-05T06:00:00Z"));
+
+export function word(slug: string, total12: number, overrides: Partial<WordDemand> = {}): WordDemand {
+  return {
+    slug,
+    word: slug,
+    title: slug,
+    views: [...Array(11).fill(0), total12],
+    total12,
+    avg3: total12 / 3,
+    trend: null,
+    ...overrides,
+  };
+}
+
+export function gscFromFixtures(): SearchConsoleData {
+  return {
+    site: "sc-domain:curioword.com",
+    startDate: "2026-09-03",
+    endDate: "2026-09-30",
+    byPage: JSON.parse(fixture("gsc-page.json")).rows,
+    byQuery: JSON.parse(fixture("gsc-query.json")).rows,
+    byPageQuery: JSON.parse(fixture("gsc-page-query.json")).rows,
+  };
+}
+
+export function makeSnapshot(overrides: Partial<Snapshot> = {}): Snapshot {
+  return {
+    version: 1,
+    date: "2026-10-05",
+    generatedAt: "2026-10-05T06:00:00.000Z",
+    wiktionary: {
+      months: MONTHS,
+      words: [
+        word("quarantine", 12500),
+        word("december", 9000, { word: "December", title: "December" }),
+        word("algebra", 8000),
+        word("zephyr", 7000),
+        word("bank", 300),
+        word("thistle", 200),
+        word("quixotic", 100),
+        word("lexicon", 50),
+        word("zzxqv", 0, { title: null }),
+      ],
+    },
+    searchConsole: gscFromFixtures(),
+    ...overrides,
+  };
 }
