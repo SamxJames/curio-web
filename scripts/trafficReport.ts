@@ -1,5 +1,6 @@
 // Prints Curio's first-party traffic counters for the last N days: visits
-// and signups by source, plus share taps. Read-only — HGETALL only, never a
+// requests (confirmation emails sent) and signups (confirmed) by source,
+// plus share taps. Read-only — HGETALL only, never a
 // write. Needs UPSTASH_REDIS_REST_URL/TOKEN in .env.local (the weekly
 // check-in runs this). Prints counts only; no personal data exists here.
 // Usage: npm run traffic:report -- [days=28]
@@ -24,11 +25,15 @@ async function main() {
   const perDay = await getTrafficDays(days);
   const s = summarizeTraffic(perDay);
   console.log(`Curio traffic — last ${days} days (UTC), ${Object.keys(perDay).length} days with data`);
-  console.log("source       visits  signups  rate");
+  console.log("source       visits  requests  signups  rate");
   for (const r of s.rows) {
-    console.log(`${r.source.padEnd(12)} ${String(r.visits).padStart(6)}  ${String(r.signups).padStart(7)}  ${pct(r.rate)}`);
+    console.log(
+      `${r.source.padEnd(12)} ${String(r.visits).padStart(6)}  ${String(r.requests).padStart(8)}  ${String(r.signups).padStart(7)}  ${pct(r.rate)}`
+    );
   }
-  console.log(`total        ${String(s.totals.visits).padStart(6)}  ${String(s.totals.signups).padStart(7)}`);
+  console.log(
+    `total        ${String(s.totals.visits).padStart(6)}  ${String(s.totals.requests).padStart(8)}  ${String(s.totals.signups).padStart(7)}`
+  );
   console.log(`share taps: story ${s.shares.story}, puzzle ${s.shares.puzzle}`);
   console.log("\nby day (visits):");
   for (const day of Object.keys(perDay).sort()) {

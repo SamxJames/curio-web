@@ -54,7 +54,8 @@ export default function AdminDashboard({
       <Section title="Where visitors come from">
         <p className="font-serif text-[13.5px] leading-[1.5] text-ink-soft italic">
           Last 28 days, one visit per browser tab session, production only. Counting began with
-          the traffic-sources deploy (2026-10). Signups count every successful subscribe, including repeats.
+          the traffic-sources deploy (2026-10). Requests are confirmation emails sent; signups are
+          confirmed (since the double opt-in deploy).
         </p>
         {traffic.rows.length === 0 ? (
           <p className="mt-3 font-serif text-[13.5px] text-ink-soft italic">No visits counted yet.</p>
@@ -63,6 +64,7 @@ export default function AdminDashboard({
             <div className="flex items-baseline justify-between py-1.5 font-sans text-[9.5px] tracking-[0.18em] text-ink-soft uppercase">
               <span className="flex-1">Source</span>
               <span className="w-16 text-right">Visits</span>
+              <span className="w-16 text-right">Requests</span>
               <span className="w-16 text-right">Signups</span>
               <span className="w-16 text-right">Rate</span>
             </div>
@@ -73,6 +75,7 @@ export default function AdminDashboard({
               >
                 <span className="flex-1 font-sans text-[11px] tracking-[0.06em] text-ink-soft">{row.source}</span>
                 <span className="w-16 text-right font-serif text-[13px]">{row.visits}</span>
+                <span className="w-16 text-right font-serif text-[13px]">{row.requests}</span>
                 <span className="w-16 text-right font-serif text-[13px]">{row.signups}</span>
                 <span className="w-16 text-right font-serif text-[13px]">
                   {row.rate === null ? "—" : `${Math.round(row.rate * 100)}%`}
@@ -82,7 +85,10 @@ export default function AdminDashboard({
           </div>
         )}
         <div className="mt-4">
-          <StatRow label="Total visits / signups" value={`${traffic.totals.visits} / ${traffic.totals.signups}`} />
+          <StatRow
+            label="Total visits / requests / signups"
+            value={`${traffic.totals.visits} / ${traffic.totals.requests} / ${traffic.totals.signups}`}
+          />
           <StatRow label="Share taps (story / puzzle)" value={`${traffic.shares.story} / ${traffic.shares.puzzle}`} />
         </div>
       </Section>

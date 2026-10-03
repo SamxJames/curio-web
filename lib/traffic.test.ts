@@ -90,13 +90,21 @@ describe("isLikelyBot", () => {
 });
 
 describe("parseTrafficEvent / eventField", () => {
-  it("accepts the three event kinds and maps each to one field", () => {
+  it("accepts only the browser-sent kinds (visit, share) and maps each to one field", () => {
     const visit = parseTrafficEvent({ kind: "visit", source: "search" });
-    const signup = parseTrafficEvent({ kind: "signup", source: "share" });
     const share = parseTrafficEvent({ kind: "share", what: "puzzle" });
     expect(visit && eventField(visit)).toBe("visit:search");
-    expect(signup && eventField(signup)).toBe("signup:share");
     expect(share && eventField(share)).toBe("share:puzzle");
+  });
+
+  it("refuses signup and request from the public endpoint (they're recorded server-side)", () => {
+    expect(parseTrafficEvent({ kind: "signup", source: "share" })).toBeNull();
+    expect(parseTrafficEvent({ kind: "request", source: "share" })).toBeNull();
+  });
+
+  it("maps the server-side kinds to their fields", () => {
+    expect(eventField({ kind: "signup", source: "share" })).toBe("signup:share");
+    expect(eventField({ kind: "request", source: "hn" })).toBe("request:hn");
   });
 
   it("rejects anything off the allowlist", () => {
@@ -117,26 +125,31 @@ describe("parseTrafficEvent / eventField", () => {
 describe("summarizeTraffic", () => {
   it("sums days per source, computes a signup rate, ignores unknown fields, sorts by visits", () => {
     const summary = summarizeTraffic({
-      "2026-10-01": { "visit:search": 5, "visit:direct": 2, "signup:search": 1, "share:story": 1, "junk:x": 9 },
+      "2026-10-01": { "visit:search": 5, "visit:direct": 2, "request:search": 2, "signup:search": 1, "share:story": 1, "junk:x": 9 },
       "2026-10-02": { "visit:search": 3, "signup:direct": 1, "share:puzzle": 2, "share:story": 1 },
     });
     expect(summary.rows).toEqual([
-      { source: "search", visits: 8, signups: 1, rate: 1 / 8 },
-      { source: "direct", visits: 2, signups: 1, rate: 1 / 2 },
+      { source: "search", visits: 8, requests: 2, signups: 1, rate: 1 / 8 },
+      { source: "direct", visits: 2, requests: 0, signups: 1, rate: 1 / 2 },
     ]);
-    expect(summary.totals).toEqual({ visits: 10, signups: 2 });
+    expect(summary.totals).toEqual({ visits: 10, requests: 2, signups: 2 });
     expect(summary.shares).toEqual({ story: 2, puzzle: 2 });
   });
 
   it("gives a null rate when a source has signups but no counted visit", () => {
     const summary = summarizeTraffic({ "2026-10-01": { "signup:email": 1 } });
-    expect(summary.rows).toEqual([{ source: "email", visits: 0, signups: 1, rate: null }]);
+    expect(summary.rows).toEqual([{ source: "email", visits: 0, requests: 0, signups: 1, rate: null }]);
+  });
+
+  it("lists a source that only has requests", () => {
+    const summary = summarizeTraffic({ "2026-10-01": { "request:reddit": 1 } });
+    expect(summary.rows).toEqual([{ source: "reddit", visits: 0, requests: 1, signups: 0, rate: null }]);
   });
 
   it("is empty for no data", () => {
     expect(summarizeTraffic({})).toEqual({
       rows: [],
-      totals: { visits: 0, signups: 0 },
+      totals: { visits: 0, requests: 0, signups: 0 },
       shares: { story: 0, puzzle: 0 },
     });
   });
