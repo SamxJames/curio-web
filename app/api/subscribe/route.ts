@@ -24,8 +24,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const { email, source } = (body ?? {}) as { email?: string; source?: unknown };
-  if (!email || !EMAIL_RE.test(email.trim())) {
+  const { email, source } = (body ?? {}) as { email?: unknown; source?: unknown };
+  if (typeof email !== "string" || !EMAIL_RE.test(email.trim())) {
     return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
   }
 

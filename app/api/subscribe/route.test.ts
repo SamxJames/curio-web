@@ -84,6 +84,14 @@ describe("POST /api/subscribe (double opt-in)", () => {
     expect(sendConfirmEmail).not.toHaveBeenCalled();
   });
 
+  it("rejects a non-string email with 400 instead of throwing", async () => {
+    for (const email of [123, ["a@b.co"], {}]) {
+      const res = await POST(post({ email }));
+      expect(res.status).toBe(400);
+    }
+    expect(sendConfirmEmail).not.toHaveBeenCalled();
+  });
+
   it("fails closed with 503 in production without UNSUBSCRIBE_SECRET", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("UNSUBSCRIBE_SECRET", "");
