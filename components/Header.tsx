@@ -35,6 +35,7 @@ export default function Header() {
   if (isArrivalRoute) return null;
 
   const todayActive = pathname === "/";
+  const puzzleActive = pathname === "/play";
   const historyActive = pathname.startsWith("/history");
   const collectionActive = pathname.startsWith("/collection");
   const accountActive = pathname === "/account";
@@ -43,13 +44,16 @@ export default function Header() {
 
   return (
     <header className="border-b border-line">
-      <div className="mx-auto flex max-w-page items-center justify-between px-6 py-5">
+      <div className="mx-auto flex max-w-page items-center justify-between px-4 py-5 sm:px-6">
         <Link href="/" className="font-serif text-lg tracking-tight">
           Curio
         </Link>
-        <nav className="flex items-center gap-5">
+        <nav className="flex items-center gap-3 sm:gap-5">
           <Link href="/" className={navLinkClass(todayActive)}>
             Today
+          </Link>
+          <Link href="/play" className={navLinkClass(puzzleActive)}>
+            Puzzle
           </Link>
 
           {/* useSession() is "loading" on a cold load until its client-side

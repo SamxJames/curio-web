@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
+import clsx from "clsx";
+import { useSession } from "next-auth/react";
 import EmailSignupInline from "./EmailSignupInline";
 import {
   markArrivedFromEmailThisSession,
@@ -16,10 +18,13 @@ import { isEmailArrival } from "@/lib/emailArrival";
  * digest link this session (utm_source=email, see lib/email.ts; forgotten
  * once the tab closes, so a forwarded or copied link doesn't hide the pitch
  * for whoever opens it next) — since subscribers land on story pages every
- * morning and shouldn't be pitched the thing they already have. */
+ * morning and shouldn't be pitched the thing they already have. Also hidden
+ * for anyone signed in — they manage the email from /account, so a
+ * "join" pitch reads as Curio not recognising them. */
 export default function StoryFrontDoor() {
   const subscribedHere = useHasSubscribedHere();
   const arrivedFromEmailThisSession = useHasArrivedFromEmailThisSession();
+  const { status: sessionStatus } = useSession();
   // Pinned open after a signup on this page, so the "check your inbox"
   // message isn't unmounted if the subscribed-here flag flips meanwhile
   // (/subscribed sets it once the emailed link is confirmed, possibly in
@@ -30,10 +35,18 @@ export default function StoryFrontDoor() {
     if (isEmailArrival(window.location.search)) markArrivedFromEmailThisSession();
   }, []);
 
-  if ((subscribedHere || arrivedFromEmailThisSession) && !justJoined) return null;
+  if ((subscribedHere || arrivedFromEmailThisSession || sessionStatus === "authenticated") && !justJoined) {
+    return null;
+  }
 
   return (
-    <section aria-label="About Curio" className="mt-12 border-t border-line pt-8">
+    <section
+      aria-label="About Curio"
+      // While useSession() is still loading, the pre-paint session hint
+      // (see lib/storage.ts readSessionHint) hides the pitch so a signed-in
+      // reader never sees it flash in before their session resolves.
+      className={clsx("mt-12 border-t border-line pt-8", sessionStatus === "loading" && "signed-in:hidden")}
+    >
       <p className="font-sans text-sm leading-relaxed text-ink-soft">
         This is Curio: one word&apos;s origin story, every morning. No feed, no backlog.
       </p>

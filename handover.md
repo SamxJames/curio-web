@@ -1,10 +1,12 @@
 # Curio — Handover
 
-Last updated: 2026-09-29, after the Threads + Instagram build (branch
-`social`, not yet merged or deployed). See "This session (2026-09-29):
-Threads + Instagram" below; the owner-side setup it needs is in "Threads +
-Instagram: owner setup". Before that, 2026-09-28 finished Bluesky link
-cards (Phase 3 of the pre-launch brief). This doc
+Last updated: 2026-10-03, after two pieces of user feedback were fixed
+and deployed: signed-in readers were being asked to join the email, and
+people didn't notice today's puzzle. See "This session (2026-10-03, cont.):
+signed-in pitch + puzzle visibility" below. Earlier the same day,
+first-party traffic sources shipped. Threads + Instagram (2026-09-29) are
+deployed but post nothing until the owner adds tokens; see "Threads +
+Instagram: owner setup". This doc
 exists so a fresh Claude Code session (or a human) can pick up without
 re-deriving all of the above from git log.
 
@@ -1591,8 +1593,9 @@ nothing there said what Curio is.
   It's in the static HTML; only hiding happens after hydration.
 - **Who doesn't see it:** a browser that confirmed a subscription
   (`curio:subscribed` in localStorage, set on `/subscribed?ok=1` since
-  double opt-in, 2026-10-03; formerly set on form success), and a browsing session that arrived from a digest email
-  (`curio:arrivedFromEmail` in sessionStorage). Digest story links now
+  double opt-in, 2026-10-03; formerly set on form success), a browsing
+  session that arrived from a digest email (`curio:arrivedFromEmail` in
+  sessionStorage), and (since 2026-10-03) anyone signed in. Digest story links now
   carry `utm_source=email&utm_medium=email&utm_campaign=daily-word`
   (`lib/email.ts` `digestStoryUrl`). The email arrival is session-only on
   purpose: a forwarded digest link would otherwise hide the pitch for
@@ -2026,6 +2029,56 @@ Being local dev, none of these wrote to Redis.
 Still to check:
 - The `/admin` section needs the owner's sign-in.
 - First real numbers: the weekly check-in reports them.
+
+## This session (2026-10-03, cont.): signed-in pitch + puzzle visibility
+
+Two bits of real-user feedback, done directly (no plan doc). **Deployed
+2026-10-03 (commit 714c3e2)** by pushing `master`.
+
+**1. Signed-in readers were asked to join the email.** The story-page
+front door (`StoryFrontDoor`) and the post-game block in `PuzzleGame`
+only checked the local `curio:subscribed` flag, never the session. A
+signed-in reader on a new browser, or one who had signed up some other
+way, got the "join" pitch. Both now hide for `useSession()` status
+`"authenticated"`. While the session is still `"loading"`, the element
+carries `signed-in:hidden`, so the pre-paint session hint hides it with no
+flash. The pitch is still in the prerendered HTML, so signed-out
+visitors and crawlers see it as before. Signed-in readers manage the
+email from `/account` (which has its own subscribe/unsubscribe).
+Signing in does **not** subscribe anyone. Hiding the pitch is about
+recognising the reader, not because they're already on the list.
+
+**2. Today's puzzle was easy to miss.** Before this, it was one faint
+`text-xs` link on Today and on story pages. Now:
+
+- `Header` has a **Puzzle** nav link (`/play`) after Today. To fit it at
+  375px when signed in (Today · Puzzle · Collection · Account · theme),
+  the header's mobile padding went `px-6` → `px-4` and the nav gap
+  `gap-5` → `gap-3`. Both go back to the old values at `sm:`. Before that
+  change it overflowed by about 23px.
+- `TodayHero`: a **Play today's puzzle** pill beside "Read the full
+  story". It uses `Button`'s secondary-variant classes on a `Link`.
+- `StoryView`: the bottom link is now `text-sm font-medium text-accent`.
+- `ArrivalHero`: "Or play today's puzzle →" under "Find out more". It
+  calls `markOnboarded()` on click, like the other arrival links.
+
+### Verification
+
+Done in the local dev server, in a browser signed in as the owner:
+
+- The story page rendered no front door and no email input.
+- A cookie-less fetch of the same page still had the pitch, with
+  `signed-in:hidden`.
+- The header scrollWidth equalled the 375px viewport.
+
+Typecheck and lint were clean. The main tree's tests passed. Vitest also
+picks up `.worktrees/double-opt-in` and `.worktrees/demand-report`, which
+have 13 failures of their own. Those are the stray-worktree noise
+described in the workflow notes below, not this change.
+
+After the deploy, `curioword.com/story/silhouette` served the Puzzle nav
+link, the new story-page link and the `signed-in:hidden` classes. The
+signed-in experience in production was not clicked through.
 
 ## This session (2026-10-03, later): double opt-in
 
