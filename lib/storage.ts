@@ -164,8 +164,10 @@ export function markOnboarded() {
   notify();
 }
 
-/** "This browser has actually joined the email" — set only by a real signup
- * succeeding (EmailSignupInline's markSubscribedHere call). A display hint
+/** "This browser has actually joined the email" — set only once a
+ * subscription is confirmed: on `/subscribed?ok=1`, by
+ * components/MarkSubscribedHere.tsx (not when a signup form is submitted,
+ * since an unconfirmed address hasn't joined). A display hint
  * only, like the session hint below: it hides a story page's signup pitch
  * (components/StoryFrontDoor.tsx) and nothing else. Persists across
  * sessions, and is not cleared on unsubscribe — worst case, a lapsed

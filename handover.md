@@ -424,7 +424,8 @@ be confirmed from its inbox first.
 
 **Flow:**
 
-1. The form (homepage, onboarding) POSTs `{ email, source? }` to
+1. The form (`EmailSignupInline`: the homepage arrival hero, `/play`'s
+   post-game funnel and the story-page front door) POSTs `{ email, source? }` to
    `/api/subscribe`. It stores nothing; it emails a signed link
    (subject `Confirm your Curio subscription`) and replies
    `200 { ok: true, pending: true }`.
@@ -447,7 +448,8 @@ context string, so a confirm token can never pass as an unsubscribe token or
 the reverse; no new environment variable. Valid for 7 days
 (`CONFIRM_TTL_SECONDS`); one issued more than 300 seconds in the future is
 rejected (clock-skew allowance). **Nothing is stored for an unconfirmed
-address**: the expiry lives in the token, so there is nothing to clean up.
+address apart from a 10-minute cooldown key (`curio:confirmcooldown:<email>`)**:
+the expiry lives in the token, so there is nothing to clean up.
 Rotating `UNSUBSCRIBE_SECRET` invalidates outstanding confirm links as well
 as unsubscribe links.
 
@@ -464,7 +466,9 @@ the person can retry at once. It is a no-op without Upstash.
 - `502` when the send fails (cooldown released).
 - `sendConfirmEmail` throws in production when Resend isn't configured
   (it never logs an address or token); in dev it logs the link instead.
-- A Redis error on the cooldown claim surfaces as a 500 with no email sent.
+- A Redis error on the subscriber lookup or the cooldown claim gives a
+  friendly JSON `500` ("Something went wrong on our side…") with no email
+  sent; only `err.name` is logged.
 
 **Unaffected:** signed-in readers still subscribe directly from `/account`
 (their address was proven by the magic-link sign-in), and existing
@@ -527,7 +531,8 @@ first-party and with no personal data.
 **Reading it:**
 
 - `/admin` has a "Where visitors come from" section: the last 28 days by
-  source (visits, signups, rate), total visits / signups, and share taps.
+  source (visits, requests, signups, rate), total visits / requests /
+  signups, and share taps.
 - `npm run traffic:report -- [days]` prints the same for 1–90 days (default
   28), plus visits by day. It is **read-only** (`HGETALL` only, never a
   write) and reads production through `UPSTASH_REDIS_REST_URL/TOKEN` in
@@ -542,6 +547,9 @@ first-party and with no personal data.
   *untagged* link in Gmail web (e.g. a sign-in email) is credited to
   `search`. The digest's links are tagged `utm_source=email` and are
   unaffected.
+- **Confirm-page opens count as `visit:email`.** The confirmation email's
+  link carries `utm_source=email`, so opening it is counted alongside
+  digest clicks.
 - **Your own visits count.** The owner's visits (e.g. `/admin`) and any
   smoke-test visits are counted too, on a small base they can show.
 - **`direct`'s signup rate is inflated.** A signup from a tab with no
@@ -1101,6 +1109,17 @@ relitigate it — reuse that pattern.
 These were surfaced during review and deliberately not fixed — each has a
 reason, not just "ran out of time":
 
+- **No global or per-IP cap on confirmation sends** (2026-10-03). The
+  double opt-in cooldown is per address only, so a bot iterating unique
+  addresses can burn Resend quota. Matters before public promotion. A
+  suggested fix is a global daily cap (`INCR curio:confirmsends:<UTC day>`);
+  past the cap, return the same pending reply and send nothing. The sign-in
+  send has the same per-address-only limit.
+- **Dev fallbacks have no production guard** (2026-10-03, pre-existing).
+  The dev-mode fallbacks in `sendSignInEmail` and `sendDailyDigests` (log
+  instead of send) aren't guarded against running in production the way
+  `sendConfirmEmail` is.
+
 - **Resend quota shared between sign-in and the daily digest — partially
   addressed 2026-09-18.** `lib/signInCooldown.ts` now blocks *repeated*
   sign-in requests for the *same* address within a 60s window (see "This
@@ -1570,9 +1589,9 @@ nothing there said what Curio is.
   word's origin story, every morning. No feed, no backlog." (the owner
   picked it from three drafts), plus the existing `EmailSignupInline`.
   It's in the static HTML; only hiding happens after hydration.
-- **Who doesn't see it:** a browser that joined through
-  `EmailSignupInline` anywhere (`curio:subscribed` in localStorage, set
-  on success), and a browsing session that arrived from a digest email
+- **Who doesn't see it:** a browser that confirmed a subscription
+  (`curio:subscribed` in localStorage, set on `/subscribed?ok=1` since
+  double opt-in, 2026-10-03; formerly set on form success), and a browsing session that arrived from a digest email
   (`curio:arrivedFromEmail` in sessionStorage). Digest story links now
   carry `utm_source=email&utm_medium=email&utm_campaign=daily-word`
   (`lib/email.ts` `digestStoryUrl`). The email arrival is session-only on
@@ -1589,11 +1608,12 @@ nothing there said what Curio is.
 - **Removed, not re-pointed:** "Browse all words". "All words A–Z →"
   (→ `/words`) already renders on every story page, because
   `getRelatedWords` always returns alphabetical neighbours.
-- **Coupling to keep in mind:** `EmailSignupInline` calls
-  `onSubscribed()` before `markSubscribedHere()`, and `StoryFrontDoor`
-  pins itself open with `flushSync`. Swap that order and the "You're in"
-  message unmounts. Vitest has no DOM, so no test covers it; it was
-  checked in the browser with a stubbed `/api/subscribe`.
+- **Coupling to keep in mind (superseded by double opt-in, 2026-10-03):**
+  `EmailSignupInline` no longer calls `markSubscribedHere()`; the flag is
+  set on `/subscribed?ok=1` by `components/MarkSubscribedHere.tsx`, so
+  call order there no longer matters. `StoryFrontDoor` still pins itself
+  open with `flushSync` for `onSubscribed()`. Vitest has no DOM, so no
+  test covers it.
 - **Known, accepted:** a subscriber sees the front door collapse just
   after hydration. It's below the fold, so it doesn't count toward CLS.
   If it ever matters, a pre-paint `data-subscribed` attribute (like

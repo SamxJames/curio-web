@@ -73,7 +73,7 @@ export default function ArrivalHero({ word, date }: { word: WordEntry; date: str
           </p>
 
           <div className="mt-5">
-            <EmailSignupInline onSubscribed={() => setTimeout(() => markOnboarded(), 2000)} />
+            <EmailSignupInline />
           </div>
 
           <Link

@@ -47,6 +47,15 @@ describe("confirm tokens", () => {
     expect(verifyConfirmToken(unsub, SECRET, NOW)).toBeNull();
   });
 
+  it("rejects a MAC computed without the curio:confirm:v1: context prefix", () => {
+    const payload = Buffer.from(JSON.stringify({ e: "a@example.com", s: "direct", t: Math.floor(NOW.getTime() / 1000) })).toString("base64url");
+    const mac = createHmac("sha256", SECRET).update(payload).digest("base64url");
+    expect(verifyConfirmToken(`${payload}.${mac}`, SECRET, NOW)).toBeNull();
+    // Control: the same payload with the prefixed MAC does verify.
+    const good = createHmac("sha256", SECRET).update("curio:confirm:v1:" + payload).digest("base64url");
+    expect(verifyConfirmToken(`${payload}.${good}`, SECRET, NOW)).not.toBeNull();
+  });
+
   it("rejects well-signed payloads with bad contents", () => {
     const sign = (obj: unknown) => {
       const p = Buffer.from(JSON.stringify(obj)).toString("base64url");

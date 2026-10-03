@@ -8,7 +8,8 @@ import { isTrafficSource, type TrafficSource } from "./traffic";
 const CONTEXT = "curio:confirm:v1:";
 
 /** How long a confirm link works. Nothing is stored for an unconfirmed
- * address — the expiry lives in the signed token itself. */
+ * address apart from a 10-minute cooldown key (curio:confirmcooldown:<email>)
+ * — the expiry lives in the signed token itself. */
 export const CONFIRM_TTL_SECONDS = 7 * 24 * 60 * 60;
 
 /** Tolerated clock skew for a token "issued in the future". */

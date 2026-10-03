@@ -40,8 +40,18 @@ export async function POST(req: NextRequest) {
   const address = normaliseEmail(email);
   const src = isTrafficSource(source) ? source : "direct";
 
-  if (await getSubscriberByEmail(address)) return NextResponse.json(PENDING);
-  if (!(await claimConfirmSend(address))) return NextResponse.json(PENDING);
+  // A Redis error here must not escape as an HTML 500 (the client's
+  // res.json() would fail). Fail closed: no email is sent.
+  try {
+    if (await getSubscriberByEmail(address)) return NextResponse.json(PENDING);
+    if (!(await claimConfirmSend(address))) return NextResponse.json(PENDING);
+  } catch (err) {
+    console.error("[curio:subscribe] lookup failed:", err instanceof Error ? err.name : "unknown");
+    return NextResponse.json(
+      { error: "Something went wrong on our side. Please try again in a few minutes." },
+      { status: 500 }
+    );
+  }
 
   try {
     await sendConfirmEmail(address, confirmUrl(address, src, secret));

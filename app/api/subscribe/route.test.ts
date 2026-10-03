@@ -64,6 +64,22 @@ describe("POST /api/subscribe (double opt-in)", () => {
     expect(sendConfirmEmail).not.toHaveBeenCalled();
   });
 
+  it("returns a friendly JSON 500 and sends nothing when the subscriber lookup throws", async () => {
+    vi.mocked(getSubscriberByEmail).mockRejectedValueOnce(new Error("redis down"));
+    const res = await POST(post({ email: "a@example.com" }));
+    expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({ error: "Something went wrong on our side. Please try again in a few minutes." });
+    expect(sendConfirmEmail).not.toHaveBeenCalled();
+  });
+
+  it("returns a friendly JSON 500 and sends nothing when the cooldown claim throws", async () => {
+    vi.mocked(claimConfirmSend).mockRejectedValueOnce(new Error("redis down"));
+    const res = await POST(post({ email: "a@example.com" }));
+    expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({ error: "Something went wrong on our side. Please try again in a few minutes." });
+    expect(sendConfirmEmail).not.toHaveBeenCalled();
+  });
+
   it("returns 502 and releases the cooldown when the send fails", async () => {
     vi.mocked(sendConfirmEmail).mockRejectedValueOnce(new Error("Resend send failed: x"));
     const res = await POST(post({ email: "a@example.com" }));
