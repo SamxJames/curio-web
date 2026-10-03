@@ -1,9 +1,11 @@
 // Test-only helpers for the demand report: fixture loading and a fake fetch
 // that answers from recorded API responses, so no test touches the network.
 import { readFileSync } from "node:fs";
+import { generateKeyPairSync } from "node:crypto";
 import path from "node:path";
 import { vi } from "vitest";
 import type { FetchLike } from "./http";
+import type { ServiceAccountKey } from "./searchConsole";
 
 export function fixture(name: string): string {
   return readFileSync(path.join(__dirname, "..", "__fixtures__", "demand", name), "utf8");
@@ -50,4 +52,17 @@ export function fakeFetch(...routes: Route[]) {
     }
     throw new Error(`Unexpected request in test: ${url}`);
   });
+}
+
+/** A throwaway RSA service account, generated per test run. envValue is the
+ * key file JSON base64-encoded, the way GSC_SERVICE_ACCOUNT_KEY holds it. */
+export function testServiceAccount(): { key: ServiceAccountKey; publicKey: string; envValue: string } {
+  const { publicKey, privateKey } = generateKeyPairSync("rsa", {
+    modulusLength: 2048,
+    publicKeyEncoding: { type: "spki", format: "pem" },
+    privateKeyEncoding: { type: "pkcs8", format: "pem" },
+  });
+  const key = { client_email: "demand-report@curio-test.iam.gserviceaccount.com", private_key: privateKey };
+  const file = { type: "service_account", project_id: "curio-test", ...key };
+  return { key, publicKey, envValue: Buffer.from(JSON.stringify(file)).toString("base64") };
 }
