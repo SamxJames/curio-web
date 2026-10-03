@@ -1,14 +1,19 @@
 import { describe, expect, it } from "vitest";
 import type { WordDemand } from "./types";
 import {
+  collectWiktionary,
   encodeTitle,
+  existingTitles,
+  fetchMonthlyViews,
   formatTrend,
   lastCompleteMonths,
   rankByDemand,
+  resolveTitles,
   summarizeViews,
   titleCandidates,
   USER_AGENT,
 } from "./wiktionary";
+import { FIXTURE_ENTRIES, fakeFetch, jsonResponse, wikimediaRoute } from "./testing";
 
 describe("titleCandidates", () => {
   it("tries the exact spelling first, then the other case", () => {
@@ -99,5 +104,105 @@ describe("USER_AGENT", () => {
     expect(USER_AGENT).toBe(
       "CurioDemandReport/1.0 (https://curioword.com; samfillingham@protonmail.com)"
     );
+  });
+});
+
+const MONTHS = lastCompleteMonths(new Date("2026-10-03T12:00:00Z"));
+
+describe("existingTitles", () => {
+  it("maps titles that exist to their canonical title and leaves out missing ones", async () => {
+    const fetch = fakeFetch(wikimediaRoute);
+    const found = await existingTitles(["quarantine", "December", "zzxqv"], fetch);
+    expect([...found]).toEqual([["quarantine", "quarantine"]]);
+  });
+
+  it("follows the API's normalisation", async () => {
+    const fetch = fakeFetch(() =>
+      jsonResponse(
+        JSON.stringify({
+          query: {
+            normalized: [{ from: "hoi_polloi", to: "hoi polloi" }],
+            pages: [{ pageid: 1, ns: 0, title: "hoi polloi" }],
+          },
+        })
+      )
+    );
+    const found = await existingTitles(["hoi_polloi"], fetch);
+    expect(found.get("hoi_polloi")).toBe("hoi polloi");
+  });
+
+  it("asks for at most 50 titles per request, with the User-Agent", async () => {
+    const fetch = fakeFetch(() => jsonResponse('{"query":{"pages":[]}}'));
+    const titles = Array.from({ length: 120 }, (_, i) => `w${i}`);
+    await existingTitles(titles, fetch);
+    expect(fetch).toHaveBeenCalledTimes(3);
+    const batches = fetch.mock.calls.map(([url]) => new URL(url).searchParams.get("titles")!.split("|"));
+    expect(batches.map((b) => b.length)).toEqual([50, 50, 20]);
+    const init = fetch.mock.calls[0][1] as { headers: Record<string, string> };
+    expect(init.headers["User-Agent"]).toBe(USER_AGENT);
+  });
+
+  it("makes no request for an empty list", async () => {
+    const fetch = fakeFetch();
+    expect((await existingTitles([], fetch)).size).toBe(0);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("fails on an HTTP error", async () => {
+    const fetch = fakeFetch(() => jsonResponse("{}", 500));
+    await expect(existingTitles(["a"], fetch)).rejects.toThrow("Wiktionary title lookup failed: HTTP 500");
+  });
+});
+
+describe("resolveTitles", () => {
+  it("uses the exact spelling, falls back to the other case, and records no page as null", async () => {
+    const fetch = fakeFetch(wikimediaRoute);
+    const titles = await resolveTitles(["quarantine", "December", "zzxqv"], fetch);
+    expect(titles.get("quarantine")).toBe("quarantine");
+    expect(titles.get("December")).toBe("december");
+    expect(titles.get("zzxqv")).toBeNull();
+  });
+});
+
+describe("fetchMonthlyViews", () => {
+  it("requests the user-agent monthly series for the window and fills gaps with 0", async () => {
+    const fetch = fakeFetch(wikimediaRoute);
+    const views = await fetchMonthlyViews("quarantine", MONTHS, fetch);
+    expect(fetch.mock.calls[0][0]).toBe(
+      "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wiktionary.org/all-access/user/quarantine/monthly/20251001/20260930"
+    );
+    expect(views).toEqual([1200, 1100, 0, 900, 800, 1000, 950, 1050, 1000, 1300, 1500, 1700]);
+  });
+
+  it("treats a 404 for an existing page as zero views", async () => {
+    const fetch = fakeFetch(wikimediaRoute);
+    expect(await fetchMonthlyViews("december", MONTHS, fetch)).toEqual(Array(12).fill(0));
+  });
+
+  it("fails on any other HTTP error", async () => {
+    const fetch = fakeFetch(() => jsonResponse("{}", 503));
+    await expect(fetchMonthlyViews("quarantine", MONTHS, fetch)).rejects.toThrow(
+      'Wiktionary pageviews failed for "quarantine": HTTP 503'
+    );
+  });
+});
+
+describe("collectWiktionary", () => {
+  it("summarises every word and records words with no page instead of failing", async () => {
+    const fetch = fakeFetch(wikimediaRoute);
+    const progress: number[] = [];
+    const data = await collectWiktionary(FIXTURE_ENTRIES, {
+      fetcher: fetch,
+      now: new Date("2026-10-03T12:00:00Z"),
+      onProgress: (done) => progress.push(done),
+    });
+    expect(data.months).toEqual(MONTHS);
+    const [quarantine, december, zzxqv] = data.words;
+    expect(quarantine).toMatchObject({ slug: "quarantine", title: "quarantine", total12: 12500, avg3: 1500, trend: 0.5 });
+    expect(december).toMatchObject({ word: "December", title: "december", total12: 0, trend: null });
+    expect(zzxqv).toMatchObject({ title: null, total12: 0, views: Array(12).fill(0) });
+    expect(progress).toEqual([1, 2, 3]);
+    const pageviewCalls = fetch.mock.calls.filter(([url]) => url.startsWith("https://wikimedia.org/"));
+    expect(pageviewCalls).toHaveLength(2);
   });
 });
