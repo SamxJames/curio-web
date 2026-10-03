@@ -1,4 +1,4 @@
-// The weekly demand report, built from a snapshot (and, for week-on-week,
+﻿// The weekly demand report, built from a snapshot (and, for week-on-week,
 // the previous one). Pure: no I/O and no clock, so every rule here is
 // testable against fixtures.
 import type { GscRow, SearchConsoleData, Snapshot, WordDemand } from "./types";
@@ -238,7 +238,7 @@ const pageLink = (path: string) => `[${path}](${SITE}${path})`;
 
 function wordCell(w: WordDemand): string {
   const link = `[${w.word}](${SITE}/story/${w.slug})`;
-  return w.title && w.title !== w.word ? `${link} (as "${w.title}")` : link;
+  return w.title && w.title !== w.word ? `${link} (as “${w.title}")` : link;
 }
 
 function table(headers: string[], rows: string[][]): string[] {
@@ -310,10 +310,11 @@ export function renderReport(current: Snapshot, previous: Snapshot | null): stri
   const { months } = current.wiktionary;
   const out: string[] = [];
   const section = (title: string, ...body: string[]) => out.push("", `## ${title}`, "", ...body);
+  const escapeQuery = (q: string) => q.replace(/[\\\`*_\[\]<>]/g, "\\$&");
   const queryTable = (rows: QueryRow[]) =>
     table(
       ["Query", "Page", "Impressions", "Clicks", "Position"],
-      rows.map((r) => [r.query, pageLink(r.path), int(r.impressions), int(r.clicks), pos(r.position)])
+      rows.map((r) => [escapeQuery(r.query), pageLink(r.path), int(r.impressions), int(r.clicks), pos(r.position)])
     );
 
   out.push(
@@ -384,7 +385,7 @@ export function renderReport(current: Snapshot, previous: Snapshot | null): stri
     const { offWord, otherIntent } = offPatternQueries(gsc, bySlug);
     section(
       "4. Queries that don't match the title pattern",
-      `Story titles read "<word>: the origin of the word — Curio".`,
+      "Story titles read `<word>: the origin of the word — Curio`.",
       "",
       "### Off-word: the query doesn't contain the page's word",
       "",
@@ -405,3 +406,5 @@ export function renderReport(current: Snapshot, previous: Snapshot | null): stri
 
   return `${out.join("\n")}\n`;
 }
+
+

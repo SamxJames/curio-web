@@ -227,4 +227,17 @@ describe("renderReport", () => {
     expect(md).toContain("Compared with the snapshot from 2026-09-28.");
     expect(md).toContain("the month window hasn't rolled over");
   });
+
+  it("uses backticks for the section 4 intro pattern", () => {
+    const md = renderReport(makeSnapshot(), null);
+    expect(md).toContain("`<word>: the origin of the word — Curio`");
+  });
+
+  it("escapes special characters in query cells", () => {
+    const snapshot = makeSnapshot();
+    snapshot.searchConsole!.byPageQuery = [
+      { keys: ["https://curioword.com/story/quarantine", "a*b_[c]<d>"], clicks: 0, impressions: 9, ctr: 0, position: 5 },
+    ];
+    expect(renderReport(snapshot, null)).toContain("| a\\*b\\_\\[c\\]\\<d\\> |");
+  });
 });
