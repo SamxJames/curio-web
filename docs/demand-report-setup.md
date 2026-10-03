@@ -9,6 +9,11 @@ these values should ever be pasted into a chat, a commit or a log.
 You need a Google account with **Owner** access to the
 `curioword.com` Domain property in Search Console.
 
+### Before you start
+
+- The GitHub CLI must be installed and signed in. Run `gh auth status`, and run `gh auth login` if it isn't.
+- If `gh` isn't available, the web-UI route in step 7 works instead.
+
 1. **Create a Google Cloud project.** Go to
    <https://console.cloud.google.com/projectcreate>, name it
    `curio-reports`, and create it. You don't need a billing account.
@@ -28,6 +33,9 @@ You need a Google account with **Owner** access to the
    downloads.
    - If you see "Service account key creation is disabled", an organisation
      policy is blocking it. Stop there and tell Claude.
+   - Leave the file in Downloads (or any folder outside the `curio-web`
+     checkout). It must never go inside the repo folder, because `.gitignore`
+     doesn't ignore `.json` files.
 5. **Copy the service account's email.** It looks like
    `curio-demand-report@curio-reports-XXXXXX.iam.gserviceaccount.com` and is
    shown on its details page.
@@ -57,12 +65,23 @@ You need a Google account with **Owner** access to the
 
    Then add one line to `curio-web/.env.local`:
    `GSC_SERVICE_ACCOUNT_KEY=` followed by a paste.
+
+   Then clear the clipboard:
+
+   ```powershell
+   Set-Clipboard -Value $null
+   ```
+
+   (If Windows clipboard history (Win+V) is on, also delete the entry there.)
 9. **Delete the downloaded `.json` file**, or move it into your password
    manager. The two stored copies are all you need.
 10. **Check it works.** Run `npm run demand:report`. The log should say
     `Search Console: N page rows, …` rather than `skipped`. Search Console
     can take a few minutes to recognise a newly added user. If it says
     `PERMISSION_DENIED`, wait a little and try again, then re-check step 6.
+
+    The full run makes about 1,150 Wiktionary requests and takes about 5
+    minutes before the Search Console line appears, so it hasn't hung.
 
 ### Rotating the service account key
 
