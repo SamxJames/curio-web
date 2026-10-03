@@ -89,8 +89,11 @@ export async function getAccessToken(
     );
   }
   const body = await response.json().catch(() => null);
-  if (!body || typeof body.access_token !== "string") {
+  if (!body) {
     throw new Error("Search Console token response was not JSON.");
+  }
+  if (typeof body.access_token !== "string") {
+    throw new Error("Search Console token response had no access_token.");
   }
   return body.access_token;
 }

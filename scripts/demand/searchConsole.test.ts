@@ -82,7 +82,7 @@ describe("getAccessToken", () => {
       jsonResponse('{"error":"Invalid key id abc-123 for account"}', 400)
     );
     const error = await getAccessToken(account.key, fetch, 1_790_000_000).catch((e: unknown) => e);
-    expect(String(error)).toContain("Search Console token request failed: HTTP 400");
+    expect(String(error)).toBe("Error: Search Console token request failed: HTTP 400");
     expect(String(error)).not.toContain("abc");
   });
 
@@ -93,6 +93,12 @@ describe("getAccessToken", () => {
     const error = await getAccessToken(account.key, fetch, 1_790_000_000).catch((e: unknown) => e);
     expect(String(error)).toContain("Search Console token response was not JSON");
     expect(String(error)).not.toContain("ya29");
+  });
+
+  it("rejects valid JSON with no access_token", async () => {
+    const fetch = fakeFetch(() => jsonResponse('{}'));
+    const error = await getAccessToken(account.key, fetch, 1_790_000_000).catch((e: unknown) => e);
+    expect(String(error)).toContain("had no access_token");
   });
 });
 
