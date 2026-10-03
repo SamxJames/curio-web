@@ -1,6 +1,7 @@
 import type { CumulativeCount, PuzzleEngagementSummary, RetentionResult, AccountSummary } from "@/lib/adminStats";
 import type { EmailMetricsTotals } from "@/lib/resendMetrics";
 import type { Subscriber } from "@/lib/db";
+import type { TrafficSummary } from "@/lib/traffic";
 import { pluralize, capitalize, WIDE_DOT, formatShortDate } from "@/lib/collection";
 
 type Props = {
@@ -15,6 +16,7 @@ type Props = {
   retention: { day1: RetentionResult; day7: RetentionResult; day30: RetentionResult };
   emailMetrics7d: EmailMetricsTotals | null;
   emailMetrics30d: EmailMetricsTotals | null;
+  traffic: TrafficSummary;
 };
 
 export default function AdminDashboard({
@@ -29,6 +31,7 @@ export default function AdminDashboard({
   retention,
   emailMetrics7d,
   emailMetrics30d,
+  traffic,
 }: Props) {
   return (
     <div className="mx-auto max-w-[720px] px-5 pt-[30px] pb-[60px]">
@@ -45,6 +48,42 @@ export default function AdminDashboard({
         <GrowthTable label="Subscribers" rows={subscriberGrowth} />
         <div className="mt-6">
           <GrowthTable label="Accounts" rows={accountGrowth} />
+        </div>
+      </Section>
+
+      <Section title="Where visitors come from">
+        <p className="font-serif text-[13.5px] leading-[1.5] text-ink-soft italic">
+          Last 28 days, one visit per browser session, production only. Counting began with
+          the 2026-10 traffic-sources deploy. Signups count every successful subscribe, including repeats.
+        </p>
+        {traffic.rows.length === 0 ? (
+          <p className="mt-3 font-serif text-[13.5px] text-ink-soft italic">No visits counted yet.</p>
+        ) : (
+          <div className="mt-3">
+            <div className="flex items-baseline justify-between py-1.5 font-sans text-[9.5px] tracking-[0.18em] text-ink-soft uppercase">
+              <span className="flex-1">Source</span>
+              <span className="w-16 text-right">Visits</span>
+              <span className="w-16 text-right">Signups</span>
+              <span className="w-16 text-right">Rate</span>
+            </div>
+            {traffic.rows.map((row) => (
+              <div
+                key={row.source}
+                className="flex items-baseline justify-between border-t border-line py-1.5"
+              >
+                <span className="flex-1 font-sans text-[11px] tracking-[0.06em] text-ink-soft">{row.source}</span>
+                <span className="w-16 text-right font-serif text-[13px]">{row.visits}</span>
+                <span className="w-16 text-right font-serif text-[13px]">{row.signups}</span>
+                <span className="w-16 text-right font-serif text-[13px]">
+                  {row.rate === null ? "—" : `${Math.round(row.rate * 100)}%`}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="mt-4">
+          <StatRow label="Total visits / signups" value={`${traffic.totals.visits} / ${traffic.totals.signups}`} />
+          <StatRow label="Share taps (story / puzzle)" value={`${traffic.shares.story} / ${traffic.shares.puzzle}`} />
         </div>
       </Section>
 

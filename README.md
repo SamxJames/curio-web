@@ -52,6 +52,10 @@ the reasoning behind the pivot; this README covers what's actually built here.
   Redis in production. `npm run social:preview --
   [days] [from]` prints the next days' posts and slide URLs, read-only, for
   review. Setup and operations are in `handover.md`.
+- **Traffic sources** — first-party, counts-only tracking of where visits and
+  signups come from (email, Bluesky, Threads, Instagram, search, share and
+  so on), production writes only. `/admin` shows it; `npm run traffic:report
+  -- [days]` prints it, read-only. See "Measuring growth" in `handover.md`.
 
 ## Content
 

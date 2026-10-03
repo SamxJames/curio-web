@@ -10,6 +10,8 @@ import {
   computeRollingRetention,
   buildAccountSummaries,
 } from "@/lib/adminStats";
+import { getTrafficDays } from "@/lib/trafficStats";
+import { summarizeTraffic } from "@/lib/traffic";
 import AdminDashboard from "@/components/AdminDashboard";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +26,7 @@ export default async function AdminPage() {
   if (!session.user.email || session.user.email.toLowerCase() !== adminEmail) redirect("/");
 
   const now = new Date();
-  const [subscribers, userActivity, favorites, playStates, emailMetrics7d, emailMetrics30d] =
+  const [subscribers, userActivity, favorites, playStates, emailMetrics7d, emailMetrics30d, trafficDays] =
     await Promise.all([
       getAllSubscriberRecords(),
       getAllUserActivity(),
@@ -32,6 +34,7 @@ export default async function AdminPage() {
       getAllPlayStates(),
       getEmailMetrics(7, now),
       getEmailMetrics(30, now),
+      getTrafficDays(28, now),
     ]);
 
   const subscriberGrowth = cumulativeGrowth(
@@ -74,6 +77,7 @@ export default async function AdminPage() {
       retention={retention}
       emailMetrics7d={emailMetrics7d}
       emailMetrics30d={emailMetrics30d}
+      traffic={summarizeTraffic(trafficDays)}
     />
   );
 }

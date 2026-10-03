@@ -12,7 +12,8 @@
     "content:rewrite": "tsx scripts/rewriteEtymology.ts",
     "content:approve": "tsx scripts/approveDraft.ts",
     "bluesky:preview": "tsx scripts/previewBlueskyPosts.ts",
-    "social:preview": "tsx scripts/previewSocialPosts.ts"
+    "social:preview": "tsx scripts/previewSocialPosts.ts",
+    "traffic:report": "tsx --env-file=.env.local scripts/trafficReport.ts"
   },
   "dependencies": {
     "@atproto/api": "^0.20.44",

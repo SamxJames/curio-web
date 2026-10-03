@@ -416,6 +416,55 @@ or `[curio:instagram] post failed:` with the reason (see the architecture
 map for what is and isn't logged), and — like Bluesky — keeps its lock, so
 a failure is retried by hand with `?repost=`, not automatically.
 
+## Measuring growth (traffic sources)
+
+Vercel Web Analytics on the Hobby plan shows page views and referrers only:
+no UTM parameters and no custom events
+(https://vercel.com/docs/analytics/limits-and-pricing). That means the
+`track()` events in `lib/analytics.ts` are dropped on Hobby, and nothing
+could say which channel a signup came from. So Curio counts it itself,
+first-party and with no personal data.
+
+**What's counted** (counters only, one Redis hash per UTC day,
+`curio:traffic:<YYYY-MM-DD>`):
+
+- `visit:<source>`: one per browser tab session, sent by `TrafficBeacon`
+  (in the layout) to `POST /api/traffic`. The source comes from our own
+  `?utm_source=` tag (`email`, `bluesky`, `threads`, `instagram`, `share`),
+  else the referrer's host (`search`, `reddit`, `hn`, or `other`), else
+  `direct`. A referrer on curioword.com itself counts nothing.
+- `signup:<source>`: on every successful `/api/subscribe`, using the
+  source the signup form carried. **It counts every successful subscribe,
+  including an existing address subscribing again**, so a few repeats can
+  push a source's rate up slightly.
+- `share:story` and `share:puzzle`: share taps. The story share URL carries
+  `?utm_source=share`; the puzzle share text ends `curioword.com/play`
+  (plain text, so a recipient arrives as `direct` or via their referrer).
+
+**Rules:**
+
+- **Production only.** Writes need `VERCEL_ENV === "production"`; anywhere
+  else (including local dev, which shares production's Upstash) recording is
+  a silent no-op, so testing can't inflate the numbers.
+- **No personal data.** Only the field names above are stored: no emails,
+  IPs, user agents or referrer URLs. The server accepts only allowlisted
+  events (anything else is a 400 with no write), and bots are dropped by
+  user agent.
+- **90-day TTL.** Every write refreshes it on that day's key, so old days
+  clean themselves up.
+- **Counting began with the 2026-10-03 session's deploy.** There's no
+  backfill for earlier days (see "Rejected: retroactive history backfill").
+
+**Reading it:**
+
+- `/admin` has a "Where visitors come from" section: the last 28 days by
+  source (visits, signups, rate), total visits / signups, and share taps.
+- `npm run traffic:report -- [days]` prints the same for 1–90 days (default
+  28), plus visits by day. It is **read-only** (`HGETALL` only, never a
+  write) and reads production through `UPSTASH_REDIS_REST_URL/TOKEN` in
+  `.env.local`. The weekly check-in runs it as `-- 7` and `-- 28`. An empty
+  table is normal until the first production visits are counted.
+
 ## Threads + Instagram: owner setup
 
 **Posting is off until the four env vars are set in Vercel Production and
@@ -426,7 +475,9 @@ credentials):
 
 1. **Instagram:** create or choose a **professional** Instagram account for
    Curio (Creator or Business), and set its bio link to
-   `https://curioword.com` (captions can't carry clickable links).
+   `https://curioword.com/?utm_source=instagram` (captions can't carry
+   clickable links; the tag is how `/admin` and `traffic:report` attribute
+   Instagram visits).
 2. **Threads:** create a Threads profile. Threads profiles are made from an
    Instagram account.
 3. **Meta app:** at developers.facebook.com, create an app with two use
@@ -1787,6 +1838,53 @@ fixes. Lint: the same 3 pre-existing warnings as every prior session.
 ### Verification
 
 Pending — filled in after the live slide review, token setup and the first real posts.
+
+## This session (2026-10-03): first-party traffic sources
+
+The owner wanted to know where visitors and signups come from, now that
+there are four channels (email, Bluesky, Threads, Instagram) plus search.
+Vercel Hobby's analytics can't say (see "Measuring growth (traffic
+sources)"). Plan: `docs/superpowers/plans/2026-10-03-traffic-sources.md`.
+Built on branch `feat/traffic-sources` via `superpowers` subagent-driven
+development, one commit per task. **Not merged or deployed yet.**
+
+**What landed:**
+
+- `lib/traffic.ts`: the pure model. `classifySource`, the allowlist
+  (`parseTrafficEvent`), bot detection and `summarizeTraffic`.
+- `lib/trafficStats.ts` and `POST /api/traffic`: production-only daily
+  counters with a 90-day TTL, and the read side (`getTrafficDays`).
+- `TrafficBeacon` in the layout: one visit per tab session. `/api/subscribe`
+  now takes `{ email, source? }` and counts a signup on success (a recording
+  failure can't fail the subscribe).
+- Story share URL gets `?utm_source=share`; the puzzle share's last line is
+  now `curioword.com/play` (still plain text, three lines).
+- `/admin` "Where visitors come from", and the read-only
+  `npm run traffic:report -- [days]`.
+- The Instagram bio link in "Threads + Instagram: owner setup" is now
+  `https://curioword.com/?utm_source=instagram`, so Instagram visits are
+  attributed (the owner sets it in the app; Claude doesn't).
+
+**Caveats to remember when reading the numbers:**
+
+- A visit is one per browser tab session, not per person. Signups count
+  every successful subscribe, including repeats.
+- Counts are production-only and start at the first deploy, so the first
+  days are partial. There's no history before it.
+- The puzzle share arrives as `direct` unless the app the recipient taps it
+  in sends a referrer.
+
+**Test and lint counts.** 483 tests passing at the end of the
+session's last task. Lint: the same pre-existing warnings as before.
+
+### Verification
+
+Pending — filled in after the deploy: the smoke checks (a bot-UA `POST
+/api/traffic` returns 204 and writes nothing, an off-allowlist body returns
+400, one real visit to `/?utm_source=share` shows up in
+`npm run traffic:report -- 1`; note that test visit here so it isn't
+mistaken for a real share) and the first real numbers from `/admin` and
+`traffic:report`.
 
 ## Workflow notes for whoever picks this up
 
