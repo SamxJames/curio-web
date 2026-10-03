@@ -53,3 +53,6 @@ next-env.d.ts
 
 # one-off script backups
 /backups/
+
+# demand report output when run locally (npm run demand:report)
+/.reports/

@@ -13,6 +13,7 @@
     "content:approve": "tsx scripts/approveDraft.ts",
     "bluesky:preview": "tsx scripts/previewBlueskyPosts.ts",
     "social:preview": "tsx scripts/previewSocialPosts.ts",
+    "demand:report": "tsx --env-file-if-exists=.env.local scripts/demandReport.ts",
     "traffic:report": "tsx --env-file=.env.local scripts/trafficReport.ts"
   },
   "dependencies": {
