@@ -66,3 +66,22 @@ export function testServiceAccount(): { key: ServiceAccountKey; publicKey: strin
   const file = { type: "service_account", project_id: "curio-test", ...key };
   return { key, publicKey, envValue: Buffer.from(JSON.stringify(file)).toString("base64") };
 }
+
+const GSC_FIXTURES: Record<string, string> = {
+  page: "gsc-page.json",
+  query: "gsc-query.json",
+  "page+query": "gsc-page-query.json",
+};
+
+/** The token endpoint and the three Search Analytics queries, from fixtures. */
+export function googleRoute(url: string, init?: RequestInit): Response | null {
+  if (url === "https://oauth2.googleapis.com/token") {
+    return jsonResponse('{"access_token":"ya29.test","expires_in":3599,"token_type":"Bearer"}');
+  }
+  if (url.startsWith("https://searchconsole.googleapis.com/")) {
+    const body = JSON.parse(String(init?.body)) as { dimensions: string[] };
+    const name = GSC_FIXTURES[body.dimensions.join("+")];
+    if (name) return jsonResponse(fixture(name));
+  }
+  return null;
+}
