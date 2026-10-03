@@ -1866,8 +1866,8 @@ there are four channels (email, Bluesky, Threads, Instagram) plus search.
 Vercel Hobby's analytics can't say (see "Measuring growth (traffic
 sources)"). Plan: `docs/superpowers/plans/2026-10-03-traffic-sources.md`.
 Built on branch `feat/traffic-sources` via `superpowers` subagent-driven
-development, one commit per task. **Merged to master locally; deploy
-pending owner go-ahead.**
+development, one commit per task. **Deployed 2026-10-03 18:48 UTC
+(commit 3734ca0).**
 
 **What landed:**
 
@@ -1903,12 +1903,30 @@ session's last task. Lint: the same pre-existing warnings as before.
 
 ### Verification
 
-Pending — filled in after the deploy: the smoke checks (a bot-UA `POST
-/api/traffic` returns 204 and writes nothing, an off-allowlist body returns
-400, one real visit to `/?utm_source=share` shows up in
-`npm run traffic:report -- 1`; note that test visit here so it isn't
-mistaken for a real share) and the first real numbers from `/admin` and
-`traffic:report`.
+**Smoke checks: done 2026-10-03, about 18:55 UTC, against production.**
+
+`POST https://curioword.com/api/traffic` responses:
+
+| Request | Response |
+|---|---|
+| Bot user agent | 204 |
+| Off-allowlist source | 400 |
+| `text/plain` body | 415 |
+| `sec-fetch-site: cross-site` | 403 |
+
+After those four requests, `npm run traffic:report -- 1` still showed 0 days with data, so none of them wrote anything. Then one real browser visit to `https://curioword.com/?utm_source=share` appeared as `share 1` for 2026-10-03.
+
+**That `share` visit on 2026-10-03 was Claude's smoke test, not a real share.** Before the deploy, local-dev visits and a story "Copy link" tap were checked in the browser pane:
+- one visit POST per tab session;
+- none on reload;
+- the copied URL carried `?utm_source=share`;
+- the share tap was posted.
+
+Being local dev, none of these wrote to Redis.
+
+Still to check:
+- The `/admin` section needs the owner's sign-in.
+- First real numbers: the weekly check-in reports them.
 
 ## Workflow notes for whoever picks this up
 
