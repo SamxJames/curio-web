@@ -6,10 +6,12 @@ import {
   opportunities,
   pagePath,
   pageStatsByPath,
+  renderReport,
   storySlug,
   topByDemand,
   weekOnWeek,
   wordsBySlug,
+  WIKTIONARY_CAVEAT,
 } from "./report";
 import { gscFromFixtures, makeSnapshot, word } from "./testing";
 import { lastCompleteMonths } from "./wiktionary";
@@ -165,5 +167,64 @@ describe("weekOnWeek", () => {
     const w = weekOnWeek(makeSnapshot(), older).wiktionary!;
     expect(w.gains).toEqual([{ label: "quarantine", before: 10000, after: 12500 }]);
     expect(w.losses).toEqual([{ label: "December", before: 9500, after: 9000 }]);
+  });
+});
+
+describe("renderReport", () => {
+  it("has the header, caveat, lag note and every section", () => {
+    const md = renderReport(makeSnapshot(), null);
+    expect(md).toContain("# Curio demand report — 2026-10-05");
+    expect(md).toContain(WIKTIONARY_CAVEAT);
+    expect(md).toContain("Oct 2025 to Sep 2026");
+    expect(md).toContain("2026-09-03 to 2026-09-30");
+    expect(md).toContain("lags by a few days");
+    for (const heading of [
+      "## 1. Top 30 words by Wiktionary demand",
+      "## 2. Opportunities",
+      "## 3. Nearly there",
+      "## 4. Queries that don't match the title pattern",
+      "## 5. Week on week",
+      "## No Wiktionary page (1)",
+    ]) {
+      expect(md).toContain(heading);
+    }
+  });
+
+  it("renders the top table with Search Console figures", () => {
+    const md = renderReport(makeSnapshot(), null);
+    expect(md).toContain(
+      "| 1 | [quarantine](https://curioword.com/story/quarantine) | 12,500 | 4,167 | new | 150 | 5 | 12.0 |"
+    );
+    expect(md).toContain("| 3 | [algebra](https://curioword.com/story/algebra) | 8,000 | 2,667 | new | — | — | — |");
+  });
+
+  it("lists off-pattern queries, the no-page footer and the first-run note", () => {
+    const md = renderReport(makeSnapshot(), null);
+    expect(md).toContain("| forty days venice | [/story/quarantine](https://curioword.com/story/quarantine) | 40 | 1 | 12.0 |");
+    expect(md).toContain("| quarantine meaning |");
+    expect(md).toContain("zzxqv");
+    expect(md).toContain("No earlier snapshot to compare with");
+  });
+
+  it("says clearly when Search Console was skipped", () => {
+    const md = renderReport(makeSnapshot({ searchConsole: null }), null);
+    expect(md).toContain("**Search Console: skipped.**");
+    expect(md).toContain("_Search Console was skipped this run._");
+    expect(md).not.toContain("lags by a few days");
+  });
+
+  it("escapes pipes in queries", () => {
+    const snapshot = makeSnapshot();
+    snapshot.searchConsole!.byPageQuery = [
+      { keys: ["https://curioword.com/story/quarantine", "a|b"], clicks: 0, impressions: 9, ctr: 0, position: 5 },
+    ];
+    expect(renderReport(snapshot, null)).toContain("| a\\|b |");
+  });
+
+  it("renders the comparison when there's an earlier snapshot", () => {
+    const previous = makeSnapshot({ date: "2026-09-28" });
+    const md = renderReport(makeSnapshot(), previous);
+    expect(md).toContain("Compared with the snapshot from 2026-09-28.");
+    expect(md).toContain("the month window hasn't rolled over");
   });
 });

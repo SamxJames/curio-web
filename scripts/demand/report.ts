@@ -2,7 +2,7 @@
 // the previous one). Pure: no I/O and no clock, so every rule here is
 // testable against fixtures.
 import type { GscRow, SearchConsoleData, Snapshot, WordDemand } from "./types";
-import { rankByDemand } from "./wiktionary";
+import { formatTrend, rankByDemand } from "./wiktionary";
 
 export type PageStats = { impressions: number; clicks: number; ctr: number; position: number };
 export type JoinedWord = WordDemand & { gsc: PageStats | null };
@@ -217,4 +217,191 @@ export function weekOnWeek(current: Snapshot, previous: Snapshot | null): WeekOn
     searchConsole: compareSearchConsole(current.searchConsole, previous.searchConsole),
     wiktionary: compareWiktionary(current.wiktionary, previous.wiktionary),
   };
+}
+
+export const WIKTIONARY_CAVEAT =
+  "A Wiktionary page covers every language's entry for that spelling, so these views are a proxy for interest in the word, not a count of English etymology searches.";
+export const GSC_LAG_NOTE =
+  "Search Console data lags by a few days, so the window ends 3 days before this run. Google leaves rare queries out of query-level data, so the query tables undercount.";
+
+const SITE = "https://curioword.com";
+const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const SKIPPED = "_Search Console was skipped this run._";
+
+const monthLabel = (yyyymm: string) => `${MONTH_NAMES[Number(yyyymm.slice(4)) - 1]} ${yyyymm.slice(0, 4)}`;
+const int = (n: number) => Math.round(n).toLocaleString("en-US");
+const pos = (p: number) => p.toFixed(1);
+const pct = (r: number) => `${(r * 100).toFixed(1)}%`;
+const signed = (n: number, format: (n: number) => string) =>
+  n > 0 ? `+${format(n)}` : n < 0 ? `-${format(-n)}` : "0";
+const pageLink = (path: string) => `[${path}](${SITE}${path})`;
+
+function wordCell(w: WordDemand): string {
+  const link = `[${w.word}](${SITE}/story/${w.slug})`;
+  return w.title && w.title !== w.word ? `${link} (as "${w.title}")` : link;
+}
+
+function table(headers: string[], rows: string[][]): string[] {
+  if (rows.length === 0) return ["_None this week._"];
+  const cell = (c: string) => c.replace(/\|/g, "\\|");
+  return [
+    `| ${headers.join(" | ")} |`,
+    `| ${headers.map(() => "---").join(" | ")} |`,
+    ...rows.map((r) => `| ${r.map(cell).join(" | ")} |`),
+  ];
+}
+
+function changeTable(label: string, rows: Change[], format: (n: number) => string = int): string[] {
+  return table(
+    [label, "Before", "After", "Change"],
+    rows.map((c) => [c.label, format(c.before), format(c.after), signed(c.after - c.before, format)])
+  );
+}
+
+function renderWeekOnWeek(w: WeekOnWeek): string[] {
+  if (!w.previousDate) return ["_No earlier snapshot to compare with; this is the first run._"];
+  const out = [`Compared with the snapshot from ${w.previousDate}.`, ""];
+  const s = w.searchConsole;
+  if (s) {
+    out.push(
+      `- Impressions (summed over pages): ${int(s.impressions.before)} → ${int(s.impressions.after)} (${signed(s.impressions.after - s.impressions.before, int)})`,
+      `- Clicks: ${int(s.clicks.before)} → ${int(s.clicks.after)} (${signed(s.clicks.after - s.clicks.before, int)})`,
+      "",
+      "### Biggest impression gains",
+      "",
+      ...changeTable("Page", s.gains),
+      "",
+      "### Biggest impression losses",
+      "",
+      ...changeTable("Page", s.losses),
+      "",
+      `### Biggest position improvements (pages with at least ${POSITION_MIN_IMPRESSIONS} impressions)`,
+      "",
+      ...changeTable("Page", s.positionGains, pos),
+      "",
+      "### New pages",
+      "",
+      ...table(["Page", "Impressions"], s.newPages.map((c) => [c.label, int(c.after)]))
+    );
+  } else {
+    out.push("_No Search Console comparison: it was skipped this week or in the earlier snapshot._");
+  }
+  out.push("");
+  if (w.wiktionary) {
+    out.push(
+      "### Wiktionary: biggest 12-month gains",
+      "",
+      ...changeTable("Word", w.wiktionary.gains),
+      "",
+      "### Wiktionary: biggest 12-month falls",
+      "",
+      ...changeTable("Word", w.wiktionary.losses)
+    );
+  } else {
+    out.push("_Wiktionary figures are monthly, and the month window hasn't rolled over since the earlier snapshot._");
+  }
+  return out;
+}
+
+export function renderReport(current: Snapshot, previous: Snapshot | null): string {
+  const joined = joinByWord(current);
+  const bySlug = wordsBySlug(current);
+  const gsc = current.searchConsole;
+  const { months } = current.wiktionary;
+  const out: string[] = [];
+  const section = (title: string, ...body: string[]) => out.push("", `## ${title}`, "", ...body);
+  const queryTable = (rows: QueryRow[]) =>
+    table(
+      ["Query", "Page", "Impressions", "Clicks", "Position"],
+      rows.map((r) => [r.query, pageLink(r.path), int(r.impressions), int(r.clicks), pos(r.position)])
+    );
+
+  out.push(
+    `# Curio demand report — ${current.date}`,
+    "",
+    `Generated ${current.generatedAt}.`,
+    "",
+    `- **Wiktionary:** monthly pageviews from people (bots excluded), ${monthLabel(months[0])} to ${monthLabel(months[months.length - 1])}. ${WIKTIONARY_CAVEAT}`,
+    gsc
+      ? `- **Search Console:** ${gsc.startDate} to ${gsc.endDate} (28 days). ${GSC_LAG_NOTE}`
+      : "- **Search Console: skipped.** `GSC_SERVICE_ACCOUNT_KEY` was not set, so this report has the Wiktionary half only."
+  );
+
+  section(
+    `1. Top ${TOP_LIMIT} words by Wiktionary demand`,
+    ...table(
+      ["#", "Word", "12-month views", "3-month avg", "Trend", "Impressions", "Clicks", "Position"],
+      topByDemand(joined).map((w, i) => [
+        String(i + 1),
+        wordCell(w),
+        int(w.total12),
+        int(w.avg3),
+        formatTrend(w.trend, w.avg3),
+        w.gsc ? int(w.gsc.impressions) : "—",
+        w.gsc ? int(w.gsc.clicks) : "—",
+        w.gsc ? pos(w.gsc.position) : "—",
+      ])
+    )
+  );
+
+  section(
+    "2. Opportunities",
+    `Words in the top quarter for Wiktionary demand with fewer than ${OPPORTUNITY_MAX_IMPRESSIONS} Search Console impressions in 28 days.`,
+    "",
+    ...(gsc
+      ? table(
+          ["Word", "12-month views", "Trend", "Impressions"],
+          opportunities(joined).map((w) => [
+            wordCell(w),
+            int(w.total12),
+            formatTrend(w.trend, w.avg3),
+            int(w.gsc?.impressions ?? 0),
+          ])
+        )
+      : [SKIPPED])
+  );
+
+  section(
+    "3. Nearly there",
+    "Pages averaging position 8 to 20, where a better title or more internal links could lift them onto page one.",
+    "",
+    ...(gsc
+      ? table(
+          ["Page", "Word", "Impressions", "Clicks", "CTR", "Position"],
+          nearlyThere(gsc, bySlug).map((p) => [
+            pageLink(p.path),
+            p.word ?? "—",
+            int(p.impressions),
+            int(p.clicks),
+            pct(p.ctr),
+            pos(p.position),
+          ])
+        )
+      : [SKIPPED])
+  );
+
+  if (gsc) {
+    const { offWord, otherIntent } = offPatternQueries(gsc, bySlug);
+    section(
+      "4. Queries that don't match the title pattern",
+      `Story titles read "<word>: the origin of the word — Curio".`,
+      "",
+      "### Off-word: the query doesn't contain the page's word",
+      "",
+      ...queryTable(offWord),
+      "",
+      "### Other intent: the word, but not its origin",
+      "",
+      ...queryTable(otherIntent)
+    );
+  } else {
+    section("4. Queries that don't match the title pattern", SKIPPED);
+  }
+
+  section("5. Week on week", ...renderWeekOnWeek(weekOnWeek(current, previous)));
+
+  const missing = current.wiktionary.words.filter((w) => w.title === null).map((w) => w.word);
+  section(`No Wiktionary page (${missing.length})`, missing.length ? missing.join(", ") : "_Every word has a page._");
+
+  return `${out.join("\n")}\n`;
 }
