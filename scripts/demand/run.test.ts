@@ -1,9 +1,9 @@
 import { existsSync } from "node:fs";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { runDemandReport, snapshotPath } from "./run";
+import { readPreviousSnapshot, runDemandReport, latestPath, snapshotPath } from "./run";
 import { FIXTURE_ENTRIES, fakeFetch, googleRoute, jsonResponse, testServiceAccount, wikimediaRoute } from "./testing";
 import type { Snapshot } from "./types";
 
@@ -120,5 +120,49 @@ describe("runDemandReport with Search Console", () => {
       })
     ).rejects.toThrow("isn't base64-encoded JSON");
     expect(wikiFetcher).not.toHaveBeenCalled();
+  });
+});
+
+describe("latest.md and the previous snapshot", () => {
+  const options = () => ({
+    entries: FIXTURE_ENTRIES,
+    now: NOW,
+    outDir,
+    wikiFetcher: fakeFetch(wikimediaRoute),
+    googleFetcher: fakeFetch(),
+    env: {},
+  });
+
+  it("writes latest.md beside the snapshot", async () => {
+    const { markdown } = await runDemandReport(options());
+    expect(await readFile(latestPath(outDir), "utf8")).toBe(markdown);
+    expect(markdown).toContain("# Curio demand report — 2026-10-05");
+    expect(markdown).toContain("No earlier snapshot to compare with");
+  });
+
+  it("compares with the most recent earlier snapshot, ignoring same-day and stray files", async () => {
+    await mkdir(path.join(outDir, "snapshots"), { recursive: true });
+    const first = await runDemandReport({ ...options(), now: new Date("2026-09-21T06:00:00Z") });
+    const second = { ...first.snapshot, date: "2026-09-28" };
+    await writeFile(snapshotPath(outDir, "2026-09-28"), JSON.stringify(second));
+    await writeFile(path.join(outDir, "snapshots", "notes.json"), "{}");
+    await writeFile(snapshotPath(outDir, "2026-10-05"), JSON.stringify({ ...second, date: "2026-10-05" }));
+
+    expect((await readPreviousSnapshot(outDir, "2026-10-05"))?.date).toBe("2026-09-28");
+    const { markdown } = await runDemandReport(options());
+    expect(markdown).toContain("Compared with the snapshot from 2026-09-28.");
+  });
+
+  it("returns null when there's no snapshots folder", async () => {
+    expect(await readPreviousSnapshot(path.join(outDir, "nope"), "2026-10-05")).toBeNull();
+  });
+
+  it("leaves an existing latest.md untouched when the run fails", async () => {
+    await writeFile(latestPath(outDir), "last week's report\n");
+    const wikiFetcher = fakeFetch((url) =>
+      url.startsWith("https://wikimedia.org/") ? jsonResponse("{}", 500) : wikimediaRoute(url)
+    );
+    await expect(runDemandReport({ ...options(), wikiFetcher })).rejects.toThrow("HTTP 500");
+    expect(await readFile(latestPath(outDir), "utf8")).toBe("last week's report\n");
   });
 });

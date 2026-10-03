@@ -1,11 +1,12 @@
 // The demand report pipeline: collect every source first, and only once all
-// of them have succeeded, write anything. A failure anywhere rejects before
-// the output folder is touched, so a broken run can never replace a good
-// report with an empty one.
-import { mkdir, writeFile } from "node:fs/promises";
+// of them have succeeded (and the report has rendered), write anything. A
+// failure anywhere rejects before the output folder is touched, so a broken
+// run can never replace a good report with an empty one.
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { collectSearchConsole, loadServiceAccountKey } from "./searchConsole";
 import type { FetchLike } from "./http";
+import { renderReport } from "./report";
+import { collectSearchConsole, loadServiceAccountKey } from "./searchConsole";
 import type { SearchConsoleData, Snapshot } from "./types";
 import { collectWiktionary } from "./wiktionary";
 
@@ -23,7 +24,30 @@ export function snapshotPath(outDir: string, date: string): string {
   return path.join(outDir, "snapshots", `${date}.json`);
 }
 
-export async function runDemandReport(options: RunOptions): Promise<{ snapshot: Snapshot }> {
+export function latestPath(outDir: string): string {
+  return path.join(outDir, "latest.md");
+}
+
+/** The newest snapshot dated strictly before `date`, or null on a first run. */
+export async function readPreviousSnapshot(outDir: string, date: string): Promise<Snapshot | null> {
+  let files: string[];
+  try {
+    files = await readdir(path.join(outDir, "snapshots"));
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw error;
+  }
+  const earlier = files
+    .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f) && f.slice(0, 10) < date)
+    .sort();
+  if (earlier.length === 0) return null;
+  const newest = earlier[earlier.length - 1].slice(0, 10);
+  return JSON.parse(await readFile(snapshotPath(outDir, newest), "utf8")) as Snapshot;
+}
+
+export async function runDemandReport(
+  options: RunOptions
+): Promise<{ snapshot: Snapshot; markdown: string }> {
   const log = options.log ?? (() => {});
   // Read the key first: a malformed key fails now, not after the slow
   // Wiktionary pass.
@@ -58,8 +82,11 @@ export async function runDemandReport(options: RunOptions): Promise<{ snapshot: 
     wiktionary,
     searchConsole,
   };
+  const previous = await readPreviousSnapshot(options.outDir, snapshot.date);
+  const markdown = renderReport(snapshot, previous);
 
   await mkdir(path.join(options.outDir, "snapshots"), { recursive: true });
   await writeFile(snapshotPath(options.outDir, snapshot.date), `${JSON.stringify(snapshot)}\n`);
-  return { snapshot };
+  await writeFile(latestPath(options.outDir), markdown);
+  return { snapshot, markdown };
 }
