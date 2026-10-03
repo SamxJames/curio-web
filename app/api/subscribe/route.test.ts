@@ -1,12 +1,25 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-vi.mock("@/lib/db", () => ({ upsertSubscriber: vi.fn(async () => undefined) }));
+vi.mock("@/lib/db", () => ({
+  getSubscriberByEmail: vi.fn(async () => null),
+  upsertSubscriber: vi.fn(async () => undefined),
+}));
 vi.mock("@/lib/trafficStats", () => ({ recordTrafficEvent: vi.fn(async () => undefined) }));
+vi.mock("@/lib/confirmCooldown", () => ({
+  claimConfirmSend: vi.fn(async () => true),
+  releaseConfirmSend: vi.fn(async () => undefined),
+}));
+vi.mock("@/lib/email", () => ({
+  confirmUrl: vi.fn(() => "https://curioword.com/subscribe/confirm?token=t&utm_source=email"),
+  sendConfirmEmail: vi.fn(async () => undefined),
+}));
 
 const { POST } = await import("./route");
-const { upsertSubscriber } = await import("@/lib/db");
+const { getSubscriberByEmail, upsertSubscriber } = await import("@/lib/db");
 const { recordTrafficEvent } = await import("@/lib/trafficStats");
+const { claimConfirmSend, releaseConfirmSend } = await import("@/lib/confirmCooldown");
+const { confirmUrl, sendConfirmEmail } = await import("@/lib/email");
 
 const post = (body: unknown) =>
   new NextRequest("http://localhost/api/subscribe", {
@@ -15,32 +28,67 @@ const post = (body: unknown) =>
     body: JSON.stringify(body),
   });
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  vi.unstubAllEnvs();
+});
 
-describe("POST /api/subscribe", () => {
-  it("subscribes and records the signup against a valid source", async () => {
-    const res = await POST(post({ email: "a@example.com", source: "search" }));
+describe("POST /api/subscribe (double opt-in)", () => {
+  it("emails a confirm link for a new address, stores nothing, counts a request", async () => {
+    const res = await POST(post({ email: " Sam@Example.com ", source: "search" }));
     expect(res.status).toBe(200);
-    expect(upsertSubscriber).toHaveBeenCalledWith("a@example.com");
-    expect(recordTrafficEvent).toHaveBeenCalledWith({ kind: "signup", source: "search" });
+    expect(await res.json()).toEqual({ ok: true, pending: true });
+    expect(confirmUrl).toHaveBeenCalledWith("sam@example.com", "search", expect.any(String));
+    expect(sendConfirmEmail).toHaveBeenCalledWith("sam@example.com", expect.stringContaining("/subscribe/confirm"));
+    expect(upsertSubscriber).not.toHaveBeenCalled();
+    expect(recordTrafficEvent).toHaveBeenCalledWith({ kind: "request", source: "search" });
   });
 
-  it("files a missing or unknown source under 'direct'", async () => {
-    await POST(post({ email: "a@example.com" }));
-    await POST(post({ email: "b@example.com", source: "myspace" }));
-    expect(recordTrafficEvent).toHaveBeenNthCalledWith(1, { kind: "signup", source: "direct" });
-    expect(recordTrafficEvent).toHaveBeenNthCalledWith(2, { kind: "signup", source: "direct" });
+  it("files a missing or unknown source as direct", async () => {
+    await POST(post({ email: "a@example.com", source: "myspace" }));
+    expect(confirmUrl).toHaveBeenCalledWith("a@example.com", "direct", expect.any(String));
   });
 
-  it("records nothing when the email is invalid", async () => {
-    const res = await POST(post({ email: "nope", source: "search" }));
-    expect(res.status).toBe(400);
+  it("gives an existing subscriber the same reply but sends and counts nothing", async () => {
+    vi.mocked(getSubscriberByEmail).mockResolvedValueOnce({ email: "a@example.com", hour: 9, createdAt: "2026-09-01T00:00:00Z" });
+    const res = await POST(post({ email: "a@example.com" }));
+    expect(await res.json()).toEqual({ ok: true, pending: true });
+    expect(sendConfirmEmail).not.toHaveBeenCalled();
     expect(recordTrafficEvent).not.toHaveBeenCalled();
   });
 
-  it("still succeeds when recording throws", async () => {
+  it("gives a cooled-down address the same reply but sends nothing", async () => {
+    vi.mocked(claimConfirmSend).mockResolvedValueOnce(false);
+    const res = await POST(post({ email: "a@example.com" }));
+    expect(await res.json()).toEqual({ ok: true, pending: true });
+    expect(sendConfirmEmail).not.toHaveBeenCalled();
+  });
+
+  it("returns 502 and releases the cooldown when the send fails", async () => {
+    vi.mocked(sendConfirmEmail).mockRejectedValueOnce(new Error("Resend send failed: x"));
+    const res = await POST(post({ email: "a@example.com" }));
+    expect(res.status).toBe(502);
+    expect(releaseConfirmSend).toHaveBeenCalledWith("a@example.com");
+    expect(recordTrafficEvent).not.toHaveBeenCalled();
+  });
+
+  it("still succeeds when counting the request throws", async () => {
     vi.mocked(recordTrafficEvent).mockRejectedValueOnce(new Error("upstash down"));
-    const res = await POST(post({ email: "a@example.com", source: "share" }));
+    const res = await POST(post({ email: "a@example.com" }));
     expect(res.status).toBe(200);
+  });
+
+  it("rejects an invalid email with 400 and does nothing else", async () => {
+    const res = await POST(post({ email: "nope" }));
+    expect(res.status).toBe(400);
+    expect(sendConfirmEmail).not.toHaveBeenCalled();
+  });
+
+  it("fails closed with 503 in production without UNSUBSCRIBE_SECRET", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("UNSUBSCRIBE_SECRET", "");
+    const res = await POST(post({ email: "a@example.com" }));
+    expect(res.status).toBe(503);
+    expect(sendConfirmEmail).not.toHaveBeenCalled();
   });
 });

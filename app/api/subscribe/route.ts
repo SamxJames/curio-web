@@ -1,10 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { upsertSubscriber } from "@/lib/db";
+import { getSubscriberByEmail } from "@/lib/db";
 import { isTrafficSource } from "@/lib/traffic";
 import { recordTrafficEvent } from "@/lib/trafficStats";
+import { normaliseEmail, unsubscribeSecret } from "@/lib/unsubscribeToken";
+import { claimConfirmSend, releaseConfirmSend } from "@/lib/confirmCooldown";
+import { confirmUrl, sendConfirmEmail } from "@/lib/email";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** The same reply whether the address is new, already subscribed, or
+ * cooling down: the response never reveals who's on the list. */
+const PENDING = { ok: true, pending: true } as const;
+
+/** Double opt-in: stores nothing. Emails a signed 7-day link to the
+ * confirm page (lib/confirmToken.ts); the address joins the digest only
+ * when that page's button is pressed (app/api/subscribe/confirm). Signed-in
+ * users subscribe from /account directly — their address is already proven. */
 export async function POST(req: NextRequest) {
   let body: unknown;
   try {
@@ -14,18 +25,39 @@ export async function POST(req: NextRequest) {
   }
 
   const { email, source } = (body ?? {}) as { email?: string; source?: unknown };
-
-  if (!email || !EMAIL_RE.test(email)) {
+  if (!email || !EMAIL_RE.test(email.trim())) {
     return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
   }
 
-  await upsertSubscriber(email);
-  // Which arrival this signup came from (lib/trafficClient.ts). Counting
-  // must never fail a real subscribe; an unknown source files as "direct".
-  try {
-    await recordTrafficEvent({ kind: "signup", source: isTrafficSource(source) ? source : "direct" });
-  } catch (err) {
-    console.error("traffic: signup record failed", err instanceof Error ? err.name : "unknown");
+  // Fails closed, like the daily cron: without the secret no link can be
+  // signed (unsubscribeSecret() is null in production when it's unset).
+  const secret = unsubscribeSecret();
+  if (!secret) {
+    console.error("[curio:subscribe] UNSUBSCRIBE_SECRET is not set; signups paused");
+    return NextResponse.json({ error: "Signups are paused right now. Please try again later." }, { status: 503 });
   }
-  return NextResponse.json({ ok: true });
+
+  const address = normaliseEmail(email);
+  const src = isTrafficSource(source) ? source : "direct";
+
+  if (await getSubscriberByEmail(address)) return NextResponse.json(PENDING);
+  if (!(await claimConfirmSend(address))) return NextResponse.json(PENDING);
+
+  try {
+    await sendConfirmEmail(address, confirmUrl(address, src, secret));
+  } catch (err) {
+    console.error("[curio:subscribe] confirm email failed:", err instanceof Error ? err.name : "unknown");
+    await releaseConfirmSend(address).catch(() => {});
+    return NextResponse.json(
+      { error: "We couldn't send the confirmation email. Please try again in a few minutes." },
+      { status: 502 }
+    );
+  }
+
+  try {
+    await recordTrafficEvent({ kind: "request", source: src });
+  } catch (err) {
+    console.error("traffic: request record failed", err instanceof Error ? err.name : "unknown");
+  }
+  return NextResponse.json(PENDING);
 }

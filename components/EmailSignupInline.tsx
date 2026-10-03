@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { track } from "@/lib/analytics";
-import { markSubscribedHere } from "@/lib/storage";
 import { getArrivalSource } from "@/lib/trafficClient";
 import Button from "@/components/ui/Button";
 import TextField from "@/components/ui/TextField";
@@ -12,8 +11,10 @@ type Status = "idle" | "submitting" | "success" | "error";
 /** The single-field email capture pill — used on the arrival hero (first
  * homepage view), /play's post-game funnel, and story pages
  * (StoryFrontDoor). Fires the same "signup_submitted" event from every
- * place, since it's genuinely the same action either way, and records
- * markSubscribedHere() on success. */
+ * place, since it's genuinely the same action either way. Signup is double
+ * opt-in, so success only means a confirmation email was sent: nothing is
+ * recorded locally here — /subscribed sets the "subscribed here" flag once
+ * the emailed link is actually confirmed. */
 export default function EmailSignupInline({ onSubscribed }: { onSubscribed?: () => void }) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
@@ -33,10 +34,9 @@ export default function EmailSignupInline({ onSubscribed }: { onSubscribed?: () 
       if (!res.ok) throw new Error(data.error ?? "Something went wrong.");
       setStatus("success");
       track("signup_submitted");
-      // Callback first: StoryFrontDoor uses it to pin itself open so this
-      // "You're in" message survives the flag flipping just below.
+      // StoryFrontDoor uses this to pin itself open so the "check your
+      // inbox" message stays visible.
       onSubscribed?.();
-      markSubscribedHere();
     } catch (err) {
       setStatus("error");
       setErrorMessage(err instanceof Error ? err.message : "Something went wrong.");
@@ -45,7 +45,7 @@ export default function EmailSignupInline({ onSubscribed }: { onSubscribed?: () 
 
   if (status === "success") {
     return (
-      <p role="status" className="font-sans text-sm text-ink-soft">You&apos;re in. Tomorrow&apos;s word arrives in the morning.</p>
+      <p role="status" className="font-sans text-sm text-ink-soft">Almost there. Check your inbox for a link to confirm.</p>
     );
   }
 

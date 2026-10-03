@@ -20,8 +20,10 @@ import { isEmailArrival } from "@/lib/emailArrival";
 export default function StoryFrontDoor() {
   const subscribedHere = useHasSubscribedHere();
   const arrivedFromEmailThisSession = useHasArrivedFromEmailThisSession();
-  // Pinned open after a signup on this page, so the "You're in" message
-  // isn't unmounted the instant markSubscribedHere() flips the flag.
+  // Pinned open after a signup on this page, so the "check your inbox"
+  // message isn't unmounted if the subscribed-here flag flips meanwhile
+  // (/subscribed sets it once the emailed link is confirmed, possibly in
+  // another tab).
   const [justJoined, setJustJoined] = useState(false);
 
   useEffect(() => {
@@ -36,8 +38,8 @@ export default function StoryFrontDoor() {
         This is Curio: one word&apos;s origin story, every morning. No feed, no backlog.
       </p>
       <div className="mt-5">
-        {/* flushSync so justJoined commits before EmailSignupInline's
-         * markSubscribedHere() triggers the store re-render. */}
+        {/* flushSync so justJoined commits synchronously, ahead of any
+         * subscribed-here store re-render that could unmount this section. */}
         <EmailSignupInline onSubscribed={() => flushSync(() => setJustJoined(true))} />
       </div>
     </section>
