@@ -93,3 +93,44 @@ You need a Google account with **Owner** access to the
 4. Back in the **Keys** tab, delete the **old** key (check the key ID and
    creation date).
 5. Delete the downloaded file.
+
+## Part B: the private `curio-reports` repo
+
+The workflow publishes to a separate **private** repo. Nothing is ever
+committed to `curio-web` (every push to its `master` deploys to
+production, and `curio-web` is public).
+
+1. **Create the repo.** Go to <https://github.com/new>:
+   - Owner `SamxJames`, name `curio-reports`, **Private**.
+   - Tick **Add a README file**. The workflow needs a `main` branch to
+     check out.
+   - Click **Create repository**.
+2. **Create a fine-grained token.** Go to
+   <https://github.com/settings/personal-access-tokens/new>:
+   - **Token name:** `curio-reports publisher`
+   - **Expiration:** 1 year. Put a reminder in your calendar a week before.
+   - **Resource owner:** `SamxJames`
+   - **Repository access:** **Only select repositories** → `curio-reports`
+   - **Permissions → Repository permissions → Contents:** **Read and
+     write**. "Metadata: Read-only" is added automatically. Leave
+     everything else at "No access".
+   - Click **Generate token**, then copy it.
+3. **Store it as a secret on `curio-web`.** Run:
+
+   ```powershell
+   gh secret set REPORTS_REPO_TOKEN --repo SamxJames/curio-web
+   ```
+
+   Paste the token at the prompt. It isn't echoed.
+4. **Read the report** at
+   <https://github.com/SamxJames/curio-reports/blob/main/latest.md>. Past
+   weeks are in `snapshots/` and in the repo's history.
+
+### Rotating `REPORTS_REPO_TOKEN`
+
+Before it expires, either **regenerate** the same token (open it in
+<https://github.com/settings/personal-access-tokens> and click
+**Regenerate token**) or create a new one as in step 2. Then repeat step
+3, and delete the old token if you made a new one. An expired token makes
+the "Check out curio-reports" step fail, and GitHub emails you about the
+failed run.
