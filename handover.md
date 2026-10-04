@@ -2252,7 +2252,9 @@ has one home.
   `/history?tab=history`. `/history` ignores it.
 
 **Nav.** Today · Puzzle · Collection · Account (or Sign in), the same for
-everyone. Expected to fit at 375px; verify in the browser check.
+everyone. At 375px it doesn't overflow (scrollWidth 375), but the
+"Curio" wordmark sits flush against "Today". That spacing was already
+tight after the Puzzle link landed; it's parked as a small follow-up.
 
 **Admin retention metric.** `recordUserSeen` no longer fires on
 `/collection`, because that page is static. A signed-in visit to
@@ -2273,9 +2275,19 @@ Both are parked in "Deferred / parked items" near the top of this file.
 
 ### Verification
 
-_To be filled in after the browser check:_ signed-out empty state,
-favouriting a word on a story page, `/collection?tab=history`, `/history`
-signed out, and the header at 375px.
+Checked 2026-10-04 on a local dev server (port 3100), served from the branch, while signed in as the owner:
+
+- A fresh browser origin with empty localStorage pulled the account's 5 favourites through AccountFavoritesSync. `/collection` showed them newest first, with the language band built from those favourites (8 languages).
+- While it loaded, only the heading showed; there was no empty-state flash.
+- `/collection?tab=history` landed on `/history?tab=history`, with only "My days" and "All words" (no Favorites tab).
+- Today shows "Past words →".
+- At 375px the header doesn't overflow.
+
+Not checked:
+- **Signed out:** checking it would have meant signing the owner out.
+- **Removing with the heart:** it would have changed the owner's real favourites in production Upstash.
+
+Both are covered by tests and reviews.
 
 ## Workflow notes for whoever picks this up
 
