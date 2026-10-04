@@ -58,6 +58,10 @@ Revisit ~4 weeks after the F&F launch, if:
 
 ### 2026-09-26 — `/collection` stays as it is
 
+> **Superseded 2026-10-04:** Collection did become favourites-only; see
+> "This session (2026-10-04): Collection = favourites, History = archive"
+> below. The reasoning is kept as history.
+
 The owner delegated the call. `/collection` keeps its counts subline and
 language band: they only ever count words already shown, never unseen
 ones, so they pass the archive-vs-backlog rule. Turning Collection into
@@ -1152,7 +1156,9 @@ backlog to catch up on" pitch. The actual fix was splitting History into
 "My days" (personal, honestly small at first, with copy explaining it
 grows) and "All words" (the full shared archive, always rich, available
 to everyone regardless of account age). If this comes up again, don't
-relitigate it — reuse that pattern.
+relitigate it — reuse that pattern. (Still true 2026-10-04. The
+"Favorites" tab that sat beside these two is gone: favourites live on
+`/collection`.)
 
 ## Deferred / parked items (real, not forgotten)
 
@@ -1204,7 +1210,9 @@ reason, not just "ran out of time":
   guessed) for a 5th nav item at 375px. Any future top-level nav addition
   needs a redesign (e.g. a menu), not just another `<Link>`. (This session
   swapped "History" for "Collection" in the signed-in nav rather than
-  adding a 5th item, for exactly this reason.)
+  adding a 5th item, for exactly this reason. Superseded 2026-10-04:
+  Collection is now in the nav for everyone, and History is reached from
+  Today and Collection instead.)
 - **`onboarded` state and account-linked email preferences live in two
   different systems** (localStorage vs. Redis) with no UI reconciling them
   beyond what `AccountFavoritesSync` does for favorites specifically. Not
@@ -1281,6 +1289,11 @@ input, not a scripted `.focus()` call. If you ever touch this rule, keep
 it longhand, and re-verify with computed styles, not just visually.
 
 ## This session (2026-09-12)
+
+> **Item 1 superseded 2026-10-04:** `/collection` is no longer signed-in
+> only, no longer a shelf of every word shown, and no longer has a History
+> tab. See the 2026-10-04 section below. The rest of this session's items
+> are unaffected.
 
 Five things landed, roughly in this order:
 
@@ -2169,6 +2182,72 @@ Real send to the owner's `samfillingham00+optin@gmail.com`:
 - `traffic:report` showed request 1, signup 1 (both `direct`; the request was made with curl), confirm-page visit 1 (`email`) and cap slots 1/200.
 
 That address is now a real subscriber. The owner can unsubscribe it from its first digest.
+
+## This session (2026-10-04): Collection = favourites, History = archive
+
+The owner asked whether the difference between Collection and History was
+clear. It wasn't (Collection had a History tab inside it, and History had a
+Favorites tab). They said Collection should be favourites only, and
+approved the proposal. Plan:
+`docs/superpowers/plans/2026-10-03-collection-favourites.md`. Each idea now
+has one home.
+
+**Collection (`/collection`)**
+
+- Shows only favourites, **newest first**. No sign-in is needed.
+- Favourites come from the localStorage store (`useFavorites` in
+  `lib/storage.ts`). For a signed-in reader `AccountFavoritesSync`, mounted
+  in the layout, syncs that store from the account.
+- The page is **static**. `app/collection/page.tsx` no longer calls
+  `auth()`, so it prerenders (○ in the build output). The client
+  component, `components/CollectionScreen.tsx`, asks `/api/words` for the
+  favourited words rather than importing `lib/words.ts` (all 1,147 entries)
+  into the client bundle.
+- The language band and chips are drawn from the favourites.
+  `computeLanguageStats` in `lib/collection.ts` takes any list of words
+  with a `lineage`. Counting favourites is fine under the
+  archive-never-backlog rule, because the person chose them.
+- A "Past words" link goes to `/history`. It is hidden while loading, so
+  before favourites have loaded the page shows only its heading.
+
+**`GET /api/words?slugs=a,b,c`** (`app/api/words/route.ts`)
+
+- Returns `{ words: CollectionWord[] }` in request order.
+- Takes up to 500 slugs, counted after de-duplication, and answers 400
+  above that. A missing or empty `slugs` gives `{ words: [] }`.
+- Unknown slugs and duplicates are dropped.
+- Each word has exactly seven fields: `slug`, `word`, `respelling`,
+  `partOfSpeech`, `teaser`, `related`, `lineage` (the `CollectionWord`
+  type in `lib/collection.ts`).
+- `Cache-Control: public, s-maxage=86400, stale-while-revalidate=604800`.
+  It is public story content, nothing personal.
+
+**History (`/history`)**
+
+- The archive. Signed in, it has "My days" and "All words". Signed out it
+  shows only "All words" and no tab bar.
+- It is not in the nav. Today has a "Past words →" link and so does
+  Collection.
+- The Favorites tab is gone. Hearts stay on every row, so favouriting from
+  the archive is how a word gets into Collection.
+- `/collection?tab=history` redirects to `/history` (`next.config.ts`,
+  temporary redirect). The query string carries over, so it lands on
+  `/history?tab=history`. `/history` ignores it.
+
+**Nav.** Today · Puzzle · Collection · Account (or Sign in), the same for
+everyone. It still fits at 375px.
+
+**Admin retention metric.** `recordUserSeen` no longer fires on
+`/collection`, because that page is static. A signed-in visit to
+Today, History, a story page (via `/api/story/[slug]/date`) or the puzzle
+(`/api/play-state`) still records it. Someone who only ever opens
+Collection no longer counts as active, so retention can read slightly low.
+
+### Verification
+
+_To be filled in after the browser check:_ signed-out empty state,
+favouriting a word on a story page, `/collection?tab=history`, `/history`
+signed out, and the header at 375px.
 
 ## Workflow notes for whoever picks this up
 

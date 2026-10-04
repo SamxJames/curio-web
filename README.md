@@ -12,9 +12,13 @@ the reasoning behind the pivot; this README covers what's actually built here.
 - **Story view** (`/story/[slug]`) — Origin / Journey / Related Words
   sections, favorite (heart) and share (Web Share API, falls back to
   copy-link) actions. Reachable from Today, History, or an emailed link.
-- **History** (`/history`) — reverse-chronological list of every day since
-  the launch date, with a Favorites filter. Favorites and browsing history
-  live entirely in `localStorage` — no account needed to use Today/History.
+- **Collection** (`/collection`) — the words you've favourited, newest
+  first, with a language band drawn from them. Static, and no account is
+  needed: favourites live in `localStorage` (and sync to the account when
+  signed in). It loads their word data from `/api/words`.
+- **History** (`/history`) — the archive. Signed in, "My days" and "All
+  words"; signed out, just "All words". Linked from Today ("Past words")
+  and Collection, not the nav. Favourites aren't here: that's Collection.
 - **Onboarding** — a first-visit modal (tagline + short pitch) with an
   inline email + delivery-hour signup, skippable. Replaces the app's
   notification-permission step.
