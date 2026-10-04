@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "languages:map": "tsx scripts/languages/buildMapDots.ts",
     "content:extract": "tsx scripts/extractEtymology.ts",
     "content:rewrite": "tsx scripts/rewriteEtymology.ts",
     "content:approve": "tsx scripts/approveDraft.ts",
@@ -35,15 +36,20 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/d3-geo": "^3.1.1",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/topojson-client": "^3.1.5",
+    "d3-geo": "^3.1.1",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
     "tailwindcss": "^4",
+    "topojson-client": "^3.1.0",
     "tsx": "^4.23.13",
     "typescript": "^5",
     "vite": "^8.3.0",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.0",
+    "world-atlas": "^2.0.2"
   }
 }
