@@ -1168,6 +1168,7 @@ relitigate it — reuse that pattern. (Still true 2026-10-04. The
 These were surfaced during review and deliberately not fixed — each has a
 reason, not just "ran out of time":
 
+- **Header wordmark crowding at 375px** (2026-10-04). "Curio" sits flush against "Today" on a phone. Nothing overflows; it's a small gap fix in `components/Header.tsx`.
 - **Daily cap on confirmation sends: done 2026-10-03.**
   - `lib/confirmDailyCap.ts` allows at most **200 confirmation emails per UTC day** across all addresses, set by the owner.
   - The count is `INCR curio:confirmsends:<UTC day>`, with an 8-day expiry, and is kept in production only.
