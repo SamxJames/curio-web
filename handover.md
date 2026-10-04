@@ -1175,6 +1175,13 @@ reason, not just "ran out of time":
   - **Still open:**
     - There's no per-IP limit. One script can still use up a day's 200 slots, which delays real signups until midnight UTC but can't touch the rest of the Resend quota.
     - The sign-in send is still capped per address only.
+- **Account favourites have no order** (2026-10-04). They live in an unordered
+  Redis set, so favourites synced from another device land in arbitrary
+  order. Proper fix: a sorted set keyed by favourite time, which needs a data
+  migration, so it is parked.
+- **Favourite removals don't sync across devices** (2026-10-04, pre-existing).
+  Merging only ever adds, so unfavouriting on one device never reaches
+  another. Parked; the sorted set above or a tombstone would be needed.
 - **Dev fallbacks have no production guard** (2026-10-03, pre-existing).
   The dev-mode fallbacks in `sendSignInEmail` and `sendDailyDigests` (log
   instead of send) aren't guarded against running in production the way
@@ -2259,12 +2266,7 @@ Collection no longer counts as active, so retention can read slightly low.
 - A removal on one device never reaches another, because merging only
   adds. This was true before, but Collection makes it more visible.
 
-### Deferred / parked items
-
-- Store account favourites in a sorted set keyed by favourite time, so
-  order survives sync. It needs a data migration, so it is parked.
-- Propagate removals across devices (needs a tombstone or the sorted set
-  above to be authoritative). Parked.
+Both are parked in "Deferred / parked items" near the top of this file.
 
 ### Verification
 
