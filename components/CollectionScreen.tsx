@@ -4,159 +4,212 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
-import { Star } from "lucide-react";
-import type { HistoryDay } from "@/lib/words";
+import { Heart } from "lucide-react";
 import {
   computeLanguageStats,
-  groupByMonth,
-  formatShortDate,
-  monthLabel,
+  resolveCollection,
   spellNumber,
   capitalize,
   pluralize,
   WIDE_DOT,
+  type CollectionWord,
   type LanguageStat,
 } from "@/lib/collection";
-import { useFavorites } from "@/lib/storage";
+import { toggleFavorite, useClientOnlyValue, useFavorites } from "@/lib/storage";
 import { track } from "@/lib/analytics";
 import Button from "@/components/ui/Button";
 import Eyebrow from "@/components/ui/Eyebrow";
+import IconButton from "@/components/ui/IconButton";
 import { ToggleGroup } from "@/components/ui/SegmentedControl";
 
-type Tab = "collection" | "history";
-
 /** Above this many words, the collection stops feeling like a handful of
- * things and starts needing month headers to stay scannable — see the
- * "Your collection" design handoff's density rules. */
+ * things — the band note switches to explaining the widths, and the closing
+ * note drops away. See the "Your collection" design handoff's density rules. */
 const DENSE_THRESHOLD = 9;
 
-export default function CollectionScreen({
-  entries,
-  tab,
-}: {
-  /** The shared words since this account joined, newest first
-   * (lib/words.ts's resolveHistorySince). */
-  entries: HistoryDay[];
-  tab: Tab;
-}) {
+/** /api/words rejects more than this many slugs in one request. */
+const MAX_SLUGS_PER_REQUEST = 500;
+
+type Status = "loading" | "ready" | "error";
+
+async function fetchWords(slugs: string[]): Promise<CollectionWord[]> {
+  const batches: string[][] = [];
+  for (let i = 0; i < slugs.length; i += MAX_SLUGS_PER_REQUEST) {
+    batches.push(slugs.slice(i, i + MAX_SLUGS_PER_REQUEST));
+  }
+  const results = await Promise.all(
+    batches.map(async (batch) => {
+      const res = await fetch(`/api/words?slugs=${batch.map(encodeURIComponent).join(",")}`);
+      if (!res.ok) throw new Error(`/api/words ${res.status}`);
+      const body = (await res.json()) as { words: CollectionWord[] };
+      return body.words;
+    })
+  );
+  return results.flat();
+}
+
+/** The reader's favourites, newest first. Favourites live in localStorage
+ * (lib/storage.ts), so everything here is client-side: the page shell
+ * prerenders static, and the words' story data comes from /api/words. */
+export default function CollectionScreen() {
+  const favorites = useFavorites();
+  // useFavorites() is an empty Set on the server and during hydration —
+  // indistinguishable from "no favourites". Until the client store has
+  // actually been read, render the loading state rather than flash the
+  // empty state at someone who has favourites.
+  const hydrated = useClientOnlyValue(() => true, false);
+  const slugs = useMemo(() => [...favorites].reverse(), [favorites]);
+
+  // slug → word, or null for a slug /api/words didn't return. Additive only:
+  // unfavouriting removes a slug from `slugs`, and resolveCollection drops
+  // its row straight away with nothing to refetch.
+  const [cache, setCache] = useState<ReadonlyMap<string, CollectionWord | null>>(() => new Map());
+  // The `missing` key whose fetch failed, so a later favourite retries.
+  const [failedKey, setFailedKey] = useState<string | null>(null);
   const [activeLanguage, setActiveLanguage] = useState<string | null>(null);
+
+  const { words, missing } = useMemo(() => resolveCollection(slugs, cache), [slugs, cache]);
+  const missingKey = missing.join(",");
 
   useEffect(() => {
     track("collection_view");
   }, []);
 
-  const totalWords = entries.length;
-  const languages = useMemo(() => computeLanguageStats(entries.map((e) => e.word)), [entries]);
-  const oldestDate = totalWords > 0 ? entries[totalWords - 1].date : null;
+  useEffect(() => {
+    if (!missingKey) return;
+    const requested = missingKey.split(",");
+    let current = true;
+    fetchWords(requested).then(
+      (fetched) => {
+        const bySlug = new Map(fetched.map((w) => [w.slug, w]));
+        setCache((prev) => {
+          const next = new Map(prev);
+          for (const slug of requested) next.set(slug, bySlug.get(slug) ?? null);
+          return next;
+        });
+      },
+      () => {
+        if (current) setFailedKey(missingKey);
+      }
+    );
+    return () => {
+      current = false;
+    };
+  }, [missingKey]);
 
+  const status: Status = !hydrated
+    ? "loading"
+    : missing.length === 0
+      ? "ready"
+      : failedKey === missingKey
+        ? "error"
+        : "loading";
+
+  const languages = useMemo(() => computeLanguageStats(words), [words]);
+  // If the last favourite through the filtered language is removed, the
+  // filter quietly lets go rather than showing "0 words through …".
+  const effectiveLanguage =
+    activeLanguage && languages.some((l) => l.name === activeLanguage) ? activeLanguage : null;
+
+  const totalWords = words.length;
   const subline =
-    oldestDate !== null
+    totalWords > 0
       ? `${totalWords} ${pluralize(totalWords, "word")}${WIDE_DOT}${languages.length} ${pluralize(
           languages.length,
           "language"
-        )}${WIDE_DOT}since ${monthLabel(oldestDate)}`
+        )}`
       : null;
 
   function toggleLanguage(name: string) {
     setActiveLanguage((current) => (current === name ? null : name));
   }
 
+  const heading = (
+    <div className="pt-7.5">
+      <h1 className="font-serif text-4xl leading-display font-normal tracking-headline">
+        Your collection
+      </h1>
+      {subline && (
+        <Eyebrow as="p" className="mt-2.5 tracking-eyebrow-wider">
+          {subline}
+        </Eyebrow>
+      )}
+    </div>
+  );
+
+  // Loading with nothing to show yet: the heading alone, so the page doesn't
+  // jump by more than a line once the words arrive. (When some words are
+  // already loaded and a new favourite is being fetched, keep showing them.)
+  if (status === "loading" && totalWords === 0) {
+    return <div className="mx-auto max-w-form px-5 pb-8.5">{heading}</div>;
+  }
+
   return (
     <div className="mx-auto max-w-form px-5 pb-8.5">
-      <div className="pt-7.5">
-        <h1 className="font-serif text-4xl leading-display font-normal tracking-headline">
-          Your collection
-        </h1>
-        {subline && (
-          <Eyebrow as="p" className="mt-2.5 tracking-eyebrow-wider">
-            {subline}
-          </Eyebrow>
-        )}
-      </div>
+      {heading}
 
-      <div className="mt-5.5 flex border-b border-line">
-        <Link
-          href="/collection"
-          scroll={false}
-          className={clsx(
-            "-mb-px mr-6 border-b pb-2.5 font-sans text-micro tracking-eyebrow-wider uppercase transition-colors duration-150",
-            tab === "collection" ? "border-ink text-ink" : "border-transparent text-ink-soft"
-          )}
-        >
-          Collection
-        </Link>
-        <Link
-          href="/collection?tab=history"
-          scroll={false}
-          className={clsx(
-            "-mb-px border-b pb-2.5 font-sans text-micro tracking-eyebrow-wider uppercase transition-colors duration-150",
-            tab === "history" ? "border-ink text-ink" : "border-transparent text-ink-soft"
-          )}
-        >
-          History
-        </Link>
-      </div>
-
-      {tab === "collection" ? (
-        totalWords === 0 ? (
-          <p className="mt-7 font-serif text-base text-ink-soft italic">
-            Tomorrow&apos;s word arrives in the morning.
-          </p>
-        ) : (
-          <CollectionBody
-            entries={entries}
-            languages={languages}
-            activeLanguage={activeLanguage}
-            onToggleLanguage={toggleLanguage}
-          />
-        )
+      {totalWords > 0 ? (
+        <CollectionBody
+          words={words}
+          languages={languages}
+          activeLanguage={effectiveLanguage}
+          onToggleLanguage={toggleLanguage}
+        />
       ) : (
-        <HistoryTabBody entries={entries} />
+        status === "ready" && (
+          <p className="mt-7 font-serif text-base text-ink-soft italic">
+            Nothing here yet. Tap the heart on any story to keep it here.
+          </p>
+        )
       )}
+
+      {status === "error" && (
+        <p className="mt-7 font-sans text-sm text-ink-soft">
+          Couldn&apos;t load your collection. Try again in a moment.
+        </p>
+      )}
+
+      <p className="mt-8 font-sans text-sm text-ink-soft">
+        <Link href="/history" className="transition-colors hover:text-ink">
+          Past words &rarr;
+        </Link>
+      </p>
     </div>
   );
 }
 
 function CollectionBody({
-  entries,
+  words,
   languages,
   activeLanguage,
   onToggleLanguage,
 }: {
-  entries: HistoryDay[];
+  words: CollectionWord[];
   languages: LanguageStat[];
   activeLanguage: string | null;
   onToggleLanguage: (name: string) => void;
 }) {
-  const favorites = useFavorites();
-  const totalWords = entries.length;
+  const totalWords = words.length;
   const sparse = totalWords <= DENSE_THRESHOLD;
 
-  const filteredEntries = useMemo(
-    () => (activeLanguage ? entries.filter((e) => e.word.lineage.includes(activeLanguage)) : entries),
-    [entries, activeLanguage]
-  );
-
-  const showMonthHeaders = !activeLanguage && !sparse;
-  const groups = useMemo(
-    () => (showMonthHeaders ? groupByMonth(filteredEntries) : [{ label: null, items: filteredEntries }]),
-    [filteredEntries, showMonthHeaders]
+  const filteredWords = useMemo(
+    () => (activeLanguage ? words.filter((w) => w.lineage.includes(activeLanguage)) : words),
+    [words, activeLanguage]
   );
 
   const bandNote = sparse
     ? `${capitalize(spellNumber(languages.length))} ${pluralize(languages.length, "language")} so far.`
-    : "Widths are how many of your words passed through each language.";
+    : "Widths are how many of your favourites passed through each language.";
 
   const filterLine = activeLanguage
-    ? `${filteredEntries.length} ${pluralize(filteredEntries.length, "word")} through ${activeLanguage}`
+    ? `${filteredWords.length} ${pluralize(filteredWords.length, "word")} through ${activeLanguage}`
     : null;
 
-  // In place of a generic reassurance ("nothing to catch up on"), the closing
-  // note surfaces something to actually read: the `related` fact for the
-  // most recent word, which the collection view otherwise never shows (the
-  // story page is the only other place it appears). Only for small,
-  // unfiltered collections — the same slot the copy used to occupy.
-  const closingWord = entries[0]?.word;
+  // In place of a generic reassurance, the closing note surfaces something
+  // to actually read: the `related` fact for the most recently favourited
+  // word, which the collection view otherwise never shows (the story page is
+  // the only other place it appears). Only for small, unfiltered collections.
+  const closingWord = words[0];
   const showClosingLine = !activeLanguage && sparse && !!closingWord;
 
   return (
@@ -232,23 +285,13 @@ function CollectionBody({
       )}
 
       <div className="mt-2">
-        {groups.map((group, i) => (
-          <div key={group.label ?? `ungrouped-${i}`}>
-            {group.label && (
-              <Eyebrow as="p" className="pt-6.5 pb-1 tracking-section">
-                {group.label}
-              </Eyebrow>
-            )}
-            {group.items.map((entry) => (
-              <WordRow
-                key={entry.date}
-                entry={entry}
-                favorited={favorites.has(entry.word.slug)}
-                activeLanguage={activeLanguage}
-                onToggleLanguage={onToggleLanguage}
-              />
-            ))}
-          </div>
+        {filteredWords.map((word) => (
+          <WordRow
+            key={word.slug}
+            word={word}
+            activeLanguage={activeLanguage}
+            onToggleLanguage={onToggleLanguage}
+          />
         ))}
       </div>
 
@@ -262,18 +305,15 @@ function CollectionBody({
 }
 
 function WordRow({
-  entry,
-  favorited,
+  word,
   activeLanguage,
   onToggleLanguage,
 }: {
-  entry: HistoryDay;
-  favorited: boolean;
+  word: CollectionWord;
   activeLanguage: string | null;
   onToggleLanguage: (name: string) => void;
 }) {
   const router = useRouter();
-  const { word } = entry;
 
   function open() {
     router.push(`/story/${word.slug}`);
@@ -296,7 +336,6 @@ function WordRow({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.75">
           <span className="font-serif text-2xl leading-display">{word.word}</span>
-          {favorited && <Star size={10} className="fill-accent text-accent" aria-hidden />}
         </div>
         <div className="mt-1.25 font-sans text-micro tracking-label text-ink-soft">
           {word.respelling}
@@ -334,39 +373,18 @@ function WordRow({
           })}
         </Eyebrow>
       </div>
-      <div className="pt-2 font-sans text-micro tracking-label whitespace-nowrap text-ink-soft">
-        {formatShortDate(entry.date)}
-      </div>
-    </div>
-  );
-}
-
-function HistoryTabBody({ entries }: { entries: HistoryDay[] }) {
-  const groups = useMemo(() => groupByMonth(entries), [entries]);
-
-  return (
-    <div className="pt-5.5">
-      <p className="font-serif text-sm text-ink-soft italic">Every morning since you joined.</p>
-      {groups.map((group) => (
-        <div key={group.label}>
-          <Eyebrow as="p" className="pt-6.5 pb-1 tracking-section">
-            {group.label}
-          </Eyebrow>
-          {group.items.map((entry) => (
-            <Link
-              key={entry.date}
-              href={`/story/${entry.word.slug}`}
-              className="flex items-baseline gap-3 border-t border-line py-3"
-            >
-              <span className="w-11 shrink-0 font-sans text-micro tracking-label text-ink-soft">
-                {formatShortDate(entry.date)}
-              </span>
-              <span className="flex-1 font-serif text-lg">{entry.word.word}</span>
-              <Eyebrow className="tracking-eyebrow">{entry.word.partOfSpeech}</Eyebrow>
-            </Link>
-          ))}
-        </div>
-      ))}
+      <IconButton
+        label="Remove from collection"
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleFavorite(word.slug);
+        }}
+        onKeyDown={(e) => e.stopPropagation()}
+        bordered={false}
+        className="shrink-0 self-start !text-ink-faint hover:!text-accent"
+      >
+        <Heart size={16} strokeWidth={1.75} className="fill-accent text-accent" />
+      </IconButton>
     </div>
   );
 }

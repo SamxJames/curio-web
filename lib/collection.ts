@@ -26,6 +26,27 @@ export function toCollectionWord(w: WordEntry): CollectionWord {
   return { slug, word, respelling, partOfSpeech, teaser, related, lineage };
 }
 
+/** Lines favourited slugs up against the words fetched so far. `cache` maps
+ * a slug to its word, or to `null` when /api/words didn't return it (an
+ * unknown or retired slug) so it isn't requested again. Returns the loaded
+ * words in `slugs` order, plus the slugs that still need fetching — so an
+ * unfavourite just drops out of `words` with nothing new to fetch. */
+export function resolveCollection(
+  slugs: string[],
+  cache: ReadonlyMap<string, CollectionWord | null>
+): { words: CollectionWord[]; missing: string[] } {
+  const words: CollectionWord[] = [];
+  const missing: string[] = [];
+  for (const slug of slugs) {
+    if (!cache.has(slug)) missing.push(slug);
+    else {
+      const w = cache.get(slug);
+      if (w) words.push(w);
+    }
+  }
+  return { words, missing };
+}
+
 /** Language → word count over a list of words, excluding English (every
  * word ends there, so it carries no information for the band/chips — see
  * the "Your collection" design handoff), ordered by count descending then

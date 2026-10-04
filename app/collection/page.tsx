@@ -1,26 +1,9 @@
-import { redirect } from "next/navigation";
-import { after } from "next/server";
 import CollectionScreen from "@/components/CollectionScreen";
-import { auth } from "@/lib/auth";
-import { getUserJoinedAt, recordUserSeen } from "@/lib/userData";
-import { resolveHistorySince } from "@/lib/words";
 
 export const metadata = { title: "Your collection — Curio" };
 
-export default async function CollectionPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ tab?: string }>;
-}) {
-  const session = await auth();
-  if (!session?.user) redirect("/login");
-  after(() => recordUserSeen(session.user.id));
-
-  const { tab } = await searchParams;
-  const joinedAtStr = await getUserJoinedAt(session.user.id);
-  const entries = joinedAtStr
-    ? await resolveHistorySince(new Date(joinedAtStr + "T00:00:00Z"))
-    : [];
-
-  return <CollectionScreen entries={entries} tab={tab === "history" ? "history" : "collection"} />;
+/** Favourites live in the browser (synced to the account when signed in),
+ * so this page needs no session and prerenders as static. */
+export default function CollectionPage() {
+  return <CollectionScreen />;
 }

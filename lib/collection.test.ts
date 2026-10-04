@@ -8,6 +8,8 @@ import {
   capitalize,
   pluralize,
   toCollectionWord,
+  resolveCollection,
+  type CollectionWord,
 } from "./collection";
 import type { HistoryDay } from "./words";
 import type { WordEntry } from "./words";
@@ -151,5 +153,34 @@ describe("toCollectionWord", () => {
     expect(Object.keys(out).sort()).toEqual(
       ["lineage", "partOfSpeech", "related", "respelling", "slug", "teaser", "word"]
     );
+  });
+});
+
+describe("resolveCollection", () => {
+  const cw = (slug: string): CollectionWord => toCollectionWord(word(slug, ["Latin", "English"]));
+
+  it("returns loaded words in slug order and lists the slugs not yet loaded", () => {
+    const cache = new Map<string, CollectionWord | null>([["b", cw("b")], ["a", cw("a")]]);
+    const out = resolveCollection(["a", "c", "b", "d"], cache);
+    expect(out.words.map((w) => w.slug)).toEqual(["a", "b"]);
+    expect(out.missing).toEqual(["c", "d"]);
+  });
+
+  it("skips slugs the server reported as unknown without asking for them again", () => {
+    const cache = new Map<string, CollectionWord | null>([["a", cw("a")], ["gone", null]]);
+    const out = resolveCollection(["gone", "a"], cache);
+    expect(out.words.map((w) => w.slug)).toEqual(["a"]);
+    expect(out.missing).toEqual([]);
+  });
+
+  it("drops words whose slug is no longer in the list, with nothing to fetch", () => {
+    const cache = new Map<string, CollectionWord | null>([["a", cw("a")], ["b", cw("b")]]);
+    const out = resolveCollection(["b"], cache);
+    expect(out.words.map((w) => w.slug)).toEqual(["b"]);
+    expect(out.missing).toEqual([]);
+  });
+
+  it("handles an empty list", () => {
+    expect(resolveCollection([], new Map())).toEqual({ words: [], missing: [] });
   });
 });
