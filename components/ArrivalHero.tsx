@@ -62,6 +62,13 @@ export default function ArrivalHero({ word, date }: { word: WordEntry; date: str
         >
           Find out more &rarr;
         </Link>
+        <Link
+          href="/play"
+          onClick={() => markOnboarded()}
+          className="mt-3 inline-flex w-fit font-sans text-sm text-ink-soft transition-colors hover:text-ink"
+        >
+          Or play today&apos;s puzzle &rarr;
+        </Link>
 
         <div className="flex-1" />
 
@@ -73,7 +80,7 @@ export default function ArrivalHero({ word, date }: { word: WordEntry; date: str
           </p>
 
           <div className="mt-5">
-            <EmailSignupInline onSubscribed={() => setTimeout(() => markOnboarded(), 2000)} />
+            <EmailSignupInline />
           </div>
 
           <Link

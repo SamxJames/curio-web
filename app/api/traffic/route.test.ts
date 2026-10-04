@@ -33,6 +33,14 @@ describe("POST /api/traffic", () => {
     expect(recordTrafficEvent).not.toHaveBeenCalled();
   });
 
+  it("refuses server-side kinds (signup, request) with 400 and no write", async () => {
+    for (const kind of ["signup", "request"]) {
+      const res = await POST(post({ kind, source: "search" }));
+      expect(res.status).toBe(400);
+    }
+    expect(recordTrafficEvent).not.toHaveBeenCalled();
+  });
+
   it("rejects malformed JSON with 400", async () => {
     const res = await POST(post("{nope"));
     expect(res.status).toBe(400);

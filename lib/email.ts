@@ -3,6 +3,8 @@ import type { WordEntry } from "./words";
 import { dayKey, formatDay } from "./day";
 import { absoluteUrl, siteUrl } from "./siteUrl";
 import { signUnsubscribeToken } from "./unsubscribeToken";
+import { signConfirmToken } from "./confirmToken";
+import type { TrafficSource } from "./traffic";
 import { sendInBatches, type BatchResult, type SendOutcome } from "./digestSend";
 
 const resendApiKey = process.env.RESEND_API_KEY;
@@ -108,6 +110,61 @@ export function unsubscribeUrl(email: string, secret: string): string {
   const url = new URL(absoluteUrl("/api/unsubscribe"));
   url.searchParams.set("token", signUnsubscribeToken(email, secret));
   return url.toString();
+}
+
+/** The link in a signup's confirmation email. It opens the confirm page,
+ * which changes nothing until its button is pressed (scanners prefetch
+ * links — see app/subscribe/confirm/page.tsx). Tagged utm_source=email so
+ * the visit counts as email, not direct. */
+export function confirmUrl(email: string, source: TrafficSource, secret: string, now: Date = new Date()): string {
+  const url = new URL(absoluteUrl("/subscribe/confirm"));
+  url.searchParams.set("token", signConfirmToken(email, source, secret, now));
+  url.searchParams.set("utm_source", "email");
+  return url.toString();
+}
+
+function buildConfirmHtml(url: string) {
+  return buildShell(`
+      <p style="font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:0.02em;color:#5b665f;margin:0 0 24px;">
+        Curio
+      </p>
+      <h1 style="font-size:28px;line-height:1.25;margin:0 0 12px;font-weight:600;">
+        Confirm your subscription
+      </h1>
+      <p style="font-size:16px;line-height:1.55;margin:0 0 28px;">
+        One tap and Curio&rsquo;s word of the day starts arriving each morning. This link works for 7 days.
+      </p>
+      <a href="${url}" style="display:inline-block;background:#9c6b30;color:#f1ece0;font-family:Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;text-decoration:none;padding:12px 24px;border-radius:6px;">
+        Confirm subscription
+      </a>
+      <p style="font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#8a9089;margin-top:48px;border-top:1px solid #d8cfbc;padding-top:16px;">
+        If you didn&rsquo;t ask for this, ignore this email &mdash; you won&rsquo;t hear from Curio again.
+      </p>`);
+}
+
+export function buildConfirmMessage(email: string, url: string) {
+  return {
+    to: email,
+    subject: "Confirm your Curio subscription",
+    html: buildConfirmHtml(url),
+    text: `Confirm your Curio subscription\n\nOne tap and Curio's word of the day starts arriving each morning:\n${url}\n\nThis link works for 7 days. If you didn't ask for this, ignore this email — you won't hear from Curio again.`,
+  };
+}
+
+/** Sends the double opt-in email. Same shape as sendSignInEmail: a dev
+ * fallback that logs instead of sending, and a thrown error on a Resend
+ * failure (the caller logs only the error's name). */
+export async function sendConfirmEmail(email: string, url: string): Promise<void> {
+  const msg = buildConfirmMessage(email, url);
+  if (!resend) {
+    // Fail closed in production: never log an address or a live token, and
+    // never let the caller believe an email went out when none did.
+    if (process.env.NODE_ENV === "production") throw new Error("Resend not configured");
+    console.log(`[curio:email:dev-fallback] would send "${msg.subject}" to ${email}: ${url}`);
+    return;
+  }
+  const { error } = await resend.emails.send({ from: FROM_ADDRESS, ...msg });
+  if (error) throw new Error(`Resend send failed: ${error.name}`);
 }
 
 export type DigestMessage = {

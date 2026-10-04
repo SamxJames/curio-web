@@ -83,4 +83,10 @@ describe("buildRobots", () => {
     expect(disallow).toContain("/unsubscribe");
     expect(disallow).toContain("/api/");
   });
+
+  it("disallows the double opt-in confirm and result pages", () => {
+    const { disallow } = buildRobots().rules;
+    expect(disallow).toContain("/subscribe");
+    expect(disallow).toContain("/subscribed");
+  });
 });

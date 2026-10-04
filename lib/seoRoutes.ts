@@ -14,6 +14,8 @@ export const DISALLOWED_PATHS = [
   "/account",
   "/login",
   "/collection",
+  "/subscribe",
+  "/subscribed",
   "/unsubscribe",
   "/unsubscribed",
   "/api/",

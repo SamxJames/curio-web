@@ -1,10 +1,12 @@
 # Curio — Handover
 
-Last updated: 2026-09-29, after the Threads + Instagram build (branch
-`social`, not yet merged or deployed). See "This session (2026-09-29):
-Threads + Instagram" below; the owner-side setup it needs is in "Threads +
-Instagram: owner setup". Before that, 2026-09-28 finished Bluesky link
-cards (Phase 3 of the pre-launch brief). This doc
+Last updated: 2026-10-03, after two pieces of user feedback were fixed
+and deployed: signed-in readers were being asked to join the email, and
+people didn't notice today's puzzle. See "This session (2026-10-03, cont.):
+signed-in pitch + puzzle visibility" below. Earlier the same day,
+first-party traffic sources shipped. Threads + Instagram (2026-09-29) are
+deployed but post nothing until the owner adds tokens; see "Threads +
+Instagram: owner setup". This doc
 exists so a fresh Claude Code session (or a human) can pick up without
 re-deriving all of the above from git log.
 
@@ -416,6 +418,74 @@ or `[curio:instagram] post failed:` with the reason (see the architecture
 map for what is and isn't logged), and — like Bluesky — keeps its lock, so
 a failure is retried by hand with `?repost=`, not automatically.
 
+## Double opt-in (signup confirmation)
+
+Built 2026-10-03 (plan: `docs/superpowers/plans/2026-10-03-double-opt-in.md`).
+Anonymous signups no longer join the list straight away; the address has to
+be confirmed from its inbox first.
+
+**Flow:**
+
+1. The form (`EmailSignupInline`: the homepage arrival hero, `/play`'s
+   post-game funnel and the story-page front door) POSTs `{ email, source? }` to
+   `/api/subscribe`. It stores nothing; it emails a signed link
+   (subject `Confirm your Curio subscription`) and replies
+   `200 { ok: true, pending: true }`.
+2. The link opens `/subscribe/confirm?token=...` (noindex). That page only
+   shows the masked address and a Confirm button; an invalid or expired
+   token redirects to `/subscribed?ok=0`.
+3. The button POSTs to `/api/subscribe/confirm?token=...`, which adds the
+   subscriber and redirects with a **303** to `/subscribed?ok=1` (or `ok=0`).
+
+**Why a button, not the link:** Outlook Safe Links and corporate mail
+scanners open every link in an email. If the GET confirmed, a scanner would
+confirm addresses a bot typed in. The emailed link never changes state;
+only the POST does (same pattern as unsubscribe).
+
+**Token (`lib/confirmToken.ts`):** `payloadB64.macB64`, both base64url. The
+payload is JSON `{"e": normalised email, "s": traffic source, "t": issued
+unix seconds}`. The MAC is HMAC-SHA256 over `"curio:confirm:v1:" + payloadB64`,
+compared with `timingSafeEqual`. It reuses `UNSUBSCRIBE_SECRET` with its own
+context string, so a confirm token can never pass as an unsubscribe token or
+the reverse; no new environment variable. Valid for 7 days
+(`CONFIRM_TTL_SECONDS`); one issued more than 300 seconds in the future is
+rejected (clock-skew allowance). **Nothing is stored for an unconfirmed
+address apart from a 10-minute cooldown key (`curio:confirmcooldown:<email>`)**:
+the expiry lives in the token, so there is nothing to clean up.
+Rotating `UNSUBSCRIBE_SECRET` invalidates outstanding confirm links as well
+as unsubscribe links.
+
+**Already subscribed, or cooling down:** `/api/subscribe` returns the same
+`200 { ok: true, pending: true }`, sends nothing and counts nothing, so the
+reply never reveals whether an address is on the list. The cooldown is
+`curio:confirmcooldown:<normalised email>`, `SET NX EX 600` (10 minutes, one
+confirmation email per address), released with `DEL` when the send fails so
+the person can retry at once. It is a no-op without Upstash.
+
+**Fail-closed paths:**
+
+- `503` when `UNSUBSCRIBE_SECRET` is missing in production (nothing sent).
+- `502` when the send fails (cooldown released).
+- `sendConfirmEmail` throws in production when Resend isn't configured
+  (it never logs an address or token); in dev it logs the link instead.
+- A Redis error on the subscriber lookup or the cooldown claim gives a
+  friendly JSON `500` ("Something went wrong on our side…") with no email
+  sent; only `err.name` is logged.
+
+**Unaffected:** signed-in readers still subscribe directly from `/account`
+(their address was proven by the magic-link sign-in), and existing
+subscribers are grandfathered; nobody is asked to re-confirm.
+
+**Counters:** `request:<source>` is counted when a confirmation email is
+sent. `signup:<source>` is counted only on confirmation, against the source
+carried in the token, and not for an address that is already subscribed.
+Requests minus signups is roughly the confirmation drop-off. `/api/traffic`
+accepts only `visit` and `share`; a `signup` or `request` body is a 400.
+
+**Browser flag:** the "subscribed here" flag that hides the email pitch is
+set on `/subscribed?ok=1`, not when the form is submitted, so someone who
+mistypes their address still sees the signup box next time.
+
 ## Measuring growth (traffic sources)
 
 Vercel Web Analytics on the Hobby plan shows page views and referrers only:
@@ -433,10 +503,14 @@ first-party and with no personal data.
   `?utm_source=` tag (`email`, `bluesky`, `threads`, `instagram`, `share`),
   else the referrer's host (`search`, `reddit`, `hn`, or `other`), else
   `direct`. A referrer on curioword.com itself counts nothing.
-- `signup:<source>`: on every successful `/api/subscribe`, using the
-  source the signup form carried. **It counts every successful subscribe,
-  including an existing address subscribing again**, so a few repeats can
-  push a source's rate up slightly.
+- `request:<source>`: a confirmation email was sent (server-side, from
+  `/api/subscribe`). Not counted for an existing subscriber or a
+  cooled-down address.
+- `signup:<source>`: a **confirmed** subscriber, counted server-side when
+  the confirm button is pressed, against the source the signup form
+  carried (inside the token). An address that is already subscribed isn't
+  re-counted, so repeats no longer inflate it. Before double opt-in
+  (deployed with that work) it counted every successful subscribe.
 - `share:story` and `share:puzzle`: share taps. The story share URL carries
   `?utm_source=share`; the puzzle share text ends `curioword.com/play`
   (plain text, so a recipient arrives as `direct` or via their referrer).
@@ -448,7 +522,8 @@ first-party and with no personal data.
   a silent no-op, so testing can't inflate the numbers.
 - **No personal data.** Only the field names above are stored: no emails,
   IPs, user agents or referrer URLs. The server accepts only allowlisted
-  events (anything else is a 400 with no write), and bots are dropped by
+  events (`/api/traffic` takes `visit` and `share` only; `request` and
+  `signup` are recorded server-side) (anything else is a 400 with no write), and bots are dropped by
   user agent.
 - **90-day TTL.** Every write refreshes it on that day's key, so old days
   clean themselves up.
@@ -458,7 +533,8 @@ first-party and with no personal data.
 **Reading it:**
 
 - `/admin` has a "Where visitors come from" section: the last 28 days by
-  source (visits, signups, rate), total visits / signups, and share taps.
+  source (visits, requests, signups, rate), total visits / requests /
+  signups, and share taps.
 - `npm run traffic:report -- [days]` prints the same for 1–90 days (default
   28), plus visits by day. It is **read-only** (`HGETALL` only, never a
   write) and reads production through `UPSTASH_REDIS_REST_URL/TOKEN` in
@@ -473,6 +549,9 @@ first-party and with no personal data.
   *untagged* link in Gmail web (e.g. a sign-in email) is credited to
   `search`. The digest's links are tagged `utm_source=email` and are
   unaffected.
+- **Confirm-page opens count as `visit:email`.** The confirmation email's
+  link carries `utm_source=email`, so opening it is counted alongside
+  digest clicks.
 - **Your own visits count.** The owner's visits (e.g. `/admin`) and any
   smoke-test visits are counted too, on a small base they can show.
 - **`direct`'s signup rate is inflated.** A signup from a tab with no
@@ -1032,6 +1111,21 @@ relitigate it — reuse that pattern.
 These were surfaced during review and deliberately not fixed — each has a
 reason, not just "ran out of time":
 
+- **Daily cap on confirmation sends: done 2026-10-03.**
+  - `lib/confirmDailyCap.ts` allows at most **200 confirmation emails per UTC day** across all addresses, set by the owner.
+  - The count is `INCR curio:confirmsends:<UTC day>`, with an 8-day expiry, and is kept in production only.
+  - Past the cap, `/api/subscribe` gives the same pending reply, sends nothing and logs `[curio:subscribe] daily confirmation cap reached` (no address).
+  - The cap is checked after the existing-subscriber and per-address cooldown checks, so those requests don't use a slot.
+  - `npm run traffic:report` prints the last week's confirmation sends and flags any day that hit the cap. The weekly check-in sees this.
+  - The count is **attempts**: a send that then fails (502) still uses its slot, so a Resend outage could spend a day's 200. If the cap check itself errors, the person's 10-minute cooldown is released.
+  - **Still open:**
+    - There's no per-IP limit. One script can still use up a day's 200 slots, which delays real signups until midnight UTC but can't touch the rest of the Resend quota.
+    - The sign-in send is still capped per address only.
+- **Dev fallbacks have no production guard** (2026-10-03, pre-existing).
+  The dev-mode fallbacks in `sendSignInEmail` and `sendDailyDigests` (log
+  instead of send) aren't guarded against running in production the way
+  `sendConfirmEmail` is.
+
 - **Resend quota shared between sign-in and the daily digest — partially
   addressed 2026-09-18.** `lib/signInCooldown.ts` now blocks *repeated*
   sign-in requests for the *same* address within a 60s window (see "This
@@ -1081,8 +1175,17 @@ reason, not just "ran out of time":
   just `teaser + word · lineage + hashtags`, measured across all 1,147
   words at a maximum of 291 graphemes (`lib/bluesky.test.ts`).
 - **Double opt-in on `/api/subscribe`** (2026-09-27 email hardening) —
-  planned before public promotion, out of scope for this pre-launch pass
-  since the family-and-friends list is small and known.
+  **done 2026-10-03** (plan: `docs/superpowers/plans/2026-10-03-double-opt-in.md`;
+  see "Double opt-in (signup confirmation)"). Deployed 2026-10-03 (20:24 UTC);
+  the daily cap followed at 20:35 UTC. Known limits, left as they are:
+  - Timing and outage side channels can reveal whether an address is
+    subscribed: a new address waits on a Resend send (or gets a 502), while
+    an existing one returns fast.
+  - The limit is per address only (10-minute cooldown); there is no per-IP
+    throttle.
+  - A double-click on Confirm can double-count a signup.
+  - A transient Redis error on confirm shows the "link may have expired"
+    copy.
 - **The unverified inbox-placement effect of `List-Unsubscribe` /
   `List-Unsubscribe-Post`** (2026-09-27) — judge this after a few weeks of
   real sends, alongside tightening `_dmarc`'s `p=none` to `quarantine`
@@ -1492,10 +1595,11 @@ nothing there said what Curio is.
   word's origin story, every morning. No feed, no backlog." (the owner
   picked it from three drafts), plus the existing `EmailSignupInline`.
   It's in the static HTML; only hiding happens after hydration.
-- **Who doesn't see it:** a browser that joined through
-  `EmailSignupInline` anywhere (`curio:subscribed` in localStorage, set
-  on success), and a browsing session that arrived from a digest email
-  (`curio:arrivedFromEmail` in sessionStorage). Digest story links now
+- **Who doesn't see it:** a browser that confirmed a subscription
+  (`curio:subscribed` in localStorage, set on `/subscribed?ok=1` since
+  double opt-in, 2026-10-03; formerly set on form success), a browsing
+  session that arrived from a digest email (`curio:arrivedFromEmail` in
+  sessionStorage), and (since 2026-10-03) anyone signed in. Digest story links now
   carry `utm_source=email&utm_medium=email&utm_campaign=daily-word`
   (`lib/email.ts` `digestStoryUrl`). The email arrival is session-only on
   purpose: a forwarded digest link would otherwise hide the pitch for
@@ -1511,11 +1615,12 @@ nothing there said what Curio is.
 - **Removed, not re-pointed:** "Browse all words". "All words A–Z →"
   (→ `/words`) already renders on every story page, because
   `getRelatedWords` always returns alphabetical neighbours.
-- **Coupling to keep in mind:** `EmailSignupInline` calls
-  `onSubscribed()` before `markSubscribedHere()`, and `StoryFrontDoor`
-  pins itself open with `flushSync`. Swap that order and the "You're in"
-  message unmounts. Vitest has no DOM, so no test covers it; it was
-  checked in the browser with a stubbed `/api/subscribe`.
+- **Coupling to keep in mind (superseded by double opt-in, 2026-10-03):**
+  `EmailSignupInline` no longer calls `markSubscribedHere()`; the flag is
+  set on `/subscribed?ok=1` by `components/MarkSubscribedHere.tsx`, so
+  call order there no longer matters. `StoryFrontDoor` still pins itself
+  open with `flushSync` for `onSubscribed()`. Vitest has no DOM, so no
+  test covers it.
 - **Known, accepted:** a subscriber sees the front door collapse just
   after hydration. It's below the fold, so it doesn't count toward CLS.
   If it ever matters, a pre-paint `data-subscribed` attribute (like
@@ -1889,7 +1994,8 @@ development, one commit per task. **Deployed 2026-10-03 18:48 UTC
 **Caveats to remember when reading the numbers:**
 
 - A visit is one per browser tab session, not per person. Signups count
-  every successful subscribe, including repeats.
+  confirmed subscribers only (from the double opt-in deploy on); an
+  existing address subscribing again isn't re-counted.
 - Counts are production-only and begin with the first production deploy
   (no backfill), so the first days are partial. There's no history before it.
 - Also see the caveats list in "Measuring growth (traffic sources)": Gmail
@@ -1927,6 +2033,94 @@ Being local dev, none of these wrote to Redis.
 Still to check:
 - The `/admin` section needs the owner's sign-in.
 - First real numbers: the weekly check-in reports them.
+
+## This session (2026-10-03, cont.): signed-in pitch + puzzle visibility
+
+Two bits of real-user feedback, done directly (no plan doc). **Deployed
+2026-10-03 (commit 714c3e2)** by pushing `master`.
+
+**1. Signed-in readers were asked to join the email.** The story-page
+front door (`StoryFrontDoor`) and the post-game block in `PuzzleGame`
+only checked the local `curio:subscribed` flag, never the session. A
+signed-in reader on a new browser, or one who had signed up some other
+way, got the "join" pitch. Both now hide for `useSession()` status
+`"authenticated"`. While the session is still `"loading"`, the element
+carries `signed-in:hidden`, so the pre-paint session hint hides it with no
+flash. The pitch is still in the prerendered HTML, so signed-out
+visitors and crawlers see it as before. Signed-in readers manage the
+email from `/account` (which has its own subscribe/unsubscribe).
+Signing in does **not** subscribe anyone. Hiding the pitch is about
+recognising the reader, not because they're already on the list.
+
+**2. Today's puzzle was easy to miss.** Before this, it was one faint
+`text-xs` link on Today and on story pages. Now:
+
+- `Header` has a **Puzzle** nav link (`/play`) after Today. To fit it at
+  375px when signed in (Today · Puzzle · Collection · Account · theme),
+  the header's mobile padding went `px-6` → `px-4` and the nav gap
+  `gap-5` → `gap-3`. Both go back to the old values at `sm:`. Before that
+  change it overflowed by about 23px.
+- `TodayHero`: a **Play today's puzzle** pill beside "Read the full
+  story". It uses `Button`'s secondary-variant classes on a `Link`.
+- `StoryView`: the bottom link is now `text-sm font-medium text-accent`.
+- `ArrivalHero`: "Or play today's puzzle →" under "Find out more". It
+  calls `markOnboarded()` on click, like the other arrival links.
+
+### Verification
+
+Done in the local dev server, in a browser signed in as the owner:
+
+- The story page rendered no front door and no email input.
+- A cookie-less fetch of the same page still had the pitch, with
+  `signed-in:hidden`.
+- The header scrollWidth equalled the 375px viewport.
+
+Typecheck and lint were clean. The main tree's tests passed. Vitest also
+picks up `.worktrees/double-opt-in` and `.worktrees/demand-report`, which
+have 13 failures of their own. Those are the stray-worktree noise
+described in the workflow notes below, not this change.
+
+After the deploy, `curioword.com/story/silhouette` served the Puzzle nav
+link, the new story-page link and the `signed-in:hidden` classes. The
+signed-in experience in production was not clicked through.
+
+## This session (2026-10-03, later): double opt-in
+
+Before any public promotion (see `docs/launch-kit.md`), anonymous signups
+now confirm by email. Plan: `docs/superpowers/plans/2026-10-03-double-opt-in.md`.
+Built on branch `feat/double-opt-in`, one commit per task. **Deployed 2026-10-03 at 20:24 UTC
+(commit 5c2b1ad); the 200/day cap followed at 20:35 UTC (d2186bb).** Design details are in
+"Double opt-in (signup confirmation)".
+
+**What landed:**
+
+- `lib/confirmToken.ts` (stateless signed 7-day token, context
+  `curio:confirm:v1:`) and `lib/confirmCooldown.ts` (10-minute per-address
+  cooldown).
+- `POST /api/subscribe` now emails a link instead of subscribing;
+  `sendConfirmEmail` / `confirmUrl` in `lib/email.ts`.
+- `/subscribe/confirm` (button page), `POST /api/subscribe/confirm` (303 to
+  `/subscribed?ok=1|0`) and `/subscribed`; both pages noindex and in
+  `DISALLOWED_PATHS`.
+- Counters: new `request:<source>`; `signup:<source>` only on confirmation;
+  `/api/traffic` no longer accepts `signup`.
+- The "subscribed here" browser flag moved to `/subscribed?ok=1`.
+
+**Verification: done in production on 2026-10-03.**
+
+Smoke checks against curioword.com:
+- `/api/traffic` with a `signup` body returns 400.
+- `/api/subscribe` with a non-string email returns 400.
+- A garbage token sends both the confirm page and the confirm POST to `/subscribed?ok=0`.
+
+Real send to the owner's `samfillingham00+optin@gmail.com`:
+- The confirmation email went out at 20:36 UTC, and Resend shows it delivered.
+- A second signup straight after got the same pending reply, and no second email was sent.
+- The owner opened the link and pressed Confirm.
+- The subscriber record appeared at 20:53 UTC.
+- `traffic:report` showed request 1, signup 1 (both `direct`; the request was made with curl), confirm-page visit 1 (`email`) and cap slots 1/200.
+
+That address is now a real subscriber. The owner can unsubscribe it from its first digest.
 
 ## Workflow notes for whoever picks this up
 

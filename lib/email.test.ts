@@ -1,5 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { buildDigestMessage, buildDigestSubject, digestStoryUrl, sendDailyDigests, unsubscribeUrl } from "./email";
+import {
+  buildConfirmMessage,
+  buildDigestMessage,
+  buildDigestSubject,
+  confirmUrl,
+  digestStoryUrl,
+  sendDailyDigests,
+  unsubscribeUrl,
+} from "./email";
+import { verifyConfirmToken } from "./confirmToken";
 import { verifyUnsubscribeToken } from "./unsubscribeToken";
 
 describe("buildDigestSubject", () => {
@@ -92,5 +101,33 @@ describe("sendDailyDigests dev fallback (no RESEND_API_KEY)", () => {
     expect(out).toEqual({ attempted: 2, sent: 2, failed: 0, errors: [], failedRecipients: [] });
     expect(logged).toContain("2 subscriber");
     expect(logged).not.toContain("@example.com");
+  });
+});
+
+describe("confirmation email", () => {
+  const SECRET = "test-secret";
+  const NOW = new Date("2026-10-03T12:00:00Z");
+
+  it("confirmUrl points at the confirm page with a token for that address and source, tagged as email", () => {
+    const url = new URL(confirmUrl("Sam@Example.com", "share", SECRET, NOW));
+    expect(url.pathname).toBe("/subscribe/confirm");
+    expect(url.searchParams.get("utm_source")).toBe("email");
+    expect(verifyConfirmToken(url.searchParams.get("token")!, SECRET, NOW)).toEqual({
+      email: "sam@example.com",
+      source: "share",
+    });
+  });
+
+  it("buildConfirmMessage has the exact subject, the link in both parts, and the ignore-it line", () => {
+    const link = "https://curioword.com/subscribe/confirm?token=abc&utm_source=email";
+    const msg = buildConfirmMessage("sam@example.com", link);
+    expect(msg.to).toBe("sam@example.com");
+    expect(msg.subject).toBe("Confirm your Curio subscription");
+    // Raw URL in the href, same convention as the digest's story link
+    // (buildDigestHtml interpolates its utm-tagged URL unescaped).
+    expect(msg.html).toContain(`href="${link}"`);
+    expect(msg.text).toContain(link);
+    expect(msg.text).toMatch(/didn.t ask for this/i);
+    expect(msg.html + msg.text).not.toMatch(/streak|don.t miss/i);
   });
 });

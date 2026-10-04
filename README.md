@@ -18,7 +18,7 @@ the reasoning behind the pivot; this README covers what's actually built here.
 - **Onboarding** — a first-visit modal (tagline + short pitch) with an
   inline email + delivery-hour signup, skippable. Replaces the app's
   notification-permission step.
-- **Email digest** — `/api/subscribe` captures `{email, hour}`.
+- **Email digest** — `/api/subscribe` takes `{email, source?}`; anonymous signups confirm by email (double opt-in: a signed 7-day link, and a button on the page it opens adds the address).
   `/api/cron/send-daily` runs once a day at 09:00 UTC (`vercel.json`; the
   Hobby plan allows one run a day) and sends every subscriber the day's
   shared word through Resend's batch endpoint. It's idempotent per UTC day

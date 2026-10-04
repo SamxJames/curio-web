@@ -66,15 +66,17 @@ export type ShareKind = "story" | "puzzle";
 export type TrafficEvent =
   | { kind: "visit"; source: TrafficSource }
   | { kind: "signup"; source: TrafficSource }
+  | { kind: "request"; source: TrafficSource }
   | { kind: "share"; what: ShareKind };
 
-/** The only gate between a request body and a Redis field name. */
+/** The only gate between a PUBLIC request body and a Redis field name. It
+ * accepts only what the browser sends (visit, share): signup and request
+ * are recorded server-side by /api/subscribe and /api/subscribe/confirm, so
+ * nobody can inflate them by POSTing to /api/traffic. */
 export function parseTrafficEvent(body: unknown): TrafficEvent | null {
   if (typeof body !== "object" || body === null) return null;
   const b = body as Record<string, unknown>;
-  if ((b.kind === "visit" || b.kind === "signup") && isTrafficSource(b.source)) {
-    return { kind: b.kind, source: b.source };
-  }
+  if (b.kind === "visit" && isTrafficSource(b.source)) return { kind: "visit", source: b.source };
   if (b.kind === "share" && (b.what === "story" || b.what === "puzzle")) {
     return { kind: "share", what: b.what };
   }
@@ -85,19 +87,27 @@ export function eventField(ev: TrafficEvent): string {
   return ev.kind === "share" ? `share:${ev.what}` : `${ev.kind}:${ev.source}`;
 }
 
-export type TrafficRow = { source: TrafficSource; visits: number; signups: number; rate: number | null };
+export type TrafficRow = {
+  source: TrafficSource;
+  visits: number;
+  requests: number;
+  signups: number;
+  rate: number | null;
+};
 export type TrafficSummary = {
   rows: TrafficRow[];
-  totals: { visits: number; signups: number };
+  totals: { visits: number; requests: number; signups: number };
   shares: { story: number; puzzle: number };
 };
 
 /** Folds per-day counter hashes into one row per source (only sources with
- * any activity), most visits first. `rate` is signups ÷ visits, or null with
+ * any activity), most visits first. `requests` are confirmation emails sent;
+ * `signups` are confirmed subscribers. `rate` is confirmed signups ÷ visits, or null with
  * no visits, so the admin page shows "—" rather than a misleading figure.
  * Unknown field names are ignored. */
 export function summarizeTraffic(days: Record<string, Record<string, number>>): TrafficSummary {
   const visits = new Map<TrafficSource, number>();
+  const requests = new Map<TrafficSource, number>();
   const signups = new Map<TrafficSource, number>();
   const shares = { story: 0, puzzle: 0 };
   for (const fields of Object.values(days)) {
@@ -106,21 +116,24 @@ export function summarizeTraffic(days: Record<string, Record<string, number>>): 
       const [kind, name] = field.split(":");
       if (kind === "share" && (name === "story" || name === "puzzle")) shares[name] += n;
       else if (kind === "visit" && isTrafficSource(name)) visits.set(name, (visits.get(name) ?? 0) + n);
+      else if (kind === "request" && isTrafficSource(name)) requests.set(name, (requests.get(name) ?? 0) + n);
       else if (kind === "signup" && isTrafficSource(name)) signups.set(name, (signups.get(name) ?? 0) + n);
     }
   }
-  const sources = TRAFFIC_SOURCES.filter((s) => visits.has(s) || signups.has(s));
+  const sources = TRAFFIC_SOURCES.filter((s) => visits.has(s) || requests.has(s) || signups.has(s));
   const rows = sources
     .map((source) => {
       const v = visits.get(source) ?? 0;
+      const r = requests.get(source) ?? 0;
       const s = signups.get(source) ?? 0;
-      return { source, visits: v, signups: s, rate: v === 0 ? null : s / v };
+      return { source, visits: v, requests: r, signups: s, rate: v === 0 ? null : s / v };
     })
     .sort((a, b) => b.visits - a.visits);
   return {
     rows,
     totals: {
       visits: rows.reduce((t, r) => t + r.visits, 0),
+      requests: rows.reduce((t, r) => t + r.requests, 0),
       signups: rows.reduce((t, r) => t + r.signups, 0),
     },
     shares,
