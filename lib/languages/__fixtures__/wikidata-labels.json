@@ -1,0 +1,8 @@
+{
+  "entities": {
+    "Q34770": { "type": "item", "id": "Q34770", "labels": { "en": { "language": "en", "value": "language" } } },
+    "Q45762": { "type": "item", "id": "Q45762", "labels": { "en": { "language": "en", "value": "dead language" } } },
+    "Q206577": { "type": "item", "id": "Q206577", "labels": {} }
+  },
+  "success": 1
+}

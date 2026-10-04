@@ -1,0 +1,20 @@
+{
+  "type": "standard",
+  "title": "Old Norse",
+  "displaytitle": "<span class=\"mw-page-title-main\">Old Norse</span>",
+  "namespace": { "id": 0, "text": "" },
+  "wikibase_item": "Q35505",
+  "titles": { "canonical": "Old_Norse", "normalized": "Old Norse", "display": "Old Norse" },
+  "pageid": 22612,
+  "lang": "en",
+  "dir": "ltr",
+  "description": "North Germanic language spoken in Scandinavia",
+  "extract": "Old Norse was a stage of development of North Germanic dialects before their final divergence into separate Nordic languages. It was spoken by inhabitants of Scandinavia and their overseas settlements from about the 7th to the 15th centuries.",
+  "content_urls": {
+    "desktop": {
+      "page": "https://en.wikipedia.org/wiki/Old_Norse",
+      "revisions": "https://en.wikipedia.org/wiki/Old_Norse?action=history"
+    },
+    "mobile": { "page": "https://en.m.wikipedia.org/wiki/Old_Norse" }
+  }
+}

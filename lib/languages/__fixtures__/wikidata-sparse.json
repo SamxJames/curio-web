@@ -1,0 +1,17 @@
+{
+  "entities": {
+    "Q1452291": {
+      "type": "item",
+      "id": "Q1452291",
+      "claims": {
+        "P31": [
+          { "mainsnak": { "snaktype": "value", "property": "P31", "datavalue": { "value": { "entity-type": "item", "numeric-id": 206577, "id": "Q206577" }, "type": "wikibase-entityid" } }, "rank": "normal" }
+        ],
+        "P571": [ { "mainsnak": { "snaktype": "somevalue", "property": "P571" }, "rank": "normal" } ],
+        "P1098": [
+          { "mainsnak": { "snaktype": "value", "property": "P1098", "datavalue": { "value": { "amount": "+3000", "unit": "1" }, "type": "quantity" } }, "rank": "normal" }
+        ]
+      }
+    }
+  }
+}

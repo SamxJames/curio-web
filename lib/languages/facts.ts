@@ -1,0 +1,236 @@
+// Pure helpers for the language fact pipeline (scripts/languages/fetchFacts.ts).
+// Nothing here touches the network: the script fetches, these functions parse.
+
+/** Lineage spellings that mean the same language, mapped to the canonical name. */
+export const ALIASES: Record<string, string> = {
+  Lombardic: "Lombard",
+  Kiswahili: "Swahili",
+  Ottoman: "Ottoman Turkish",
+  "Old Provençal": "Old Occitan",
+};
+
+/** Lineage names that never get a sheet: English itself, non-languages and English varieties. */
+export const SKIP = [
+  "English",
+  "Translingual",
+  "Phrygian or Anatolian",
+  "Indian English",
+  "Late Middle English",
+];
+
+export const canonicalName = (name: string): string => ALIASES[name] ?? name;
+
+type HasLineage = { lineage: string[] };
+
+function countWordsPerLanguage(words: HasLineage[]): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const w of words) {
+    for (const name of new Set(w.lineage)) counts.set(name, (counts.get(name) ?? 0) + 1);
+  }
+  return counts;
+}
+
+const byCountThenName = ([a, ca]: [string, number], [b, cb]: [string, number]) =>
+  cb - ca || (a < b ? -1 : a > b ? 1 : 0);
+
+/** Unique lineage names minus English and Translingual, by number of words using them (desc). */
+export function collectLineageLanguages(words: HasLineage[]): string[] {
+  const counts = countWordsPerLanguage(words);
+  counts.delete("English");
+  counts.delete("Translingual");
+  return [...counts.entries()].sort(byCountThenName).map(([name]) => name);
+}
+
+export type LanguageTarget = { name: string; aliases: string[] };
+
+/** The languages to fetch facts for: SKIP removed, aliases merged under their canonical name. */
+export function languageTargets(words: HasLineage[]): LanguageTarget[] {
+  const counts = countWordsPerLanguage(words);
+  const merged = new Map<string, { count: number; aliases: Set<string> }>();
+  for (const [name, count] of counts) {
+    if (SKIP.includes(name)) continue;
+    const canonical = canonicalName(name);
+    const entry = merged.get(canonical) ?? { count: 0, aliases: new Set<string>() };
+    entry.count += count;
+    if (canonical !== name) entry.aliases.add(name);
+    merged.set(canonical, entry);
+  }
+  return [...merged.entries()]
+    .map(([name, e]) => [name, e.count] as [string, number])
+    .sort(byCountThenName)
+    .map(([name]) => ({ name, aliases: [...merged.get(name)!.aliases].sort() }));
+}
+
+/** File-name slug: "Old Provençal" → "old-provencal". */
+export function languageSlug(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+const SUMMARY_BASE = "https://en.wikipedia.org/api/rest_v1/page/summary/";
+const titlePath = (title: string) => encodeURIComponent(title.replace(/ /g, "_"));
+
+/** Summary URLs to try in order: "{Name}_language", then "{Name}". */
+export function wikipediaSummaryUrls(name: string): string[] {
+  return [`${SUMMARY_BASE}${titlePath(`${name} language`)}`, `${SUMMARY_BASE}${titlePath(name)}`];
+}
+
+export function wikidataEntityUrl(qid: string): string {
+  return `https://www.wikidata.org/wiki/Special:EntityData/${encodeURIComponent(qid)}.json`;
+}
+
+export function wikidataLabelsUrl(ids: string[]): string {
+  return `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${ids
+    .map(encodeURIComponent)
+    .join("|")}&props=labels&languages=en&format=json`;
+}
+
+/** Retry once on rate limiting or a server error; anything else won't change on retry. */
+export const shouldRetryStatus = (status: number): boolean =>
+  status === 429 || (status >= 500 && status < 600);
+
+type Obj = Record<string, unknown>;
+const isObject = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
+const str = (v: unknown): string | null => (typeof v === "string" ? v : null);
+
+export type WikipediaSummary = {
+  title: string;
+  extract: string;
+  url: string; // content_urls.desktop.page
+  description: string | null;
+  wikibaseItem: string | null;
+  type: string | null;
+};
+
+export function parseWikipediaSummary(json: unknown): WikipediaSummary | null {
+  if (!isObject(json)) return null;
+  const title = str(json.title);
+  const extract = str(json.extract);
+  const desktop = isObject(json.content_urls) ? json.content_urls.desktop : undefined;
+  const url = isObject(desktop) ? str(desktop.page) : null;
+  if (!title || !extract || !url) return null;
+  return {
+    title,
+    extract,
+    url,
+    description: str(json.description),
+    wikibaseItem: str(json.wikibase_item),
+    type: str(json.type),
+  };
+}
+
+/** True when a summary looks like it is about a language, not a people, place or list. */
+export function isAboutLanguage(summary: WikipediaSummary): boolean {
+  if (summary.type === "disambiguation") return false;
+  const text = `${summary.title} ${summary.description ?? ""} ${summary.extract.slice(0, 300)}`;
+  return /\b(language|languages|dialect|dialects|tongue)\b/i.test(text);
+}
+
+export type WikidataFacts = {
+  qid: string;
+  coordinates: { lat: number; lon: number } | null;
+  inception: number | null; // year, negative = BCE
+  dissolved: number | null;
+  speakers: { count: number; year: number | null } | null;
+  instanceOf: string[]; // English labels where known, else the Q-id
+};
+
+/** "+1066-00-00T00:00:00Z" → 1066; "-0700-…" → -700. */
+function yearOf(time: unknown): number | null {
+  const m = typeof time === "string" ? /^([+-])(\d+)-/.exec(time) : null;
+  if (!m) return null;
+  const y = Number(m[2]);
+  return m[1] === "-" ? -y : y;
+}
+
+function firstEntity(json: unknown): Obj | null {
+  if (!isObject(json) || !isObject(json.entities)) return null;
+  const first = Object.values(json.entities)[0];
+  return isObject(first) ? first : null;
+}
+
+/** Statement values (datavalue.value) for a property, skipping deprecated and no-value snaks. */
+function claimValues(entity: Obj, prop: string): { value: unknown; statement: Obj }[] {
+  const claims = isObject(entity.claims) ? entity.claims[prop] : undefined;
+  if (!Array.isArray(claims)) return [];
+  const out: { value: unknown; statement: Obj }[] = [];
+  for (const st of claims) {
+    if (!isObject(st) || st.rank === "deprecated" || !isObject(st.mainsnak)) continue;
+    const dv = st.mainsnak.datavalue;
+    if (isObject(dv) && dv.value !== undefined) out.push({ value: dv.value, statement: st });
+  }
+  return out;
+}
+
+export function instanceOfIds(entityJson: unknown): string[] {
+  const entity = firstEntity(entityJson);
+  if (!entity) return [];
+  return claimValues(entity, "P31")
+    .map(({ value }) => (isObject(value) ? str(value.id) : null))
+    .filter((id): id is string => id !== null);
+}
+
+/** wbgetentities labels response → { Qid: English label }. */
+export function parseWikidataLabels(json: unknown): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!isObject(json) || !isObject(json.entities)) return out;
+  for (const [id, e] of Object.entries(json.entities)) {
+    const en = isObject(e) && isObject(e.labels) ? e.labels.en : undefined;
+    const label = isObject(en) ? str(en.value) : null;
+    if (label) out[id] = label;
+  }
+  return out;
+}
+
+export function parseWikidataClaims(
+  entityJson: unknown,
+  labels: Record<string, string> = {},
+): WikidataFacts | null {
+  const entity = firstEntity(entityJson);
+  const qid = entity ? str(entity.id) : null;
+  if (!entity || !qid) return null;
+
+  const coord = claimValues(entity, "P625")[0]?.value;
+  const coordinates =
+    isObject(coord) && typeof coord.latitude === "number" && typeof coord.longitude === "number"
+      ? { lat: coord.latitude, lon: coord.longitude }
+      : null;
+
+  const timeYear = (prop: string) => {
+    const v = claimValues(entity, prop)[0]?.value;
+    return isObject(v) ? yearOf(v.time) : null;
+  };
+
+  let speakers: WikidataFacts["speakers"] = null;
+  for (const { value, statement } of claimValues(entity, "P1098")) {
+    const count = isObject(value) ? Number(value.amount) : NaN;
+    if (!Number.isFinite(count)) continue;
+    if (speakers && count <= speakers.count) continue;
+    const quals = isObject(statement.qualifiers) ? statement.qualifiers.P585 : undefined;
+    const q = Array.isArray(quals) && isObject(quals[0]) ? quals[0].datavalue : undefined;
+    const year = isObject(q) && isObject(q.value) ? yearOf(q.value.time) : null;
+    speakers = { count, year };
+  }
+
+  return {
+    qid,
+    coordinates,
+    inception: timeYear("P571"),
+    dissolved: timeYear("P576"),
+    speakers,
+    instanceOf: instanceOfIds(entityJson).map((id) => labels[id] ?? id),
+  };
+}
+
+/** What fetchFacts writes to content/languages/facts/<slug>.json. */
+export type LanguageFacts = {
+  name: string;
+  aliases: string[];
+  wikipedia: WikipediaSummary | null;
+  wikidata: WikidataFacts | null;
+  fetchedAt: string;
+};

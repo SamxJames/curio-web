@@ -92,3 +92,67 @@ describe("validateSheet", () => {
     ).toEqual([]);
   });
 });
+
+describe("validateSheet on malformed (LLM-written) input", () => {
+  const raw = (patch: Record<string, unknown>): unknown => ({ ...valid, ...patch });
+  const without = (key: string): unknown => {
+    const copy: Record<string, unknown> = { ...valid };
+    delete copy[key];
+    return copy;
+  };
+
+  it("returns problems instead of throwing for non-objects", () => {
+    for (const bad of [null, undefined, 42, "Latin", [valid]]) {
+      expect(() => validateSheet(bad)).not.toThrow();
+      expect(validateSheet(bad)).toContain("sheet must be a JSON object");
+    }
+  });
+
+  it("flags peakSpeakers that is undefined or not an object", () => {
+    expect(() => validateSheet(without("peakSpeakers"))).not.toThrow();
+    expect(validateSheet(without("peakSpeakers"))).toContain(
+      "peakSpeakers is missing (use null when unknown)",
+    );
+    expect(validateSheet(raw({ peakSpeakers: 5000 }))).toContain(
+      "peakSpeakers must be an object or null",
+    );
+    expect(validateSheet(raw({ peakSpeakers: { count: "lots", year: 1 } }))).toContain(
+      "peakSpeakers.count must be a number",
+    );
+  });
+
+  it("flags a missing era or map key", () => {
+    expect(validateSheet(without("era"))).toContain("era is missing (use null when unknown)");
+    expect(validateSheet(without("map"))).toContain("map is missing (use null when unknown)");
+    expect(validateSheet(raw({ era: "700 BCE" }))).toContain("era must be an object or null");
+    expect(validateSheet(raw({ map: { lat: "41", lon: 12, radiusKm: 5 } }))).toContain(
+      "map.lat must be a number",
+    );
+  });
+
+  it("flags a status outside the enum", () => {
+    expect(validateSheet(raw({ status: "dead" }))).toContain(
+      "status must be one of living, extinct, historical, reconstructed",
+    );
+  });
+
+  it("flags aliases that are not a string array", () => {
+    const msg = "aliases must be an array of strings";
+    expect(validateSheet(raw({ aliases: "Classical Latin" }))).toContain(msg);
+    expect(validateSheet(raw({ aliases: ["ok", 3] }))).toContain(msg);
+    expect(validateSheet(without("aliases"))).toContain(msg);
+  });
+
+  it("flags a parent that is neither a string nor null", () => {
+    const msg = "parent must be a string or null";
+    expect(validateSheet(raw({ parent: 7 }))).toContain(msg);
+    expect(validateSheet(raw({ parent: ["Proto-Italic"] }))).toContain(msg);
+    expect(validateSheet(without("parent"))).toContain(msg);
+    expect(validateSheet(raw({ parent: null }))).toEqual([]);
+  });
+
+  it("flags wrongly-typed string and boolean fields", () => {
+    expect(validateSheet(raw({ origin: 12 }))).toContain("origin must be a string");
+    expect(validateSheet(raw({ approved: "yes" }))).toContain("approved must be a boolean");
+  });
+});

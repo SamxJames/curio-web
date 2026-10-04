@@ -56,3 +56,6 @@ next-env.d.ts
 
 # demand report output when run locally (npm run demand:report)
 /.reports/
+
+# local language-draft review page (npm run languages:review)
+/content/languages/review.html
