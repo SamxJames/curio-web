@@ -43,6 +43,12 @@ export default function TodayHero({
           Play today&apos;s puzzle
         </Link>
       </div>
+
+      <p className="mt-6 font-sans text-sm">
+        <Link href="/history" className="text-ink-soft transition-colors hover:text-ink">
+          Past words &rarr;
+        </Link>
+      </p>
     </section>
   );
 }

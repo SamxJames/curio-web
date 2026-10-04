@@ -6,7 +6,7 @@ import clsx from "clsx";
 type Segment<T extends string> = { key: T; label: string };
 
 /** Single-select tab row — role="tablist"/aria-selected, for a set of
- * mutually exclusive views (HistoryList's My days/All words/Favorites).
+ * mutually exclusive views (HistoryList's My days/All words).
  * Distinct from ToggleGroup below: a tab selects one view, a toggle filters
  * a set — different ARIA semantics even though they render identically. */
 export function SegmentedTabs<T extends string>({

@@ -27,7 +27,7 @@ export default function Header() {
   // The arrival hero (app/page.tsx, first-time anonymous visitors only)
   // draws its own wordmark + theme toggle row as part of its layout — the
   // global header would otherwise duplicate that row and add nav links
-  // ("Today", "History", "Sign in") that don't make sense before someone
+  // ("Today", "Puzzle", "Collection", "Sign in") that don't make sense before someone
   // has read a single word yet. See components/HomeContent.tsx for the
   // exact same condition this mirrors (useShowArrival has no route
   // awareness of its own, hence the separate pathname check here).
@@ -36,7 +36,6 @@ export default function Header() {
 
   const todayActive = pathname === "/";
   const puzzleActive = pathname === "/play";
-  const historyActive = pathname.startsWith("/history");
   const collectionActive = pathname.startsWith("/collection");
   const accountActive = pathname === "/account";
   const navLinkClass = (active: boolean) =>
@@ -56,34 +55,16 @@ export default function Header() {
             Puzzle
           </Link>
 
+          <Link href="/collection" className={navLinkClass(collectionActive)}>
+            Collection
+          </Link>
+
           {/* useSession() is "loading" on a cold load until its client-side
-              fetch resolves. Rather than guessing which pair to render,
-              render both pairs and let app/globals.css's `signed-in:`
+              fetch resolves. Rather than guessing which of Sign in / Account
+              to render, render both and let app/globals.css's `signed-in:`
               variant — driven by SessionHintInit's pre-hydration script —
               pick the right one before paint. Once status resolves, only
-              the one matching pair renders. */}
-          {status === "authenticated" ? (
-            <Link href="/collection" className={navLinkClass(collectionActive)}>
-              Collection
-            </Link>
-          ) : status === "unauthenticated" ? (
-            <Link href="/history" className={navLinkClass(historyActive)}>
-              History
-            </Link>
-          ) : (
-            <>
-              <Link href="/history" className={clsx(navLinkClass(historyActive), "signed-in:hidden")}>
-                History
-              </Link>
-              <Link
-                href="/collection"
-                className={clsx("hidden signed-in:inline", navLinkClass(collectionActive))}
-              >
-                Collection
-              </Link>
-            </>
-          )}
-
+              the matching one renders. */}
           {status === "authenticated" ? (
             <Link href="/account" className={navLinkClass(accountActive)}>
               Account

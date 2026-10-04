@@ -10,7 +10,7 @@ import IconButton from "@/components/ui/IconButton";
 import TextField from "@/components/ui/TextField";
 import { SegmentedTabs } from "@/components/ui/SegmentedControl";
 
-type Filter = "mine" | "all" | "favorites";
+type Filter = "mine" | "all";
 
 type HistoryPreview = { date: string; word: { slug: string; word: string } };
 
@@ -67,22 +67,13 @@ export default function HistoryList({
     toggleFavorite(slug);
   }
 
-  const tabs: { key: Filter; label: string }[] = hasPersonal
-    ? [
-        { key: "mine", label: "My days" },
-        { key: "all", label: "All words" },
-        { key: "favorites", label: "Favorites" },
-      ]
-    : [
-        { key: "all", label: "All" },
-        { key: "favorites", label: "Favorites" },
-      ];
+  // Tabs only render when signed in; signed out there's just the one list.
+  const tabs: { key: Filter; label: string }[] = [
+    { key: "mine", label: "My days" },
+    { key: "all", label: "All words" },
+  ];
 
-  const activeEntries = filter === "mine" && personalEntries ? personalEntries : allEntries;
-  // Favorites always reads from the shared archive's dates, regardless of
-  // which tab was open before — a favorited word's "when" shouldn't change
-  // depending on which list you happened to be looking at.
-  const visible = filter === "favorites" ? allEntries.filter((d) => favorites.has(d.word.slug)) : activeEntries;
+  const visible = filter === "mine" && personalEntries ? personalEntries : allEntries;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -96,9 +87,9 @@ export default function HistoryList({
   const isSearching = query.trim().length > 0;
 
   // Switching tabs or starting a fresh search resets pagination — otherwise
-  // "Favorites" could inherit a visibleCount left over from scrolling deep
+  // "My days" could inherit a visibleCount left over from scrolling deep
   // into "All words", and immediately show a misleading "Show more" (or
-  // none at all) relative to its own much shorter list. Adjusting state
+  // none at all) relative to its own shorter list. Adjusting state
   // during render (rather than in a useEffect) avoids an extra
   // commit-then-effect round trip for what's ultimately a derived reset.
   let effectiveVisibleCount = visibleCount;
@@ -131,7 +122,9 @@ export default function HistoryList({
         />
       </div>
 
-      <SegmentedTabs segments={tabs} active={filter} onChange={setFilter} className="mb-6" />
+      {hasPersonal && (
+        <SegmentedTabs segments={tabs} active={filter} onChange={setFilter} className="mb-6" />
+      )}
 
       {/* /history can only show words the shared calendar has actually
           reached, and caps that at PAGE_SIZE — this is the way to the rest
@@ -153,9 +146,7 @@ export default function HistoryList({
         <p className="font-sans text-sm text-ink-faint">
           {query.trim()
             ? `No words match “${query.trim()}.”`
-            : filter === "favorites"
-              ? "Nothing favorited yet — tap the heart on any story to save it here."
-              : "No words yet."}
+            : "No words yet."}
         </p>
       )}
 
