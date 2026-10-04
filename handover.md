@@ -1,8 +1,7 @@
 # Curio — Handover
 
-Last updated: 2026-10-03, after two pieces of user feedback were fixed
-and deployed: signed-in readers were being asked to join the email, and
-people didn't notice today's puzzle. See "This session (2026-10-03, cont.):
+Last updated: 2026-10-04, after the weekly demand report (see "Demand report (weekly, internal)").
+See "This session (2026-10-03, cont.):
 signed-in pitch + puzzle visibility" below. Earlier the same day,
 first-party traffic sources shipped. Threads + Instagram (2026-09-29) are
 deployed but post nothing until the owner adds tokens; see "Threads +
@@ -616,6 +615,53 @@ the branch is deployed.
   value re-seeds Redis automatically.
 - **To turn a channel off**, remove its `*_ACCESS_TOKEN` from Vercel
   Production and redeploy. The stored copy in Redis is then ignored.
+
+## Demand report (weekly, internal)
+
+A weekly Markdown report on which words have real search demand and which
+story pages earn Google impressions. It's internal tooling only: no
+route, page or component reads it. It's built by `npm run demand:report`
+(`scripts/demandReport.ts` and `scripts/demand/`). The design is in
+`docs/superpowers/specs/2026-10-03-demand-report-design.md`.
+
+- **Sources** (both free):
+  - English Wiktionary monthly pageviews for every word, last 12 complete
+    months, user agents only.
+  - Google Search Console for the last 28 days, by page, query, and page
+    and query, read-only through a service account.
+- **Where it's published:**
+  <https://github.com/SamxJames/curio-reports/blob/main/latest.md>, a
+  private repo. Dated JSON snapshots are in `snapshots/`.
+  - Never publish it to `curio-web`. Every push to `master` is a
+    production deploy, and this repo is public.
+  - For the same reason the script logs counts only: Actions logs on a
+    public repo are public.
+- **Schedule:** `.github/workflows/demand-report.yml`, Mondays 06:00 UTC
+  (clear of the 09:00 digest cron), plus manual dispatch:
+  `gh workflow run demand-report.yml --repo SamxJames/curio-web`.
+  - A failed run shows as failed and publishes nothing. The script writes
+    nothing until every source has succeeded.
+- **Running it locally:** `npm run demand:report`. Output goes to
+  `.reports/demand/` (gitignored), or use `-- --out <dir>`.
+  - It reads `GSC_SERVICE_ACCOUNT_KEY` from `.env.local`. Without it, the
+    Search Console half is skipped and the report says so.
+  - A full run takes a few minutes: about 1,150 Wikimedia requests,
+    throttled to about 10 a second.
+- **Secrets:** `GSC_SERVICE_ACCOUNT_KEY` (the base64 of the service
+  account's JSON key) and `REPORTS_REPO_TOKEN` (a fine-grained token,
+  Contents read and write on `curio-reports` only, expires yearly).
+  - Setup and **rotation for both** are in `docs/demand-report-setup.md`.
+  - Neither belongs in Vercel; the deployed app never uses them.
+- **Wiktionary caveat:** a Wiktionary page covers every language's entry
+  for that spelling, so these views are a proxy for interest in the word,
+  not a count of English etymology searches.
+  - Capitalised words count their exact-case page first (`December`, not
+    the Danish/Swedish `december`).
+- **Search Console caveats:** its data lags by a few days (the window ends
+  3 days before the run), and Google leaves rare queries out of
+  query-level data.
+- **The report informs decisions; it doesn't make them.** Title,
+  metadata and internal-link changes are separate work.
 
 ## Architecture map
 
