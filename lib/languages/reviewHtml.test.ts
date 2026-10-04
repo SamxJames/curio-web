@@ -62,3 +62,47 @@ describe("renderReviewPage", () => {
     expect(() => renderReviewPage([{ name: "Odd", era: "soon", peakSpeakers: 5 }, null])).not.toThrow();
   });
 });
+
+describe("renderReviewPage source facts (fix round 1)", () => {
+  const facts = {
+    Latin: {
+      name: "Latin",
+      aliases: [],
+      wikipedia: {
+        title: "Latin",
+        extract: "Latin is a <classical> language & was spoken in Latium.",
+        url: "https://en.wikipedia.org/wiki/Latin",
+        description: null,
+        wikibaseItem: "Q397",
+        type: "standard",
+      },
+      wikidata: {
+        qid: "Q397",
+        coordinates: { lat: 41.9, lon: 12.5 },
+        inception: -700,
+        dissolved: 600,
+        speakers: { count: 50000000, year: 200 },
+        instanceOf: ["language"],
+      },
+      fetchedAt: "2026-10-04T00:00:00.000Z",
+    },
+  };
+  const html = renderReviewPage([latin, { ...latin, name: "Gothic" }], facts);
+
+  it("shows the fetched facts beside the draft, escaped", () => {
+    expect(html).toContain('class="facts"');
+    expect(html).toContain("Latin is a &lt;classical&gt; language &amp; was spoken in Latium.");
+    expect(html).toContain("Fact coordinates");
+    expect(html).toContain("41.9, 12.5");
+    expect(html).toContain("Fact inception");
+    expect(html).toContain("700 BCE (-700)");
+    expect(html).toContain("Fact dissolved");
+    expect(html).toContain("600 CE (600)");
+    expect(html).toContain("Fact speakers");
+    expect(html).toContain("50,000,000 (year 200)");
+  });
+
+  it("says when a draft has no facts file", () => {
+    expect(html).toContain("No facts file found for this draft.");
+  });
+});

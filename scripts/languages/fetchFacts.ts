@@ -13,6 +13,7 @@ import {
   parseWikidataClaims,
   parseWikidataLabels,
   parseWikipediaSummary,
+  retryAfterMs,
   shouldRetryStatus,
   wikidataEntityUrl,
   wikidataLabelsUrl,
@@ -28,21 +29,26 @@ const GAP_MS = 300;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 let lastRequestAt = 0;
 
-/** GET JSON politely: 300 ms between requests, one retry on 429/5xx. null on 404 or failure. */
+/**
+ * GET JSON politely: 300 ms between requests, one retry on 429/5xx (honouring Retry-After,
+ * capped at 30 s). Returns null ONLY on a 404. A persistent 429/5xx, any other error status
+ * or a network error throws, so main() logs that language as FAILED and writes no file —
+ * a re-run then tries it again instead of keeping a false "no facts" file.
+ */
 async function getJson(url: string): Promise<unknown | null> {
-  for (let attempt = 0; attempt < 2; attempt++) {
+  for (let attempt = 0; ; attempt++) {
     const wait = lastRequestAt + GAP_MS - Date.now();
     if (wait > 0) await sleep(wait);
     lastRequestAt = Date.now();
     const res = await fetch(url, { headers: { "User-Agent": USER_AGENT, Accept: "application/json" } });
     if (res.ok) return res.json();
+    if (res.status === 404) return null;
     if (attempt === 0 && shouldRetryStatus(res.status)) {
-      await sleep(2000);
+      await sleep(retryAfterMs(res.headers.get("retry-after")));
       continue;
     }
-    return null;
+    throw new Error(`HTTP ${res.status} from ${url}`);
   }
-  return null;
 }
 
 /** "{Name}_language" first; fall back to "{Name}" on a 404 or a page that isn't about a language. */

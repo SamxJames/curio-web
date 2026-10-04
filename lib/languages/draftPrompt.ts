@@ -1,6 +1,7 @@
 import type { LanguageFacts } from "./facts";
+import { isLit } from "./mapGeometry";
 import type { LanguageSheet } from "./types";
-import { validateSheet } from "./validate";
+import { shapeProblems, validateSheet } from "./validate";
 
 /** Every LanguageSheet field Claude writes, in order. `approved` is set by the pipeline. */
 export const SHEET_FIELDS = [
@@ -60,7 +61,7 @@ export function buildSheetPrompt(
     .map((f, i) => `${i + 1}. ${f}`)
     .join("\n");
   const speakersRule = facts.wikidata?.speakers
-    ? `There is a speaker-count fact above. Use exactly that count and its year in "peakSpeakers" ({"count", "year", "note"}); the note says plainly what the number counts and when (e.g. "Native speakers, 2019 Wikidata figure"). If that fact has no year and the Wikipedia text gives none, set "peakSpeakers": null instead and write an "unknownSpeakersNote".`
+    ? `There is a speaker-count fact above. Use exactly that count and its year in "peakSpeakers" ({"count", "year", "note"}); the note says plainly what the number counts and when (e.g. "Native speakers, Wikidata figure for <that year>"). If that fact has no year and the Wikipedia text gives none, set "peakSpeakers": null instead and write an "unknownSpeakersNote".`
     : `There is NO speaker-count fact above. You MUST set "peakSpeakers": null and write an honest "unknownSpeakersNote", e.g. "No census of its speakers exists." or, for a reconstructed language, "Reconstructed by scholars — never written down."`;
   const parentRule =
     knownLanguages.length > 0
@@ -90,9 +91,9 @@ Write a JSON object (and nothing else — no markdown fences, no commentary) wit
   "status": "living | extinct | historical | reconstructed",
   "classification": "one line, e.g. \\"Italic branch of the Indo-European family\\"",
   "region": "one line on where it was spoken, e.g. \\"Latium, central Italy → across the Roman Empire\\"",
-  "map": { "lat": 41.9, "lon": 12.5, "radiusKm": 600 } or null,
-  "era": { "from": -700, "to": 600, "writtenUntil": 1900, "approximate": true } or null ("writtenUntil" only if the facts say it lived on in writing after native speech ended; null there means still written today),
-  "peakSpeakers": { "count": 1000, "year": 2019, "note": "..." } or null,
+  "map": { "lat": <number>, "lon": <number>, "radiusKm": <number> } or null,
+  "era": { "from": <year, negative for BCE>, "to": <year, negative for BCE> or null, "writtenUntil": <year, negative for BCE> or null, "approximate": true } or null ("writtenUntil" only if the facts say it lived on in writing after native speech ended; null there means still written today),
+  "peakSpeakers": { "count": <number>, "year": <year, negative for BCE>, "note": "..." } or null,
   "unknownSpeakersNote": "required when peakSpeakers is null, otherwise null",
   "parent": "a name from the allowed list, or null",
   "origin": "2-3 sentences (40-600 characters) on where the language came from, drawn only from the facts above",
@@ -141,19 +142,84 @@ export function parseDraftResponse(
   };
   delete draft._problems;
 
-  const problems = validateSheet(draft);
-  const ps = draft.peakSpeakers as { count?: unknown } | null | undefined;
-  const fact = facts.wikidata?.speakers ?? null;
-  if (ps && typeof ps === "object") {
-    if (!fact) problems.push("peakSpeakers is set but the facts have no speaker count");
-    else if (ps.count !== fact.count) {
-      problems.push(`peakSpeakers.count ${String(ps.count)} differs from the fact ${fact.count}`);
-    }
+  // A reconstructed language was never spoken by a counted population: fixed copy, no number.
+  if (draft.status === "reconstructed") {
+    draft.peakSpeakers = null;
+    draft.unknownSpeakersNote = RECONSTRUCTED_NOTE;
   }
+
+  const problems = validateSheet(draft);
+  if (shapeProblems(draft).length === 0) problems.push(...factProblems(draft as unknown as LanguageSheet, facts));
   if (knownLanguages.length > 0 && typeof draft.parent === "string" && !knownLanguages.includes(draft.parent)) {
     problems.push(`parent "${draft.parent}" is not one of our lineage languages`);
   }
 
   if (problems.length > 0) draft._problems = problems;
   return { ok: true, draft };
+}
+
+export const RECONSTRUCTED_NOTE = "Reconstructed by scholars — never written down.";
+const ERA_TOLERANCE_YEARS = 50;
+const MAP_TOLERANCE_KM = 1500;
+
+/** Cross-checks a shape-valid sheet against the fetched facts: speakers, era and map. */
+function factProblems(sheet: LanguageSheet, facts: LanguageFacts): string[] {
+  const problems: string[] = [];
+  const wd = facts.wikidata;
+
+  const ps = sheet.peakSpeakers;
+  const fact = wd?.speakers ?? null;
+  if (ps) {
+    if (!fact) problems.push("peakSpeakers is set but the facts have no speaker count");
+    else {
+      if (ps.count !== fact.count) {
+        problems.push(`peakSpeakers.count ${ps.count} differs from the fact ${fact.count}`);
+      }
+      if (fact.year === null) problems.push("peakSpeakers is set but the speaker-count fact has no year");
+      else if (ps.year !== fact.year) {
+        problems.push(`peakSpeakers.year ${ps.year} differs from the fact ${fact.year}`);
+      }
+    }
+  }
+
+  if (sheet.era && wd) {
+    if (wd.inception !== null && Math.abs(sheet.era.from - wd.inception) > ERA_TOLERANCE_YEARS) {
+      problems.push(
+        `era.from ${sheet.era.from} is more than ${ERA_TOLERANCE_YEARS} years from the fact ${wd.inception}`,
+      );
+    }
+    if (wd.dissolved !== null) {
+      if (sheet.era.to === null) {
+        problems.push(`era.to is null (still spoken) but the facts give an end date of ${wd.dissolved}`);
+      } else if (Math.abs(sheet.era.to - wd.dissolved) > ERA_TOLERANCE_YEARS) {
+        problems.push(
+          `era.to ${sheet.era.to} is more than ${ERA_TOLERANCE_YEARS} years from the fact ${wd.dissolved}`,
+        );
+      }
+    }
+  }
+
+  const c = wd?.coordinates;
+  if (sheet.map && c && !isLit([sheet.map.lon, sheet.map.lat], c, MAP_TOLERANCE_KM)) {
+    problems.push(`map centre is more than ${MAP_TOLERANCE_KM} km from the fact coordinates (${c.lat}, ${c.lon})`);
+  }
+  return problems;
+}
+
+export type MessageResponse = {
+  stop_reason?: string | null;
+  content: ({ type: string; text?: string } & Record<string, unknown>)[];
+};
+
+/**
+ * The draft text from a Messages API response. Skips thinking and fallback blocks (the
+ * refusal fallback can add one) and takes the first text block. Throws when the response
+ * was cut off at max_tokens or the whole fallback chain refused.
+ */
+export function extractResponseText(data: MessageResponse): string {
+  if (data.stop_reason === "max_tokens") throw new Error("response hit max_tokens");
+  if (data.stop_reason === "refusal") throw new Error("the model (and its fallback) declined this request");
+  const text = data.content.find((b) => b.type === "text")?.text;
+  if (!text) throw new Error("response had no text block");
+  return text;
 }

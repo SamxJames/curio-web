@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { buildSheetPrompt, factLines, parseDraftResponse, SHEET_FIELDS } from "./draftPrompt";
+import {
+  buildSheetPrompt,
+  extractResponseText,
+  factLines,
+  parseDraftResponse,
+  SHEET_FIELDS,
+} from "./draftPrompt";
 import type { LanguageFacts } from "./facts";
 
 const latinFacts: LanguageFacts = {
@@ -174,5 +180,116 @@ describe("parseDraftResponse", () => {
   it("flags a parent outside our lineage languages", () => {
     const res = parseDraftResponse(JSON.stringify({ ...goodDraft, parent: "Etruscan" }), latinFacts, known);
     expect(res.ok && res.draft._problems).toContain('parent "Etruscan" is not one of our lineage languages');
+  });
+});
+
+describe("buildSheetPrompt example values (fix round 1)", () => {
+  it("uses neutral placeholders, not Latin's real numbers, in the example JSON", () => {
+    const p = buildSheetPrompt("Proto-Indo-European", pieFacts);
+    for (const n of ["41.9", "12.5", "-700", "1900", "2019", "1000", '"to": 600']) {
+      expect(p, n).not.toContain(n);
+    }
+    expect(p).toContain("<year, negative for BCE>");
+    expect(p).toContain("<number>");
+  });
+});
+
+describe("parseDraftResponse cross-checks against the facts (fix round 1)", () => {
+  const known = ["Latin", "Proto-Italic"];
+  const problemsFor = (patch: Record<string, unknown>, facts: LanguageFacts = latinFacts) => {
+    const res = parseDraftResponse(JSON.stringify({ ...goodDraft, ...patch }), facts, known);
+    if (!res.ok) throw new Error(res.error);
+    return res.draft._problems ?? [];
+  };
+  const latinWith = (wd: Partial<NonNullable<LanguageFacts["wikidata"]>>): LanguageFacts => ({
+    ...latinFacts,
+    wikidata: { ...latinFacts.wikidata!, ...wd },
+  });
+
+  it("flags a speaker year that differs from the fact", () => {
+    expect(problemsFor({ peakSpeakers: { count: 50000000, year: 300 } })).toContain(
+      "peakSpeakers.year 300 differs from the fact 200",
+    );
+  });
+
+  it("flags any peakSpeakers when the speaker-count fact has no year", () => {
+    expect(
+      problemsFor({ peakSpeakers: { count: 50000000, year: 200 } }, latinWith({ speakers: { count: 50000000, year: null } })),
+    ).toContain("peakSpeakers is set but the speaker-count fact has no year");
+  });
+
+  it("flags era.from / era.to more than 50 years from inception / dissolved, and tolerates 50", () => {
+    expect(problemsFor({ era: { from: -650, to: 650, approximate: true } })).toEqual([]);
+    expect(problemsFor({ era: { from: -500, to: 600, approximate: true } })).toContain(
+      "era.from -500 is more than 50 years from the fact -700",
+    );
+    expect(problemsFor({ era: { from: -700, to: 700, approximate: true } })).toContain(
+      "era.to 700 is more than 50 years from the fact 600",
+    );
+    expect(problemsFor({ era: { from: -700, to: null, approximate: true } })).toContain(
+      "era.to is null (still spoken) but the facts give an end date of 600",
+    );
+  });
+
+  it("skips the era check when the facts have no dates", () => {
+    expect(
+      problemsFor({ era: { from: 100, to: 1200, approximate: true } }, latinWith({ inception: null, dissolved: null })),
+    ).toEqual([]);
+  });
+
+  it("flags a map centre more than 1500 km from the fact coordinates", () => {
+    // Paris is ~1100 km from Rome; Oslo ~2000 km.
+    expect(problemsFor({ map: { lat: 48.85, lon: 2.35, radiusKm: 300 } })).toEqual([]);
+    expect(problemsFor({ map: { lat: 59.9, lon: 10.7, radiusKm: 300 } })).toContain(
+      "map centre is more than 1500 km from the fact coordinates (41.9, 12.5)",
+    );
+    expect(
+      problemsFor({ map: { lat: 59.9, lon: 10.7, radiusKm: 300 } }, latinWith({ coordinates: null })),
+    ).toEqual([]);
+  });
+
+  it("forces the fixed note and null speakers for a reconstructed language", () => {
+    const res = parseDraftResponse(
+      JSON.stringify({
+        ...goodDraft,
+        name: "Proto-Indo-European",
+        status: "reconstructed",
+        peakSpeakers: { count: 5000000, year: -4000 },
+        unknownSpeakersNote: "Maybe a few million.",
+        parent: null,
+      }),
+      pieFacts,
+    );
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    expect(res.draft.peakSpeakers).toBeNull();
+    expect(res.draft.unknownSpeakersNote).toBe("Reconstructed by scholars — never written down.");
+    expect(res.draft._problems).toBeUndefined();
+  });
+});
+
+describe("extractResponseText (fix round 1)", () => {
+  it("returns the first text block, skipping thinking and fallback blocks", () => {
+    expect(
+      extractResponseText({
+        stop_reason: "end_turn",
+        content: [
+          { type: "thinking", thinking: "" },
+          { type: "fallback", from: { model: "a" }, to: { model: "b" } },
+          { type: "text", text: "{\"a\":1}" },
+          { type: "text", text: "second" },
+        ],
+      }),
+    ).toBe('{"a":1}');
+  });
+
+  it("throws on max_tokens, a refusal of the whole chain, or no text block", () => {
+    expect(() => extractResponseText({ stop_reason: "max_tokens", content: [{ type: "text", text: "{" }] })).toThrow(
+      /max_tokens/,
+    );
+    expect(() => extractResponseText({ stop_reason: "refusal", content: [] })).toThrow(/declined/);
+    expect(() => extractResponseText({ stop_reason: "end_turn", content: [{ type: "thinking" }] })).toThrow(
+      /no text block/,
+    );
   });
 });

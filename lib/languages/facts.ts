@@ -93,6 +93,23 @@ export function wikidataLabelsUrl(ids: string[]): string {
 export const shouldRetryStatus = (status: number): boolean =>
   status === 429 || (status >= 500 && status < 600);
 
+const RETRY_AFTER_CAP_MS = 30_000;
+const RETRY_DEFAULT_MS = 2_000;
+
+/** Wait before the retry: the Retry-After header (seconds or HTTP date), capped at 30 s; 2 s if absent. */
+export function retryAfterMs(header: string | null, now: number = Date.now()): number {
+  if (header === null) return RETRY_DEFAULT_MS;
+  const trimmed = header.trim();
+  let ms: number;
+  if (/^\d+$/.test(trimmed)) ms = Number(trimmed) * 1000;
+  else {
+    const at = Date.parse(trimmed);
+    if (Number.isNaN(at)) return RETRY_DEFAULT_MS;
+    ms = at - now;
+  }
+  return Math.min(Math.max(ms, 0), RETRY_AFTER_CAP_MS);
+}
+
 type Obj = Record<string, unknown>;
 const isObject = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
 const str = (v: unknown): string | null => (typeof v === "string" ? v : null);

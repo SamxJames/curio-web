@@ -12,6 +12,7 @@ import {
   parseWikidataClaims,
   parseWikidataLabels,
   parseWikipediaSummary,
+  retryAfterMs,
   shouldRetryStatus,
   wikipediaSummaryUrls,
 } from "./facts";
@@ -173,5 +174,18 @@ describe("shouldRetryStatus", () => {
     expect(shouldRetryStatus(503)).toBe(true);
     expect(shouldRetryStatus(404)).toBe(false);
     expect(shouldRetryStatus(200)).toBe(false);
+  });
+});
+
+describe("retryAfterMs (fix round 1)", () => {
+  it("honours Retry-After seconds or an HTTP date, capped at 30s, else a 2s default", () => {
+    const now = Date.parse("2026-10-04T12:00:00Z");
+    expect(retryAfterMs("5", now)).toBe(5000);
+    expect(retryAfterMs("0", now)).toBe(0);
+    expect(retryAfterMs("120", now)).toBe(30000);
+    expect(retryAfterMs("Sun, 04 Oct 2026 12:00:10 GMT", now)).toBe(10000);
+    expect(retryAfterMs("Sun, 04 Oct 2026 11:00:00 GMT", now)).toBe(0);
+    expect(retryAfterMs(null, now)).toBe(2000);
+    expect(retryAfterMs("soon", now)).toBe(2000);
   });
 });

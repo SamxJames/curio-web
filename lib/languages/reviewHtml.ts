@@ -2,6 +2,7 @@
 // per draft so the owner can check every field against its source before approving.
 // Local-only tooling, so it uses its own inline CSS rather than the app's design system.
 import { eraLabel, formatYear } from "./timeline";
+import type { LanguageFacts } from "./facts";
 import { validateSheet } from "./validate";
 
 type Obj = Record<string, unknown>;
@@ -40,7 +41,7 @@ function mapText(map: unknown): string {
   return `${text(map.lat)}, ${text(map.lon)} · ${text(map.radiusKm)} km`;
 }
 
-function card(raw: unknown, i: number): string {
+function card(raw: unknown, i: number, facts: LanguageFacts | undefined): string {
   const d: Obj = isObject(raw) ? raw : {};
   const name = typeof d.name === "string" ? d.name : `(unnamed draft ${i + 1})`;
   const stored = Array.isArray(d._problems) ? d._problems.map(String) : [];
@@ -71,10 +72,35 @@ ${
 ${rows.map(([k, v]) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd>`).join("\n")}
 <dt>Source</dt><dd>${url ? `<a href="${escapeHtml(url)}">${escapeHtml(url)}</a>` : "—"}</dd>
 </dl>
+${factsSection(facts)}
 </article>`;
 }
 
-export function renderReviewPage(drafts: unknown[]): string {
+const factYear = (y: number | null) => (y === null ? "—" : `${formatYear(y)} (${y})`);
+
+/** The fetched facts the draft was written from, so each claim can be checked in place. */
+function factsSection(facts: LanguageFacts | undefined): string {
+  if (!facts) return `<div class="facts"><p>No facts file found for this draft.</p></div>`;
+  const wd = facts.wikidata;
+  const rows: [string, string][] = [
+    ["Fact extract", facts.wikipedia?.extract ?? "—"],
+    ["Fact coordinates", wd?.coordinates ? `${wd.coordinates.lat}, ${wd.coordinates.lon}` : "—"],
+    ["Fact inception", factYear(wd?.inception ?? null)],
+    ["Fact dissolved", factYear(wd?.dissolved ?? null)],
+    [
+      "Fact speakers",
+      wd?.speakers
+        ? `${wd.speakers.count.toLocaleString("en-US")} (${wd.speakers.year === null ? "no year" : `year ${wd.speakers.year}`})`
+        : "—",
+    ],
+  ];
+  return `<div class="facts"><h3>Fetched facts</h3><dl>
+${rows.map(([k, v]) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd>`).join("\n")}
+</dl></div>`;
+}
+
+/** `facts` maps a draft's name to the facts file it was drafted from. */
+export function renderReviewPage(drafts: unknown[], facts: Record<string, LanguageFacts> = {}): string {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -88,13 +114,17 @@ h2 { margin: 0 0 .5rem; }
 dl { display: grid; grid-template-columns: 11rem 1fr; gap: .25rem 1rem; margin: 0; }
 dt { color: #666; }
 dd { margin: 0; }
+.facts { margin-top: .75rem; padding-top: .5rem; border-top: 1px dashed #ccc; font-size: .9rem; }
+.facts h3 { margin: 0 0 .25rem; font-size: 1rem; color: #555; }
 .problems { color: #b00020; font-weight: bold; margin: 0 0 .75rem; padding-left: 1.25rem; }
 </style>
 </head>
 <body>
 <h1>Language drafts (${drafts.length})</h1>
 <p>Edit the JSON in content/languages/drafts/, re-run <code>npm run languages:review</code>, then approve.</p>
-${drafts.map(card).join("\n")}
+${drafts
+  .map((d, i) => card(d, i, isObject(d) && typeof d.name === "string" ? facts[d.name] : undefined))
+  .join("\n")}
 </body>
 </html>
 `;

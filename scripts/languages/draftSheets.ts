@@ -2,61 +2,78 @@
 // content/languages/drafts/<slug>.json (approved: false, any problems in `_problems`).
 //   npm run languages:draft -- [--only "Latin,Old Norse"] [--limit 30]
 // Reads ANTHROPIC_API_KEY from .env.local (tsx --env-file). Never prints the key.
+// The server-side refusal fallback is ON (anthropic-beta: server-side-fallback-2026-07-01,
+// fallbacks: "default"): if claude-sonnet-5-5 declines a sheet, the API re-runs it on a
+// fallback model in the same call. Only a refusal by the whole chain fails that language.
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { WORDS } from "../../lib/words";
-import { buildSheetPrompt, parseDraftResponse } from "../../lib/languages/draftPrompt";
+import {
+  buildSheetPrompt,
+  extractResponseText,
+  parseDraftResponse,
+  type MessageResponse,
+} from "../../lib/languages/draftPrompt";
 import { canonicalName, languageTargets, type LanguageFacts } from "../../lib/languages/facts";
 import { AnthropicApiError, backoffDelayMs, shouldRetryStatus } from "../rewriteEtymology";
 import { DRAFTS_DIR, FACTS_DIR, jsonFiles, limitValue, onlyList } from "./cli";
 
 const MODEL = "claude-sonnet-5-5";
-const MAX_TOKENS = 1200;
+// Thinking stays on (adaptive, the model's default) and shares this ceiling with the answer.
+const MAX_TOKENS = 8000;
 
 type Usage = { input_tokens: number; output_tokens: number };
 
-async function callClaude(prompt: string): Promise<{ text: string; usage: Usage }> {
+/** A fetch that failed below HTTP (DNS, reset, timeout): worth one retry. */
+class NetworkError extends Error {}
+
+/** One Messages API call. `onUsage` is called as soon as a response arrives — before any
+ * stop_reason check can throw — so the run total counts every billed call. */
+async function callClaude(prompt: string, onUsage: (u: Usage) => void): Promise<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not set — add it to .env.local.");
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: MAX_TOKENS,
-      // Sonnet 5.5 thinks adaptively by default, and thinking tokens share max_tokens
-      // (the failure rewriteEtymology.ts hit at 1024). A short JSON sheet needs no
-      // thinking; with no tools in the request, "between_tools" turns it off, so the
-      // whole 1200-token budget goes to the visible answer.
-      thinking: { type: "between_tools" },
-      messages: [{ role: "user", content: prompt }],
-    }),
-  });
+  let res: Response;
+  try {
+    res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-beta": "server-side-fallback-2026-07-01",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: MAX_TOKENS,
+        // Accuracy-sensitive (facts only, no invented numbers), so thinking stays on.
+        output_config: { effort: "medium" },
+        fallbacks: "default",
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+  } catch (err) {
+    throw new NetworkError(`network error calling the Anthropic API: ${err instanceof Error ? err.message : String(err)}`);
+  }
   if (!res.ok) {
     throw new AnthropicApiError(`Anthropic API request failed (${res.status}): ${await res.text()}`, res.status);
   }
-  const data = (await res.json()) as {
-    content: { type: string; text?: string }[];
-    stop_reason?: string;
-    usage?: Usage;
-  };
-  if (data.stop_reason === "max_tokens") throw new Error(`response hit max_tokens (${MAX_TOKENS})`);
-  if (data.stop_reason === "refusal") throw new Error("the model declined this request");
-  const text = data.content.find((b) => b.type === "text")?.text;
-  if (!text) throw new Error("response had no text block");
-  return { text, usage: data.usage ?? { input_tokens: 0, output_tokens: 0 } };
+  const data = (await res.json()) as MessageResponse & { usage?: Usage };
+  if (data.usage) onUsage(data.usage);
+  return extractResponseText(data);
 }
 
-async function callWithRetry(prompt: string, maxRetries = 3) {
+async function callWithRetry(prompt: string, onUsage: (u: Usage) => void, maxRetries = 3) {
+  let networkRetried = false;
   for (let attempt = 0; ; attempt++) {
     try {
-      return await callClaude(prompt);
+      return await callClaude(prompt, onUsage);
     } catch (err) {
+      if (err instanceof NetworkError && !networkRetried) {
+        networkRetried = true;
+        await new Promise((r) => setTimeout(r, backoffDelayMs(0)));
+        continue;
+      }
       const status = err instanceof AnthropicApiError ? err.status : undefined;
       if (status === undefined || !shouldRetryStatus(status, attempt, maxRetries)) throw err;
       await new Promise((r) => setTimeout(r, backoffDelayMs(attempt)));
@@ -92,10 +109,15 @@ async function main() {
       console.log(`${facts.name}: skipped — no Wikipedia facts to draft from`);
       continue;
     }
+    const usage: Usage = { input_tokens: 0, output_tokens: 0 };
+    const addUsage = (u: Usage) => {
+      for (const t of [usage, total]) {
+        t.input_tokens += u.input_tokens;
+        t.output_tokens += u.output_tokens;
+      }
+    };
     try {
-      const { text, usage } = await callWithRetry(buildSheetPrompt(facts.name, facts, known));
-      total.input_tokens += usage.input_tokens;
-      total.output_tokens += usage.output_tokens;
+      const text = await callWithRetry(buildSheetPrompt(facts.name, facts, known), addUsage);
       const res = parseDraftResponse(text, facts, known);
       if (!res.ok) throw new Error(res.error);
       writeFileSync(path.join(DRAFTS_DIR, path.basename(file)), JSON.stringify(res.draft, null, 2) + "\n");
@@ -106,7 +128,10 @@ async function main() {
       console.log(`${facts.name}: ${status} (${usage.input_tokens} in / ${usage.output_tokens} out)`);
     } catch (err) {
       failed++;
-      console.log(`${facts.name}: FAILED — ${err instanceof Error ? err.message : String(err)}`);
+      console.log(
+        `${facts.name}: FAILED — ${err instanceof Error ? err.message : String(err)} ` +
+          `(${usage.input_tokens} in / ${usage.output_tokens} out)`,
+      );
     }
   }
   console.log(
