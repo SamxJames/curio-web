@@ -62,9 +62,13 @@ function buildShell(bodyHtml: string): string {
 
 function buildDigestHtml(word: WordEntry, dateStr: string, unsubscribeUrl: string) {
   const storyUrl = digestStoryUrl(word.slug);
+  // Absolute URL: email clients can't resolve relative paths. Alt text
+  // matters because many clients block images by default.
+  const headerSrc = absoluteUrl("/email/email-header@2x.png");
   return buildShell(`
+      <img src="${headerSrc}" width="480" height="80" alt="Curio" style="display:block;border:0;width:100%;max-width:480px;height:auto;margin:0 0 24px;">
       <p style="font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:0.02em;color:#5b665f;margin:0 0 24px;">
-        Curio &middot; ${dateStr}
+        ${dateStr}
       </p>
       <h1 style="font-size:36px;line-height:1.1;margin:0 0 4px;font-weight:600;">
         ${word.word}
