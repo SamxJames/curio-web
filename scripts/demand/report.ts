@@ -14,7 +14,7 @@ export const OPPORTUNITY_MAX_IMPRESSIONS = 10;
 const NEARLY_THERE = { min: 8, max: 20 };
 /** Story titles promise the word's origin. A query naming the word with none
  * of these stems is after something else (meaning, pronunciation…). */
-export const INTENT_STEMS = ["origin", "etymolog", "histor", "come from", "comes from", "came from", "deriv"];
+export const INTENT_STEMS = ["origin", "etymolog", "histor", "come from", "comes from", "came from", "deriv", "root"];
 
 const SITE_HOSTS = new Set(["curioword.com", "www.curioword.com"]);
 

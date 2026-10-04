@@ -111,6 +111,18 @@ describe("offPatternQueries", () => {
     expect(offWord).toEqual([]);
     expect(otherIntent.map((r) => r.query)).toEqual(["December calendar"]);
   });
+
+  it("treats root-word searches as origin searches", () => {
+    const snapshot = makeSnapshot();
+    const data: SearchConsoleData = {
+      ...snapshot.searchConsole!,
+      byPageQuery: [
+        { keys: ["https://curioword.com/story/december", "december root word"], clicks: 0, impressions: 5, ctr: 0, position: 9 },
+        { keys: ["https://curioword.com/story/december", "root of december"], clicks: 0, impressions: 4, ctr: 0, position: 9 },
+      ],
+    };
+    expect(offPatternQueries(data, wordsBySlug(snapshot)).otherIntent).toEqual([]);
+  });
 });
 
 describe("weekOnWeek", () => {
