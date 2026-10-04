@@ -3,6 +3,7 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
 import { WIDE_DOT } from "@/lib/collection";
+import { findSheet } from "@/lib/languages/lookup";
 import type { Dot } from "@/lib/languages/mapGeometry";
 import {
   mapHeight,
@@ -18,9 +19,24 @@ import Eyebrow from "@/components/ui/Eyebrow";
 const TIMELINE_HEIGHT = 24;
 const BASELINE_Y = 16;
 
-/** "About {language}" on Collection. Loaded with next/dynamic from CollectionScreen,
- * and the land dots load only once this mounts, so neither is in the page's first JS. */
+/** "About {language}" on Collection. Loaded with next/dynamic from CollectionScreen, so
+ * this is the only place the sheets (data.ts, via findSheet) are pulled in; the land dots
+ * load only once the map mounts. None of it is in the page's first JS. */
 export default function LanguagePanel({
+  id,
+  name,
+  favouriteLineages,
+}: {
+  id: string;
+  name: string; // canonical name from SHEET_NAMES
+  favouriteLineages: string[][];
+}) {
+  const sheet = findSheet(name);
+  if (!sheet) return null;
+  return <LanguagePanelView id={id} sheet={sheet} favouriteLineages={favouriteLineages} />;
+}
+
+export function LanguagePanelView({
   id,
   sheet,
   favouriteLineages,

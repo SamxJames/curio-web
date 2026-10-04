@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import LanguagePanel from "./LanguagePanel";
+import LanguagePanel, { LanguagePanelView } from "./LanguagePanel";
 import { LATIN_FIXTURE, PROTO_ITALIC_FIXTURE } from "@/lib/languages/__fixtures__/latin";
 import type { LanguageSheet } from "@/lib/languages/types";
 
 const render = (sheet: LanguageSheet, lineages: string[][] = [["Latin", "English"]]) =>
-  renderToStaticMarkup(<LanguagePanel id="lp" sheet={sheet} favouriteLineages={lineages} />);
+  renderToStaticMarkup(<LanguagePanelView id="lp" sheet={sheet} favouriteLineages={lineages} />);
 
 describe("LanguagePanel", () => {
   it("is a labelled inline region with every section in order", () => {
@@ -67,6 +67,12 @@ describe("LanguagePanel", () => {
     expect(html).toMatch(/aria-current="true" class="[^"]*border-dashed[^"]*">Proto-Italic</);
     expect(html).toContain("Dashed: reconstructed, never written down");
     expect(html).toContain("reconstructed by scholars");
+  });
+
+  it("renders nothing for a name with no approved sheet", () => {
+    expect(
+      renderToStaticMarkup(<LanguagePanel id="lp" name="Latin" favouriteLineages={[]} />),
+    ).toBe("");
   });
 
   it("omits the dashed caption when nothing is reconstructed", () => {

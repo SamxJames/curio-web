@@ -129,10 +129,9 @@ describe("timelineModel", () => {
 
 describe("speakersModel", () => {
   it("formats a count compactly with its year and note", () => {
-    // en-GB compact notation; current ICU renders millions as a lower-case "m".
     expect(speakersModel(LATIN_FIXTURE)).toEqual({
       kind: "count",
-      value: expect.stringMatching(/^4.5[mM]$/),
+      value: "4.5M",
       year: "100 CE",
       note: "Test fixture value, not a sourced figure.",
     });

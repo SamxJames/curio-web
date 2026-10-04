@@ -24,7 +24,9 @@ import {
   useFavorites,
 } from "@/lib/storage";
 import { track } from "@/lib/analytics";
-import { findSheet } from "@/lib/languages/lookup";
+// Only the tiny generated name index here: the sheets themselves (data.ts)
+// load with the lazy panel, never on Collection's first load.
+import { SHEET_NAMES } from "@/lib/languages/sheetIndex";
 import Button from "@/components/ui/Button";
 import Eyebrow from "@/components/ui/Eyebrow";
 import IconButton from "@/components/ui/IconButton";
@@ -222,8 +224,8 @@ function CollectionBody({
   // panel closes by itself when the active language changes or clears (also
   // when the filter quietly lets go); never persisted.
   const [aboutFor, setAboutFor] = useState<string | null>(null);
-  const sheet = activeLanguage ? findSheet(activeLanguage) : undefined;
-  const aboutOpen = !!sheet && aboutFor === activeLanguage;
+  const sheetName = activeLanguage ? SHEET_NAMES[activeLanguage] : undefined;
+  const aboutOpen = !!sheetName && aboutFor === activeLanguage;
   const favouriteLineages = useMemo(() => words.map((w) => w.lineage), [words]);
 
   function toggleLanguage(name: string) {
@@ -311,18 +313,18 @@ function CollectionBody({
       </div>
 
       {filterLine && (
-        <div className="mt-6.5 flex items-baseline justify-between border-b border-accent pb-2">
+        <div className="mt-6.5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1.5 border-b border-accent pb-2">
           <span className="font-serif text-base">{filterLine}</span>
           <span className="flex shrink-0 items-baseline gap-4">
-            {sheet && (
+            {sheetName && (
               <Button
                 variant="link"
                 className="!text-accent !no-underline text-micro tracking-eyebrow uppercase"
                 aria-expanded={aboutOpen}
-                aria-controls={panelId}
+                aria-controls={aboutOpen ? panelId : undefined}
                 onClick={() => setAboutFor(aboutOpen ? null : activeLanguage)}
               >
-                About {sheet.name}
+                About {sheetName}
               </Button>
             )}
             <Button
@@ -336,8 +338,8 @@ function CollectionBody({
         </div>
       )}
 
-      {aboutOpen && sheet && (
-        <LanguagePanel id={panelId} sheet={sheet} favouriteLineages={favouriteLineages} />
+      {aboutOpen && sheetName && (
+        <LanguagePanel id={panelId} name={sheetName} favouriteLineages={favouriteLineages} />
       )}
 
       <div className="mt-2">

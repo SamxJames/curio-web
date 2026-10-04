@@ -1,15 +1,21 @@
-// Approves reviewed drafts and rewrites lib/languages/data.ts. Refuses any draft that has
+// Approves reviewed drafts and rewrites lib/languages/data.ts and lib/languages/sheetIndex.ts. Refuses any draft that has
 // `_problems` or fails validateSheet.
 //   npm run languages:approve -- --all-valid
 //   npm run languages:approve -- --only "Latin,Old French"
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { approveSheets, renderDataModule, type ApproveSelection } from "../../lib/languages/approve";
+import {
+  approveSheets,
+  renderDataModule,
+  renderSheetIndexModule,
+  type ApproveSelection,
+} from "../../lib/languages/approve";
 import { LANGUAGE_SHEETS } from "../../lib/languages/data";
 import { canonicalName } from "../../lib/languages/facts";
 import { DRAFTS_DIR, jsonFiles, onlyList } from "./cli";
 
 const DATA_FILE = path.join("lib", "languages", "data.ts");
+const INDEX_FILE = path.join("lib", "languages", "sheetIndex.ts");
 
 function main() {
   const args = process.argv.slice(2);
@@ -43,6 +49,7 @@ function main() {
   }
 
   writeFileSync(DATA_FILE, renderDataModule(result.sheets));
+  writeFileSync(INDEX_FILE, renderSheetIndexModule(result.sheets));
   // Mark approved drafts so the review page shows them as done.
   const approved = new Set(result.approved);
   files.forEach((f, i) => {
@@ -55,7 +62,7 @@ function main() {
     `Approved ${result.approved.length}: ${result.approved.join(", ")}. ` +
       `${DATA_FILE} now has ${result.sheets.length} sheet(s).`,
   );
-  console.log(`Next: npx vitest run lib/languages && git diff ${DATA_FILE}`);
+  console.log(`Next: npx vitest run lib/languages && git diff ${DATA_FILE} ${INDEX_FILE}`);
   if (hadTrouble) process.exitCode = 1;
 }
 

@@ -39,7 +39,7 @@ export type PanelModel = {
 };
 
 const ENGLISH = "English";
-const compact = new Intl.NumberFormat("en-GB", { notation: "compact" });
+const compact = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 });
 
 const percent = (x: number) => (x / PANEL_WIDTH) * 100;
 
