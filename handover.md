@@ -2209,6 +2209,13 @@ has one home.
   archive-never-backlog rule, because the person chose them.
 - A "Past words" link goes to `/history`. It is hidden while loading, so
   before favourites have loaded the page shows only its heading.
+- A signed-in reader on a fresh device has nothing in localStorage until
+  `AccountFavoritesSync` pulls the account's favourites. While the store is
+  empty and the session is loading, or signed in and the pull has not
+  settled, the page stays in that heading-only loading state, so it never
+  flashes "Nothing here yet". `markAccountFavoritesPulled` /
+  `useAccountFavoritesPulled` in `lib/storage.ts` carry that flag, and the
+  sync marks it on failure too, so the page cannot hang.
 
 **`GET /api/words?slugs=a,b,c`** (`app/api/words/route.ts`)
 
@@ -2235,13 +2242,29 @@ has one home.
   `/history?tab=history`. `/history` ignores it.
 
 **Nav.** Today · Puzzle · Collection · Account (or Sign in), the same for
-everyone. It still fits at 375px.
+everyone. Expected to fit at 375px; verify in the browser check.
 
 **Admin retention metric.** `recordUserSeen` no longer fires on
 `/collection`, because that page is static. A signed-in visit to
 Today, History, a story page (via `/api/story/[slug]/date`) or the puzzle
 (`/api/play-state`) still records it. Someone who only ever opens
 Collection no longer counts as active, so retention can read slightly low.
+
+### Known limitations
+
+- Account favourites live in an unordered Redis set. Favourites synced from
+  another device therefore land in arbitrary order, so "newest first" only
+  holds for favourites made on this device. The closing note's "most
+  recent" word can be arbitrary for synced ones.
+- A removal on one device never reaches another, because merging only
+  adds. This was true before, but Collection makes it more visible.
+
+### Deferred / parked items
+
+- Store account favourites in a sorted set keyed by favourite time, so
+  order survives sync. It needs a data migration, so it is parked.
+- Propagate removals across devices (needs a tombstone or the sorted set
+  above to be authoritative). Parked.
 
 ### Verification
 

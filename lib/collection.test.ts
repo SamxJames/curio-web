@@ -1,9 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   computeLanguageStats,
-  groupByMonth,
   formatShortDate,
-  monthLabel,
   spellNumber,
   capitalize,
   pluralize,
@@ -11,7 +9,6 @@ import {
   resolveCollection,
   type CollectionWord,
 } from "./collection";
-import type { HistoryDay } from "./words";
 import type { WordEntry } from "./words";
 
 function word(slug: string, lineage: string[]): WordEntry {
@@ -27,10 +24,6 @@ function word(slug: string, lineage: string[]): WordEntry {
     lineage,
     clues: ["", "", ""],
   };
-}
-
-function day(date: string, w: WordEntry): HistoryDay {
-  return { date, word: w };
 }
 
 describe("computeLanguageStats", () => {
@@ -82,41 +75,10 @@ describe("computeLanguageStats", () => {
   });
 });
 
-describe("groupByMonth", () => {
-  it("groups consecutive same-month entries together", () => {
-    const entries = [
-      day("2026-09-10", word("a", ["English"])),
-      day("2026-09-01", word("b", ["English"])),
-      day("2026-08-20", word("c", ["English"])),
-    ];
-    const groups = groupByMonth(entries);
-    expect(groups.map((g) => g.label)).toEqual(["September", "August"]);
-    expect(groups[0].items).toHaveLength(2);
-    expect(groups[1].items).toHaveLength(1);
-  });
-
-  it("keeps same-named months a year apart in separate groups", () => {
-    const entries = [
-      day("2026-09-01", word("a", ["English"])),
-      day("2025-09-01", word("b", ["English"])),
-    ];
-    const groups = groupByMonth(entries);
-    expect(groups).toHaveLength(2);
-    expect(groups[0].label).toBe("September");
-    expect(groups[1].label).toBe("September");
-  });
-});
-
 describe("formatShortDate", () => {
   it("formats as day-then-month", () => {
     expect(formatShortDate("2026-09-09")).toBe("9 Sep");
     expect(formatShortDate("2026-01-01")).toBe("1 Jan");
-  });
-});
-
-describe("monthLabel", () => {
-  it("returns the full month name", () => {
-    expect(monthLabel("2026-04-15")).toBe("April");
   });
 });
 

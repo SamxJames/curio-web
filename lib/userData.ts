@@ -28,7 +28,7 @@ function lastSeenKey(userId: string): string {
 
 /** Records that a signed-in account was active today (UTC calendar date) —
  * feeds the admin portal's retention metrics. Deliberately not awaited by
- * its callers (see app/page.tsx, app/collection/page.tsx,
+ * its callers (see app/page.tsx, app/history/page.tsx,
  * app/story/[slug]/page.tsx): a failed write here must never block or
  * break page rendering, mirroring lib/storage.ts's fire-and-forget account
  * sync. Skips the write once today's date is already stored, so visiting

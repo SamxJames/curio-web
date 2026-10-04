@@ -80,9 +80,8 @@ Other sizes (`text-sm`, `text-base`, `text-lg`, `text-2xl`, `text-4xl`, etc.) us
 | `--tracking-label` | `0.06em` | `tracking-label` | Slight spread for small UI labels (e.g. `ToggleGroup` chip text) |
 | `--tracking-eyebrow` | `0.1em` | `tracking-eyebrow` | Default `Eyebrow`-style spacing |
 | `--tracking-eyebrow-wider` | `0.12em` | `tracking-eyebrow-wider` | Wider eyebrow spacing variant |
-| `--tracking-section` | `0.18em` | `tracking-section` | Widest spacing, for section-group labels |
 
-These are deliberately named `tracking-eyebrow(-wider)`/`tracking-section` rather than Tailwind's own `tracking-wide`/`wider`/`widest`, because those built-in names are already used elsewhere in the app (`StoryView.tsx`, `PuzzleGame.tsx`) with Tailwind's default values (0.025em/0.05em/0.1em) — reusing those names here would have silently overridden Tailwind's defaults everywhere.
+These are deliberately named `tracking-eyebrow(-wider)` rather than Tailwind's own `tracking-wide`/`wider`/`widest`, because those built-in names are already used elsewhere in the app (`StoryView.tsx`, `PuzzleGame.tsx`) with Tailwind's default values (0.025em/0.05em/0.1em) — reusing those names here would have silently overridden Tailwind's defaults everywhere.
 
 ### Line height (leading)
 
@@ -362,8 +361,8 @@ A small, single-purpose primitive: a polymorphic (`span`/`p`) uppercase micro-la
 <Eyebrow className="tracking-eyebrow">tap to filter</Eyebrow>
 ```
 ```tsx
-<Eyebrow as="p" className="pt-6.5 pb-1 tracking-section">
-  {group.label}
+<Eyebrow className="mt-2.5 flex flex-wrap gap-x-1.75 gap-y-0 tracking-eyebrow-wider">
+  {word.lineage.map(/* language chips */)}
 </Eyebrow>
 ```
 

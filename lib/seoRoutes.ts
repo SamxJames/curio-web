@@ -8,7 +8,9 @@ export const PUBLIC_ROUTES = ["/", "/history", "/words", "/play", "/attribution"
 /** Kept out of the sitemap AND disallowed in robots.txt. These are
  * account-scoped, auth-flow or API paths: a crawler can only ever see the
  * signed-out shell of them, so indexing them would put empty or
- * redirect-to-login pages in search results under Curio's name. */
+ * redirect-to-login pages in search results under Curio's name.
+ * /collection is here for the same reason: its favourites live in each
+ * reader's own browser, so to a crawler it is an empty per-device shell. */
 export const DISALLOWED_PATHS = [
   "/admin",
   "/account",

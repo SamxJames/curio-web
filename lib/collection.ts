@@ -1,5 +1,5 @@
 import { dayStart, formatDay } from "./day";
-import type { HistoryDay, WordEntry } from "./words";
+import type { WordEntry } from "./words";
 
 const ENGLISH = "English";
 
@@ -72,32 +72,6 @@ export function computeLanguageStats(words: { lineage: string[] }[]): LanguageSt
     count: counts.get(name)!,
     opacity: 0.58 - 0.34 * (i / span),
   }));
-}
-
-export type WordGroup = { label: string | null; items: HistoryDay[] };
-
-function monthKey(dateStr: string): string {
-  const d = new Date(dateStr + "T00:00:00Z");
-  return `${d.getUTCFullYear()}-${d.getUTCMonth()}`;
-}
-
-export function monthLabel(dateStr: string): string {
-  return formatDay(dateStr, { month: "long" });
-}
-
-/** Groups consecutive entries sharing a calendar month. Entries are assumed
- * already sorted (every HistoryDay list in this app is), so adjacency is
- * enough — two Septembers a year apart still land in separate groups even
- * though both display the same "September" label. */
-export function groupByMonth(entries: HistoryDay[]): WordGroup[] {
-  const groups: { key: string; label: string; items: HistoryDay[] }[] = [];
-  for (const entry of entries) {
-    const key = monthKey(entry.date);
-    const last = groups[groups.length - 1];
-    if (last && last.key === key) last.items.push(entry);
-    else groups.push({ key, label: monthLabel(entry.date), items: [entry] });
-  }
-  return groups;
 }
 
 /** "9 Sep" — day-then-month, matching the collection screen's date column.

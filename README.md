@@ -11,7 +11,7 @@ the reasoning behind the pivot; this README covers what's actually built here.
   notification timing, minus the notification.
 - **Story view** (`/story/[slug]`) — Origin / Journey / Related Words
   sections, favorite (heart) and share (Web Share API, falls back to
-  copy-link) actions. Reachable from Today, History, or an emailed link.
+  copy-link) actions. Reachable from Today, History, Collection, or an emailed link.
 - **Collection** (`/collection`) — the words you've favourited, newest
   first, with a language band drawn from them. Static, and no account is
   needed: favourites live in `localStorage` (and sync to the account when
