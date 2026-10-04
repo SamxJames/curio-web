@@ -7,6 +7,7 @@ import {
   spellNumber,
   capitalize,
   pluralize,
+  toCollectionWord,
 } from "./collection";
 import type { HistoryDay } from "./words";
 import type { WordEntry } from "./words";
@@ -32,12 +33,12 @@ function day(date: string, w: WordEntry): HistoryDay {
 
 describe("computeLanguageStats", () => {
   it("excludes English and counts every other language in the lineage", () => {
-    const entries = [
-      day("2026-01-03", word("a", ["Latin", "English"])),
-      day("2026-01-02", word("b", ["Latin", "Italian", "English"])),
-      day("2026-01-01", word("c", ["Old English", "English"])),
+    const words = [
+      word("a", ["Latin", "English"]),
+      word("b", ["Latin", "Italian", "English"]),
+      word("c", ["Old English", "English"]),
     ];
-    const stats = computeLanguageStats(entries);
+    const stats = computeLanguageStats(words);
     expect(stats.map((s) => s.name)).not.toContain("English");
     expect(stats.find((s) => s.name === "Latin")?.count).toBe(2);
     expect(stats.find((s) => s.name === "Italian")?.count).toBe(1);
@@ -45,36 +46,36 @@ describe("computeLanguageStats", () => {
   });
 
   it("orders by count descending, then alphabetically", () => {
-    const entries = [
-      day("2026-01-04", word("a", ["Nahuatl", "English"])),
-      day("2026-01-03", word("b", ["Latin", "English"])),
-      day("2026-01-02", word("c", ["Latin", "English"])),
-      day("2026-01-01", word("d", ["Czech", "English"])),
+    const words = [
+      word("a", ["Nahuatl", "English"]),
+      word("b", ["Latin", "English"]),
+      word("c", ["Latin", "English"]),
+      word("d", ["Czech", "English"]),
     ];
-    const stats = computeLanguageStats(entries);
+    const stats = computeLanguageStats(words);
     expect(stats.map((s) => s.name)).toEqual(["Latin", "Czech", "Nahuatl"]);
   });
 
   it("steps opacity linearly from 0.58 (most common) to 0.24 (least common)", () => {
-    const entries = [
-      day("2026-01-03", word("a", ["Latin", "English"])),
-      day("2026-01-03", word("a2", ["Latin", "English"])),
-      day("2026-01-02", word("b", ["Italian", "English"])),
-      day("2026-01-01", word("c", ["Czech", "English"])),
+    const words = [
+      word("a", ["Latin", "English"]),
+      word("a2", ["Latin", "English"]),
+      word("b", ["Italian", "English"]),
+      word("c", ["Czech", "English"]),
     ];
-    const stats = computeLanguageStats(entries);
+    const stats = computeLanguageStats(words);
     expect(stats[0].opacity).toBeCloseTo(0.58);
     expect(stats[stats.length - 1].opacity).toBeCloseTo(0.24);
   });
 
   it("puts a single language at the top of the opacity range", () => {
-    const entries = [day("2026-01-01", word("a", ["Latin", "English"]))];
-    const stats = computeLanguageStats(entries);
+    const words = [word("a", ["Latin", "English"])];
+    const stats = computeLanguageStats(words);
     expect(stats).toHaveLength(1);
     expect(stats[0].opacity).toBeCloseTo(0.58);
   });
 
-  it("returns an empty list for no entries", () => {
+  it("returns an empty list for no words", () => {
     expect(computeLanguageStats([])).toEqual([]);
   });
 });
@@ -141,5 +142,14 @@ describe("pluralize", () => {
     expect(pluralize(1, "word")).toBe("word");
     expect(pluralize(0, "word")).toBe("words");
     expect(pluralize(2, "word")).toBe("words");
+  });
+});
+
+describe("toCollectionWord", () => {
+  it("keeps exactly the seven collection fields and drops origin, journey and clues", () => {
+    const out = toCollectionWord(word("a", ["Latin", "English"]));
+    expect(Object.keys(out).sort()).toEqual(
+      ["lineage", "partOfSpeech", "related", "respelling", "slug", "teaser", "word"]
+    );
   });
 });

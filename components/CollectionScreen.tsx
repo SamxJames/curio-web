@@ -46,7 +46,7 @@ export default function CollectionScreen({
   }, []);
 
   const totalWords = entries.length;
-  const languages = useMemo(() => computeLanguageStats(entries), [entries]);
+  const languages = useMemo(() => computeLanguageStats(entries.map((e) => e.word)), [entries]);
   const oldestDate = totalWords > 0 ? entries[totalWords - 1].date : null;
 
   const subline =

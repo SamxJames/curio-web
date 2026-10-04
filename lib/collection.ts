@@ -1,5 +1,5 @@
 import { dayStart, formatDay } from "./day";
-import type { HistoryDay } from "./words";
+import type { HistoryDay, WordEntry } from "./words";
 
 const ENGLISH = "English";
 
@@ -13,13 +13,27 @@ export type LanguageStat = {
   opacity: number;
 };
 
-/** Language → word count, excluding English (every word ends there, so it
- * carries no information for the band/chips — see the "Your collection"
- * design handoff), ordered by count descending then alphabetically. */
-export function computeLanguageStats(entries: HistoryDay[]): LanguageStat[] {
+/** The fields Collection shows for a favourited word — everything a row,
+ * the language band and the closing note need, and nothing else (no
+ * origin/journey/clues), so the favourites payload stays small. */
+export type CollectionWord = Pick<
+  WordEntry,
+  "slug" | "word" | "respelling" | "partOfSpeech" | "teaser" | "related" | "lineage"
+>;
+
+export function toCollectionWord(w: WordEntry): CollectionWord {
+  const { slug, word, respelling, partOfSpeech, teaser, related, lineage } = w;
+  return { slug, word, respelling, partOfSpeech, teaser, related, lineage };
+}
+
+/** Language → word count over a list of words, excluding English (every
+ * word ends there, so it carries no information for the band/chips — see
+ * the "Your collection" design handoff), ordered by count descending then
+ * alphabetically. */
+export function computeLanguageStats(words: { lineage: string[] }[]): LanguageStat[] {
   const counts = new Map<string, number>();
-  for (const entry of entries) {
-    for (const lang of entry.word.lineage) {
+  for (const word of words) {
+    for (const lang of word.lineage) {
       if (lang === ENGLISH) continue;
       counts.set(lang, (counts.get(lang) ?? 0) + 1);
     }
