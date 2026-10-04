@@ -177,9 +177,14 @@ const MAP_TOLERANCE_KM = 1500;
 /** A Wikipedia summary that is not about a language (people, place, list) is not a usable source. */
 export function pageProblems(facts: LanguageFacts): string[] {
   const w = facts.wikipedia;
-  return w && !isAboutLanguage(w)
-    ? [`the Wikipedia page "${w.title}" does not look like a language page`]
-    : [];
+  const out: string[] = [];
+  if (w && !isAboutLanguage(w)) out.push(`the Wikipedia page "${w.title}" does not look like a language page`);
+  if (w && w.titleMatched === false) {
+    out.push(
+      `the Wikipedia page "${w.title}" does not match the language name "${facts.name}" — check it is the same language`,
+    );
+  }
+  return out;
 }
 
 /** Cross-checks a shape-valid sheet against the fetched facts: speakers, era and map. */

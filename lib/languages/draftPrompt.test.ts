@@ -4,6 +4,7 @@ import {
   extractResponseText,
   factLines,
   factProblems,
+  pageProblems,
   parseDraftResponse,
   SHEET_FIELDS,
 } from "./draftPrompt";
@@ -353,5 +354,30 @@ describe("richer facts (lang-sources)", () => {
     expect(prompt).toContain("Prefer a name that appears in the Wikidata parent languages / groups fact or that the lead section names as the language's ancestor");
     expect(prompt).toContain("from dates stated in the lead section");
     expect(prompt).toContain("a place named in the lead section or the indigenous-to fact");
+  });
+});
+
+describe("pageProblems titleMatched (fix round 1)", () => {
+  const withMatch = (titleMatched?: boolean): LanguageFacts => ({
+    ...latinFacts,
+    name: "Proto-West Germanic",
+    wikipedia: { ...latinFacts.wikipedia!, title: "West Germanic languages", ...(titleMatched === undefined ? {} : { titleMatched }) },
+  });
+
+  it("flags a fallback page whose title did not match the language name", () => {
+    expect(pageProblems(withMatch(false))).toContain(
+      'the Wikipedia page "West Germanic languages" does not match the language name "Proto-West Germanic" — check it is the same language',
+    );
+  });
+
+  it("does not flag a matched page or an old facts file without the field", () => {
+    expect(pageProblems(withMatch(true))).toEqual([]);
+    expect(pageProblems(withMatch())).toEqual([]);
+  });
+
+  it("puts the problem into the draft's _problems", () => {
+    const raw = JSON.stringify({ name: "x" });
+    const res = parseDraftResponse(raw, withMatch(false));
+    expect(res.ok && res.draft._problems?.join(" | ")).toContain("does not match the language name");
   });
 });

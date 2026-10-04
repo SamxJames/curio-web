@@ -253,6 +253,7 @@ describe("parseWikipediaLead", () => {
     expect(LEAD_CAP).toBe(4000);
     expect(lead.length).toBeLessThanOrEqual(4000);
     expect(lead.endsWith("language.")).toBe(true);
+    expect(/[.!?]$/.test(lead)).toBe(true);
   });
 });
 
@@ -281,6 +282,10 @@ describe("acceptSummary (title matching)", () => {
   it("accepts Proto-West Germanic language for Proto-West Germanic", () => {
     expect(acceptSummary("Proto-West Germanic", summary("Proto-West Germanic language"))).toBe(true);
   });
+  it("rejects pages whose title only contains the name", () => {
+    expect(acceptSummary("Old Norse", summary("Old Norse religion"))).toBe(false);
+    expect(acceptSummary("Latin", summary("Latin America", "A region where the Spanish language is spoken."))).toBe(false);
+  });
   it("rejects Old Norman for Old Northern French", () => {
     expect(acceptSummary("Old Northern French", summary("Old Norman"))).toBe(false);
   });
@@ -297,7 +302,7 @@ describe("parseWikidataClaims subclassOf and indigenousTo", () => {
   it("keeps only non-deprecated entity values", () => {
     const facts = parseWikidataClaims(latinEntity)!;
     expect(facts.subclassOf).toEqual(["Q100"]);
-    expect(facts.indigenousTo).toEqual(["Q200"]);
+    expect(facts.indigenousTo).toEqual(["Q200"]); // Q201 is deprecated, the somevalue snak has no id
   });
   it("resolves their labels with the labels parser", () => {
     expect(parseWikidataLabels(labelsJson)).toMatchObject({ Q100: "Italic languages", Q200: "Latium" });

@@ -15,7 +15,9 @@
           { "mainsnak": { "snaktype": "somevalue", "property": "P279" }, "rank": "normal" }
         ],
         "P2341": [
-          { "mainsnak": { "snaktype": "value", "property": "P2341", "datavalue": { "value": { "entity-type": "item", "numeric-id": 200, "id": "Q200" }, "type": "wikibase-entityid" } }, "rank": "normal" }
+          { "mainsnak": { "snaktype": "value", "property": "P2341", "datavalue": { "value": { "entity-type": "item", "numeric-id": 200, "id": "Q200" }, "type": "wikibase-entityid" } }, "rank": "normal" },
+          { "mainsnak": { "snaktype": "value", "property": "P2341", "datavalue": { "value": { "entity-type": "item", "numeric-id": 201, "id": "Q201" }, "type": "wikibase-entityid" } }, "rank": "deprecated" },
+          { "mainsnak": { "snaktype": "somevalue", "property": "P2341" }, "rank": "normal" }
         ],
         "P625": [
           { "mainsnak": { "snaktype": "value", "property": "P625", "datavalue": { "value": { "latitude": 41.9, "longitude": 12.5, "altitude": null, "precision": 0.1, "globe": "http://www.wikidata.org/entity/Q2" }, "type": "globecoordinate" } }, "rank": "normal" },

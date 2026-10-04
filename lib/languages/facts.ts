@@ -130,6 +130,7 @@ export type WikipediaSummary = {
   title: string;
   extract: string;
   lead?: string; // plain-text lead section, added by fetchFacts
+  titleMatched?: boolean; // false = fallback page that failed acceptSummary; absent in old files
   url: string; // content_urls.desktop.page
   description: string | null;
   wikibaseItem: string | null;
@@ -187,9 +188,9 @@ export function parseWikipediaLead(json: unknown): string | null {
 const normaliseTitle = (s: string) =>
   s.toLowerCase().replace(/\s+/g, " ").trim().replace(/ languages?$/, "");
 
-/** A summary is kept only if it is about a language AND its title contains the requested name. */
+/** A summary is kept only if it is about a language AND its normalised title equals the requested name. */
 export function acceptSummary(name: string, summary: WikipediaSummary): boolean {
-  return isAboutLanguage(summary) && normaliseTitle(summary.title).includes(normaliseTitle(name));
+  return isAboutLanguage(summary) && normaliseTitle(summary.title) === normaliseTitle(name);
 }
 
 export type WikidataFacts = {

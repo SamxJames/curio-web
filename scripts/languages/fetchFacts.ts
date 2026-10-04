@@ -57,8 +57,9 @@ async function getJson(url: string): Promise<unknown | null> {
 
 /**
  * Candidate titles in order (Proto-* bare name first, others "{Name} language" first). The first
- * summary that is about a language AND whose title contains the requested name wins. If none does,
- * the first usable summary is kept as the old fallback; pageProblems flags it in the draft.
+ * summary that is about a language AND whose normalised title equals the requested name wins. If none does,
+ * the first usable summary is kept as the old fallback, stored with titleMatched: false;
+ * pageProblems flags it in the draft.
  * The plain-text lead section is then fetched for the chosen title.
  */
 async function fetchWikipedia(name: string): Promise<WikipediaSummary | null> {
@@ -73,10 +74,11 @@ async function fetchWikipedia(name: string): Promise<WikipediaSummary | null> {
     }
     fallback ??= summary;
   }
+  const titleMatched = chosen !== null;
   chosen ??= fallback;
   if (!chosen) return null;
   const lead = parseWikipediaLead(await getJson(wikipediaLeadUrl(chosen.title)));
-  return lead ? { ...chosen, lead } : chosen;
+  return { ...chosen, ...(lead ? { lead } : {}), titleMatched };
 }
 
 async function main() {
