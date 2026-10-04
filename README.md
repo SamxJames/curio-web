@@ -60,6 +60,20 @@ the reasoning behind the pivot; this README covers what's actually built here.
   signups come from (email, Bluesky, Threads, Instagram, search, share and
   so on), production writes only. `/admin` shows it; `npm run traffic:report
   -- [days]` prints it, read-only. See "Measuring growth" in `handover.md`.
+- **Language facts** — an "About {language}" panel on Collection (map,
+  timeline, peak speakers, family path, origin), built only from
+  owner-reviewed sheets in `lib/languages/data.ts`. The sheets come from an
+  offline pipeline, run in this order (details and checks in `handover.md`,
+  "Language panel"):
+  `npm run languages:facts -- [--only "A,B"] [--limit N] [--refresh]`
+  fetches Wikipedia and Wikidata facts;
+  `npm run languages:draft -- [--only] [--limit]` has Claude draft a sheet
+  from those facts (needs `ANTHROPIC_API_KEY` in `.env.local`);
+  `npm run languages:review` writes the git-ignored `review.html`;
+  `npm run languages:approve -- --all-valid | --only "A,B"` validates and
+  writes `data.ts` and `sheetIndex.ts` (never hand-edit either).
+  `npm run languages:map` regenerates the dev-only map dots. `data.ts` is
+  empty until the first reviewed batch, so no "About" link shows yet.
 
 ## Content
 

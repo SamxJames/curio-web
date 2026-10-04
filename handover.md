@@ -2290,6 +2290,82 @@ Not checked:
 
 Both are covered by tests and reviews.
 
+## Language panel (2026-10-04)
+
+On Collection, after tapping a language chip, an "About {language}" link opens an inline panel (`components/LanguagePanel.tsx`) with a dot map (where), a lifespan bar on a shared timeline (when), speakers at the peak (or an honest "no reliable count"), the family path, and a short origin with a "Source: Wikipedia" link. Plan and per-task ledger: `docs/superpowers/plans/2026-10-04-language-panel.md` and `.superpowers/sdd/2026-10-04-language-panel/`.
+
+### Data model
+
+`lib/languages/types.ts` defines `LanguageSheet`: `name` (exactly as in word lineages), `aliases`, `status` (`living | extinct | historical | reconstructed`; historical = an earlier stage of a language still spoken, such as Old English), `classification`, `region`, `map` (`{lat, lon, radiusKm}` or null), `era` (`from`, `to` null = still spoken, optional `writtenUntil` tail, `approximate`; or null when dates are unknown), `peakSpeakers` (`{count, year, note?}` or null), `unknownSpeakersNote` (required when `peakSpeakers` is null), `parent` (canonical name or null), `origin`, `sourceUrl` and `approved`. `lib/languages/validate.ts` checks shape and meaning and never throws on malformed model output.
+
+### The pipeline, in order
+
+All commands run from the repo root. Network scripts are never run in tests; tests cover only the pure parsing and validation.
+
+1. `npm run languages:facts` (flags `--only "A,B"`, `--limit N`, `--refresh`). Fetches the Wikipedia REST summary (`{Name}_language`, then `{Name}`) and Wikidata claims (coordinates, inception, dissolved, speaker count with its year, instance-of) for each lineage language, most-used first. Writes `content/languages/facts/<slug>.json`. Resumable (skips existing files; `--refresh` re-fetches). A 404 counts as "no facts". A transient failure (429 or 5xx after one retry, other statuses, network errors) writes no file, so a re-run retries it. No API key needed.
+2. `npm run languages:draft` (flags `--only`, `--limit`). Reads facts files that have no draft yet and asks Claude to write a sheet using only those facts. Needs `ANTHROPIC_API_KEY` in `.env.local` (loaded with `tsx --env-file`; never logged). Writes `content/languages/drafts/<slug>.json` with `approved: false`. A language with no Wikipedia facts is skipped. Unparseable output writes nothing, so a re-run retries it.
+3. `npm run languages:review`. Writes `content/languages/review.html` (gitignored), one card per draft with every field, its problems in red and a "Fetched facts" block to check it against. The owner reads it in a browser.
+4. `npm run languages:approve -- --all-valid` or `-- --only "Latin,Old French"`. Validates, refuses anything invalid, merges alias-named drafts under the canonical name, then writes `lib/languages/data.ts` and the generated name index `lib/languages/sheetIndex.ts`, and sets `approved: true` in the approved draft files. It exits 1 if anything was refused or a named draft is missing, and leaves the files untouched if nothing was approved.
+
+Also: `npm run languages:map` regenerates the map dots (see below). It is dev-only and rarely needs re-running.
+
+### The draft call
+
+Model `claude-sonnet-5-5`, thinking on (the default), `output_config.effort: "medium"`, `max_tokens` 8000 (thinking tokens count against it). The server-side refusal fallback is on (`fallbacks: "default"` with the beta header `server-side-fallback-2026-07-01`), so only a refusal by the whole chain, or a `max_tokens` cut-off, fails a language. Token usage is counted even for failed calls.
+
+### The review gate
+
+`parseDraftResponse` (`lib/languages/draftPrompt.ts`) forces `name`, `aliases` and `sourceUrl` from the facts and sets `approved: false`. It puts a draft into `_problems` when:
+
+- validation fails;
+- `peakSpeakers.count` has no speaker-count fact behind it, or differs from the fact;
+- `peakSpeakers.year` differs from the fact's year, or the fact has no year;
+- `era.from` is more than 50 years from the inception fact, or `era.to` more than 50 years from the dissolved fact (or `to` is null while the facts give an end date);
+- the map centre is more than 1,500 km from the fact coordinates;
+- `parent` is not a lineage language.
+
+Reconstructed languages (all `Proto-*`, plus any the facts mark so) get `peakSpeakers: null` and the fixed note "Reconstructed by scholars — never written down."
+
+An owner must clear `_problems` before approving: fix the draft JSON against the "Fetched facts" block, delete its `_problems` key and re-run `languages:review`. `approve` refuses any draft that still has `_problems`, deliberately, even with `--all-valid`.
+
+### Honesty rules
+
+- Never invent facts. Prose and numbers come only from the fetched facts. Unknown peak speakers means `peakSpeakers: null`, and the panel shows `unknownSpeakersNote`, never a guess.
+- Only sheets with `approved: true` render, and only they get an "About" link. Languages without one behave as before.
+- `familyPath` (`lib/languages/lookup.ts`) follows only approved sheets, so the path never shows a language that has not been reviewed.
+- Counts in the panel are about the reader's own favourites ("3 of your favourites passed through Latin"). No totals, no "you haven't seen". This is the "archive, never backlog" rule.
+- Attribution: every sheet has a Wikipedia `sourceUrl`, shown in the panel, and `/attribution` credits the language facts (CC BY-SA).
+
+### Aliases and skip list
+
+Both are in `lib/languages/facts.ts`. `ALIASES` merges lineage spellings under one canonical name: Lombardic -> Lombard, Kiswahili -> Swahili, Ottoman -> Ottoman Turkish, Old Provençal -> Old Occitan. `SKIP` never gets a sheet: English, Translingual, "Phrygian or Anatolian", Indian English, Late Middle English. Add to these before running `languages:facts` if more duplicate names turn up.
+
+### Bundle weight and lazy loading
+
+- Never hand-edit `lib/languages/data.ts` or `lib/languages/sheetIndex.ts`. Only `languages:approve` writes them, and they can drift apart if edited by hand (the failure is quiet).
+- `CollectionScreen` imports only `sheetIndex` (names only), to decide whether to show the "About" link. The panel (`components/LanguagePanel.tsx`) loads with `next/dynamic` on first press, and it imports `data.ts`. The map dots load by dynamic `import()` from inside the panel. So Collection's first load carries no sheets and no dots, and `/collection` stays static.
+- The map dots (`lib/languages/mapDots.ts`) are 6,842 dots, about 72 KB, sampled onto a 1.5 degree grid from Natural Earth 110m land (via `world-atlas`, public domain) by `scripts/languages/buildMapDots.ts`. `d3-geo`, `topojson-client` and `world-atlas` are devDependencies, used only by that script. Nothing in `app/` or `components/` may import them.
+- Pure helpers (timeline position, map projection and highlight, alias lookup, family path, panel view-model) live in `lib/languages/` and are unit-tested.
+
+### Current state
+
+`lib/languages/data.ts` is empty until the first owner-reviewed batch, so there is no "About" link anywhere yet. Next step, with the owner: `languages:facts -- --limit 30`, then draft, review, approve `--only` the names the owner accepts, and commit `data.ts` (and probably the facts and drafts, for history) as `content: first 30 language sheets (owner-reviewed)`. Later batches cover the remaining languages the same way. Deferred minor items are in the SDD ledger (`progress.md`).
+
+### Verification
+
+Not yet checked in a browser. To fill in after the first content batch: Latin, a reconstructed language and a language with `map: null` at 375px and on desktop; the "About" link appears only for approved sheets.
+
+## This session (2026-10-04, later): language panel
+
+Built on branch `feat/lang-panel` (worktree `.worktrees/lang-panel`), not yet merged or pushed. Five tasks: types and pure helpers; map dots; the facts, draft, review and approve pipeline; the panel on Collection; these docs. Two rulings changed the plan along the way:
+
+- The draft call leaves thinking on at medium effort with `max_tokens` 8000 and the server-side refusal fallback, rather than switching thinking off. This follows the Claude API guidance for `claude-sonnet-5-5`. Cost: a few more tokens per language.
+- The generated `sheetIndex.ts` exists so Collection never imports the full sheets. The bundle-weight constraint was binding, and fixing it before any content existed was cheapest.
+
+### Verification
+
+To be filled in after the first content batch and a browser check on the branch's dev server (a separate port).
+
 ## Workflow notes for whoever picks this up
 
 - Two sessions so far have used the `superpowers` subagent-driven-development
