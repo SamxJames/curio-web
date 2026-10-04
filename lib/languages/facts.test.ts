@@ -14,6 +14,7 @@ import {
   parseWikipediaSummary,
   retryAfterMs,
   shouldRetryStatus,
+  usableSummary,
   wikipediaSummaryUrls,
 } from "./facts";
 import latinEntity from "./__fixtures__/wikidata-latin.json";
@@ -187,5 +188,17 @@ describe("retryAfterMs (fix round 1)", () => {
     expect(retryAfterMs("Sun, 04 Oct 2026 11:00:00 GMT", now)).toBe(0);
     expect(retryAfterMs(null, now)).toBe(2000);
     expect(retryAfterMs("soon", now)).toBe(2000);
+  });
+});
+
+describe("usableSummary", () => {
+  it("drops a disambiguation page, so it counts as no Wikipedia facts", () => {
+    expect(usableSummary(parseWikipediaSummary(disambiguation))).toBeNull();
+  });
+
+  it("keeps a real page, and passes null through", () => {
+    const real = parseWikipediaSummary(oldNorseSummary)!;
+    expect(usableSummary(real)).toBe(real);
+    expect(usableSummary(null)).toBeNull();
   });
 });

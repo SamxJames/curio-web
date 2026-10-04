@@ -15,6 +15,7 @@ import {
   parseWikipediaSummary,
   retryAfterMs,
   shouldRetryStatus,
+  usableSummary,
   wikidataEntityUrl,
   wikidataLabelsUrl,
   wikipediaSummaryUrls,
@@ -55,7 +56,7 @@ async function getJson(url: string): Promise<unknown | null> {
 async function fetchWikipedia(name: string): Promise<WikipediaSummary | null> {
   let fallback: WikipediaSummary | null = null;
   for (const url of wikipediaSummaryUrls(name)) {
-    const summary = parseWikipediaSummary(await getJson(url));
+    const summary = usableSummary(parseWikipediaSummary(await getJson(url)));
     if (!summary) continue;
     if (isAboutLanguage(summary)) return summary;
     fallback ??= summary;

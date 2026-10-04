@@ -1,5 +1,6 @@
 // Approves reviewed drafts and rewrites lib/languages/data.ts and lib/languages/sheetIndex.ts. Refuses any draft that has
-// `_problems` or fails validateSheet.
+// `_problems`, fails validateSheet, or contradicts its facts file (unless the draft has a
+// non-empty `_override` reason). `_override` is never copied into data.ts.
 //   npm run languages:approve -- --all-valid
 //   npm run languages:approve -- --only "Latin,Old French"
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -11,8 +12,8 @@ import {
   type ApproveSelection,
 } from "../../lib/languages/approve";
 import { LANGUAGE_SHEETS } from "../../lib/languages/data";
-import { canonicalName } from "../../lib/languages/facts";
-import { DRAFTS_DIR, jsonFiles, onlyList } from "./cli";
+import { canonicalName, type LanguageFacts } from "../../lib/languages/facts";
+import { DRAFTS_DIR, FACTS_DIR, jsonFiles, onlyList } from "./cli";
 
 const DATA_FILE = path.join("lib", "languages", "data.ts");
 const INDEX_FILE = path.join("lib", "languages", "sheetIndex.ts");
@@ -38,7 +39,20 @@ function main() {
     }
   });
 
-  const result = approveSheets(drafts, LANGUAGE_SHEETS, select);
+  // Drafts share their facts file's basename (draftSheets.ts writes the same name).
+  const facts: Record<string, LanguageFacts> = {};
+  files.forEach((f, i) => {
+    const name = (drafts[i] as { name?: unknown } | null)?.name;
+    const factsFile = path.join(FACTS_DIR, path.basename(f));
+    if (typeof name !== "string" || !existsSync(factsFile)) return;
+    try {
+      facts[name] = JSON.parse(readFileSync(factsFile, "utf-8")) as LanguageFacts;
+    } catch {
+      // Unreadable facts leave the draft checked against empty facts.
+    }
+  });
+
+  const result = approveSheets(drafts, LANGUAGE_SHEETS, select, facts);
   for (const r of result.refused) console.log(`REFUSED ${r.name}: ${r.reasons.join("; ")}`);
   for (const m of result.missing) console.log(`NO DRAFT for ${m}`);
   const hadTrouble = result.refused.length > 0 || result.missing.length > 0;

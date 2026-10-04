@@ -1,6 +1,7 @@
 // Pure core of scripts/languages/approveSheets.ts: choose drafts, refuse anything invalid,
 // merge aliases, and render lib/languages/data.ts.
-import { canonicalName } from "./facts";
+import { factProblems } from "./draftPrompt";
+import { canonicalName, type LanguageFacts } from "./facts";
 import type { LanguageSheet } from "./types";
 import { validateSheet } from "./validate";
 
@@ -59,6 +60,9 @@ export function approveSheets(
   drafts: unknown[],
   existing: LanguageSheet[],
   select: ApproveSelection,
+  /** Facts by draft name. When given, every draft is re-checked against its facts; a draft
+   * with no entry is checked against empty facts, so any speaker count it carries fails. */
+  facts?: Record<string, LanguageFacts>,
 ): ApproveResult {
   const wanted = "only" in select ? new Set(select.only.map(canonicalName)) : null;
   const result: ApproveResult = { sheets: [], approved: [], refused: [], missing: [] };
@@ -86,6 +90,20 @@ export function approveSheets(
     if (problems.length > 0 || !canonical) {
       result.refused.push({ name: label, reasons: problems });
       return;
+    }
+
+    if (facts && isRecord(raw)) {
+      // The owner can accept a known mismatch by writing a reason in `_override`.
+      const overridden = typeof raw._override === "string" && raw._override.trim() !== "";
+      const own = facts[label] ?? { name: label, aliases: [], wikipedia: null, wikidata: null, fetchedAt: "" };
+      const mismatches = factProblems(candidate as LanguageSheet, own);
+      if (mismatches.length > 0 && !overridden) {
+        result.refused.push({
+          name: label,
+          reasons: [...mismatches, "(add a non-empty \"_override\" reason to the draft to accept this)"],
+        });
+        return;
+      }
     }
 
     const sheet = toSheet(candidate as LanguageSheet);

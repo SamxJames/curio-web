@@ -59,7 +59,7 @@ export function LanguagePanelView({
       </Eyebrow>
       <h2
         id={headingId}
-        className="mt-1.5 font-serif text-4xl leading-display font-normal tracking-headline"
+        className="mt-1.5 font-serif text-3xl leading-display font-normal tracking-headline"
       >
         {sheet.name}
       </h2>
@@ -82,15 +82,11 @@ export function LanguagePanelView({
         )}
       </Part>
 
-      <Part title="Speakers at its peak">
+      <Part title="Speakers">
         {model.speakers.kind === "count" ? (
           <>
-            <p className="font-serif text-2xl leading-display">
-              {model.speakers.value}
-              <span className="ml-2 font-sans text-sm text-ink-soft">
-                around {model.speakers.year}
-              </span>
-            </p>
+            <p className="font-serif text-2xl leading-display">{model.speakers.value}</p>
+            <p className="font-sans text-sm text-ink-soft">as of {model.speakers.year}</p>
             {model.speakers.note && (
               <p className="mt-1.5 font-serif text-sm leading-body text-ink-soft italic">
                 {model.speakers.note}
@@ -219,6 +215,7 @@ function Timeline({ t }: { t: TimelineModel }) {
     <div>
       <div className="relative h-5">
         <span
+          aria-hidden="true"
           className="absolute top-0 font-sans text-micro tracking-label whitespace-nowrap text-accent"
           style={t.labelAnchor.side === "left" ? { left: `${t.labelAnchor.percent}%` } : { right: `${t.labelAnchor.percent}%` }}
         >

@@ -140,6 +140,11 @@ export function parseWikipediaSummary(json: unknown): WikipediaSummary | null {
   };
 }
 
+/** A disambiguation page is never kept: it counts as no Wikipedia facts. */
+export function usableSummary(summary: WikipediaSummary | null): WikipediaSummary | null {
+  return summary && summary.type !== "disambiguation" ? summary : null;
+}
+
 /** True when a summary looks like it is about a language, not a people, place or list. */
 export function isAboutLanguage(summary: WikipediaSummary): boolean {
   if (summary.type === "disambiguation") return false;

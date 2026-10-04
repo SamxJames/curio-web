@@ -3,6 +3,7 @@ import {
   buildSheetPrompt,
   extractResponseText,
   factLines,
+  factProblems,
   parseDraftResponse,
   SHEET_FIELDS,
 } from "./draftPrompt";
@@ -291,5 +292,32 @@ describe("extractResponseText (fix round 1)", () => {
     expect(() => extractResponseText({ stop_reason: "end_turn", content: [{ type: "thinking" }] })).toThrow(
       /no text block/,
     );
+  });
+});
+
+describe("final review: non-language pages and exported factProblems", () => {
+  it("flags facts whose Wikipedia summary is not about a language", () => {
+    const facts: LanguageFacts = {
+      ...latinFacts,
+      wikipedia: {
+        ...latinFacts.wikipedia!,
+        title: "Latin (disambiguation)",
+        description: "Topics referred to by the same term",
+        extract: "Latin refers to several things, including a script, a people and a mass.",
+        type: "standard",
+      },
+    };
+    const res = parseDraftResponse(JSON.stringify(goodDraft), facts, ["Latin", "Proto-Italic"]);
+    if (!res.ok) throw new Error(res.error);
+    expect(res.draft._problems?.join("\n")).toMatch(/does not look like a language page/);
+    expect(factProblems(goodDraft as never, facts).join("\n")).toMatch(/does not look like a language page/);
+  });
+
+  it("reports no problems for a good draft against its facts", () => {
+    expect(factProblems(goodDraft as never, latinFacts)).toEqual([]);
+  });
+
+  it("does not mention a peak in the speakers guidance", () => {
+    expect(buildSheetPrompt("Latin", latinFacts)).not.toMatch(/\bpeak\b/i);
   });
 });

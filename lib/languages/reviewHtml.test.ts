@@ -106,3 +106,38 @@ describe("renderReviewPage source facts (fix round 1)", () => {
     expect(html).toContain("No facts file found for this draft.");
   });
 });
+
+describe("renderReviewPage re-runs the fact cross-checks (final review)", () => {
+  const facts = {
+    Latin: {
+      name: "Latin",
+      aliases: [],
+      wikipedia: null,
+      wikidata: {
+        qid: "Q397",
+        coordinates: { lat: 41.9, lon: 12.5 },
+        inception: -700,
+        dissolved: 600,
+        speakers: { count: 50000000, year: 200 },
+        instanceOf: [],
+      },
+      fetchedAt: "2026-10-04T00:00:00.000Z",
+    },
+  };
+
+  it("shows factProblems in red even when _problems was deleted", () => {
+    const draft = { ...latin, peakSpeakers: { count: 60000000, year: 200 } };
+    expect("_problems" in draft).toBe(false);
+    const page = renderReviewPage([draft], facts);
+    expect(page).toContain('class="problems"');
+    expect(page).toContain("peakSpeakers.count 60000000 differs from the fact 50000000");
+  });
+
+  it("shows no problems list for a draft that matches its facts", () => {
+    expect(renderReviewPage([latin], facts)).not.toContain('class="problems"');
+  });
+
+  it("labels the speakers row without the word peak", () => {
+    expect(renderReviewPage([latin], facts)).not.toMatch(/peak at|at its peak/i);
+  });
+});

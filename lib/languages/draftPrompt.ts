@@ -1,4 +1,4 @@
-import type { LanguageFacts } from "./facts";
+import { isAboutLanguage, type LanguageFacts } from "./facts";
 import { isLit } from "./mapGeometry";
 import type { LanguageSheet } from "./types";
 import { shapeProblems, validateSheet } from "./validate";
@@ -150,6 +150,7 @@ export function parseDraftResponse(
 
   const problems = validateSheet(draft);
   if (shapeProblems(draft).length === 0) problems.push(...factProblems(draft as unknown as LanguageSheet, facts));
+  else problems.push(...pageProblems(facts));
   if (knownLanguages.length > 0 && typeof draft.parent === "string" && !knownLanguages.includes(draft.parent)) {
     problems.push(`parent "${draft.parent}" is not one of our lineage languages`);
   }
@@ -162,9 +163,17 @@ export const RECONSTRUCTED_NOTE = "Reconstructed by scholars — never written d
 const ERA_TOLERANCE_YEARS = 50;
 const MAP_TOLERANCE_KM = 1500;
 
+/** A Wikipedia summary that is not about a language (people, place, list) is not a usable source. */
+export function pageProblems(facts: LanguageFacts): string[] {
+  const w = facts.wikipedia;
+  return w && !isAboutLanguage(w)
+    ? [`the Wikipedia page "${w.title}" does not look like a language page`]
+    : [];
+}
+
 /** Cross-checks a shape-valid sheet against the fetched facts: speakers, era and map. */
-function factProblems(sheet: LanguageSheet, facts: LanguageFacts): string[] {
-  const problems: string[] = [];
+export function factProblems(sheet: LanguageSheet, facts: LanguageFacts): string[] {
+  const problems: string[] = [...pageProblems(facts)];
   const wd = facts.wikidata;
 
   const ps = sheet.peakSpeakers;

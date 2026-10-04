@@ -224,6 +224,9 @@ function CollectionBody({
   // panel closes by itself when the active language changes or clears (also
   // when the filter quietly lets go); never persisted.
   const [aboutFor, setAboutFor] = useState<string | null>(null);
+  // When the filter lets go on its own (no toggle), forget the old language too, so
+  // picking it again later doesn't reopen the panel. Adjusted during render, not in an effect.
+  if (aboutFor !== null && aboutFor !== activeLanguage) setAboutFor(null);
   const sheetName = activeLanguage ? SHEET_NAMES[activeLanguage] : undefined;
   const aboutOpen = !!sheetName && aboutFor === activeLanguage;
   const favouriteLineages = useMemo(() => words.map((w) => w.lineage), [words]);

@@ -12,7 +12,7 @@ describe("LanguagePanel", () => {
     const html = render(LATIN_FIXTURE);
     expect(html).toMatch(/^<section id="lp" aria-labelledby="lp-heading"/);
     expect(html).toContain('<h2 id="lp-heading"');
-    const order = ["Language", "Where", "When", "Speakers at its peak", "Family path", "Where it came from"];
+    const order = ["Language", "Where", "When", "Speakers", "Family path", "Where it came from"];
     const positions = order.map((t) => html.indexOf(`>${t}<`));
     expect(positions.every((p) => p > 0)).toBe(true);
     expect([...positions].sort((a, b) => a - b)).toEqual(positions);
@@ -47,7 +47,7 @@ describe("LanguagePanel", () => {
     expect(html).not.toContain("Timeline:");
   });
 
-  it("shows the unknown note, never a number, when peak speakers are unknown", () => {
+  it("shows the unknown note, never a number, when speakers are unknown", () => {
     const html = render({
       ...LATIN_FIXTURE,
       peakSpeakers: null,
@@ -56,6 +56,21 @@ describe("LanguagePanel", () => {
     expect(html).toContain("No reliable count");
     expect(html).toContain("Test: no census survives.");
     expect(html).not.toContain("around ");
+  });
+
+  it("shows the count with an 'as of' line and never says peak or around", () => {
+    const html = render(LATIN_FIXTURE);
+    expect(html).toContain("4.5M");
+    expect(html).toContain("as of 100 CE");
+    expect(html).toContain("Test fixture value, not a sourced figure.");
+    expect(html).not.toMatch(/\bpeak\b|\baround\b/i);
+    expect(html.indexOf("as of 100 CE")).toBeLessThan(html.indexOf("Test fixture value"));
+  });
+
+  it("marks the timeline era label aria-hidden and the heading one step below the page h1", () => {
+    const html = render(LATIN_FIXTURE);
+    expect(html).toMatch(/<span[^>]*aria-hidden="true"[^>]*>c. 700 BCE/);
+    expect(html).toMatch(/<h2 id="lp-heading" class="[^"]*\btext-3xl\b/);
   });
 
   it("dashes the bar and chips of a reconstructed language", () => {

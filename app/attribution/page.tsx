@@ -88,7 +88,7 @@ export default function AttributionPage() {
         >
           CC0
         </a>
-        ). They are summarised by the same offline language-model pass, under a
+        ). They are summarised by an offline language-model pass, under a
         rule that it may not add anything the sources don&apos;t say, and each
         language is reviewed before it is published.
       </p>

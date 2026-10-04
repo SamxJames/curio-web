@@ -61,7 +61,7 @@ the reasoning behind the pivot; this README covers what's actually built here.
   so on), production writes only. `/admin` shows it; `npm run traffic:report
   -- [days]` prints it, read-only. See "Measuring growth" in `handover.md`.
 - **Language facts** — an "About {language}" panel on Collection (map,
-  timeline, peak speakers, family path, origin), built only from
+  timeline, speakers, family path, origin), built only from
   owner-reviewed sheets in `lib/languages/data.ts`. The sheets come from an
   offline pipeline, run in this order (details and checks in `handover.md`,
   "Language panel"):

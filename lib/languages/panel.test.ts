@@ -76,15 +76,13 @@ describe("panelModel", () => {
 
 describe("statusNote", () => {
   it("covers every status", () => {
-    expect(statusNote(latin({ status: "living" }), [])).toBe("spoken today");
-    expect(statusNote(latin({ status: "extinct" }), [])).toBe("no native speakers today");
-    expect(statusNote(latin({ status: "historical" }), ["Old French"])).toBe(
-      "an earlier stage of Old French",
+    expect(statusNote(latin({ status: "living" }))).toBe("spoken today");
+    expect(statusNote(latin({ status: "extinct" }))).toBe("no native speakers today");
+    // Lineage order records borrowing, not descent, so never name a later language.
+    expect(statusNote(latin({ status: "historical" }))).toBe(
+      "an earlier stage of a language still spoken today",
     );
-    expect(statusNote(latin({ status: "historical" }), [])).toBe(
-      "an earlier stage of a living language",
-    );
-    expect(statusNote(PROTO_ITALIC_FIXTURE, [])).toMatch(/^reconstructed by scholars/);
+    expect(statusNote(PROTO_ITALIC_FIXTURE)).toMatch(/^reconstructed by scholars/);
   });
 });
 
@@ -124,6 +122,13 @@ describe("timelineModel", () => {
 
   it("dashes reconstructed languages", () => {
     expect(timelineModel(PROTO_INDO_EUROPEAN_FIXTURE)!.dashed).toBe(true);
+  });
+});
+
+describe("panelModel statusNote", () => {
+  it("never names a later language for a historical sheet", () => {
+    const m = panelModel(latin({ status: "historical" }), [["Latin", "Old French", "English"]]);
+    expect(m.statusNote).toBe("an earlier stage of a language still spoken today");
   });
 });
 

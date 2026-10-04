@@ -2292,11 +2292,11 @@ Both are covered by tests and reviews.
 
 ## Language panel (2026-10-04)
 
-On Collection, after tapping a language chip, an "About {language}" link opens an inline panel (`components/LanguagePanel.tsx`) with a dot map (where), a lifespan bar on a shared timeline (when), speakers at the peak (or an honest "no reliable count"), the family path, and a short origin with a "Source: Wikipedia" link. Plan and per-task ledger: `docs/superpowers/plans/2026-10-04-language-panel.md` and `.superpowers/sdd/2026-10-04-language-panel/`.
+On Collection, after tapping a language chip, an "About {language}" link opens an inline panel (`components/LanguagePanel.tsx`) with a dot map (where), a lifespan bar on a shared timeline (when), speakers (the recorded figure and the year it is "as of", or an honest "no reliable count"), the family path, and a short origin with a "Source: Wikipedia" link. Plan and per-task ledger: `docs/superpowers/plans/2026-10-04-language-panel.md` and `.superpowers/sdd/2026-10-04-language-panel/`.
 
 ### Data model
 
-`lib/languages/types.ts` defines `LanguageSheet`: `name` (exactly as in word lineages), `aliases`, `status` (`living | extinct | historical | reconstructed`; historical = an earlier stage of a language still spoken, such as Old English), `classification`, `region`, `map` (`{lat, lon, radiusKm}` or null), `era` (`from`, `to` null = still spoken, optional `writtenUntil` tail, `approximate`; or null when dates are unknown), `peakSpeakers` (`{count, year, note?}` or null), `unknownSpeakersNote` (required when `peakSpeakers` is null), `parent` (canonical name or null), `origin`, `sourceUrl` and `approved`. `lib/languages/validate.ts` checks shape and meaning and never throws on malformed model output.
+`lib/languages/types.ts` defines `LanguageSheet`: `name` (exactly as in word lineages), `aliases`, `status` (`living | extinct | historical | reconstructed`; historical = an earlier stage of a language still spoken, such as Old English), `classification`, `region`, `map` (`{lat, lon, radiusKm}` or null), `era` (`from`, `to` null = still spoken, optional `writtenUntil` tail, `approximate`; or null when dates are unknown), `peakSpeakers` (`{count, year, note?}` or null; the field name is historical, it holds the recorded Wikidata figure as of that year, not necessarily a peak), `unknownSpeakersNote` (required when `peakSpeakers` is null), `parent` (canonical name or null), `origin`, `sourceUrl` and `approved`. `lib/languages/validate.ts` checks shape and meaning and never throws on malformed model output.
 
 ### The pipeline, in order
 
@@ -2322,17 +2322,18 @@ Model `claude-sonnet-5-5`, thinking on (the default), `output_config.effort: "me
 - `peakSpeakers.year` differs from the fact's year, or the fact has no year;
 - `era.from` is more than 50 years from the inception fact, or `era.to` more than 50 years from the dissolved fact (or `to` is null while the facts give an end date);
 - the map centre is more than 1,500 km from the fact coordinates;
-- `parent` is not a lineage language.
+- `parent` is not a lineage language;
+- the facts' Wikipedia page does not look like a language page (a disambiguation page is never kept as facts at all).
 
 Reconstructed languages (all `Proto-*`, plus any the facts mark so) get `peakSpeakers: null` and the fixed note "Reconstructed by scholars — never written down."
 
-An owner must clear `_problems` before approving: fix the draft JSON against the "Fetched facts" block, delete its `_problems` key and re-run `languages:review`. `approve` refuses any draft that still has `_problems`, deliberately, even with `--all-valid`.
+An owner must clear `_problems` before approving: fix the draft JSON against the "Fetched facts" block, delete its `_problems` key and re-run `languages:review`. Deleting `_problems` does not hide anything: the checks run again at both later steps. `languages:review` re-runs `factProblems` (exported from `draftPrompt.ts`) against the facts file and shows its problems in red, and `languages:approve` loads `content/languages/facts/<same basename>.json` and refuses a draft whose `factProblems` is non-empty, even with `--all-valid`. It also refuses any draft that still has `_problems`. To accept a known mismatch on purpose, add a non-empty string `_override` to the draft JSON giving your reason. `_override` is never copied into `data.ts`.
 
 ### Honesty rules
 
-- Never invent facts. Prose and numbers come only from the fetched facts. Unknown peak speakers means `peakSpeakers: null`, and the panel shows `unknownSpeakersNote`, never a guess.
+- Never invent facts. Prose and numbers come only from the fetched facts. An unknown speaker count means `peakSpeakers: null`, and the panel shows `unknownSpeakersNote`, never a guess.
 - Only sheets with `approved: true` render, and only they get an "About" link. Languages without one behave as before.
-- `familyPath` (`lib/languages/lookup.ts`) follows only approved sheets, so the path never shows a language that has not been reviewed.
+- `familyPath` (`lib/languages/lookup.ts`) follows only approved sheets, so ancestors come only from approved sheets; the steps after it come from your favourites' word lineages.
 - Counts in the panel are about the reader's own favourites ("3 of your favourites passed through Latin"). No totals, no "you haven't seen". This is the "archive, never backlog" rule.
 - Attribution: every sheet has a Wikipedia `sourceUrl`, shown in the panel, and `/attribution` credits the language facts (CC BY-SA).
 

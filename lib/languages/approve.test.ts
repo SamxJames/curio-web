@@ -6,6 +6,8 @@ import {
   renderSheetIndexModule,
   toSheet,
 } from "./approve";
+import { LANGUAGE_SHEETS } from "./data";
+import type { LanguageFacts } from "./facts";
 import { SHEET_NAMES } from "./sheetIndex";
 import type { LanguageSheet } from "./types";
 
@@ -171,5 +173,66 @@ describe("sheet index", () => {
   it("renders an empty index, matching the committed module", () => {
     expect(renderSheetIndexModule([])).toContain("export const SHEET_NAMES: Record<string, string> = {};");
     expect(SHEET_NAMES).toEqual({});
+  });
+});
+
+describe("index and data stay in step (final review)", () => {
+  it("SHEET_NAMES is exactly buildSheetIndex(LANGUAGE_SHEETS)", () => {
+    expect(buildSheetIndex(LANGUAGE_SHEETS)).toEqual(SHEET_NAMES);
+  });
+});
+
+describe("approveSheets re-checks drafts against their facts (final review)", () => {
+  const facts = (speakers: { count: number; year: number } | null): Record<string, LanguageFacts> => ({
+    Latin: {
+      name: "Latin",
+      aliases: [],
+      wikipedia: null,
+      wikidata: {
+        qid: "Q397",
+        coordinates: null,
+        inception: null,
+        dissolved: null,
+        speakers,
+        instanceOf: [],
+      },
+      fetchedAt: "2026-10-04T00:00:00.000Z",
+    },
+  });
+  const wrong = { peakSpeakers: { count: 9, year: 100 } };
+
+  it("refuses a draft whose _problems were deleted but which contradicts its facts", () => {
+    const res = approveSheets([draft("Latin", wrong)], [], { allValid: true }, facts({ count: 5, year: 100 }));
+    expect(res.approved).toEqual([]);
+    expect(res.refused[0].reasons.join("\n")).toMatch(/peakSpeakers.count 9 differs from the fact 5/);
+  });
+
+  it("accepts it with a non-empty _override reason, and never copies _override into the sheet", () => {
+    const res = approveSheets(
+      [draft("Latin", { ...wrong, _override: "Count taken from the cited census, owner-checked." })],
+      [],
+      { allValid: true },
+      facts({ count: 5, year: 100 }),
+    );
+    expect(res.approved).toEqual(["Latin"]);
+    expect(Object.keys(res.sheets[0])).not.toContain("_override");
+    expect(renderDataModule(res.sheets)).not.toContain("_override");
+  });
+
+  it("does not accept an empty or non-string _override", () => {
+    for (const _override of ["", "  ", 1, true]) {
+      const res = approveSheets([draft("Latin", { ...wrong, _override })], [], { allValid: true }, facts(null));
+      expect(res.approved).toEqual([]);
+    }
+  });
+
+  it("approves a draft that matches its facts", () => {
+    const res = approveSheets(
+      [draft("Latin", wrong)],
+      [],
+      { allValid: true },
+      facts({ count: 9, year: 100 }),
+    );
+    expect(res.approved).toEqual(["Latin"]);
   });
 });

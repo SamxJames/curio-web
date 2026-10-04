@@ -14,6 +14,7 @@ export type LanguageSheet = {
     writtenUntil?: number | null; // optional faint tail: still used in writing (null = to now)
     approximate: boolean;
   } | null; // null = dates unknown
+  // Holds the recorded figure (Wikidata P1098, a count as of a date), not necessarily a peak.
   peakSpeakers: { count: number; year: number; note?: string } | null;
   unknownSpeakersNote: string | null; // required when peakSpeakers is null
   parent: string | null; // canonical name of the language it descends from, if in our data

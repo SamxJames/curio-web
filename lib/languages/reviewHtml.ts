@@ -3,7 +3,9 @@
 // Local-only tooling, so it uses its own inline CSS rather than the app's design system.
 import { eraLabel, formatYear } from "./timeline";
 import type { LanguageFacts } from "./facts";
-import { validateSheet } from "./validate";
+import { factProblems } from "./draftPrompt";
+import type { LanguageSheet } from "./types";
+import { shapeProblems, validateSheet } from "./validate";
 
 type Obj = Record<string, unknown>;
 const isObject = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -45,7 +47,9 @@ function card(raw: unknown, i: number, facts: LanguageFacts | undefined): string
   const d: Obj = isObject(raw) ? raw : {};
   const name = typeof d.name === "string" ? d.name : `(unnamed draft ${i + 1})`;
   const stored = Array.isArray(d._problems) ? d._problems.map(String) : [];
-  const problems = [...new Set([...stored, ...validateSheet(raw)])];
+  // Re-run the fact cross-checks so a deleted _problems key cannot hide a mismatch.
+  const checked = facts && shapeProblems(raw).length === 0 ? factProblems(raw as LanguageSheet, facts) : [];
+  const problems = [...new Set([...stored, ...validateSheet(raw), ...checked])];
   const aliases = Array.isArray(d.aliases) && d.aliases.length > 0 ? d.aliases.map(String).join(", ") : "—";
   const url = typeof d.sourceUrl === "string" ? d.sourceUrl : "";
 
@@ -55,7 +59,7 @@ function card(raw: unknown, i: number, facts: LanguageFacts | undefined): string
     ["Region", text(d.region)],
     ["Map", mapText(d.map)],
     ["When", eraText(d.era)],
-    ["Speakers at its peak", speakersText(d)],
+    ["Speakers", speakersText(d)],
     ["Parent", text(d.parent)],
     ["Aliases", aliases],
     ["Where it came from", text(d.origin)],

@@ -131,14 +131,15 @@ export function familyModel(
   return { groups, next };
 }
 
-export function statusNote(sheet: LanguageSheet, next: string[]): string {
+export function statusNote(sheet: LanguageSheet): string {
   switch (sheet.status) {
     case "living":
       return "spoken today";
     case "extinct":
       return "no native speakers today";
     case "historical":
-      return `an earlier stage of ${next[0] ?? "a living language"}`;
+      // Lineage order records borrowing, not descent, so never name a later language here.
+      return "an earlier stage of a language still spoken today";
     case "reconstructed":
       return "reconstructed by scholars — never written down";
   }
@@ -155,9 +156,9 @@ export function panelModel(
   favouriteLineages: string[][],
   sheets: LanguageSheet[] = LANGUAGE_SHEETS,
 ): PanelModel {
-  const { groups, next } = familyModel(sheet, favouriteLineages, sheets);
+  const { groups } = familyModel(sheet, favouriteLineages, sheets);
   return {
-    statusNote: statusNote(sheet, next),
+    statusNote: statusNote(sheet),
     timeline: timelineModel(sheet),
     speakers: speakersModel(sheet),
     family: groups,
