@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -23,10 +24,18 @@ import {
   useFavorites,
 } from "@/lib/storage";
 import { track } from "@/lib/analytics";
+import { findSheet } from "@/lib/languages/lookup";
 import Button from "@/components/ui/Button";
 import Eyebrow from "@/components/ui/Eyebrow";
 import IconButton from "@/components/ui/IconButton";
 import { ToggleGroup } from "@/components/ui/SegmentedControl";
+
+// The language panel (and, from inside it, the map dots) loads only when
+// "About …" is first pressed, so neither is in Collection's initial JS.
+const LanguagePanel = dynamic(() => import("./LanguagePanel"), {
+  ssr: false,
+  loading: () => null,
+});
 
 /** Above this many words, the collection stops feeling like a handful of
  * things — the band note switches to explaining the widths, and the closing
@@ -207,6 +216,20 @@ function CollectionBody({
 }) {
   const totalWords = words.length;
   const sparse = totalWords <= DENSE_THRESHOLD;
+  const panelId = useId();
+
+  // Which language the "About" panel is open for. Keyed by language, so the
+  // panel closes by itself when the active language changes or clears (also
+  // when the filter quietly lets go); never persisted.
+  const [aboutFor, setAboutFor] = useState<string | null>(null);
+  const sheet = activeLanguage ? findSheet(activeLanguage) : undefined;
+  const aboutOpen = !!sheet && aboutFor === activeLanguage;
+  const favouriteLineages = useMemo(() => words.map((w) => w.lineage), [words]);
+
+  function toggleLanguage(name: string) {
+    setAboutFor(null);
+    onToggleLanguage(name);
+  }
 
   const filteredWords = useMemo(
     () => (activeLanguage ? words.filter((w) => w.lineage.includes(activeLanguage)) : words),
@@ -240,7 +263,7 @@ function CollectionBody({
           segments={languages}
           getKey={(stat) => stat.name}
           isActive={(stat) => activeLanguage === stat.name}
-          onToggle={(stat) => onToggleLanguage(stat.name)}
+          onToggle={(stat) => toggleLanguage(stat.name)}
           renderSegment={() => null}
           getButtonProps={(stat, isActive) => ({
             title: stat.name,
@@ -262,7 +285,7 @@ function CollectionBody({
           segments={languages}
           getKey={(stat) => stat.name}
           isActive={(stat) => activeLanguage === stat.name}
-          onToggle={(stat) => onToggleLanguage(stat.name)}
+          onToggle={(stat) => toggleLanguage(stat.name)}
           renderSegment={(stat) => (
             <>
               <span>{stat.name}</span>
@@ -290,14 +313,31 @@ function CollectionBody({
       {filterLine && (
         <div className="mt-6.5 flex items-baseline justify-between border-b border-accent pb-2">
           <span className="font-serif text-base">{filterLine}</span>
-          <Button
-            variant="link"
-            className="!text-accent !no-underline text-micro tracking-eyebrow uppercase"
-            onClick={() => onToggleLanguage(activeLanguage!)}
-          >
-            clear
-          </Button>
+          <span className="flex shrink-0 items-baseline gap-4">
+            {sheet && (
+              <Button
+                variant="link"
+                className="!text-accent !no-underline text-micro tracking-eyebrow uppercase"
+                aria-expanded={aboutOpen}
+                aria-controls={panelId}
+                onClick={() => setAboutFor(aboutOpen ? null : activeLanguage)}
+              >
+                About {sheet.name}
+              </Button>
+            )}
+            <Button
+              variant="link"
+              className="!text-accent !no-underline text-micro tracking-eyebrow uppercase"
+              onClick={() => toggleLanguage(activeLanguage!)}
+            >
+              clear
+            </Button>
+          </span>
         </div>
+      )}
+
+      {aboutOpen && sheet && (
+        <LanguagePanel id={panelId} sheet={sheet} favouriteLineages={favouriteLineages} />
       )}
 
       <div className="mt-2">
@@ -306,7 +346,7 @@ function CollectionBody({
             key={word.slug}
             word={word}
             activeLanguage={activeLanguage}
-            onToggleLanguage={onToggleLanguage}
+            onToggleLanguage={toggleLanguage}
           />
         ))}
       </div>

@@ -50,6 +50,48 @@ export default function AttributionPage() {
         Any further reuse of Curio&apos;s content should preserve this
         attribution and remain under a compatible share-alike license.
       </p>
+      <p className="mt-6 font-serif text-lg leading-relaxed text-ink-soft">
+        The language facts on Collection (where and when a language was
+        spoken, its speakers and its family) are adapted from{" "}
+        <a
+          href="https://en.wikipedia.org/"
+          className="text-accent underline underline-offset-2"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Wikipedia
+        </a>{" "}
+        (
+        <a
+          href="https://creativecommons.org/licenses/by-sa/4.0/"
+          className="text-accent underline underline-offset-2"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          CC BY-SA
+        </a>
+        ) and{" "}
+        <a
+          href="https://www.wikidata.org/"
+          className="text-accent underline underline-offset-2"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Wikidata
+        </a>{" "}
+        (
+        <a
+          href="https://creativecommons.org/publicdomain/zero/1.0/"
+          className="text-accent underline underline-offset-2"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          CC0
+        </a>
+        ). They are summarised by the same offline language-model pass, under a
+        rule that it may not add anything the sources don&apos;t say, and each
+        language is reviewed before it is published.
+      </p>
     </section>
   );
 }

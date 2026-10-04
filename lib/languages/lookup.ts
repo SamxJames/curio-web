@@ -10,19 +10,22 @@ export function findSheet(
 }
 
 /**
- * Ancestors up to the root, oldest first, ending with `name`. Only ancestors that
- * have a sheet are included; a missing parent or a cycle ends the walk.
+ * Ancestors up to the root, oldest first, ending with `name`. Only approved sheets
+ * are followed (unapproved sheets are invisible, as in `findSheet`), and every entry
+ * is the sheet's canonical name, so an alias resolves to the name it means. A
+ * missing or unapproved parent, or a cycle, ends the walk.
  */
 export function familyPath(name: string, sheets: LanguageSheet[] = LANGUAGE_SHEETS): string[] {
-  const find = (n: string) => sheets.find((s) => s.name === n || s.aliases.includes(n));
-  const path: string[] = [name];
-  const seen = new Set<string>([name]);
-  let parent = find(name)?.parent ?? null;
-  while (parent !== null && !seen.has(parent)) {
-    const sheet = find(parent);
-    if (!sheet) break;
-    seen.add(parent);
-    path.unshift(parent);
+  const start = findSheet(name, sheets);
+  const self = start?.name ?? name;
+  const path: string[] = [self];
+  const seen = new Set<string>([self]);
+  let parent = start?.parent ?? null;
+  while (parent !== null) {
+    const sheet = findSheet(parent, sheets);
+    if (!sheet || seen.has(sheet.name)) break;
+    seen.add(sheet.name);
+    path.unshift(sheet.name);
     parent = sheet.parent;
   }
   return path;

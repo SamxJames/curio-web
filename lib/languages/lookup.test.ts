@@ -54,6 +54,25 @@ describe("familyPath", () => {
     const m = [s({ name: "A", parent: "Ghost" })];
     expect(familyPath("A", m)).toEqual(["A"]);
   });
+  it("only follows approved sheets", () => {
+    const m = [
+      s({ name: "Root" }),
+      s({ name: "Mid", parent: "Root", approved: false }),
+      s({ name: "Leaf", parent: "Mid" }),
+    ];
+    expect(familyPath("Leaf", m)).toEqual(["Leaf"]);
+  });
+  it("does not walk up from an unapproved starting sheet", () => {
+    const m = [s({ name: "Root" }), s({ name: "Leaf", parent: "Root", approved: false })];
+    expect(familyPath("Leaf", m)).toEqual(["Leaf"]);
+  });
+  it("uses canonical names, not the alias it was given or a parent's alias", () => {
+    const m = [
+      s({ name: "Old Norse", aliases: ["Norse"] }),
+      s({ name: "Icelandic", aliases: ["Islandic"], parent: "Norse" }),
+    ];
+    expect(familyPath("Islandic", m)).toEqual(["Old Norse", "Icelandic"]);
+  });
 });
 
 describe("nextLanguages", () => {
