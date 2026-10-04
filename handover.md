@@ -1,7 +1,9 @@
 # Curio — Handover
 
-Last updated: 2026-10-04, after the weekly demand report (see "Demand report (weekly, internal)").
-See "This session (2026-10-03, cont.):
+Last updated: 2026-10-04, after the weekly demand report (see "Demand report
+(weekly, internal)"). Before that, 2026-10-03 fixed and deployed two pieces of
+user feedback: signed-in readers were being asked to join the email, and
+people didn't notice today's puzzle. See "This session (2026-10-03, cont.):
 signed-in pitch + puzzle visibility" below. Earlier the same day,
 first-party traffic sources shipped. Threads + Instagram (2026-09-29) are
 deployed but post nothing until the owner adds tokens; see "Threads +
