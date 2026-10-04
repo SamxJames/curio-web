@@ -121,6 +121,36 @@ describe("runDemandReport with Search Console", () => {
     ).rejects.toThrow("isn't base64-encoded JSON");
     expect(wikiFetcher).not.toHaveBeenCalled();
   });
+
+  it("fails before the Wiktionary pass, writing nothing, when Search Console is required but the key isn't set", async () => {
+    const wikiFetcher = fakeFetch(wikimediaRoute);
+    await expect(
+      runDemandReport({
+        entries: FIXTURE_ENTRIES,
+        now: NOW,
+        outDir,
+        wikiFetcher,
+        googleFetcher: fakeFetch(),
+        env: {},
+        requireSearchConsole: true,
+      })
+    ).rejects.toThrow("GSC_SERVICE_ACCOUNT_KEY is not set, and this run requires Search Console.");
+    expect(wikiFetcher).not.toHaveBeenCalled();
+    expect(existsSync(path.join(outDir, "snapshots"))).toBe(false);
+  });
+
+  it("runs normally when Search Console is required and the key is set", async () => {
+    const { snapshot } = await runDemandReport({
+      entries: FIXTURE_ENTRIES,
+      now: NOW,
+      outDir,
+      wikiFetcher: fakeFetch(wikimediaRoute),
+      googleFetcher: fakeFetch(googleRoute),
+      env: { GSC_SERVICE_ACCOUNT_KEY: account.envValue },
+      requireSearchConsole: true,
+    });
+    expect(snapshot.searchConsole).not.toBeNull();
+  });
 });
 
 describe("latest.md and the previous snapshot", () => {

@@ -40,7 +40,7 @@ jobs:
       # Fails the job (and so skips the publish step) on any error; the
       # script writes nothing until every source has succeeded.
       - name: Build the report
-        run: npm run demand:report -- --out published
+        run: npm run demand:report -- --out published --require-gsc
         env:
           GSC_SERVICE_ACCOUNT_KEY: ${{ secrets.GSC_SERVICE_ACCOUNT_KEY }}
 

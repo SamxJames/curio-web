@@ -17,6 +17,8 @@ export type RunOptions = {
   wikiFetcher: FetchLike;
   googleFetcher: FetchLike;
   env: Record<string, string | undefined>;
+  /** Fail instead of skipping Search Console when its key isn't set (CI). */
+  requireSearchConsole?: boolean;
   log?: (line: string) => void;
 };
 
@@ -52,6 +54,9 @@ export async function runDemandReport(
   // Read the key first: a malformed key fails now, not after the slow
   // Wiktionary pass.
   const key = loadServiceAccountKey(options.env);
+  if (!key && options.requireSearchConsole) {
+    throw new Error("GSC_SERVICE_ACCOUNT_KEY is not set, and this run requires Search Console.");
+  }
 
   const wiktionary = await collectWiktionary(options.entries, {
     fetcher: options.wikiFetcher,

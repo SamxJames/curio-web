@@ -643,6 +643,9 @@ route, page or component reads it. It's built by `npm run demand:report`
   `gh workflow run demand-report.yml --repo SamxJames/curio-web`.
   - A failed run shows as failed and publishes nothing. The script writes
     nothing until every source has succeeded.
+  - The workflow passes `--require-gsc`, so a missing
+    `GSC_SERVICE_ACCOUNT_KEY` secret fails the run instead of quietly
+    publishing a Wiktionary-only report.
 - **Running it locally:** `npm run demand:report`. Output goes to
   `.reports/demand/` (gitignored), or use `-- --out <dir>`.
   - It reads `GSC_SERVICE_ACCOUNT_KEY` from `.env.local`. Without it, the
