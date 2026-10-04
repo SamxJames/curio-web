@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { getFavorites, mergeFavoritesFromAccount } from "@/lib/storage";
+import { getFavorites, markAccountFavoritesPulled, mergeFavoritesFromAccount } from "@/lib/storage";
 import Button from "@/components/ui/Button";
 
 const OFFERED_KEY = "curio:localImportOffered";
@@ -28,13 +28,18 @@ export default function AccountFavoritesSync() {
         // Pull-down runs on every authenticated sign-in, unconditionally —
         // only the one-time import *offer* below is gated by OFFERED_KEY.
         mergeFavoritesFromAccount(data.slugs);
+        markAccountFavoritesPulled();
 
         if (window.localStorage.getItem(OFFERED_KEY)) return;
 
         const localOnly = Array.from(getFavorites()).filter((slug) => !accountSlugs.has(slug));
         setImportCandidates(localOnly);
       })
-      .catch(() => {});
+      .catch(() => {
+        // Failed pull: still release anything waiting on it (the collection
+        // page) so it shows local favourites rather than loading forever.
+        markAccountFavoritesPulled();
+      });
   }, [status]);
 
   async function handleImport() {

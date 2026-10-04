@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import clsx from "clsx";
 import { Heart } from "lucide-react";
 import {
@@ -15,7 +16,12 @@ import {
   type CollectionWord,
   type LanguageStat,
 } from "@/lib/collection";
-import { toggleFavorite, useClientOnlyValue, useFavorites } from "@/lib/storage";
+import {
+  toggleFavorite,
+  useAccountFavoritesPulled,
+  useClientOnlyValue,
+  useFavorites,
+} from "@/lib/storage";
 import { track } from "@/lib/analytics";
 import Button from "@/components/ui/Button";
 import Eyebrow from "@/components/ui/Eyebrow";
@@ -59,6 +65,16 @@ export default function CollectionScreen() {
   // empty state at someone who has favourites.
   const hydrated = useClientOnlyValue(() => true, false);
   const slugs = useMemo(() => [...favorites].reverse(), [favorites]);
+  // A signed-in reader on a fresh device has empty localStorage until
+  // AccountFavoritesSync's pull lands; with nothing local, hold the loading
+  // state until the session has resolved and (if signed in) the pull has
+  // settled. Display-only — this is not an auth decision. Signed-out readers
+  // only wait for the session check to resolve.
+  const { status: sessionStatus } = useSession();
+  const accountPulled = useAccountFavoritesPulled();
+  const awaitingAccount =
+    favorites.size === 0 &&
+    (sessionStatus === "loading" || (sessionStatus === "authenticated" && !accountPulled));
 
   // slug → word, or null for a slug /api/words didn't return. Additive only:
   // unfavouriting removes a slug from `slugs`, and resolveCollection drops
@@ -97,7 +113,7 @@ export default function CollectionScreen() {
     };
   }, [missingKey]);
 
-  const status: Status = !hydrated
+  const status: Status = !hydrated || awaitingAccount
     ? "loading"
     : missing.length === 0
       ? "ready"
@@ -381,7 +397,7 @@ function WordRow({
         }}
         onKeyDown={(e) => e.stopPropagation()}
         bordered={false}
-        className="shrink-0 self-start !text-ink-faint hover:!text-accent"
+        className="shrink-0 self-start"
       >
         <Heart size={16} strokeWidth={1.75} className="fill-accent text-accent" />
       </IconButton>

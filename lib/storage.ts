@@ -120,6 +120,32 @@ export function mergeFavoritesFromAccount(slugs: string[]): void {
   if (changed) writeSet(FAVORITES_KEY, merged);
 }
 
+// Whether this page load has finished pulling the account's favourites into
+// the local cache (AccountFavoritesSync). Module-level, not persisted: on a
+// fresh device localStorage is empty until that pull lands, and the
+// collection page uses this to avoid flashing "nothing here yet" meanwhile.
+let accountFavoritesPulled = false;
+
+export function getAccountFavoritesPulled(): boolean {
+  return accountFavoritesPulled;
+}
+
+export function subscribeAccountFavoritesPulled(listener: () => void): () => void {
+  return subscribe(listener);
+}
+
+/** Called once the account pull has settled (merged, failed or not ok) so
+ * nothing waits on it forever. */
+export function markAccountFavoritesPulled(): void {
+  if (accountFavoritesPulled) return;
+  accountFavoritesPulled = true;
+  notify();
+}
+
+export function useAccountFavoritesPulled(): boolean {
+  return useSyncExternalStore(subscribe, getAccountFavoritesPulled, () => false);
+}
+
 export type ThemePreference = "light" | "dark" | "system";
 
 export function getThemePreference(): ThemePreference {
