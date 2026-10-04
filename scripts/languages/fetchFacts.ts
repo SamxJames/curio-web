@@ -5,19 +5,22 @@ import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { WORDS } from "../../lib/words";
 import {
+  acceptSummary,
   canonicalName,
-  instanceOfIds,
   isAboutLanguage,
+  labelIds,
   languageSlug,
   languageTargets,
   parseWikidataClaims,
   parseWikidataLabels,
+  parseWikipediaLead,
   parseWikipediaSummary,
   retryAfterMs,
   shouldRetryStatus,
   usableSummary,
   wikidataEntityUrl,
   wikidataLabelsUrl,
+  wikipediaLeadUrl,
   wikipediaSummaryUrls,
   type LanguageFacts,
   type WikipediaSummary,
@@ -52,16 +55,28 @@ async function getJson(url: string): Promise<unknown | null> {
   }
 }
 
-/** "{Name}_language" first; fall back to "{Name}" on a 404 or a page that isn't about a language. */
+/**
+ * Candidate titles in order (Proto-* bare name first, others "{Name} language" first). The first
+ * summary that is about a language AND whose title contains the requested name wins. If none does,
+ * the first usable summary is kept as the old fallback; pageProblems flags it in the draft.
+ * The plain-text lead section is then fetched for the chosen title.
+ */
 async function fetchWikipedia(name: string): Promise<WikipediaSummary | null> {
   let fallback: WikipediaSummary | null = null;
+  let chosen: WikipediaSummary | null = null;
   for (const url of wikipediaSummaryUrls(name)) {
     const summary = usableSummary(parseWikipediaSummary(await getJson(url)));
     if (!summary) continue;
-    if (isAboutLanguage(summary)) return summary;
+    if (acceptSummary(name, summary)) {
+      chosen = summary;
+      break;
+    }
     fallback ??= summary;
   }
-  return fallback;
+  chosen ??= fallback;
+  if (!chosen) return null;
+  const lead = parseWikipediaLead(await getJson(wikipediaLeadUrl(chosen.title)));
+  return lead ? { ...chosen, lead } : chosen;
 }
 
 async function main() {
@@ -90,9 +105,14 @@ async function main() {
       let wikidata: LanguageFacts["wikidata"] = null;
       if (wikipedia?.wikibaseItem) {
         const entity = await getJson(wikidataEntityUrl(wikipedia.wikibaseItem));
-        const ids = instanceOfIds(entity).slice(0, 50);
+        const ids = labelIds(entity).slice(0, 50);
         const labels = ids.length > 0 ? parseWikidataLabels(await getJson(wikidataLabelsUrl(ids))) : {};
         wikidata = parseWikidataClaims(entity, labels);
+        if (wikidata) {
+          const named = (qids: string[] = []) => qids.map((q) => labels[q]).filter((l): l is string => !!l);
+          wikidata.parentLabels = named(wikidata.subclassOf);
+          wikidata.regionLabels = named(wikidata.indigenousTo);
+        }
       }
       const facts: LanguageFacts = { name, aliases, wikipedia, wikidata, fetchedAt: new Date().toISOString() };
       writeFileSync(outPath(name), JSON.stringify(facts, null, 2) + "\n");
@@ -102,6 +122,8 @@ async function main() {
           : "NO wikipedia",
         wikidata ? `wikidata ${wikidata.qid}` : "no wikidata",
         wikidata?.speakers ? "speakers" : "no speakers",
+        wikipedia?.lead ? `lead ${wikipedia.lead.length} chars` : "no lead",
+        `parents ${wikidata?.parentLabels?.length ?? 0}, regions ${wikidata?.regionLabels?.length ?? 0}`,
       ];
       console.log(`${name}: ${notes.join(" | ")}`);
     } catch (err) {

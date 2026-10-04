@@ -9,6 +9,14 @@
           { "mainsnak": { "snaktype": "value", "property": "P31", "datavalue": { "value": { "entity-type": "item", "numeric-id": 34770, "id": "Q34770" }, "type": "wikibase-entityid" } }, "rank": "normal" },
           { "mainsnak": { "snaktype": "value", "property": "P31", "datavalue": { "value": { "entity-type": "item", "numeric-id": 45762, "id": "Q45762" }, "type": "wikibase-entityid" } }, "rank": "normal" }
         ],
+        "P279": [
+          { "mainsnak": { "snaktype": "value", "property": "P279", "datavalue": { "value": { "entity-type": "item", "numeric-id": 100, "id": "Q100" }, "type": "wikibase-entityid" } }, "rank": "normal" },
+          { "mainsnak": { "snaktype": "value", "property": "P279", "datavalue": { "value": { "entity-type": "item", "numeric-id": 101, "id": "Q101" }, "type": "wikibase-entityid" } }, "rank": "deprecated" },
+          { "mainsnak": { "snaktype": "somevalue", "property": "P279" }, "rank": "normal" }
+        ],
+        "P2341": [
+          { "mainsnak": { "snaktype": "value", "property": "P2341", "datavalue": { "value": { "entity-type": "item", "numeric-id": 200, "id": "Q200" }, "type": "wikibase-entityid" } }, "rank": "normal" }
+        ],
         "P625": [
           { "mainsnak": { "snaktype": "value", "property": "P625", "datavalue": { "value": { "latitude": 41.9, "longitude": 12.5, "altitude": null, "precision": 0.1, "globe": "http://www.wikidata.org/entity/Q2" }, "type": "globecoordinate" } }, "rank": "normal" },
           { "mainsnak": { "snaktype": "value", "property": "P625", "datavalue": { "value": { "latitude": 10, "longitude": 10, "altitude": null, "precision": 1, "globe": "http://www.wikidata.org/entity/Q2" }, "type": "globecoordinate" } }, "rank": "normal" }

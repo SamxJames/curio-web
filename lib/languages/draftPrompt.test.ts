@@ -321,3 +321,37 @@ describe("final review: non-language pages and exported factProblems", () => {
     expect(buildSheetPrompt("Latin", latinFacts)).not.toMatch(/\bpeak\b/i);
   });
 });
+
+describe("richer facts (lang-sources)", () => {
+  const rich: LanguageFacts = {
+    ...latinFacts,
+    wikipedia: { ...latinFacts.wikipedia!, lead: "Latin was spoken in Latium from about 700 BCE. It descends from Proto-Italic." },
+    wikidata: { ...latinFacts.wikidata!, parentLabels: ["Italic languages"], regionLabels: ["Latium"] },
+  };
+
+  it("includes the lead section as a labelled fact block", () => {
+    const lines = factLines(rich).join("\n");
+    expect(lines).toContain("Wikipedia lead section (you may take dates, places and lineage from this text)");
+    expect(lines).toContain("It descends from Proto-Italic.");
+  });
+
+  it("includes parent and region labels as facts", () => {
+    const lines = factLines(rich).join("\n");
+    expect(lines).toContain("Wikidata parent languages / groups: Italic languages");
+    expect(lines).toContain("Wikidata indigenous to: Latium");
+  });
+
+  it("omits those lines when the facts lack them", () => {
+    const lines = factLines(latinFacts).join("\n");
+    expect(lines).not.toContain("lead section");
+    expect(lines).not.toContain("parent languages");
+    expect(lines).not.toContain("indigenous to");
+  });
+
+  it("adds the parent, era and map rules to the prompt", () => {
+    const prompt = buildSheetPrompt("Latin", rich, ["Proto-Italic"]);
+    expect(prompt).toContain("Prefer a name that appears in the Wikidata parent languages / groups fact or that the lead section names as the language's ancestor");
+    expect(prompt).toContain("from dates stated in the lead section");
+    expect(prompt).toContain("a place named in the lead section or the indigenous-to fact");
+  });
+});

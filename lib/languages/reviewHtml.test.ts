@@ -141,3 +141,50 @@ describe("renderReviewPage re-runs the fact cross-checks (final review)", () => 
     expect(renderReviewPage([latin], facts)).not.toMatch(/peak at|at its peak/i);
   });
 });
+
+describe("renderReviewPage lead and labels (lang-sources)", () => {
+  const facts = {
+    Latin: {
+      name: "Latin",
+      aliases: [],
+      wikipedia: {
+        title: "Latin",
+        extract: "short",
+        lead: "Latin <b>was</b> spoken in Latium & beyond.",
+        url: "https://en.wikipedia.org/wiki/Latin",
+        description: null,
+        wikibaseItem: "Q397",
+        type: "standard",
+      },
+      wikidata: {
+        qid: "Q397",
+        coordinates: null,
+        inception: null,
+        dissolved: null,
+        speakers: null,
+        instanceOf: [],
+        parentLabels: ["Italic <languages>"],
+        regionLabels: ["Latium & co"],
+      },
+      fetchedAt: "2026-10-04T00:00:00.000Z",
+    },
+  };
+  const html = renderReviewPage([latin], facts);
+
+  it("shows the lead collapsed in a details element, escaped", () => {
+    expect(html).toContain("<details>");
+    expect(html).toContain("<summary>Wikipedia lead section</summary>");
+    expect(html).toContain("Latin &lt;b&gt;was&lt;/b&gt; spoken in Latium &amp; beyond.");
+  });
+
+  it("shows parent and region labels, escaped", () => {
+    expect(html).toContain("Fact parent labels");
+    expect(html).toContain("Italic &lt;languages&gt;");
+    expect(html).toContain("Fact region labels");
+    expect(html).toContain("Latium &amp; co");
+  });
+
+  it("shows no details element when there is no lead", () => {
+    expect(renderReviewPage([latin], {})).not.toContain("<details>");
+  });
+});

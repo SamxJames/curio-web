@@ -74,9 +74,21 @@ export function languageSlug(name: string): string {
 const SUMMARY_BASE = "https://en.wikipedia.org/api/rest_v1/page/summary/";
 const titlePath = (title: string) => encodeURIComponent(title.replace(/ /g, "_"));
 
-/** Summary URLs to try in order: "{Name}_language", then "{Name}". */
+const isProto = (name: string) => /^proto-/i.test(name);
+
+/** Page titles to try in order: "Proto-*" names bare first, every other name "{Name} language" first. */
+export function wikipediaTitleCandidates(name: string): string[] {
+  return isProto(name) ? [name, `${name} language`] : [`${name} language`, name];
+}
+
+/** Summary URLs to try in order (see wikipediaTitleCandidates). */
 export function wikipediaSummaryUrls(name: string): string[] {
-  return [`${SUMMARY_BASE}${titlePath(`${name} language`)}`, `${SUMMARY_BASE}${titlePath(name)}`];
+  return wikipediaTitleCandidates(name).map((t) => `${SUMMARY_BASE}${titlePath(t)}`);
+}
+
+/** The action API URL for a page's plain-text lead section. */
+export function wikipediaLeadUrl(title: string): string {
+  return `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&redirects=1&format=json&formatversion=2&titles=${titlePath(title)}`;
 }
 
 export function wikidataEntityUrl(qid: string): string {
@@ -117,6 +129,7 @@ const str = (v: unknown): string | null => (typeof v === "string" ? v : null);
 export type WikipediaSummary = {
   title: string;
   extract: string;
+  lead?: string; // plain-text lead section, added by fetchFacts
   url: string; // content_urls.desktop.page
   description: string | null;
   wikibaseItem: string | null;
@@ -152,6 +165,33 @@ export function isAboutLanguage(summary: WikipediaSummary): boolean {
   return /\b(language|languages|dialect|dialects|tongue)\b/i.test(text);
 }
 
+export const LEAD_CAP = 4000;
+
+/** Cuts text to LEAD_CAP characters at the last sentence end before the cap (hard cut if none). */
+export function capLead(text: string): string {
+  if (text.length <= LEAD_CAP) return text;
+  const head = text.slice(0, LEAD_CAP);
+  const ends = [...head.matchAll(/[.!?][")\]']?(?=\s|$)/g)];
+  const last = ends[ends.length - 1];
+  return last ? head.slice(0, last.index + last[0].length) : head;
+}
+
+/** Plain-text lead section from the extracts API response; null if the page or extract is missing. */
+export function parseWikipediaLead(json: unknown): string | null {
+  if (!isObject(json) || !isObject(json.query) || !Array.isArray(json.query.pages)) return null;
+  const page = json.query.pages[0];
+  const extract = isObject(page) ? str(page.extract)?.trim() : null;
+  return extract ? capLead(extract) : null;
+}
+
+const normaliseTitle = (s: string) =>
+  s.toLowerCase().replace(/\s+/g, " ").trim().replace(/ languages?$/, "");
+
+/** A summary is kept only if it is about a language AND its title contains the requested name. */
+export function acceptSummary(name: string, summary: WikipediaSummary): boolean {
+  return isAboutLanguage(summary) && normaliseTitle(summary.title).includes(normaliseTitle(name));
+}
+
 export type WikidataFacts = {
   qid: string;
   coordinates: { lat: number; lon: number } | null;
@@ -159,6 +199,10 @@ export type WikidataFacts = {
   dissolved: number | null;
   speakers: { count: number; year: number | null } | null;
   instanceOf: string[]; // English labels where known, else the Q-id
+  subclassOf?: string[]; // P279 Q-ids (non-deprecated)
+  indigenousTo?: string[]; // P2341 Q-ids
+  parentLabels?: string[]; // English labels of subclassOf, added by fetchFacts
+  regionLabels?: string[]; // English labels of indigenousTo, added by fetchFacts
 };
 
 /** "+1066-00-00T00:00:00Z" → 1066; "-0700-…" → -700. */
@@ -188,12 +232,23 @@ function claimValues(entity: Obj, prop: string): { value: unknown; statement: Ob
   return out;
 }
 
-export function instanceOfIds(entityJson: unknown): string[] {
-  const entity = firstEntity(entityJson);
-  if (!entity) return [];
-  return claimValues(entity, "P31")
+function entityIds(entity: Obj, prop: string): string[] {
+  return claimValues(entity, prop)
     .map(({ value }) => (isObject(value) ? str(value.id) : null))
     .filter((id): id is string => id !== null);
+}
+
+export function instanceOfIds(entityJson: unknown): string[] {
+  const entity = firstEntity(entityJson);
+  return entity ? entityIds(entity, "P31") : [];
+}
+
+/** Q-ids whose English labels fetchFacts needs: instance-of, subclass-of and indigenous-to. */
+export function labelIds(entityJson: unknown): string[] {
+  const facts = parseWikidataClaims(entityJson);
+  const entity = firstEntity(entityJson);
+  if (!facts || !entity) return [];
+  return [...new Set([...entityIds(entity, "P31"), ...(facts.subclassOf ?? []), ...(facts.indigenousTo ?? [])])];
 }
 
 /** wbgetentities labels response → { Qid: English label }. */
@@ -245,6 +300,8 @@ export function parseWikidataClaims(
     dissolved: timeYear("P576"),
     speakers,
     instanceOf: instanceOfIds(entityJson).map((id) => labels[id] ?? id),
+    subclassOf: entityIds(entity, "P279"),
+    indigenousTo: entityIds(entity, "P2341"),
   };
 }
 

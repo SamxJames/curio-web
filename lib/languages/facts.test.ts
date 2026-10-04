@@ -6,21 +6,29 @@ import {
   canonicalName,
   collectLineageLanguages,
   instanceOfIds,
+  labelIds,
   isAboutLanguage,
   languageSlug,
   languageTargets,
   parseWikidataClaims,
   parseWikidataLabels,
+  parseWikipediaLead,
   parseWikipediaSummary,
   retryAfterMs,
   shouldRetryStatus,
   usableSummary,
+  wikipediaLeadUrl,
   wikipediaSummaryUrls,
+  acceptSummary,
+  capLead,
+  LEAD_CAP,
 } from "./facts";
 import latinEntity from "./__fixtures__/wikidata-latin.json";
 import sparseEntity from "./__fixtures__/wikidata-sparse.json";
 import labelsJson from "./__fixtures__/wikidata-labels.json";
 import oldNorseSummary from "./__fixtures__/wikipedia-old-norse.json";
+import leadLatin from "./__fixtures__/wikipedia-lead-latin.json";
+import leadMissing from "./__fixtures__/wikipedia-lead-missing.json";
 import disambiguation from "./__fixtures__/wikipedia-disambiguation.json";
 
 const words = [
@@ -145,6 +153,8 @@ describe("parseWikidataClaims", () => {
       dissolved: 600,
       speakers: { count: 50000000, year: 200 },
       instanceOf: ["language", "dead language"],
+      subclassOf: ["Q100"],
+      indigenousTo: ["Q200"],
     });
   });
 
@@ -156,6 +166,8 @@ describe("parseWikidataClaims", () => {
       dissolved: null,
       speakers: { count: 3000, year: null },
       instanceOf: ["Q206577"],
+      subclassOf: [],
+      indigenousTo: [],
     });
   });
 
@@ -200,5 +212,101 @@ describe("usableSummary", () => {
     const real = parseWikipediaSummary(oldNorseSummary)!;
     expect(usableSummary(real)).toBe(real);
     expect(usableSummary(null)).toBeNull();
+  });
+});
+
+describe("wikipediaSummaryUrls for Proto-* names", () => {
+  it("tries the bare name first, then {Name} language", () => {
+    expect(wikipediaSummaryUrls("Proto-West Germanic")).toEqual([
+      "https://en.wikipedia.org/api/rest_v1/page/summary/Proto-West_Germanic",
+      "https://en.wikipedia.org/api/rest_v1/page/summary/Proto-West_Germanic_language",
+    ]);
+  });
+});
+
+describe("wikipediaLeadUrl", () => {
+  it("builds the extracts query for a title", () => {
+    expect(wikipediaLeadUrl("Old Norse")).toBe(
+      "https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&redirects=1&format=json&formatversion=2&titles=Old_Norse",
+    );
+  });
+});
+
+describe("parseWikipediaLead", () => {
+  it("returns the trimmed extract", () => {
+    expect(parseWikipediaLead(leadLatin)).toBe(
+      "Latin is a classical language belonging to the Italic branch of the Indo-European languages. It was originally spoken in Latium, in the Italian peninsula.\n\nThe Romans spread it across Europe from about 700 BCE.",
+    );
+  });
+
+  it("returns null for a missing page, an empty extract or malformed input", () => {
+    expect(parseWikipediaLead(leadMissing)).toBeNull();
+    expect(parseWikipediaLead({ query: { pages: [{ title: "x", extract: "   " }] } })).toBeNull();
+    expect(parseWikipediaLead({ query: { pages: [] } })).toBeNull();
+    expect(parseWikipediaLead(null)).toBeNull();
+    expect(parseWikipediaLead("nope")).toBeNull();
+  });
+
+  it("caps at 4000 characters, cutting at the last sentence end", () => {
+    const long = "This is a sentence about the language. ".repeat(200);
+    const lead = parseWikipediaLead({ query: { pages: [{ extract: long }] } })!;
+    expect(LEAD_CAP).toBe(4000);
+    expect(lead.length).toBeLessThanOrEqual(4000);
+    expect(lead.endsWith("language.")).toBe(true);
+  });
+});
+
+describe("capLead", () => {
+  it("leaves short text alone", () => {
+    expect(capLead("Short. Text.")).toBe("Short. Text.");
+  });
+  it("hard-cuts when there is no sentence end before the cap", () => {
+    expect(capLead("a".repeat(5000)).length).toBe(4000);
+  });
+});
+
+describe("acceptSummary (title matching)", () => {
+  const summary = (title: string, extract = "It is a language of Europe.") => ({
+    title,
+    extract,
+    url: `https://en.wikipedia.org/wiki/${title.replace(/ /g, "_")}`,
+    description: null,
+    wikibaseItem: null,
+    type: "standard",
+  });
+
+  it("rejects West Germanic languages for Proto-West Germanic", () => {
+    expect(acceptSummary("Proto-West Germanic", summary("West Germanic languages"))).toBe(false);
+  });
+  it("accepts Proto-West Germanic language for Proto-West Germanic", () => {
+    expect(acceptSummary("Proto-West Germanic", summary("Proto-West Germanic language"))).toBe(true);
+  });
+  it("rejects Old Norman for Old Northern French", () => {
+    expect(acceptSummary("Old Northern French", summary("Old Norman"))).toBe(false);
+  });
+  it("accepts a matching language page, ignoring case and the language suffix", () => {
+    expect(acceptSummary("Old Norse", summary("Old Norse"))).toBe(true);
+    expect(acceptSummary("Latin", summary("Latin language"))).toBe(true);
+  });
+  it("rejects a page that is not about a language even if the title matches", () => {
+    expect(acceptSummary("Latin", summary("Latin", "A cuisine of the region."))).toBe(false);
+  });
+});
+
+describe("parseWikidataClaims subclassOf and indigenousTo", () => {
+  it("keeps only non-deprecated entity values", () => {
+    const facts = parseWikidataClaims(latinEntity)!;
+    expect(facts.subclassOf).toEqual(["Q100"]);
+    expect(facts.indigenousTo).toEqual(["Q200"]);
+  });
+  it("resolves their labels with the labels parser", () => {
+    expect(parseWikidataLabels(labelsJson)).toMatchObject({ Q100: "Italic languages", Q200: "Latium" });
+  });
+});
+
+describe("labelIds", () => {
+  it("lists instance-of, subclass-of and indigenous-to ids once each", () => {
+    expect(labelIds(latinEntity)).toEqual(["Q34770", "Q45762", "Q100", "Q200"]);
+    expect(labelIds(null)).toEqual([]);
   });
 });

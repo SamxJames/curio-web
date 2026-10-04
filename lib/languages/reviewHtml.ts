@@ -86,8 +86,14 @@ const factYear = (y: number | null) => (y === null ? "—" : `${formatYear(y)} (
 function factsSection(facts: LanguageFacts | undefined): string {
   if (!facts) return `<div class="facts"><p>No facts file found for this draft.</p></div>`;
   const wd = facts.wikidata;
+  const leadText = facts.wikipedia?.lead;
+  const lead = leadText
+    ? `<details><summary>Wikipedia lead section</summary><p>${escapeHtml(leadText)}</p></details>`
+    : "";
   const rows: [string, string][] = [
     ["Fact extract", facts.wikipedia?.extract ?? "—"],
+    ["Fact parent labels", wd?.parentLabels?.join(", ") || "—"],
+    ["Fact region labels", wd?.regionLabels?.join(", ") || "—"],
     ["Fact coordinates", wd?.coordinates ? `${wd.coordinates.lat}, ${wd.coordinates.lon}` : "—"],
     ["Fact inception", factYear(wd?.inception ?? null)],
     ["Fact dissolved", factYear(wd?.dissolved ?? null)],
@@ -100,7 +106,7 @@ function factsSection(facts: LanguageFacts | undefined): string {
   ];
   return `<div class="facts"><h3>Fetched facts</h3><dl>
 ${rows.map(([k, v]) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd>`).join("\n")}
-</dl></div>`;
+</dl>${lead}</div>`;
 }
 
 /** `facts` maps a draft's name to the facts file it was drafted from. */

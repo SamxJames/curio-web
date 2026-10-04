@@ -28,6 +28,11 @@ export function factLines(facts: LanguageFacts): string[] {
   if (wp) {
     lines.push(`Wikipedia article "${wp.title}" (${wp.url}) says: ${wp.extract}`);
     if (wp.description) lines.push(`Wikipedia short description: ${wp.description}`);
+    if (wp.lead) {
+      lines.push(
+        `Wikipedia lead section (you may take dates, places and lineage from this text): ${wp.lead}`,
+      );
+    }
   }
   const wd = facts.wikidata;
   if (wd) {
@@ -43,6 +48,12 @@ export function factLines(facts: LanguageFacts): string[] {
     if (wd.speakers) {
       const when = wd.speakers.year !== null ? `as of year ${wd.speakers.year}` : "no date given";
       lines.push(`Wikidata number of speakers: ${wd.speakers.count} (${when})`);
+    }
+    if (wd.parentLabels && wd.parentLabels.length > 0) {
+      lines.push(`Wikidata parent languages / groups: ${wd.parentLabels.join(", ")}`);
+    }
+    if (wd.regionLabels && wd.regionLabels.length > 0) {
+      lines.push(`Wikidata indigenous to: ${wd.regionLabels.join(", ")}`);
     }
     if (wd.instanceOf.length > 0) lines.push(`Wikidata "instance of": ${wd.instanceOf.join(", ")}`);
   }
@@ -80,9 +91,9 @@ Do NOT invent, guess, or pad any detail beyond what's given above — if the fac
 Rules:
 - Speakers: ${speakersRule} Never estimate, round or guess a speaker count. Whenever "peakSpeakers" is null, "unknownSpeakersNote" must be one honest line, e.g. "No census of its speakers exists." or "Reconstructed by scholars — never written down."
 - Status: "living", "extinct", "historical" (an earlier stage of a language still spoken today, e.g. Old English) or "reconstructed". Every "Proto-" language is "reconstructed", and a reconstructed language always has "peakSpeakers": null.
-- Map: give the approximate centre and spread of where it was spoken, from the coordinates or a region named in the facts. If no location is stated or implied by the facts, set "map": null.
-- Era: years as numbers, negative for BCE. "to" is null if it is still spoken natively today. Set "era": null if the facts give no dates at all, and "approximate": true unless the facts give exact years.
-- Parent: ${parentRule}
+- Map: give the approximate centre and spread of where it was spoken, from the coordinates, a place named in the lead section or the indigenous-to fact, or a region named in the facts. If no location is stated or implied by the facts, set "map": null.
+- Era: years as numbers, negative for BCE. "to" is null if it is still spoken natively today. Set "era": null if the facts give no dates at all, and "approximate": true unless the facts give exact years. You may take dates from dates stated in the lead section; mark them "approximate": true unless the lead gives exact years.
+- Parent: ${parentRule} Prefer a name that appears in the Wikidata parent languages / groups fact or that the lead section names as the language's ancestor.
 
 Write a JSON object (and nothing else — no markdown fences, no commentary) with exactly these fields:
 {
