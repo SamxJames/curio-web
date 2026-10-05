@@ -1,0 +1,44 @@
+{
+  "name": "Frankish",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Frankish language",
+    "extract": "Frankish, also known as Old Franconian or Old Frankish, was the West Germanic language spoken by the Franks between the 4th and 8th century.",
+    "url": "https://en.wikipedia.org/wiki/Frankish_language",
+    "description": "West Germanic language spoken by the Franks from the 5th to 10th centuries",
+    "wikibaseItem": "Q10860505",
+    "type": "standard",
+    "lead": "Frankish (reconstructed Frankish: *Frankisk), also known as Old Franconian or Old Frankish, was the West Germanic language spoken by the Franks between the 4th and 8th century.\nBetween the 5th and 9th centuries, Frankish spoken by the Salian Franks in Belgium and the Netherlands evolved into Old Dutch (Old Low Franconian).\nAfter the Salian Franks settled in Roman Gaul, its speakers  in Picardy and Île-de-France were outnumbered by the local populace who spoke Proto-Romance dialects, e.g. Old French. However, a number of modern French words and place names, including the country name \"France\", have a Frankish (i.e. Germanic) origin. France itself is still known by terms meaning the \"Frankish Realm\" in languages such as German (Frankreich), Dutch (Frankrijk), the derived Afrikaans (Frankryk), and Danish (Frankrig).\nThe Old Frankish language is poorly attested and mostly reconstructed from Frankish loanwords in Old French, and from Old Dutch, as recorded in the 6th to 12th centuries. A notable exception is the Bergakker inscription, which may represent a primary record of 5th-century Frankish.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q10860505",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": 701,
+    "speakers": {
+      "count": 0,
+      "year": null
+    },
+    "instanceOf": [
+      "historical language",
+      "natural language",
+      "extinct language"
+    ],
+    "subclassOf": [
+      "Q153050",
+      "Q2742615"
+    ],
+    "indigenousTo": [
+      "Q43482"
+    ],
+    "parentLabels": [
+      "Low Franconian",
+      "Weser-Rhine Germanic"
+    ],
+    "regionLabels": [
+      "Franks"
+    ]
+  },
+  "fetchedAt": "2026-10-04T15:09:15.025Z"
+}

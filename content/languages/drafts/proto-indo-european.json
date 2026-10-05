@@ -1,0 +1,25 @@
+{
+  "name": "Proto-Indo-European",
+  "aliases": [],
+  "status": "reconstructed",
+  "classification": "Common ancestor of the Indo-European language family",
+  "region": "Probably the Pontic–Caspian steppe of eastern Europe and central Asia → spread through the Indo-European migrations",
+  "map": {
+    "lat": 48,
+    "lon": 45,
+    "radiusKm": 1000
+  },
+  "era": {
+    "from": -4500,
+    "to": -2500,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "Reconstructed by scholars — never written down.",
+  "parent": null,
+  "origin": "No direct record of Proto-Indo-European has ever been found; linguists have pieced it together by comparing documented Indo-European languages. It is thought to have been spoken as a single language from about 4500 to 2500 BCE, perhaps on the Pontic–Caspian steppe. As its speakers spread apart, their dialects diverged and over many centuries became the ancient Indo-European languages, and later their modern descendants.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Proto-Indo-European_language",
+  "approved": true,
+  "_override": "Wikipedia lead: 'spoken as a single language from approximately 4500 BCE to 2500 BCE'; Wikidata's -3500 is one estimate."
+}

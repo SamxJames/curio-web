@@ -1,0 +1,24 @@
+{
+  "name": "Old French",
+  "aliases": [],
+  "status": "historical",
+  "classification": "Gallo-Romance dialect continuum; the Oïl group of Romance dialects",
+  "region": "Northern half of France and parts of the Angevin Empire, Upper and Lower Lorraine → carried to England and the Crusader states",
+  "map": {
+    "lat": 48.5,
+    "lon": 2.5,
+    "radiusKm": 350
+  },
+  "era": {
+    "from": 775,
+    "to": 1350,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": null,
+  "origin": "Old French was not one unified language but a group of Romance dialects, mutually intelligible yet diverse. Together they came to be known as the langues d'oïl, set against the langues d'oc of Occitania in the south. In the mid-14th century Middle French emerged, a predecessor to Modern French, while other dialects became Norman, Picard, Walloon and more.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Old_French",
+  "approved": true
+}

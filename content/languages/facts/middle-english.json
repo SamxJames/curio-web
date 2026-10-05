@@ -1,0 +1,41 @@
+{
+  "name": "Middle English",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Middle English",
+    "extract": "Middle English refers to the variations of the English language that were spoken in England after the Norman Conquest of 1066, until the late 15th century, roughly coinciding with the High and Late Middle Ages. The Middle English dialects evolved from Old English under the influence of Anglo-Norman French and Old Norse. They were eventually replaced in England by Early Modern English, in Scotland by Early Scots, and in Ireland by the Fingallian language and the Yola language. The four main dialects in England were Northern, East Midland, West Midland, and Southern. Overall, Middle English exhibited significant regional variation in its vocabulary, grammar, pronunciation, and orthography.",
+    "url": "https://en.wikipedia.org/wiki/Middle_English",
+    "description": "English language during the Middle Ages",
+    "wikibaseItem": "Q36395",
+    "type": "standard",
+    "lead": "Middle English (abbreviated to ME) refers to the variations of the English language that were spoken in England after the Norman Conquest of 1066, until the late 15th century, roughly coinciding with the High and Late Middle Ages. The Middle English dialects evolved from Old English under the influence of Anglo-Norman French and Old Norse. They were eventually replaced in England by Early Modern English, in Scotland by Early Scots, and in Ireland by the Fingallian language and the Yola language. The four main dialects in England were Northern, East Midland, West Midland, and Southern. Overall, Middle English exhibited significant regional variation in its vocabulary, grammar, pronunciation, and orthography.\nDuring the Middle English period, many Old English grammatical features either became simplified or disappeared altogether. Noun, adjective, and verb inflections were simplified by the reduction (and eventual elimination) of most grammatical case distinctions. Middle English also saw considerable adoption of Anglo-Norman vocabulary, especially in the areas of politics, law, the arts, and religion, as well as poetic and emotive diction. Conventional English vocabulary remained primarily Germanic in its sources, with Old Norse influences becoming more apparent. Significant changes in pronunciation took place, particularly involving long vowels and diphthongs, which in the later Middle English period began to undergo the Great Vowel Shift.\nLittle survives of early Middle English literature, due in part to Norman domination and the prestige that came with writing in French rather than English. During the 14th century, a new style of literature emerged with the works of writers including John Wycliffe and Geoffrey Chaucer, whose Canterbury Tales remains the most studied and read work of the period.\nBy the end of the period (about 1470), and aided by the invention of the printing press by Johannes Gutenberg in 1439, a standard based on the London dialects (Chancery Standard) had become established. This largely formed the basis for Modern English spelling, although pronunciation has changed considerably since that time. In England, Middle English was succeeded by Early Modern English, which lasted until about 1650. In Scotland, Early Scots developed concurrently from a variant of the Northumbrian Old English  (prevalent in Northern England and spoken in southeast Scotland).",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q36395",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 0,
+      "year": null
+    },
+    "instanceOf": [
+      "historical language",
+      "language variety",
+      "chronolect",
+      "spoken language"
+    ],
+    "subclassOf": [
+      "Q1346342",
+      "Q1860"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "Anglic",
+      "English"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-04T15:08:01.443Z"
+}

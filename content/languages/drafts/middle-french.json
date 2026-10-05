@@ -1,0 +1,24 @@
+{
+  "name": "Middle French",
+  "aliases": [],
+  "status": "historical",
+  "classification": "Historical stage of the French language, in the Oïl group",
+  "region": "Kingdom of France",
+  "map": {
+    "lat": 47,
+    "lon": 2,
+    "radiusKm": 500
+  },
+  "era": {
+    "from": 1350,
+    "to": 1600,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "Old French",
+  "origin": "Middle French is the division of French spoken from the mid-14th to the early 17th centuries, a period of transition. During it, French became clearly distinguished from the other competing Oïl languages, which are sometimes grouped under Old French, and was imposed as the official language of the Kingdom of France in place of Latin and other Oïl and Occitan languages. It is the first version of French that is largely intelligible to speakers of Modern French.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Middle_French",
+  "approved": true
+}

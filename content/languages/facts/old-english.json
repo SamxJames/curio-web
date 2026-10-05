@@ -1,0 +1,52 @@
+{
+  "name": "Old English",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Old English",
+    "extract": "Old English, Early English or Anglo-Saxon, is the earliest attested form of the English language, spoken in England and southern and eastern Scotland in the Early Middle Ages. It developed from the languages brought to Great Britain by Anglo-Saxon settlers in the mid-5th century, and the first Old English literature dates from the mid-7th century. After the Norman Conquest of 1066, English was replaced as the language of the upper classes for several centuries by Anglo-Norman, a type of French. 1066 is therefore regarded as marking the end of the Old English era, since during the subsequent period the English language was heavily influenced by Anglo-Norman and Old Norse, developing into what is now known as Middle English.",
+    "url": "https://en.wikipedia.org/wiki/Old_English",
+    "description": "Earliest historical form of English language",
+    "wikibaseItem": "Q42365",
+    "type": "standard",
+    "lead": "Old English (Englisċ or Ænglisċ, pronounced [ˈeŋɡliʃ] or [ˈæŋɡliʃ]), Early English or Anglo-Saxon, is the earliest attested form of the English language, spoken in England and southern and eastern Scotland in the Early Middle Ages. It developed from the languages brought to Great Britain by Anglo-Saxon settlers in the mid-5th century, and the first Old English literature dates from the mid-7th century.  After the Norman Conquest of 1066, English was replaced as the language of the upper classes for several centuries by Anglo-Norman, a type of French. 1066 is therefore regarded as marking the end of the Old English era, since during the subsequent period the English language was heavily influenced by Anglo-Norman and Old Norse, developing into what is now known as Middle English.\nOld English developed from a set of Anglo-Frisian or Ingvaeonic dialects originally spoken by Germanic tribes traditionally known as the Angles, Saxons and Jutes. As the Germanic settlers became dominant in England, their language replaced the languages of Roman Britain: Common Brittonic, a Celtic language; and Latin, brought to Britain by the Roman conquest. Old English had four main dialects, associated with particular Anglo-Saxon kingdoms: Kentish, Mercian, Northumbrian, and West Saxon. It was West Saxon that formed the basis for the literary standard of the later Old English period, although the dominant forms of Middle and Modern English would develop mainly from Mercian, and Scots from Northumbrian. The speech of eastern and northern parts of England was subject to strong Old Norse influence due to Scandinavian rule and settlement beginning in the 9th century.\nOld English is one of the West Germanic languages, with its closest relatives being Old Frisian and Old Saxon. Like other old Germanic languages, it is very different from Modern English and Modern Scots, and largely incomprehensible for Modern English or Modern Scots speakers without study. Within Old English grammar, the nouns, adjectives, pronouns, and verbs have many inflectional endings and forms, and word order is much freer. The oldest Old English inscriptions were written using a runic system, but from the 7th century onward this was replaced by a version of the Latin alphabet.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q42365",
+    "coordinates": {
+      "lat": 52,
+      "lon": 0
+    },
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 0,
+      "year": null
+    },
+    "instanceOf": [
+      "natural language",
+      "chronolect",
+      "historical language",
+      "extinct language"
+    ],
+    "subclassOf": [
+      "Q1346342"
+    ],
+    "indigenousTo": [
+      "Q38272",
+      "Q21",
+      "Q22",
+      "Q25"
+    ],
+    "parentLabels": [
+      "Anglic"
+    ],
+    "regionLabels": [
+      "British Isles",
+      "England",
+      "Scotland",
+      "Wales"
+    ]
+  },
+  "fetchedAt": "2026-10-04T15:08:32.069Z"
+}

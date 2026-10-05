@@ -1,0 +1,52 @@
+{
+  "name": "Old Norse",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Old Norse",
+    "extract": "Old Norse was a North Germanic language spoken in Scandinavia and in Norse settlements during the Viking Age and the early Middle Ages. It is the conventional term for the medieval West and East Scandinavian dialects that developed from Proto-Norse and later evolved into the modern North Germanic languages, including Icelandic, Faroese, Norwegian, Danish, and Swedish.",
+    "url": "https://en.wikipedia.org/wiki/Old_Norse",
+    "description": "North Germanic language",
+    "wikibaseItem": "Q35505",
+    "type": "standard",
+    "lead": "Old Norse was a North Germanic language spoken in Scandinavia and in Norse settlements during the Viking Age and the early Middle Ages (approximately the 8th–14th centuries). It is the conventional term for the medieval West and East Scandinavian dialects (often labelled Old West Norse and Old East Norse) that developed from Proto-Norse and later evolved into the modern North Germanic languages, including Icelandic, Faroese, Norwegian, Danish, and Swedish.\nOld Norse is attested in runic inscriptions (written in the Younger Futhark) and in numerous medieval manuscripts written with the Latin alphabet; its literary corpus includes the Poetic Edda, the Prose Edda, the Icelandic sagas, skaldic verse, law codes, and religious texts. Contact between Old Norse speakers and other languages — particularly Old English and the Celtic languages — left a substantial legacy of loanwords and toponyms; many common English words such as egg, knife, sky, and window derive from Old Norse.\nScholarly usage of the term Old Norse typically covers texts from the 11th to the 14th centuries, though periodization varies within academia based on the theoretical focus and tradition of the particular source.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q35505",
+    "coordinates": {
+      "lat": 63.42,
+      "lon": 10.38
+    },
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "dead language",
+      "historical language",
+      "extinct language"
+    ],
+    "subclassOf": [
+      "Q106085"
+    ],
+    "indigenousTo": [
+      "Q22",
+      "Q27",
+      "Q25",
+      "Q9676",
+      "Q15878",
+      "Q1392840"
+    ],
+    "parentLabels": [
+      "North Germanic"
+    ],
+    "regionLabels": [
+      "Scotland",
+      "Ireland",
+      "Wales",
+      "Isle of Man",
+      "Normandy",
+      "Novgorod Rus"
+    ]
+  },
+  "fetchedAt": "2026-10-04T15:09:13.940Z"
+}

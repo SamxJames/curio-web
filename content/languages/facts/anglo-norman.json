@@ -1,0 +1,46 @@
+{
+  "name": "Anglo-Norman",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Anglo-Norman language",
+    "extract": "Anglo-Norman, also known as Anglo-Norman French, Insular French, and part of the French of England was a dialect of Old Norman that was used in England and, to a lesser extent, other places in Great Britain and Ireland during the Anglo-Norman period.",
+    "url": "https://en.wikipedia.org/wiki/Anglo-Norman_language",
+    "description": "Extinct dialect of Old Norman used in England",
+    "wikibaseItem": "Q35214",
+    "type": "standard",
+    "lead": "Anglo-Norman (Norman: Anglo-Normaund; French: Anglo-normand), also known as Anglo-Norman French, Insular French, and part of the French of England (which includes Anglo-French) was a dialect of Old Norman that was used in England and, to a lesser extent, other places in Great Britain and Ireland during the Anglo-Norman period.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q35214",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "dead language",
+      "historical language",
+      "language",
+      "regiolect"
+    ],
+    "subclassOf": [
+      "Q2044917"
+    ],
+    "indigenousTo": [
+      "Q21",
+      "Q22",
+      "Q25",
+      "Q27"
+    ],
+    "parentLabels": [
+      "Old Norman"
+    ],
+    "regionLabels": [
+      "England",
+      "Scotland",
+      "Wales",
+      "Ireland"
+    ]
+  },
+  "fetchedAt": "2026-10-04T15:08:59.604Z"
+}

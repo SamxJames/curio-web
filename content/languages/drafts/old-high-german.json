@@ -1,0 +1,20 @@
+{
+  "name": "Old High German",
+  "aliases": [],
+  "status": "historical",
+  "classification": "Earliest stage of the German language, within the High German group of West Germanic dialects",
+  "region": "German-speaking lands of the early medieval period, brought under Charlemagne's single polity by 788",
+  "map": null,
+  "era": {
+    "from": 750,
+    "to": 1050,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "Germanic",
+  "origin": "Old High German is the earliest stage of German, conventionally dated from around 500/750 to 1050. It was not one unified language but a family of West Germanic dialects that shared the consonantal changes known as the Second Sound Shift. Its earliest written traces are glosses from the latter half of the 8th century, notes in the margins of Latin texts made in monastic scriptoria.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Old_High_German",
+  "approved": true
+}

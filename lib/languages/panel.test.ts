@@ -67,8 +67,8 @@ describe("panelModel", () => {
     expect(panelModel(LATIN_FIXTURE, lineages, FIXTURE_SHEETS).favouriteCount).toBe(3);
   });
 
-  it("uses the shipped (empty) data by default without throwing", () => {
-    expect(LANGUAGE_SHEETS).toEqual([]);
+  it("uses the shipped data by default without throwing; it holds only approved sheets", () => {
+    expect(LANGUAGE_SHEETS.every((s) => s.approved)).toBe(true);
     const m = panelModel(LATIN_FIXTURE, lineages);
     expect(m.family[0].map((c) => c.name)).toEqual(["Latin"]);
   });

@@ -1,0 +1,50 @@
+{
+  "name": "Latin",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Latin",
+    "extract": "Latin is a classical language belonging to the Italic branch of the Indo-European languages. Latin was originally spoken by the Latins in Latium, the lower Tiber area around Rome, Italy. Through the expansion of the Roman Republic, it became the dominant language in the Italian Peninsula and subsequently throughout the Roman Empire. It has greatly influenced many languages, including English, having contributed many words to the English lexicon, particularly after the Christianisation of the Anglo-Saxons and the Norman Conquest. Latin roots appear frequently in the technical vocabulary used by fields such as theology, the sciences, medicine, and law.",
+    "url": "https://en.wikipedia.org/wiki/Latin",
+    "description": "Indo-European language of the Italic branch",
+    "wikibaseItem": "Q397",
+    "type": "standard",
+    "lead": "Latin (lingua Latina or Latinum) is a classical language belonging to the Italic branch of the Indo-European languages. Latin was originally spoken by the Latins in Latium (now known as Lazio), the lower Tiber area around Rome, Italy. Through the expansion of the Roman Republic, it became the dominant language in the Italian Peninsula and subsequently throughout the Roman Empire. It has greatly influenced many languages, including English, having contributed many words to the English lexicon, particularly after the Christianisation of the Anglo-Saxons and the Norman Conquest. Latin roots appear frequently in the technical vocabulary used by fields such as theology, the sciences, medicine, and law.\nBy the late Roman Republic, Old Latin had evolved into standardised Classical Latin. Vulgar Latin refers to the less prestigious colloquial registers, attested in inscriptions and some literary works such as those of the comic playwrights Plautus and Terence and the author Petronius. While often called a \"dead language\", Latin did not undergo language death. Between the 6th and 9th centuries, natural language change in the vernacular Latin of different regions evolved into distinct Romance languages. After the fall of the Western Roman Empire, Latin remained the common language of international communication, science, scholarship and academia in Europe into the early 19th century, by which time modern languages had supplanted it in common academic and political usage.\nLate Latin is the literary form of the language from the 3rd century AD onward. No longer spoken as a native language, Medieval Latin was used across Western and Catholic Europe during the Middle Ages as a working and literary language from the 9th century to the Renaissance, which then developed a classicising form, called Renaissance Latin. This was the basis for Neo-Latin, which evolved during the early modern period. Latin was taught to be written and spoken at least until the late seventeenth century, when spoken skills began to erode; Contemporary Latin is generally studied to be read rather than spoken. Ecclesiastical Latin remains the official language of the Holy See and the Roman Rite of the Catholic Church.\nLatin grammar is highly fusional, with classes of inflections for case, number, person, gender, tense, mood, voice, and aspect. The Latin alphabet is directly derived from the Etruscan and Greek alphabets.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q397",
+    "coordinates": {
+      "lat": 41.4,
+      "lon": 13.1
+    },
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 7500000,
+      "year": 1
+    },
+    "instanceOf": [
+      "dead language",
+      "ancient language",
+      "language",
+      "sacred language"
+    ],
+    "subclassOf": [
+      "Q33478",
+      "Q85380120"
+    ],
+    "indigenousTo": [
+      "Q1747689",
+      "Q1048669"
+    ],
+    "parentLabels": [
+      "Latino-Faliscan",
+      "Southern European language"
+    ],
+    "regionLabels": [
+      "Ancient Rome",
+      "Latium"
+    ]
+  },
+  "fetchedAt": "2026-10-04T15:08:12.974Z"
+}

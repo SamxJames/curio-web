@@ -1,0 +1,25 @@
+{
+  "name": "Proto-Hellenic",
+  "aliases": [],
+  "status": "reconstructed",
+  "classification": "Indo-European language; the common ancestor of all varieties of Greek",
+  "region": "Greece, entered by its speakers during the European Bronze Age",
+  "map": {
+    "lat": 39,
+    "lon": 22,
+    "radiusKm": 300
+  },
+  "era": {
+    "from": -2200,
+    "to": -1700,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "Reconstructed by scholars — never written down.",
+  "parent": null,
+  "origin": "Proto-Hellenic, also called Proto-Greek, is the Indo-European language that was the last common ancestor of all varieties of Greek. Its speakers entered Greece sometime during the European Bronze Age, around 2200–1900 BC. By about 1700 BC it had begun to diversify into a southern and a northern group, leading on to Mycenaean Greek, the ancient Greek dialects, and ultimately Koine, Byzantine and Modern Greek.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Proto-Greek_language",
+  "approved": true,
+  "_override": "Wikipedia lead: 'The Proto-Greek language, also known as Proto-Hellenic' — same language."
+}

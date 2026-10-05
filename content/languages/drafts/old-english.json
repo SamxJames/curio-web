@@ -1,0 +1,24 @@
+{
+  "name": "Old English",
+  "aliases": [],
+  "status": "historical",
+  "classification": "Anglic, West Germanic branch of the Germanic languages; closest relatives are Old Frisian and Old Saxon",
+  "region": "England and southern and eastern Scotland",
+  "map": {
+    "lat": 52,
+    "lon": 0,
+    "radiusKm": 300
+  },
+  "era": {
+    "from": 450,
+    "to": 1066,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": null,
+  "origin": "Old English grew out of Anglo-Frisian, or Ingvaeonic, dialects brought to Great Britain by Anglo-Saxon settlers in the mid-5th century. Those settlers, traditionally called the Angles, Saxons and Jutes, became dominant in England, and their speech replaced Common Brittonic and Latin. The first Old English literature dates from the mid-7th century, and the era is regarded as ending in 1066, when the Norman Conquest set English on the path to Middle English.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Old_English",
+  "approved": true
+}

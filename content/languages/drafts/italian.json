@@ -1,0 +1,23 @@
+{
+  "name": "Italian",
+  "aliases": [],
+  "status": "living",
+  "classification": "Italo-Romance language of the Romance branch of the Indo-European family",
+  "region": "Italy, San Marino, Ticino and part of the Grisons in Switzerland, and Istria → official or minority language in several neighbouring countries, with communities worldwide",
+  "map": {
+    "lat": 43,
+    "lon": 13,
+    "radiusKm": 400
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 64819790,
+    "year": 2012,
+    "note": "Speakers, Wikidata figure for 2012"
+  },
+  "unknownSpeakersNote": null,
+  "parent": "Latin",
+  "origin": "Italian is a Romance language, and it is a standardised form of literary Florentine Tuscan. Together with Sardinian, it is the least differentiated language from Latin, which is why it is often called a conservative Romance language in its sounds, vocabulary and word forms.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Italian_language",
+  "approved": true
+}

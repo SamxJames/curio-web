@@ -1,0 +1,24 @@
+{
+  "name": "Middle English",
+  "aliases": [],
+  "status": "historical",
+  "classification": "Earlier stage of English, in the Anglic group",
+  "region": "England after the Norman Conquest → later replaced by Early Modern English in England, Early Scots in Scotland, and Fingallian and Yola in Ireland",
+  "map": {
+    "lat": 52.8,
+    "lon": -1.5,
+    "radiusKm": 300
+  },
+  "era": {
+    "from": 1066,
+    "to": 1470,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "Old English",
+  "origin": "Middle English grew out of Old English after the Norman Conquest of 1066, shaped by Anglo-Norman French and Old Norse. Many Old English grammatical features were simplified or lost, and Anglo-Norman words entered the language, especially in politics, law, the arts and religion. By about 1470, a standard based on London dialects had become established, and it largely formed the basis of Modern English spelling.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Middle_English",
+  "approved": true
+}

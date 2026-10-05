@@ -1,0 +1,40 @@
+{
+  "name": "Ancient Greek",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Ancient Greek",
+    "extract": "Ancient Greek includes the forms of the Greek language used in ancient Greece and the ancient world from around 1500 BC to 300 BC. It is often roughly divided into the following periods: Mycenaean Greek, Dark Ages, the Archaic or Homeric period, and the Classical period.",
+    "url": "https://en.wikipedia.org/wiki/Ancient_Greek",
+    "description": "Ancient forms of the Greek language",
+    "wikibaseItem": "Q35497",
+    "type": "standard",
+    "lead": "Ancient Greek (Ἑλληνική, Hellēnikḗ [hellɛːnikɛ̌ː]) includes the forms of the Greek language used in ancient Greece and the ancient world from around 1500 BC to 300 BC. It is often roughly divided into the following periods: Mycenaean Greek (c. 1400 – c. 1200 BC), Dark Ages (c. 1200 – c. 800 BC), the Archaic or Homeric period (c. 800 – c. 500 BC), and the Classical period (c. 500 – c. 300 BC).\nAncient Greek was the language of Homer and of fifth- and fourth-century Athenian historians, playwrights, and philosophers. It has contributed many words to English vocabulary and has been a standard subject of study in educational institutions of the Western world since the Renaissance. This article primarily contains information about the Epic and Classical periods of the language, which are the best-attested periods and considered most typical of Ancient Greek.\nFrom the Hellenistic period (c. 300 BC), Ancient Greek was followed by Koine Greek, which is regarded as a separate historical stage, though its earliest form closely resembles Attic Greek, and its latest form approaches Medieval Greek, and Koine may be classified as Ancient Greek in a wider sense – being an ancient rather than medieval form of Greek, though over the centuries increasingly resembling Medieval and Modern Greek.\nAncient Greek comprised several dialects, such as Attic, Ionic, Doric, Aeolic, and Arcadocypriot; among them, Attic Greek became the basis of Koine Greek. Unlike Koine, which is generally treated as a later form of Ancient Greek, Mycenaean Greek is treated separately from the later language, reflecting its age, and the very different nature of the material and of the type of scholarship required to study it.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q35497",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "language",
+      "historical language"
+    ],
+    "subclassOf": [
+      "Q2042538"
+    ],
+    "indigenousTo": [
+      "Q11772",
+      "Q155552"
+    ],
+    "parentLabels": [
+      "Hellenic"
+    ],
+    "regionLabels": [
+      "Ancient Greece",
+      "Mediterranean Region"
+    ]
+  },
+  "fetchedAt": "2026-10-04T15:08:39.724Z"
+}

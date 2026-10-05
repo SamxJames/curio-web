@@ -1,0 +1,28 @@
+{
+  "name": "Persian",
+  "aliases": [],
+  "status": "living",
+  "classification": "Western Iranian language of the Iranian branch of the Indo-Iranian subdivision of the Indo-European family",
+  "region": "Fars in southwestern Iran → Iran, Afghanistan, Tajikistan and the wider cultural sphere of Greater Iran",
+  "map": {
+    "lat": 31,
+    "lon": 56,
+    "radiusKm": 1200
+  },
+  "era": {
+    "from": 800,
+    "to": null,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": {
+    "count": 70000000,
+    "year": 2019,
+    "note": "Speakers, Wikidata figure for 2019"
+  },
+  "unknownSpeakersNote": null,
+  "parent": "Middle Persian",
+  "origin": "Modern Persian continues Middle Persian, an official language of the Sasanian Empire (224–651 CE), which itself continues Old Persian, used in the Achaemenid Empire (550–330 BCE). It originated in the region of Fars in southwestern Iran. New Persian literature was first recorded in the ninth century, after the Muslim conquest of Persia.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Persian_language",
+  "approved": true
+}

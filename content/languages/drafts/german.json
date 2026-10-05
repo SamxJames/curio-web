@@ -1,0 +1,23 @@
+{
+  "name": "German",
+  "aliases": [],
+  "status": "living",
+  "classification": "West Germanic branch of the Indo-European family",
+  "region": "Western and Central Europe: Germany, Austria, Switzerland, Liechtenstein → official or national status in Luxembourg, Belgium, South Tyrol and Namibia",
+  "map": {
+    "lat": 50,
+    "lon": 10,
+    "radiusKm": 500
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 105000000,
+    "year": 2012,
+    "note": "Speakers, Wikidata figure for 2012"
+  },
+  "unknownSpeakersNote": null,
+  "parent": "Old High German",
+  "origin": "Modern German developed gradually from Old High German, which in turn grew out of Proto-Germanic during the Early Middle Ages. Its closest relatives are other West Germanic languages such as Dutch, English, Afrikaans, the Frisian languages and Scots. Most of its vocabulary comes from the ancient Germanic branch of Indo-European, with a smaller share drawn partly from Latin and Greek.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/German_language",
+  "approved": true
+}

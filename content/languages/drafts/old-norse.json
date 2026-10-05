@@ -1,0 +1,24 @@
+{
+  "name": "Old Norse",
+  "aliases": [],
+  "status": "historical",
+  "classification": "North Germanic branch of the Germanic languages",
+  "region": "Scandinavia → Norse settlements across the North Atlantic, the British Isles, Normandy and Novgorod Rus",
+  "map": {
+    "lat": 63.42,
+    "lon": 10.38,
+    "radiusKm": 800
+  },
+  "era": {
+    "from": 800,
+    "to": 1400,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "North Germanic",
+  "origin": "Old Norse is the conventional name for the medieval West and East Scandinavian dialects that developed from Proto-Norse. It was spoken in Scandinavia and in Norse settlements during the Viking Age and the early Middle Ages. Over time those dialects evolved into Icelandic, Faroese, Norwegian, Danish, and Swedish.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Old_Norse",
+  "approved": true
+}

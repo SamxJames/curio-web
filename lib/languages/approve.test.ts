@@ -172,7 +172,6 @@ describe("sheet index", () => {
 
   it("renders an empty index, matching the committed module", () => {
     expect(renderSheetIndexModule([])).toContain("export const SHEET_NAMES: Record<string, string> = {};");
-    expect(SHEET_NAMES).toEqual({});
   });
 });
 

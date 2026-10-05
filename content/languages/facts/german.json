@@ -1,0 +1,59 @@
+{
+  "name": "German",
+  "aliases": [],
+  "wikipedia": {
+    "title": "German language",
+    "extract": "German is a West Germanic language in the Indo-European language family, mainly spoken in Western and Central Europe. It is the majority and official language in Germany, Austria, Switzerland, and Liechtenstein. It is also an official language of Luxembourg, Belgium and the Italian autonomous province of South Tyrol, as well as a recognised national language in Namibia. There are also notable German-speaking communities in other parts of Europe, including: Poland, the Czech Republic, Denmark, Slovakia (Krahule), Romania, Hungary (Sopron), and France (Alsace). Overseas, sizeable communities of German-speakers are found in the Americas.",
+    "url": "https://en.wikipedia.org/wiki/German_language",
+    "description": "West Germanic language",
+    "wikibaseItem": "Q188",
+    "type": "standard",
+    "lead": "German (Deutsch, pronounced [dɔɪ̯tʃ] ) is a West Germanic language in the Indo-European language family, mainly spoken in Western and Central Europe. It is the majority and official (or co-official) language in Germany, Austria, Switzerland, and Liechtenstein. It is also an official language of Luxembourg, Belgium and the Italian autonomous province of South Tyrol, as well as a recognised national language in Namibia. There are also notable German-speaking communities in other parts of Europe, including: Poland (Upper Silesia), the Czech Republic (North Bohemia), Denmark (North Schleswig), Slovakia (Krahule), Romania, Hungary (Sopron), and France (Alsace). Overseas, sizeable communities of German-speakers are found in the Americas.\nGerman is one of the major languages of the world, with nearly 100 million native speakers and over 130 million total speakers as of 2024. It is the most spoken native language within the European Union. German is the second-most widely spoken Germanic language, after English, both as a first and as a second language. German is also widely taught as a foreign language, especially in continental Europe (where it is the third most taught foreign language after English and French) and in the United States (where it is the third most commonly learned second language in K-12 education and among the most studied foreign languages in higher education after Spanish and French). Overall, German is the fourth most commonly learned second language globally. The language has been influential in the fields of philosophy, theology, science, and technology. It is the second most commonly used language in science and the third most widely used language on websites. The German-speaking countries are ranked fifth in terms of annual publication of new books, with one-tenth of all books (including e-books) in the world being published in German.\nGerman is most closely related to other West Germanic languages, namely Afrikaans, Dutch, English, the Frisian languages, and Scots. It also contains close similarities in vocabulary to some languages in the North Germanic group, such as Danish, Norwegian, and Swedish. Modern German gradually developed from Old High German, which in turn developed from Proto-Germanic during the Early Middle Ages.\nGerman is an inflected language, with four cases for nouns, pronouns, and adjectives (nominative, accusative, genitive, dative); three genders (masculine, feminine, neuter) and two numbers (singular, plural). It has strong and weak verbs. The majority of its vocabulary is derived from the ancient Germanic branch of the Indo-European language family, while a smaller share is partly derived from Latin and Greek, along with fewer words borrowed from French and Modern English. English, however, is the main source of more recent loanwords.\nGerman is a pluricentric language; the three standardised variants are German, Austrian, and Swiss Standard German. Standard German is sometimes called High German, which refers to its regional origin. German is also notable for its broad spectrum of dialects, with many varieties existing in Europe and other parts of the world. Some of these non-standard varieties have become recognised and protected by regional or national governments.\nSince 2004, heads of state of the German-speaking countries have met every year, and the Council for German Orthography has been the main international body regulating German orthography.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q188",
+    "coordinates": {
+      "lat": 50,
+      "lon": 10
+    },
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 105000000,
+      "year": 2012
+    },
+    "instanceOf": [
+      "modern language"
+    ],
+    "subclassOf": [
+      "Q106937689",
+      "Q26721",
+      "Q52040"
+    ],
+    "indigenousTo": [
+      "Q42884",
+      "Q40",
+      "Q191091",
+      "Q192702",
+      "Q183",
+      "Q1237",
+      "Q16289"
+    ],
+    "parentLabels": [
+      "South Germanic",
+      "West Germanic languages",
+      "High German"
+    ],
+    "regionLabels": [
+      "Germans",
+      "Austria",
+      "Karlovy Vary Region",
+      "Ústí nad Labem Region",
+      "Germany",
+      "Trentino-South Tyrol",
+      "Trentino"
+    ]
+  },
+  "fetchedAt": "2026-10-04T15:09:08.044Z"
+}

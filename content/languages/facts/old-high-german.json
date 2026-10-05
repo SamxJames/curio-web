@@ -1,0 +1,40 @@
+{
+  "name": "Old High German",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Old High German",
+    "extract": "Old High German is the earliest stage of the German language, conventionally identified as the period from around 500/750 to 1050. Rather than representing a single supra-regional form of German, Old High German encompasses the numerous West Germanic dialects that had undergone the set of consonantal changes called the Second Sound Shift.",
+    "url": "https://en.wikipedia.org/wiki/Old_High_German",
+    "description": "Earliest stage of the German language",
+    "wikibaseItem": "Q35218",
+    "type": "standard",
+    "lead": "Old High German (OHG; German: Althochdeutsch (Ahdt., Ahd.)) is the earliest stage of the German language, conventionally identified as the period from around 500/750 to 1050. Rather than representing a single supra-regional form of German, Old High German encompasses the numerous West Germanic dialects that had undergone the set of consonantal changes called the Second Sound Shift.\nAt the start of this period, dialect areas reflected the territories of largely independent tribal kingdoms, but by 788 the conquests of Charlemagne had brought all OHG dialect areas into a single polity. The period also saw the development of a stable linguistic border between German and Gallo-Romance, later French.\nOld High German largely preserved the synthetic inflectional system inherited from its ancestral Germanic forms. The eventual disruption of these patterns, which led to the more analytic grammar, are generally considered to mark the transition to Middle High German.\nSurviving Old High German texts were all composed in monastic scriptoria, so the overwhelming majority of them are religious in nature or, when secular, belong to the Latinate literary culture of Christianity. The earliest instances, which date to the latter half of the 8th century, are glosses—notes added to the margins or between lines that provide translation of the (Latin) text or other aid to the reader.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q35218",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "language",
+      "extinct language",
+      "historical language",
+      "chronolect"
+    ],
+    "subclassOf": [
+      "Q52040",
+      "Q188",
+      "Q136226071"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "High German",
+      "German",
+      "Old Germanic"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-04T15:09:34.448Z"
+}

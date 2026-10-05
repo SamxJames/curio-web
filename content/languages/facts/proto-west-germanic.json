@@ -1,0 +1,35 @@
+{
+  "name": "Proto-West Germanic",
+  "aliases": [],
+  "wikipedia": {
+    "title": "West Germanic languages",
+    "extract": "The West Germanic languages constitute the largest of the three branches of the Germanic family of Indo-European languages. The West Germanic branch is classically subdivided into three branches: North Sea Germanic, which includes English, Scots, the Low German languages, and the Frisian languages; Weser–Rhine Germanic, which encompasses Dutch and its close relatives; and Elbe Germanic, which includes German and its close relatives and variants.",
+    "url": "https://en.wikipedia.org/wiki/West_Germanic_languages",
+    "description": "Group of languages",
+    "wikibaseItem": "Q26721",
+    "type": "standard",
+    "lead": "The West Germanic languages constitute the largest of the three branches of the Germanic family of Indo-European languages (the others being the North Germanic and the extinct East Germanic languages). The West Germanic branch is classically subdivided into three branches: North Sea Germanic, which includes English, Scots, the Low German languages, and the Frisian languages; Weser–Rhine Germanic, which encompasses Dutch and its close relatives; and Elbe Germanic, which includes German and its close relatives and variants. \nEnglish is by far the most widely spoken West Germanic language, with over one billion speakers worldwide. Within Europe, the three most prevalent West Germanic languages are English, German, and Dutch. Frisian, spoken by about 450,000 people, constitutes a fourth distinct variety of West Germanic. The language family also includes Afrikaans, Yiddish, Low Saxon, Luxembourgish, Hunsrik, and Scots. Additionally, several creoles, patois, and pidgins are based on Dutch, English, or German.",
+    "titleMatched": false
+  },
+  "wikidata": {
+    "qid": "Q26721",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "language family"
+    ],
+    "subclassOf": [
+      "Q21200",
+      "Q13137302"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "Germanic languages",
+      "Northwest Germanic"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-04T15:08:48.704Z"
+}

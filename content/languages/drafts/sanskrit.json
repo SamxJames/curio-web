@@ -1,0 +1,28 @@
+{
+  "name": "Sanskrit",
+  "aliases": [],
+  "status": "living",
+  "classification": "Old Indo-Aryan language of the Indo-European family",
+  "region": "Northern Afghanistan, northern Pakistan and northwestern India → across South Asia, then Southeast, East and Central Asia as a language of religion and high culture",
+  "map": {
+    "lat": 26.5,
+    "lon": 71.5,
+    "radiusKm": 1000
+  },
+  "era": {
+    "from": -1500,
+    "to": null,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": {
+    "count": 49736,
+    "year": 1991,
+    "note": "Native speakers, Wikidata figure for 1991"
+  },
+  "unknownSpeakersNote": null,
+  "parent": null,
+  "origin": "Sanskrit arose in South Asia after its predecessor languages diffused there from the northwest in the late Bronze Age. Its most archaic form, Vedic Sanskrit, is found in the Rigveda, 1,028 hymns composed between 1500 and 1200 BCE. Along the way it absorbed the names of newly encountered plants and animals, and Dravidian languages influenced its phonology and syntax.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Sanskrit",
+  "approved": true
+}

@@ -1,0 +1,39 @@
+{
+  "name": "Old Northern French",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Old Norman",
+    "extract": "Old Norman, also called Old Northern French or Old Norman French, was one of many varieties of the langues d'oïl native to northern France. From the region of what is now called Normandy, the language spread into England, Southern Italy, Sicily and the Levant. It is the ancestor of modern Norman, including the insular dialects, as well as Anglo-Norman.\nOld Norman was an important language of the Principality of Antioch during Crusader rule in the Levant.",
+    "url": "https://en.wikipedia.org/wiki/Old_Norman",
+    "description": "Historical language spoken in northern France",
+    "wikibaseItem": "Q2044917",
+    "type": "standard",
+    "lead": "Old Norman, also called Old Northern French or Old Norman French (Norman: Ancien Normaund), was one of many varieties of the langues d'oïl native to northern France. From the region of what is now called Normandy, the language spread into England, Southern Italy, Sicily and the Levant. It is the ancestor of modern Norman, including the insular dialects (such as Jèrriais), as well as Anglo-Norman.\nOld Norman was an important language of the Principality of Antioch during Crusader rule in the Levant.",
+    "titleMatched": false
+  },
+  "wikidata": {
+    "qid": "Q2044917",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "dialect"
+    ],
+    "subclassOf": [
+      "Q33850"
+    ],
+    "indigenousTo": [
+      "Q18677875",
+      "Q42314"
+    ],
+    "parentLabels": [
+      "Norman"
+    ],
+    "regionLabels": [
+      "Normandy",
+      "Channel Islands"
+    ]
+  },
+  "fetchedAt": "2026-10-04T15:09:31.300Z"
+}

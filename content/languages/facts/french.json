@@ -1,0 +1,75 @@
+{
+  "name": "French",
+  "aliases": [],
+  "wikipedia": {
+    "title": "French language",
+    "extract": "French is a Romance language of the Indo-European family. Like all other Romance languages, French and its closest relatives—the langues d'oïl, historically spoken in northern France and southern Belgium—descended from the Vulgar Latin of the Roman Empire. It was influenced by native Celtic languages of Northern Roman Gaul and by the Germanic Frankish language of the post-Roman Frankish invaders. Over time, French largely supplanted most regional Romance varieties across France, Belgium and Switzerland. As a result of French and later Belgian colonialism, it was introduced to new territories in the Americas, Africa, and Asia, and numerous French-based creole languages, most notably Haitian Creole, were developed. A French-speaking person or nation may be referred to as Francophone in both English and French.",
+    "url": "https://en.wikipedia.org/wiki/French_language",
+    "description": "Romance language",
+    "wikibaseItem": "Q150",
+    "type": "standard",
+    "lead": "French (français [fʁɑ̃sɛ]  or langue française [lɑ̃ɡ fʁɑ̃sɛːz] ) is a Romance language of the Indo-European family. Like all other Romance languages, French and its closest relatives—the langues d'oïl, historically spoken in northern France and southern Belgium—descended from the Vulgar Latin of the Roman Empire. It was influenced by native Celtic languages of Northern Roman Gaul and by the Germanic Frankish language of the post-Roman Frankish invaders. Over time, French largely supplanted most regional Romance varieties across France, Belgium and Switzerland. As a result of French and later Belgian colonialism, it was introduced to new territories in the Americas, Africa, and Asia, and numerous French-based creole languages, most notably Haitian Creole, were developed. A French-speaking person or nation may be referred to as Francophone in both English and French.\nFrench is the 22nd most natively spoken language in the world, the sixth most spoken language by total number of speakers, and is among the top five most studied languages worldwide, with about 120 million learners as of 2017. It is estimated to have about 310 million speakers, of which about 74 million are native speakers; it is spoken as a first language (in descending order of the number of speakers) in France, Canada (Quebec), Belgium (Wallonia and the Brussels-Capital Region), western Switzerland (Romandy region), Luxembourg, and Monaco. Meanwhile, in Francophone Africa it is spoken mainly as a second language or lingua franca, though it has also become a native language in several urban areas. In some North African countries like Algeria and Morocco, it is the primary language for the elite (alongside Arabic) while being an auxiliary language for the general population.\nFrench is an official language in 26 countries, as well as one of the most geographically widespread languages in the world, with speakers in about 50 countries. Most of these countries are members of the Organisation internationale de la Francophonie (OIF), the community of 54 member states which share the use or teaching of French. \nIn 2025, approximately 50% of the Francophone population lived in sub-Saharan Africa and the Indian Ocean, 30% lived in Europe, 15% in North Africa, 7% in the Americas, and a small percent in Asia and Oceania. French is the second most widely spoken mother tongue in the European Union. Of Europeans who speak other languages natively, approximately one-fifth are able to speak French as a second language.\nFrench has a long history as an international language of literature, diplomacy and science and is a primary or second language of many international organizations including the United Nations, the European Union, the North Atlantic Treaty Organization, the World Trade Organization, the International Olympic Committee, the General Conference on Weights and Measures, and the International Committee of the Red Cross. Many institutions of the EU use French as a working language along with English, German and Italian; in some institutions, French is the sole working language (e.g. at the Court of Justice of the European Union).",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q150",
+    "coordinates": {
+      "lat": 48.85,
+      "lon": 2.35
+    },
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 208157220,
+      "year": 2016
+    },
+    "instanceOf": [
+      "modern language",
+      "natural language",
+      "language"
+    ],
+    "subclassOf": [
+      "Q37351",
+      "Q85380120",
+      "Q500394",
+      "Q19814"
+    ],
+    "indigenousTo": [
+      "Q240",
+      "Q1122",
+      "Q1129",
+      "Q1127",
+      "Q1125",
+      "Q12640",
+      "Q12755",
+      "Q12738",
+      "Q12771",
+      "Q142",
+      "Q32",
+      "Q235",
+      "Q1118"
+    ],
+    "parentLabels": [
+      "Oïl",
+      "Southern European language",
+      "Gallo-Romance",
+      "Romance"
+    ],
+    "regionLabels": [
+      "Brussels-Capital Region",
+      "Walloon Brabant",
+      "Hainaut",
+      "Province of Liege",
+      "Province of Namur",
+      "Canton of Fribourg",
+      "Canton of Jura",
+      "Canton of Neuchâtel",
+      "Canton of Vaud",
+      "France",
+      "Luxembourg",
+      "Monaco",
+      "Flemish Brabant"
+    ]
+  },
+  "fetchedAt": "2026-10-04T15:08:44.493Z"
+}

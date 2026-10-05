@@ -1,0 +1,23 @@
+{
+  "name": "Arabic",
+  "aliases": [],
+  "status": "living",
+  "classification": "Central Semitic language of the Afroasiatic family",
+  "region": "Arabian Peninsula → the Arab world, and beyond as the liturgical language of Islam",
+  "map": {
+    "lat": 24,
+    "lon": 45,
+    "radiusKm": 1200
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 422000000,
+    "year": 2012,
+    "note": "Speakers, Wikidata figure for 2012"
+  },
+  "unknownSpeakersNote": null,
+  "parent": "Semitic",
+  "origin": "Arabic belongs to the Central Semitic branch of the Afroasiatic family, and Wikidata places it as indigenous to the Arabian Peninsula. Its standard written form, Modern Standard Arabic, is derived from Classical Arabic. Speakers generally call both al-fuṣḥā, \"the eloquent Arabic\", and the language is a conservative one that kept the full set of Proto-Semitic grammatical cases.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Arabic",
+  "approved": true
+}

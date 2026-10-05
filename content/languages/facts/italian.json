@@ -1,0 +1,58 @@
+{
+  "name": "Italian",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Italian language",
+    "extract": "Italian is a Romance language of the Indo-European language family. It is a standardised form of literary Florentine Tuscan and, together with Sardinian, is the least differentiated language from Latin. Current estimates indicate that between 68 and 85 million people speak Italian, including approximately 64 million native speakers as of 2024.",
+    "url": "https://en.wikipedia.org/wiki/Italian_language",
+    "description": "Romance language",
+    "wikibaseItem": "Q652",
+    "type": "standard",
+    "lead": "Italian (italiano, pronounced [itaˈljaːno] , or lingua italiana, pronounced [ˈliŋɡwa itaˈljaːna]) is a Romance language of the Indo-European language family. It is a standardised form of literary Florentine Tuscan and, together with Sardinian, is the least differentiated language from Latin. Current estimates indicate that between 68 and 85 million people speak Italian, including approximately 64 million native speakers as of 2024.\nItalian is an official language in Italy, San Marino, Switzerland (Ticino and part of the Grisons), and Vatican City, and it has official minority status in Croatia, Slovenia (Istria), Romania, Bosnia and Herzegovina, and in 6 municipalities of Brazil. It is also spoken in other European and non-EU countries, most notably in Malta (by 66% of the population), Albania (upwards of 70%), and Monaco, as well as by large immigrant and expatriate communities in the Americas, Australia, and on other continents.\nItalian is a major language in Europe, being one of the official languages of the Organization for Security and Co-operation in Europe and one of the working languages of the Council of Europe. It is the third-most-widely spoken native language in the European Union (13% of the EU population) and it is spoken as a second language by 13 million EU citizens (3%). Italian is the main working language of the Holy See, serving as the lingua franca in the Roman Catholic hierarchy and the official language of the Sovereign Military Order of Malta. Italian influence led to the development of derivated languages and dialects worldwide. It is also widespread in various sectors and markets, with its loanwords used in arts, luxury goods, fashion, sports and cuisine; it has a significant use in musical terminology and opera, with numerous Italian words referring to music that have become international terms taken into various languages worldwide, including in English.\nItalian is considered a conservative Romance language in phonology, lexicon, and morphology. Almost all native Italian words end with vowels, and the language has a 7-vowel sound system (\"e\" and \"o\" have mid-low and mid-high sounds). Italian has contrast between short and long consonants and gemination (doubling) of consonants.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q652",
+    "coordinates": {
+      "lat": 43,
+      "lon": 13
+    },
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 64819790,
+      "year": 2012
+    },
+    "instanceOf": [
+      "natural language",
+      "modern language"
+    ],
+    "subclassOf": [
+      "Q3356483",
+      "Q85380120"
+    ],
+    "indigenousTo": [
+      "Q11925",
+      "Q12724",
+      "Q58268",
+      "Q38",
+      "Q15877",
+      "Q1382",
+      "Q238"
+    ],
+    "parentLabels": [
+      "Italo-Romance",
+      "Southern European language"
+    ],
+    "regionLabels": [
+      "Canton of the Grisons",
+      "Canton of Ticino",
+      "Istria County",
+      "Italy",
+      "Izola",
+      "Piran",
+      "San Marino"
+    ]
+  },
+  "fetchedAt": "2026-10-04T15:08:55.916Z"
+}

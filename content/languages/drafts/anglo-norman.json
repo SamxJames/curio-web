@@ -1,0 +1,19 @@
+{
+  "name": "Anglo-Norman",
+  "aliases": [],
+  "status": "extinct",
+  "classification": "A dialect of Old Norman",
+  "region": "England, and to a lesser extent elsewhere in Great Britain and Ireland",
+  "map": {
+    "lat": 52.5,
+    "lon": -1.5,
+    "radiusKm": 500
+  },
+  "era": null,
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": null,
+  "origin": "Anglo-Norman was a dialect of Old Norman, carried to England and used there during the Anglo-Norman period. It was also used, to a lesser extent, in other parts of Great Britain and Ireland. Its names include Anglo-Norman French and Insular French, and it is counted as part of the French of England.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Anglo-Norman_language",
+  "approved": true
+}

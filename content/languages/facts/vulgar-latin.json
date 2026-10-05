@@ -1,0 +1,34 @@
+{
+  "name": "Vulgar Latin",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Vulgar Latin",
+    "extract": "Vulgar Latin, also known as Colloquial, Popular, Spoken or Vernacular Latin, is the range of non-formal registers of Latin spoken from the Late Roman Republic onward. Latin was in conversational use across many centuries, in many locations, and in various contexts. Thus, Vulgar Latin as a term is both controversial and imprecise, with scholars differing in opinion as to the extent of the differences from Classical Latin and whether this broad umbrella was in some sense a distinct language or speech variety. At its extreme, the theory of a separate Vulgar Latin, first developed in the early 19th century by the French linguist François-Just-Marie Raynouard, suggested that the common speech differed from the written register that formed an elite language of its own, but this is now rejected.",
+    "url": "https://en.wikipedia.org/wiki/Vulgar_Latin",
+    "description": "Non-standard Latin spoken in ancient Rome",
+    "wikibaseItem": "Q37560",
+    "type": "standard",
+    "lead": "Vulgar Latin, also known as Colloquial, Popular, Spoken or Vernacular Latin, is the range of non-formal registers of Latin spoken from the Late Roman Republic onward. Latin was in conversational use across many centuries, in many locations, and in various contexts. Thus, Vulgar Latin as a term is both controversial and imprecise, with scholars differing in opinion as to the extent of the differences from Classical Latin and whether this broad umbrella was in some sense a distinct language or speech variety. At its extreme, the theory of a separate Vulgar Latin, first developed in the early 19th century by the French linguist François-Just-Marie Raynouard, suggested that the common speech differed from the written register that formed an elite language of its own, but this is now rejected.\nThe current scholarly consensus is that the written and spoken languages formed a continuum, much as they do in any language, with speech tending to evolve faster than the written language, and the written, formalised language exerting conservative pressure back on speech. The term Vulgar Latin is used in different ways by different scholars, applied to indicate spoken Latin of differing types, or from different social classes and time periods. Nevertheless, the shifts in the spoken forms remain very important to understanding the transition from Latin or Late Latin through to Proto-Romance and Romance languages. To make matters more complicated, evidence for spoken forms can be found only through examination of written Classical Latin, Late Latin, or early Romance, depending on the time period.",
+    "titleMatched": false
+  },
+  "wikidata": {
+    "qid": "Q37560",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "natural language",
+      "language variety"
+    ],
+    "subclassOf": [
+      "Q397"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "Latin"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-04T15:09:20.355Z"
+}

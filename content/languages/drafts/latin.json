@@ -1,0 +1,23 @@
+{
+  "name": "Latin",
+  "aliases": [],
+  "status": "extinct",
+  "classification": "Italic branch of the Indo-European family",
+  "region": "Latium, the lower Tiber area around Rome → across the Italian Peninsula and the Roman Empire",
+  "map": {
+    "lat": 41.4,
+    "lon": 13.1,
+    "radiusKm": 100
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 7500000,
+    "year": 1,
+    "note": "Speakers, Wikidata figure for the year 1"
+  },
+  "unknownSpeakersNote": null,
+  "parent": "Old Latin",
+  "origin": "Latin was first spoken by the Latins in Latium, the lower Tiber area around Rome. As the Roman Republic expanded, it became the dominant language of the Italian Peninsula and then of the Roman Empire. Old Latin evolved into standardised Classical Latin by the late Republic, and between the 6th and 9th centuries the everyday speech of different regions grew into the distinct Romance languages.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Latin",
+  "approved": true
+}

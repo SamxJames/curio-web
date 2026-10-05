@@ -1,0 +1,28 @@
+{
+  "name": "Greek",
+  "aliases": [],
+  "status": "living",
+  "classification": "Independent Hellenic branch of the Indo-European language family",
+  "region": "Greece and Cyprus, with historic communities across the Balkans, the Black Sea coast, the Caucasus and the Eastern Mediterranean",
+  "map": {
+    "lat": 38,
+    "lon": 23.7,
+    "radiusKm": 600
+  },
+  "era": {
+    "from": -1400,
+    "to": null,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": {
+    "count": 13156880,
+    "year": 2018,
+    "note": "Speakers, Wikidata figure for 2018"
+  },
+  "unknownSpeakersNote": null,
+  "parent": null,
+  "origin": "Greek is an Indo-European language that forms its own independent Hellenic branch within that family. It has the longest documented history of any Indo-European language, with at least 3,400 years of written records. Before the Greek alphabet came into use about 2,800 years ago, it was written in Linear B and the Cypriot syllabary.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Greek_language",
+  "approved": true
+}

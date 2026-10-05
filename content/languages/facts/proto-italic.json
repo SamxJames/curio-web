@@ -1,0 +1,32 @@
+{
+  "name": "Proto-Italic",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Proto-Italic language",
+    "extract": "The Proto-Italic language is the ancestor of the Italic languages, most notably Latin and its descendants, the Romance languages. It is not directly attested in writing but has been reconstructed to some degree through the comparative method. Proto-Italic descended from the earlier Proto-Indo-European language.",
+    "url": "https://en.wikipedia.org/wiki/Proto-Italic_language",
+    "description": "Ancestor of Latin and other Italic languages",
+    "wikibaseItem": "Q17102720",
+    "type": "standard",
+    "lead": "The Proto-Italic language is the ancestor of the Italic languages, most notably Latin and its descendants, the Romance languages. It is not directly attested in writing but has been reconstructed to some degree through the comparative method. Proto-Italic descended from the earlier Proto-Indo-European language.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q17102720",
+    "coordinates": null,
+    "inception": -1000,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "proto-language",
+      "extinct language",
+      "language variety",
+      "chronolect"
+    ],
+    "subclassOf": [],
+    "indigenousTo": [],
+    "parentLabels": [],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-04T15:09:03.647Z"
+}

@@ -1,0 +1,48 @@
+{
+  "name": "Spanish",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Spanish language",
+    "extract": "Spanish or Castilian is a Romance language of the Indo-European language family that evolved from the Vulgar Latin spoken on the Iberian Peninsula of Europe. It originated in the Kingdom of Castile, a kingdom in north-central Iberia. Today, it is a global language with 519 million native speakers, mainly in the Americas and Spain, and about 636 million speakers total, including second-language speakers. Spanish is the official language of 21 countries, as well as one of the six official languages of the United Nations. Spanish is the world's second-most spoken native language after Mandarin Chinese; the world's fourth-most spoken language overall after English, Mandarin Chinese, and Hindustani (Hindi-Urdu); and the world's most widely spoken Romance language. The country with the largest population of native speakers is Mexico, with 130M speakers, almost triple that of the United States of America.",
+    "url": "https://en.wikipedia.org/wiki/Spanish_language",
+    "description": "Romance language",
+    "wikibaseItem": "Q1321",
+    "type": "standard",
+    "lead": "Spanish (español) or Castilian (castellano) is a Romance language of the Indo-European language family that evolved from the Vulgar Latin spoken on the Iberian Peninsula of Europe. It originated in the Kingdom of Castile, a kingdom in north-central Iberia. Today, it is a global language with 519 million native speakers, mainly in the Americas and Spain, and about 636 million speakers total, including second-language speakers. Spanish is the official language of 21 countries, as well as one of the six official languages of the United Nations. Spanish is the world's second-most spoken native language after Mandarin Chinese; the world's fourth-most spoken language overall after English, Mandarin Chinese, and Hindustani (Hindi-Urdu); and the world's most widely spoken Romance language. The country with the largest population of native speakers is Mexico, with 130M speakers, almost triple that of the United States of America. \nSpanish is part of the Ibero-Romance language group, which evolved from several dialects of Vulgar Latin in Iberia after the collapse of the Western Roman Empire in the 5th century. The oldest Latin texts with traces of Spanish come from mid-northern Iberia in the 9th century, and the first systematic written use of the language happened in Toledo, a prominent city of the Kingdom of Castile, in the 13th century. Spanish colonialism in the early modern period spurred the introduction of the language to overseas locations, most notably to the Americas.\nAs a Romance language, Spanish is a descendant of Latin. About 75% of modern Spanish vocabulary is Latin in origin, including Latin borrowings from Ancient Greek. Alongside English and French, it is also one of the most taught foreign languages throughout the world. Spanish is well represented in the humanities and social sciences. Spanish is also the third most used language on the internet by number of users after English and Chinese and the second most used language by number of websites after English.\nSpanish is used as an official language by many international organizations, including the United Nations, European Union, Organization of Ibero-American States, Organization of American States, Union of South American Nations, Community of Latin American and Caribbean States, African Union, and others.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q1321",
+    "coordinates": {
+      "lat": 40.4,
+      "lon": -3.7
+    },
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 485000000,
+      "year": 2023
+    },
+    "instanceOf": [
+      "natural language",
+      "language",
+      "modern language",
+      "human language"
+    ],
+    "subclassOf": [
+      "Q71924",
+      "Q1377152"
+    ],
+    "indigenousTo": [
+      "Q29"
+    ],
+    "parentLabels": [
+      "Castilian",
+      "West Iberian"
+    ],
+    "regionLabels": [
+      "Spain"
+    ]
+  },
+  "fetchedAt": "2026-10-04T15:09:12.429Z"
+}

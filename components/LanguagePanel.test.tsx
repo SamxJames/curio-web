@@ -86,7 +86,7 @@ describe("LanguagePanel", () => {
 
   it("renders nothing for a name with no approved sheet", () => {
     expect(
-      renderToStaticMarkup(<LanguagePanel id="lp" name="Latin" favouriteLineages={[]} />),
+      renderToStaticMarkup(<LanguagePanel id="lp" name="Not a real language" favouriteLineages={[]} />),
     ).toBe("");
   });
 

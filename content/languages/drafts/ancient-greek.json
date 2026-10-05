@@ -1,0 +1,24 @@
+{
+  "name": "Ancient Greek",
+  "aliases": [],
+  "status": "historical",
+  "classification": "Hellenic branch; an earlier stage of the Greek language",
+  "region": "Ancient Greece and the wider ancient Mediterranean world",
+  "map": {
+    "lat": 38,
+    "lon": 23.7,
+    "radiusKm": 600
+  },
+  "era": {
+    "from": -1500,
+    "to": -300,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": null,
+  "origin": "Ancient Greek belongs to the Hellenic group and was used in ancient Greece and the ancient world from around 1500 BC to 300 BC. It is often divided into Mycenaean Greek, the Dark Ages, the Archaic or Homeric period, and the Classical period. Its dialects included Attic, Ionic, Doric, Aeolic, and Arcadocypriot, and Attic became the basis of Koine Greek, which followed it.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Ancient_Greek",
+  "approved": true
+}

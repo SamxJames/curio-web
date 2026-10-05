@@ -1,0 +1,34 @@
+{
+  "name": "Late Latin",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Late Latin",
+    "extract": "Late Latin is the scholarly name for the form of written Latin of late antiquity. English dictionary definitions of Late Latin date this period from the 3rd to 6th centuries CE, and continuing into the 7th century in the Iberian Peninsula. This somewhat ambiguously defined version of Latin was used between the eras of Classical Latin and Medieval Latin. Scholars do not agree exactly when Classical Latin should end or Medieval Latin should begin.",
+    "url": "https://en.wikipedia.org/wiki/Late_Latin",
+    "description": "Written Latin of late antiquity",
+    "wikibaseItem": "Q1503113",
+    "type": "standard",
+    "lead": "Late Latin is the scholarly name for the form of written Latin of late antiquity. English dictionary definitions of Late Latin date this period from the 3rd to 6th centuries CE, and continuing into the 7th century in the Iberian Peninsula. This somewhat ambiguously defined version of Latin was used between the eras of Classical Latin and Medieval Latin. Scholars do not agree exactly when Classical Latin should end or Medieval Latin should begin.\nBeing a written language, Late Latin is not the same as Vulgar Latin, or more specifically, the spoken Latin of the post-Imperial period. The latter is the ancestor of the Romance languages. Although Late Latin reflects an upsurge in the use of Vulgar Latin vocabulary and constructs, it remains largely classical in its overall features, depending on the author who uses it. Some Late Latin writings are more literary and classical, but others are more inclined to the vernacular. As such it is an important source of information about changes in the spoken language, while not being a simple replication of the state of the oral language at the time. Also, Late Latin is not identical to Christian patristic Latin, used in the theological writings of the early Christian fathers. While Christian writings used a subset of Late Latin, pagans, such as Ammianus Marcellinus or Macrobius, also wrote extensively in Late Latin, especially in the early part of the period.\nLate Latin formed when large numbers of non-Latin-speaking peoples on the borders of the empire were being subsumed and assimilated, and the rise of Christianity was introducing a heightened divisiveness in Roman society, creating a greater need for a standard language for communicating between different socioeconomic registers and widely separated regions of the sprawling empire. A new and more universal speech evolved from the main elements: Classical Latin, Christian Latin, which featured sermo humilis (ordinary speech) in which the people were to be addressed, and all the various dialects of Vulgar Latin.\n\nThe linguist Antoine Meillet wrote: \"Without the exterior appearance of the language being much modified, Latin became in the course of the imperial epoch a new language... Serving as some sort of lingua franca to a large empire, Latin tended to become simpler, to keep above all what it had of the ordinary.\"",
+    "titleMatched": false
+  },
+  "wikidata": {
+    "qid": "Q1503113",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "language variety",
+      "chronolect"
+    ],
+    "subclassOf": [
+      "Q397"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "Latin"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-04T15:09:02.484Z"
+}

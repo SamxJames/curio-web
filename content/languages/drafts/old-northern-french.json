@@ -1,0 +1,20 @@
+{
+  "name": "Old Northern French",
+  "aliases": [],
+  "status": "historical",
+  "classification": "One of the langues d'oïl of northern France; an earlier stage of Norman",
+  "region": "Normandy, northern France → England, Southern Italy, Sicily and the Levant",
+  "map": {
+    "lat": 49,
+    "lon": 0,
+    "radiusKm": 200
+  },
+  "era": null,
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": null,
+  "origin": "Old Northern French was one of many varieties of the langues d'oïl native to northern France, rooted in the region now called Normandy. From there it travelled to England, Southern Italy, Sicily and the Levant, where it became an important language of the Principality of Antioch under Crusader rule. It is the ancestor of modern Norman, including insular dialects such as Jèrriais, and of Anglo-Norman.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Old_Norman",
+  "approved": true,
+  "_override": "Wikipedia lead: 'Old Norman, also called Old Northern French' — same language."
+}

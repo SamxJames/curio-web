@@ -1,0 +1,37 @@
+{
+  "name": "Old French",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Old French",
+    "extract": "Old French was the language spoken in most of the northern half of France approximately between the late 8th and mid-14th centuries. Rather than a unified language, Old French was a group of Romance dialects, mutually intelligible yet diverse. These dialects came to be collectively known as the langues d'oïl, contrasting with the langues d'oc, the emerging Occitano-Romance languages of Occitania, in what is now Southern France.",
+    "url": "https://en.wikipedia.org/wiki/Old_French",
+    "description": "Gallo-Romance dialect continuum",
+    "wikibaseItem": "Q35222",
+    "type": "standard",
+    "lead": "Old French (franceis, françois, romanz; French: ancien français [ɑ̃sjɛ̃ fʁɑ̃sɛ]) was the language spoken in most of the northern half of France approximately between the late 8th and mid-14th centuries. Rather than a unified language, Old French was a group of Romance dialects, mutually intelligible yet diverse. These dialects came to be collectively known as the langues d'oïl, contrasting with the langues d'oc, the emerging Occitano-Romance languages of Occitania, in what is now Southern France.\nThe mid-14th century witnessed the emergence of Middle French, the language of the French Renaissance in the Île-de-France region; this dialect was a predecessor to Modern French. Other dialects of Old French evolved themselves into modern forms (Poitevin-Saintongeais, Gallo, Norman, Picard, Walloon, etc.), each with its linguistic features and history.\nThe region where Old French was spoken natively roughly extended to the northern half of the Kingdom of France and its vassals (including parts of the Angevin Empire), and the duchies of Upper and Lower Lorraine to the east (corresponding to modern north-eastern France and Belgian Wallonia), but the influence of Old French was much wider, as it was carried to England and the Crusader states as the language of a feudal elite and commerce.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q35222",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "language",
+      "historical language",
+      "extinct language",
+      "chronolect",
+      "language variety"
+    ],
+    "subclassOf": [
+      "Q37351"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "Oïl"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-04T15:08:20.112Z"
+}

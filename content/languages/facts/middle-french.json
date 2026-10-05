@@ -1,0 +1,42 @@
+{
+  "name": "Middle French",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Middle French",
+    "extract": "Middle French is a historical division of the French language that covers the period from the mid-14th to the early 17th centuries. It is a period of transition during which:French became clearly distinguished from the other competing Oïl languages, which are sometimes subsumed within the concept of Old French \nFrench was imposed as the official language of the Kingdom of France in place of Latin and other Oïl and Occitan languages\nthe literary development of French prepared the vocabulary and grammar for the Classical French spoken in the 17th and 18th centuries.",
+    "url": "https://en.wikipedia.org/wiki/Middle_French",
+    "description": "Historical variety of French used from the mid-14th century to the early 17th century",
+    "wikibaseItem": "Q1473289",
+    "type": "standard",
+    "lead": "Middle French (French: moyen français) is a historical division of the French language that covers the period from the mid-14th to the early 17th centuries. It is a period of transition during which:\n\nFrench became clearly distinguished from the other competing Oïl languages, which are sometimes subsumed within the concept of Old French (l'ancien français)\nFrench was imposed as the official language of the Kingdom of France in place of Latin and other Oïl and Occitan languages\nthe literary development of French prepared the vocabulary and grammar for the Classical French (le français classique) spoken in the 17th and 18th centuries.\nIt is the first version of French that is largely intelligible to Modern French, contrary to Old French.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q1473289",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 0,
+      "year": 2022
+    },
+    "instanceOf": [
+      "historical language",
+      "extinct language",
+      "language",
+      "chronolect",
+      "language variety"
+    ],
+    "subclassOf": [
+      "Q150",
+      "Q34770"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "French",
+      "language"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-04T15:08:51.893Z"
+}

@@ -1,0 +1,23 @@
+{
+  "name": "French",
+  "aliases": [],
+  "status": "living",
+  "classification": "Romance language of the Indo-European family, in the Gallo-Romance and Oïl groups",
+  "region": "Northern France and southern Belgium → France, Belgium, Switzerland, and onward to the Americas, Africa and Asia",
+  "map": {
+    "lat": 48.85,
+    "lon": 2.35,
+    "radiusKm": 500
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 208157220,
+    "year": 2016,
+    "note": "Speakers, Wikidata figure for 2016"
+  },
+  "unknownSpeakersNote": null,
+  "parent": "Vulgar Latin",
+  "origin": "French descended from the Vulgar Latin of the Roman Empire, as did its closest relatives, the langues d'oïl of northern France and southern Belgium. It was shaped by the native Celtic languages of Northern Roman Gaul and by the Germanic Frankish language of the post-Roman Frankish invaders.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/French_language",
+  "approved": true
+}

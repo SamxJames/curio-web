@@ -1,0 +1,15 @@
+{
+  "name": "Proto-Germanic",
+  "aliases": [],
+  "status": "reconstructed",
+  "classification": "Common ancestor of the Germanic languages, descended from Proto-Indo-European",
+  "region": "Homeland of the Germanic people; no precise location is given",
+  "map": null,
+  "era": null,
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "Reconstructed by scholars — never written down.",
+  "parent": "Proto-Indo-European",
+  "origin": "Proto-Germanic is the reconstructed common ancestor of the Germanic languages. It gradually diverged from Proto-Indo-European, and a defining feature of that process was the completion of Grimm's law, also known as the First Germanic Sound Shift. Because it is not directly attested, scholars rebuild it using the comparative method, early runic inscriptions such as those from Vimose in Denmark, early loanwords like Finnish kuningas 'king', and Roman-era transcriptions such as those in Tacitus's Germania.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Proto-Germanic_language",
+  "approved": true
+}

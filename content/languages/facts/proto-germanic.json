@@ -1,0 +1,38 @@
+{
+  "name": "Proto-Germanic",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Proto-Germanic language",
+    "extract": "Proto-Germanic is the reconstructed common ancestor of the Germanic languages.",
+    "url": "https://en.wikipedia.org/wiki/Proto-Germanic_language",
+    "description": "Ancestor of the Germanic languages",
+    "wikibaseItem": "Q669623",
+    "type": "standard",
+    "lead": "Proto-Germanic (abbreviated PGmc; also called Common Germanic) is the reconstructed common ancestor of the Germanic languages. \nA defining feature of Proto-Germanic is the completion of the process described by Grimm's law (also known as the First Germanic Sound Shift), a set of sound changes that occurred during its gradual divergence from Proto-Indo-European.\nThe Proto-Germanic language is not directly attested and has been reconstructed using the comparative method with other more archaic and earlier attested Indo-European languages, extremely early Germanic loanwords in Baltic and Finnish languages (for example, Finnish kuningas 'king'), early runic inscriptions (specifically the Vimose inscriptions in Denmark, dated to the 2nd century CE), and in Roman Empire era transcriptions of individual words (notably in Tacitus's Germania, c. AD 90). The non-runic Negau helmet inscription, dated to the 2nd century BCE, has also been argued by some to represent the earliest attestation of Grimm's law.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q669623",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "proto-language",
+      "hypothetical entity"
+    ],
+    "subclassOf": [
+      "Q21200"
+    ],
+    "indigenousTo": [
+      "Q22633"
+    ],
+    "parentLabels": [
+      "Germanic languages"
+    ],
+    "regionLabels": [
+      "Germanic people"
+    ]
+  },
+  "fetchedAt": "2026-10-04T15:08:35.886Z"
+}

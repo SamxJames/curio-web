@@ -1,0 +1,25 @@
+{
+  "name": "Frankish",
+  "aliases": [],
+  "status": "extinct",
+  "classification": "West Germanic language; Wikidata places it within Low Franconian and Weser-Rhine Germanic",
+  "region": "Lands of the Franks, including Belgium and the Netherlands, and Roman Gaul (Picardy and Île-de-France)",
+  "map": {
+    "lat": 50.5,
+    "lon": 4.5,
+    "radiusKm": 350
+  },
+  "era": {
+    "from": 300,
+    "to": 800,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": null,
+  "origin": "Frankish was the West Germanic language of the Franks, spoken between the 4th and 8th centuries. It is poorly attested and mostly reconstructed from Frankish loanwords in Old French and from Old Dutch. The Bergakker inscription may be a primary record of 5th-century Frankish. Between the 5th and 9th centuries, the Frankish of the Salian Franks in Belgium and the Netherlands evolved into Old Dutch.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Frankish_language",
+  "approved": true,
+  "_override": "Wikipedia lead: 'spoken by the Franks between the 4th and 8th century'; Wikidata's 701 end date is a single estimate."
+}

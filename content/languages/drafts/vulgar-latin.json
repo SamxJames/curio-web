@@ -1,0 +1,20 @@
+{
+  "name": "Vulgar Latin",
+  "aliases": [],
+  "status": "extinct",
+  "classification": "A range of non-formal registers of Latin, standing between Latin and the Romance languages",
+  "region": "Ancient Rome → wherever Latin was spoken in conversation",
+  "map": {
+    "lat": 41.9,
+    "lon": 12.5,
+    "radiusKm": 300
+  },
+  "era": null,
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "Latin",
+  "origin": "Vulgar Latin is the range of non-formal registers of Latin spoken from the Late Roman Republic onward, used in conversation across many centuries, places and contexts. Scholars disagree about how far it differed from Classical Latin, and whether it was ever a distinct language or speech variety. The shifts in spoken forms are still important for understanding the path from Latin through Proto-Romance to the Romance languages.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Vulgar_Latin",
+  "approved": true,
+  "_override": "Correct article: Vulgar Latin is a register of Latin, so Wikipedia does not class the page as a language."
+}

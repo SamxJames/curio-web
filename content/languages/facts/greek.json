@@ -1,0 +1,48 @@
+{
+  "name": "Greek",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Greek language",
+    "extract": "Greek is an Indo-European language, constituting an independent Hellenic branch within the Indo-European language family. It is native to the territories that have had populations of Greeks since antiquity: Greece, Cyprus, Egypt, Turkey, Italy, southern Albania, and other regions of the Balkans, Caucasus, the Black Sea coast, and the Eastern Mediterranean. It has the longest documented history of any Indo-European language, spanning at least 3,400 years of written records. Its writing system is the Greek alphabet, which has been used for approximately 2,800 years; previously, Greek was recorded in writing systems such as Linear B and the Cypriot syllabary.",
+    "url": "https://en.wikipedia.org/wiki/Greek_language",
+    "description": "Indo-European language",
+    "wikibaseItem": "Q9129",
+    "type": "standard",
+    "lead": "Greek (Modern Greek: ελληνικά, romanized: elliniká [eliniˈka] ; Ancient Greek: ἑλληνική, romanized: hellēnikḗ [helːɛːnikɛ́ː]) is an Indo-European language, constituting an independent Hellenic branch within the Indo-European language family. It is native to the territories that have had populations of Greeks since antiquity: Greece, Cyprus, Egypt, Turkey, Italy (in Calabria and Salento), southern Albania, and other regions of the Balkans, Caucasus, the Black Sea coast, and the Eastern Mediterranean. It has the longest documented history of any Indo-European language, spanning at least 3,400 years of written records. Its writing system is the Greek alphabet, which has been used for approximately 2,800 years; previously, Greek was recorded in writing systems such as Linear B and the Cypriot syllabary.\nThe Greek language holds a very important place in the history of the Western world. Beginning with the epic poetry of Homer, ancient Greek literature includes many works of lasting importance in the European canon. Greek is also the language in which many of the foundational texts in science and philosophy were originally composed. The New Testament of the Christian Bible was also originally written in Greek. Together with the Latin texts and traditions of the Roman world, the Greek texts and Greek societies of antiquity constitute the objects of study of the discipline of Classics.\nDuring antiquity, Greek was by far the most widely spoken lingua franca in the Mediterranean world. It eventually became the official language of the Byzantine Empire and developed into Medieval Greek. In its modern form, Greek is the official language of Greece and Cyprus and one of the 24 official languages of the European Union. It is spoken by at least 13.5 million people today in Greece, Cyprus, Italy, Albania, Turkey, and the many other countries of the Greek diaspora.\nGreek roots have been widely used for centuries and continue to be widely used to coin new words in other languages; Greek and Latin are highly-influential on the English language and remain the predominant sources of international scientific vocabulary.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q9129",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 13156880,
+      "year": 2018
+    },
+    "instanceOf": [
+      "natural language",
+      "modern language",
+      "language family"
+    ],
+    "subclassOf": [
+      "Q2042538",
+      "Q85380120"
+    ],
+    "indigenousTo": [
+      "Q222",
+      "Q41",
+      "Q229"
+    ],
+    "parentLabels": [
+      "Hellenic",
+      "Southern European language"
+    ],
+    "regionLabels": [
+      "Albania",
+      "Greece",
+      "Cyprus"
+    ]
+  },
+  "fetchedAt": "2026-10-04T15:09:23.866Z"
+}

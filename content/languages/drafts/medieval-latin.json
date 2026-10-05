@@ -1,0 +1,24 @@
+{
+  "name": "Medieval Latin",
+  "aliases": [],
+  "status": "extinct",
+  "classification": "A form of Literary Latin, continuing Classical and Late Latin",
+  "region": "Roman Catholic Western Europe, plus Mauretania, Numidia and Africa Proconsularis, and Visigothic Hispania",
+  "map": {
+    "lat": 46,
+    "lon": 8,
+    "radiusKm": 1500
+  },
+  "era": {
+    "from": 500,
+    "to": 1500,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "Late Latin",
+  "origin": "Medieval Latin continued Classical Latin and Late Latin, adding words for new concepts and for the growing place of Christianity. Its writers did not see it as a fundamentally different language, and scholars disagree about exactly where Late Latin ends and Medieval Latin begins. Some place the start in the mid-4th century, some around 500, and others around 900, when written Romance languages began to replace written Late Latin.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Medieval_Latin",
+  "approved": true
+}

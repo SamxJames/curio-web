@@ -1,0 +1,34 @@
+{
+  "name": "Middle Dutch",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Middle Dutch",
+    "extract": "Middle Dutch is a collective name for a number of closely related West Germanic dialects whose ancestor was Old Dutch. It was spoken and written between 1150 and 1500. Until the advent of Modern Dutch after 1500 or c. 1550, there was no overarching standard language, but all dialects were mutually intelligible. During that period, a rich Medieval Dutch literature developed, which had not yet existed during Old Dutch. The various literary works of the time are often very readable for speakers of Modern Dutch since Dutch is a rather conservative language.",
+    "url": "https://en.wikipedia.org/wiki/Middle_Dutch",
+    "description": "West Germanic language of the High and Late Middle Ages",
+    "wikibaseItem": "Q178806",
+    "type": "standard",
+    "lead": "Middle Dutch is a collective name for a number of closely related West Germanic dialects whose ancestor was Old Dutch. It was spoken and written between 1150 and 1500. Until the advent of Modern Dutch after 1500 or c. 1550, there was no overarching standard language, but all dialects were mutually intelligible. During that period, a rich Medieval Dutch literature developed, which had not yet existed during Old Dutch. The various literary works of the time are often very readable for speakers of Modern Dutch since Dutch is a rather conservative language.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q178806",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "natural language",
+      "historical language"
+    ],
+    "subclassOf": [
+      "Q153050"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "Low Franconian"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-04T15:09:28.340Z"
+}

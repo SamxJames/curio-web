@@ -1,0 +1,23 @@
+{
+  "name": "Dutch",
+  "aliases": [],
+  "status": "living",
+  "classification": "Low Franconian, West Germanic branch of the Indo-European family",
+  "region": "The Netherlands and Flanders → Suriname, the Dutch Caribbean, and once the Dutch East Indies and South Africa",
+  "map": {
+    "lat": 52.0001,
+    "lon": 5.0001,
+    "radiusKm": 250
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 23100000,
+    "year": 2019,
+    "note": "Native speakers, Wikidata figure for 2019"
+  },
+  "unknownSpeakersNote": null,
+  "parent": null,
+  "origin": "Dutch is a West Germanic language of the Indo-European family, descended from the Low Franconian group. It is often described as roughly in between German and English, and it shares features with both. Its vocabulary is mostly Germanic, with slightly more Romance loans than German but far fewer than English.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Dutch_language",
+  "approved": true
+}
