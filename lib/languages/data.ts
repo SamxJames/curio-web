@@ -289,7 +289,7 @@ export const LANGUAGE_SHEETS: LanguageSheet[] = [
     "aliases": [],
     "status": "historical",
     "classification": "Low Franconian group of the West Germanic languages",
-    "region": "Not named in our sources — a family of closely related dialects, all mutually intelligible",
+    "region": "Not recorded in our sources",
     "map": null,
     "era": {
       "from": 1150,
@@ -582,7 +582,7 @@ export const LANGUAGE_SHEETS: LanguageSheet[] = [
     "aliases": [],
     "status": "reconstructed",
     "classification": "Ancestor of the Italic branch of the Indo-European family",
-    "region": "No location is given in the sources.",
+    "region": "Not recorded in our sources",
     "map": null,
     "era": null,
     "peakSpeakers": null,
