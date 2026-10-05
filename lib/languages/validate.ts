@@ -121,6 +121,10 @@ export function validateSheet(raw: unknown): string[] {
   if (sheet.era && sheet.era.to !== null && sheet.era.to < sheet.era.from) {
     problems.push("era.to is before era.from");
   }
+  // era.to null renders as "– today": only a living language is still spoken.
+  if (sheet.era && sheet.era.to === null && sheet.status !== "living") {
+    problems.push("era.to is null (still spoken today) but status is not living");
+  }
 
   if (sheet.map) {
     const { lat, lon, radiusKm } = sheet.map;

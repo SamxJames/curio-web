@@ -188,6 +188,11 @@ export function parseWikipediaLead(json: unknown): string | null {
 const normaliseTitle = (s: string) =>
   s.toLowerCase().replace(/\s+/g, " ").trim().replace(/ languages?$/, "");
 
+/** True when a page title names the requested language (ignoring case and a trailing " language(s)"). */
+export function titleMatchesName(name: string, title: string): boolean {
+  return normaliseTitle(title) === normaliseTitle(name);
+}
+
 /** A summary is kept only if it is about a language AND its normalised title equals the requested name. */
 export function acceptSummary(name: string, summary: WikipediaSummary): boolean {
   return isAboutLanguage(summary) && normaliseTitle(summary.title) === normaliseTitle(name);

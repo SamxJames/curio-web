@@ -375,6 +375,15 @@ describe("pageProblems titleMatched (fix round 1)", () => {
     expect(pageProblems(withMatch())).toEqual([]);
   });
 
+  it("does not claim a name mismatch when the title is the name (the page just isn't classed as a language)", () => {
+    const facts: LanguageFacts = {
+      ...latinFacts,
+      name: "Late Latin",
+      wikipedia: { ...latinFacts.wikipedia!, title: "Late Latin", titleMatched: false },
+    };
+    expect(pageProblems(facts).some((p) => p.includes("does not match the language name"))).toBe(false);
+  });
+
   it("puts the problem into the draft's _problems", () => {
     const raw = JSON.stringify({ name: "x" });
     const res = parseDraftResponse(raw, withMatch(false));

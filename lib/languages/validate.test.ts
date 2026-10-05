@@ -63,6 +63,22 @@ describe("validateSheet", () => {
     ).toBeGreaterThan(0);
   });
 
+  it("flags an open-ended era (still spoken today) on a language that is not living", () => {
+    // era.to null means "still spoken natively today" — only true of a living language.
+    for (const status of ["extinct", "historical", "reconstructed"] as const) {
+      const sheet = with_({
+        status,
+        peakSpeakers: null,
+        unknownSpeakersNote: "No census of its speakers exists.",
+        era: { from: -1000, to: null, approximate: true },
+      });
+      expect(validateSheet(sheet)).toContain("era.to is null (still spoken today) but status is not living");
+    }
+    expect(
+      validateSheet(with_({ status: "living", era: { from: 800, to: null, approximate: true } })),
+    ).toEqual([]);
+  });
+
   it("flags out-of-range map values", () => {
     expect(validateSheet(with_({ map: { lat: 91, lon: 0, radiusKm: 10 } })).length).toBeGreaterThan(0);
     expect(validateSheet(with_({ map: { lat: 0, lon: -181, radiusKm: 10 } })).length).toBeGreaterThan(0);

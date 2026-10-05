@@ -1,4 +1,4 @@
-import { isAboutLanguage, type LanguageFacts } from "./facts";
+import { isAboutLanguage, titleMatchesName, type LanguageFacts } from "./facts";
 import { isLit } from "./mapGeometry";
 import type { LanguageSheet } from "./types";
 import { shapeProblems, validateSheet } from "./validate";
@@ -179,7 +179,9 @@ export function pageProblems(facts: LanguageFacts): string[] {
   const w = facts.wikipedia;
   const out: string[] = [];
   if (w && !isAboutLanguage(w)) out.push(`the Wikipedia page "${w.title}" does not look like a language page`);
-  if (w && w.titleMatched === false) {
+  // titleMatched is also false for a correctly named page that just isn't classed as a
+  // language (covered above), so only claim a mismatch when the title really differs.
+  if (w && w.titleMatched === false && !titleMatchesName(facts.name, w.title)) {
     out.push(
       `the Wikipedia page "${w.title}" does not match the language name "${facts.name}" — check it is the same language`,
     );
