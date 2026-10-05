@@ -24,11 +24,9 @@ every feature against it.
   (`/api/cron/social`). Mondays 06:00: demand report (GitHub Action → private `SamxJames/curio-reports`).
 
 ## Current state (2026-10-05)
-- Language panel (Collection → language chip → "About") is merged. `lib/languages/data.ts` is **empty** until Sam
-  reviews the first batch, so no "About" links show yet. Next: `languages:facts -- --limit 30` → draft → review →
-  approve (see `docs/handover/language-panel.md`).
-- Local `master` is **2 commits ahead of origin** (language facts enrichment). Pushing them deploys.
-- Worktrees `.worktrees/lang-panel` and `.worktrees/lang-sources` are merged and can be removed.
+- Language panel (Collection → language chip → "About") is live with the **first 29 reviewed sheets** (deployed
+  2026-10-05). Later batches use the same facts → draft → review → approve pipeline (`docs/handover/language-panel.md`).
+- `master` is in sync with origin, and there are no open worktrees or feature branches.
 - Threads/Instagram are off until Meta tokens are set (`operations.md` → "Threads + Instagram: owner setup").
 - Double opt-in and the 200/day confirmation cap are live. The launch kit (`docs/launch-kit.md`) is ready to submit.
 - Friends-and-family onboarding is under way. The weekly check-in state is in `../checkins/state.md`.
