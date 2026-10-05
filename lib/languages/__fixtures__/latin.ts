@@ -10,7 +10,7 @@ export const LATIN_FIXTURE: LanguageSheet = {
   classification: "Test fixture: Italic branch of the Indo-European family",
   region: "Test fixture: Latium, central Italy → across the Roman Empire",
   map: { lat: 41.9, lon: 12.5, radiusKm: 600 },
-  era: { from: -700, to: 600, writtenUntil: null, approximate: true },
+  era: { from: -700, to: 600, writtenUntil: new Date().getUTCFullYear(), approximate: true },
   peakSpeakers: { count: 4_500_000, year: 100, note: "Test fixture value, not a sourced figure." },
   unknownSpeakersNote: null,
   parent: "Proto-Italic",

@@ -71,11 +71,13 @@ export function timelineModel(sheet: LanguageSheet): TimelineModel | null {
 
   let tail: TimelineModel["tail"] = null;
   let writtenWords = "";
-  if (era.to !== null && era.writtenUntil !== undefined) {
-    const tx2 = yearToX(era.writtenUntil ?? AXIS.to, PANEL_WIDTH);
+  // Only an actual year draws the written-only tail; null or absent means "no
+  // information" (drafts use null that way), never "still written today".
+  if (era.to !== null && typeof era.writtenUntil === "number") {
+    const tx2 = yearToX(era.writtenUntil, PANEL_WIDTH);
     if (tx2 > x + width) tail = { x: x + width, width: tx2 - (x + width) };
     writtenWords =
-      era.writtenUntil === null
+      era.writtenUntil >= AXIS.to
         ? "; still used in writing today"
         : `; used in writing until ${formatYear(era.writtenUntil)}`;
   }

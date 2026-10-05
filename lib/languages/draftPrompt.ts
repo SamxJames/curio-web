@@ -103,7 +103,7 @@ Write a JSON object (and nothing else — no markdown fences, no commentary) wit
   "classification": "one line, e.g. \\"Italic branch of the Indo-European family\\"",
   "region": "one line on where it was spoken, e.g. \\"Latium, central Italy → across the Roman Empire\\"",
   "map": { "lat": <number>, "lon": <number>, "radiusKm": <number> } or null,
-  "era": { "from": <year, negative for BCE>, "to": <year, negative for BCE> or null, "writtenUntil": <year, negative for BCE> or null, "approximate": true } or null ("writtenUntil" only if the facts say it lived on in writing after native speech ended; null there means still written today),
+  "era": { "from": <year, negative for BCE>, "to": <year, negative for BCE> or null, "writtenUntil": <year, negative for BCE> or null, "approximate": true } or null ("writtenUntil" is a year ONLY if the facts say it lived on in writing after native speech ended — use the current year if the facts say it is still written today; otherwise null),
   "peakSpeakers": { "count": <number>, "year": <year, negative for BCE>, "note": "..." } or null,
   "unknownSpeakersNote": "required when peakSpeakers is null, otherwise null",
   "parent": "a name from the allowed list, or null",

@@ -20,7 +20,7 @@ import {
   statusNote,
   timelineModel,
 } from "./panel";
-import { yearToX } from "./timeline";
+import { AXIS, yearToX } from "./timeline";
 import type { LanguageSheet } from "./types";
 
 const latin = (p: Partial<LanguageSheet> = {}): LanguageSheet => ({ ...LATIN_FIXTURE, ...p });
@@ -112,6 +112,18 @@ describe("timelineModel", () => {
     expect(t.bar.x + t.bar.width).toBeCloseTo(PANEL_WIDTH);
     expect(t.ariaLabel).toContain("spoken from 1100 to today");
     expect(t.labelAnchor.side).toBe("right");
+  });
+
+  it("draws no tail and says nothing about writing when writtenUntil is null (no information)", () => {
+    const t = timelineModel(latin({ era: { from: -700, to: 600, writtenUntil: null, approximate: true } }))!;
+    expect(t.tail).toBeNull();
+    expect(t.ariaLabel).not.toContain("writing");
+  });
+
+  it("reads a writtenUntil at or past the current year as still used in writing today", () => {
+    const t = timelineModel(latin({ era: { from: -700, to: 600, writtenUntil: AXIS.to, approximate: true } }))!;
+    expect(t.tail).not.toBeNull();
+    expect(t.ariaLabel).toContain("still used in writing today");
   });
 
   it("enforces a minimum bar width, even at the end of the axis", () => {

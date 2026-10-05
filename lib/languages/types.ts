@@ -11,7 +11,7 @@ export type LanguageSheet = {
   era: {
     from: number; // year, negative = BCE (e.g. -700)
     to: number | null; // null = still spoken natively today
-    writtenUntil?: number | null; // optional faint tail: still used in writing (null = to now)
+    writtenUntil?: number | null; // optional faint tail: used in writing until this year (current year or later = still written today); null/absent = no tail
     approximate: boolean;
   } | null; // null = dates unknown
   // Holds the recorded figure (Wikidata P1098, a count as of a date), not necessarily a peak.
