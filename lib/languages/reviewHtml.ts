@@ -1,7 +1,7 @@
 // Renders content/languages/review.html (scripts/languages/reviewPage.ts): one plain-text card
 // per draft so the owner can check every field against its source before approving.
 // Local-only tooling, so it uses its own inline CSS rather than the app's design system.
-import { eraLabel, formatYear } from "./timeline";
+import { AXIS, eraLabel, formatYear } from "./timeline";
 import type { LanguageFacts } from "./facts";
 import { factProblems } from "./draftPrompt";
 import type { LanguageSheet } from "./types";
@@ -23,8 +23,11 @@ function eraText(era: unknown): string {
     return `malformed: ${text(era)}`;
   }
   let label = eraLabel({ from: era.from, to: era.to, approximate: era.approximate === true });
-  if (era.writtenUntil === null) label += ", then in writing to today";
-  else if (isNum(era.writtenUntil)) label += `, then in writing to ${formatYear(era.writtenUntil)}`;
+  // Same rule as the panel's timeline: only an actual year means written-only use;
+  // null or absent is "no information".
+  if (isNum(era.writtenUntil)) {
+    label += era.writtenUntil >= AXIS.to ? ", then in writing to today" : `, then in writing to ${formatYear(era.writtenUntil)}`;
+  }
   return label;
 }
 

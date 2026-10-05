@@ -37,9 +37,18 @@ describe("renderReviewPage", () => {
     expect(html.match(/<article/g)).toHaveLength(2);
   });
 
+  it("describes written-only use only for an actual year, matching the panel", () => {
+    const year = new Date().getUTCFullYear();
+    const page = (writtenUntil: number) =>
+      renderReviewPage([{ ...latin, era: { ...latin.era, writtenUntil } }]);
+    expect(page(year)).toContain("then in writing to today");
+    expect(page(1900)).toContain("then in writing to 1900");
+  });
+
   it("shows every field in plain text, escaped", () => {
     expect(html).toContain("c. 700 BCE – 600 CE");
-    expect(html).toContain("then in writing to today");
+    // writtenUntil: null is "no information" — the panel draws no tail, so neither does the review.
+    expect(html).not.toContain("in writing");
     expect(html).toContain("50,000,000 (200 CE) — Wikidata estimate");
     expect(html).toContain("Latium, central Italy");
     expect(html).toContain("Latin was first spoken in &lt;Latium&gt; &amp; spread with Rome.");

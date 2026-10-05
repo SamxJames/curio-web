@@ -172,3 +172,12 @@ describe("validateSheet on malformed (LLM-written) input", () => {
     expect(validateSheet(raw({ approved: "yes" }))).toContain("approved must be a boolean");
   });
 });
+
+describe("shipped language sheets", () => {
+  it("every sheet in data.ts passes validateSheet", async () => {
+    const { LANGUAGE_SHEETS } = await import("./data");
+    for (const sheet of LANGUAGE_SHEETS) {
+      expect({ name: sheet.name, problems: validateSheet(sheet) }).toEqual({ name: sheet.name, problems: [] });
+    }
+  });
+});
