@@ -2350,11 +2350,41 @@ Both are in `lib/languages/facts.ts`. `ALIASES` merges lineage spellings under o
 
 ### Current state
 
-`lib/languages/data.ts` is empty until the first owner-reviewed batch, so there is no "About" link anywhere yet. Next step, with the owner: `languages:facts -- --limit 30`, then draft, review, approve `--only` the names the owner accepts, and commit `data.ts` (and probably the facts and drafts, for history) as `content: first 30 language sheets (owner-reviewed)`. Later batches cover the remaining languages the same way. Deferred minor items are in the SDD ledger (`progress.md`).
+**First batch done (2026-10-05): 29 sheets in `data.ts`.** These are the 30 most-used lineage languages minus Proto-West Germanic, whose only source is the West Germanic *group* page.
+
+The owner asked Claude to do the review. Claude checked every date, parent and status against the Wikipedia lead and Wikidata facts. Corrections and `_override` reasons are in `content/languages/drafts/`. The main corrections:
+- Persian's era starts at about 800 (New Persian), not Old Persian's 550 BCE.
+- Middle French's parent is Old French, not French.
+- The Latin varieties are `extinct`.
+- Sanskrit is `living` (it has a census of native speakers).
+- Open-ended eras were removed from non-living languages.
+
+The review found two data-model bugs, now fixed and tested:
+- `era.to: null` ("still spoken today") is now valid only for living languages.
+- `writtenUntil: null` used to draw a "still written today" tail on every timeline. Now only an actual year does.
+
+Coverage in this batch: 20 sheets have dates, 25 have a map, 19 have a parent and 12 have a speaker count. Some panels honestly say "Dates unknown", among them Latin, French and Italian, because their Wikipedia leads give no start year.
+
+**Next batches.** Run `languages:facts -- --limit N` (or `--only`), then draft, review and approve, as above. Deferred minor items are in the SDD ledger (`progress.md`).
 
 ### Verification
 
-Not yet checked in a browser. To fill in after the first content batch: Latin, a reconstructed language and a language with `map: null` at 375px and on desktop; the "About" link appears only for approved sheets.
+**Checked 2026-10-05 on a local dev server** (port 3100, from the branch) at 375px, with the real sheets. The favourites test used words added to local storage only, so nothing was synced to the owner's account; they were restored afterwards.
+
+| Language | What it checked | Result |
+|---|---|---|
+| Proto-Indo-European | reconstructed | Dot map lit over the Pontic–Caspian steppe; dashed timeline 4500–2500 BCE; "Reconstructed by scholars" |
+| Middle Dutch | `map: null` | No map; 1150–1500 |
+| Latin | `era: null` | Map with Latium lit; "Dates unknown"; "7.5M as of 1 CE" |
+
+Other results:
+- No horizontal overflow.
+- The "About" link appeared only for approved sheets.
+- The sheet text sits only in the lazy panel chunk, not in `/collection`'s 10 initial chunks.
+
+**Desktop width was not checked**, because the browser pane was phone-width. The panel lives in Collection's fixed-width column, so this is low risk.
+
+**Follow-up idea:** at the 1.5° grid, a small region such as Latium (100 km) lights a single dot. A finer grid for zoomed views would make maps of small regions read better.
 
 ## This session (2026-10-04, later): language panel
 
@@ -2365,7 +2395,7 @@ Built on branch `feat/lang-panel` (worktree `.worktrees/lang-panel`), not yet me
 
 ### Verification
 
-To be filled in after the first content batch and a browser check on the branch's dev server (a separate port).
+Merged and pushed earlier on 2026-10-04 with empty data. See the language panel's Verification section above for the first content batch.
 
 ## Workflow notes for whoever picks this up
 
