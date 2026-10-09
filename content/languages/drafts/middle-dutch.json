@@ -3,7 +3,7 @@
   "aliases": [],
   "status": "historical",
   "classification": "Low Franconian group of the West Germanic languages",
-  "region": "Not recorded in our sources",
+  "region": "Not recorded in the sources",
   "map": null,
   "era": {
     "from": 1150,
@@ -14,7 +14,7 @@
   "peakSpeakers": null,
   "unknownSpeakersNote": "No census of its speakers exists.",
   "parent": "Old Dutch",
-  "origin": "Middle Dutch is the collective name for a number of closely related West Germanic dialects descended from Old Dutch. It was spoken and written between 1150 and 1500, before Modern Dutch emerged. In that period a rich Medieval Dutch literature developed, something that had not yet existed in Old Dutch.",
+  "origin": "Middle Dutch is the collective name for a number of closely related West Germanic dialects descended from Old Dutch. It was spoken and written between 1150 and 1500, before Modern Dutch emerged. In that period a Medieval Dutch literature developed, which had not existed in Old Dutch.",
   "sourceUrl": "https://en.wikipedia.org/wiki/Middle_Dutch",
   "approved": true
 }

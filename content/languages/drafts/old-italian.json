@@ -1,0 +1,23 @@
+{
+  "name": "Old Italian",
+  "aliases": [],
+  "status": "historical",
+  "classification": "Italo-Romance, within the Romance branch of the Indo-European family",
+  "region": "Italy, centred on the Tuscan lands around Florence",
+  "map": {
+    "lat": 43,
+    "lon": 13,
+    "radiusKm": 300
+  },
+  "era": null,
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No speaker count exists for this earlier stage; the available figures are for modern Italian.",
+  "parent": null,
+  "origin": "Our sources describe Italian as a whole rather than its earliest stage. Modern Italian is a standardised form of literary Florentine Tuscan, and together with Sardinian it is the least differentiated language from Latin. That closeness to Latin is why Italian is called a conservative Romance language, and it is a useful clue to what its earlier stages may have sounded like.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Italian_language",
+  "approved": false,
+  "_problems": [
+    "the Wikipedia page \"Italian language\" does not match the language name \"Old Italian\" — check it is the same language"
+  ],
+  "_skip": "No reliable source: the only Wikipedia match is the modern Italian language page, which says nothing about Old Italian."
+}

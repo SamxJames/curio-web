@@ -1,0 +1,56 @@
+{
+  "name": "Scots",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Scots language",
+    "extract": "Scots is an Anglic language variety of West Germanic origin descended from Early Middle English. Thus, Modern Scots is a sister language of Modern English. Scots is classified as an official language of Scotland, a regional or minority language of Europe, and a vulnerable language by UNESCO. In a Scottish census from 2022, over 1.5 million people in Scotland reported being able to speak Scots.",
+    "url": "https://en.wikipedia.org/wiki/Scots_language",
+    "description": "West Germanic language",
+    "wikibaseItem": "Q14549",
+    "type": "standard",
+    "lead": "Scots is an Anglic language variety of West Germanic origin descended from Early Middle English. Thus, Modern Scots is a sister language of Modern English. Scots is classified as an official language of Scotland, a regional or minority language of Europe, and a vulnerable language by UNESCO. In a Scottish census from 2022, over 1.5 million people in Scotland (of its total population of 5.4 million people) reported being able to speak Scots. \nMost commonly spoken in the Scottish Lowlands, the Northern Isles of Scotland, and northern Ulster in Ireland (where the local dialect is known as Ulster Scots), it is sometimes called Lowland Scots, to distinguish it from Scottish Gaelic, the Celtic language that was historically restricted to most of the Scottish Highlands, the Hebrides, and Galloway after the sixteenth century; or Broad Scots, to distinguish it from Scottish Standard English. Many Scottish people's speech exists on a dialect continuum ranging between Broad Scots and Standard English.\nGiven that there are no universally accepted criteria for distinguishing a language from a dialect, scholars and other interested parties often disagree about whether Scots is a dialect of English or a separate language.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q14549",
+    "coordinates": {
+      "lat": 57,
+      "lon": -3
+    },
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 1500000,
+      "year": null
+    },
+    "instanceOf": [
+      "natural language",
+      "modern language"
+    ],
+    "subclassOf": [
+      "Q1346342"
+    ],
+    "indigenousTo": [
+      "Q100166",
+      "Q211113",
+      "Q22",
+      "Q47134",
+      "Q93195",
+      "Q26",
+      "Q27"
+    ],
+    "parentLabels": [
+      "Anglic"
+    ],
+    "regionLabels": [
+      "Orkney Islands",
+      "Scottish Borders",
+      "Scotland",
+      "Shetland Islands",
+      "Ulster",
+      "Northern Ireland",
+      "Ireland"
+    ]
+  },
+  "fetchedAt": "2026-10-09T22:23:22.352Z"
+}

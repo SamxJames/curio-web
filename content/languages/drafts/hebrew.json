@@ -1,0 +1,28 @@
+{
+  "name": "Hebrew",
+  "aliases": [],
+  "status": "living",
+  "classification": "Northwest Semitic language of the Afroasiatic family, a Canaanite language",
+  "region": "The Land of Israel, spoken by the Israelites → liturgical use in Jewish and Samaritan communities worldwide → revived as the official language of the State of Israel",
+  "map": {
+    "lat": 31,
+    "lon": 35,
+    "radiusKm": 150
+  },
+  "era": {
+    "from": -1500,
+    "to": null,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": {
+    "count": 9303950,
+    "year": 2019,
+    "note": "Speakers, Wikidata figure for 2019"
+  },
+  "unknownSpeakersNote": null,
+  "parent": null,
+  "origin": "Hebrew began as a regional dialect of the Canaanite languages, spoken natively by the Israelites. Its earliest written examples, in Paleo-Hebrew, date to the 10th century BCE, and nearly all of the Hebrew Bible is in Biblical Hebrew. It stopped being a regular spoken language between 200 and 400 CE but stayed in use for liturgy and literature, and in the 19th century it was revived as a spoken language, with Eliezer Ben-Yehuda leading the creation of its modern form.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Hebrew_language",
+  "approved": true
+}

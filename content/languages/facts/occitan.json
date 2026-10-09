@@ -1,0 +1,72 @@
+{
+  "name": "Occitan",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Occitan language",
+    "extract": "Occitan, also known by its native speakers as lenga d'òc, sometimes also referred to as Provençal, is a Romance language spoken in southern France, Monaco, Italy's Occitan Valleys and the Val d'Aran in northeast Spain; collectively, these regions are sometimes referred to as Occitania. It is also spoken in the southern Italian province of Cosenza, where it is referred to as Gardiol, which is considered a separate Occitanic language. The linguistic distance between Catalan and some Occitan dialects is similar to the distance between different Occitan dialects, and Catalan was considered a dialect of Occitan until the end of the 19th century and still today remains its closest relative. Occitan has a particularly rich lexicon. Lo Panoccinari, considered the most comprehensive dictionary ever published in this language, records over 250,000 unique words.",
+    "url": "https://en.wikipedia.org/wiki/Occitan_language",
+    "description": "Romance language of Western Europe",
+    "wikibaseItem": "Q14185",
+    "type": "standard",
+    "lead": "Occitan (English:  ; Occitan pronunciation: [utsiˈta, uksiˈta]), also known by its native speakers as lenga d'òc (Occitan: [ˈleŋɡɒ ˈðɔ(k)] ; French: langue d'oc), sometimes also referred to as Provençal, is a Romance language spoken in southern France, Monaco, Italy's Occitan Valleys and the Val d'Aran in northeast Spain; collectively, these regions are sometimes referred to as Occitania. It is also spoken in the southern Italian province of Cosenza (mostly in Guardia Piemontese), where it is referred to as Gardiol, which is considered a separate Occitanic language. The linguistic distance between Catalan and some Occitan dialects (such as the Gascon language) is similar to the distance between different Occitan dialects, and Catalan was considered a dialect of Occitan until the end of the 19th century and still today remains its closest relative. Occitan has a particularly rich lexicon. Lo Panoccinari, considered the most comprehensive dictionary ever published in this language, records over 250,000 unique words (more than 310,000 including dialectal variations).\nOccitan is an official language of Catalonia, including the Val d'Aran, where a subdialect of Gascon known as Aranese is spoken. Since September 2010, the Parliament of Catalonia has considered Aranese Occitan to be the officially preferred language for use in the Val d'Aran.\nAcross history, the terms Limousin (Lemosin), Languedocien (Lengadocian), Gascon, in addition to Provençal (Provençal, Provençau or Prouvençau) later have been used as synonyms for the whole of Occitan; nowadays, the term \"Provençal\" is understood mainly as the Occitan dialect spoken in Provence, in southeast France.\nUnlike other Romance languages such as French or Spanish, Occitan does not have a single written standard form, nor does it have official status in France, home to most of its speakers. Instead, there are competing norms for writing Occitan, some of which attempt to be pan-dialectal, whereas others are based on a particular dialect. These efforts are hindered by the rapidly declining use of Occitan as a spoken language in much of southern France, as well as by the significant differences in phonology and vocabulary among different Occitan dialects.\nAccording to the UNESCO Red Book of Endangered Languages, four of the six major dialects of Occitan (Provençal, Auvergnat, Limousin and Languedocien) are considered severely endangered, whereas the remaining two (Gascon and Vivaro-Alpine) are considered definitely endangered.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q14185",
+    "coordinates": {
+      "lat": 43,
+      "lon": 1
+    },
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 542000,
+      "year": 2020
+    },
+    "instanceOf": [
+      "natural language",
+      "modern language"
+    ],
+    "subclassOf": [
+      "Q599958",
+      "Q500394"
+    ],
+    "indigenousTo": [
+      "Q12602",
+      "Q3259",
+      "Q12569",
+      "Q12572",
+      "Q12808",
+      "Q18338206",
+      "Q1179",
+      "Q17005",
+      "Q1190",
+      "Q16393",
+      "Q15104",
+      "Q17009",
+      "Q1216",
+      "Q16186"
+    ],
+    "parentLabels": [
+      "Occitano-Romance",
+      "Gallo-Romance"
+    ],
+    "regionLabels": [
+      "Val d'Aran",
+      "Cantal",
+      "Loire",
+      "Haute-Loire",
+      "Haute-Vienne",
+      "Auvergne-Rhône-Alpes",
+      "Aquitaine",
+      "Languedoc-Roussillon",
+      "Limousin",
+      "Midi-Pyrénées",
+      "Provence-Alpes-Côte d'Azur",
+      "Poitou-Charentes",
+      "Piedmont",
+      "Province of Imperia"
+    ]
+  },
+  "fetchedAt": "2026-10-09T22:23:29.803Z"
+}

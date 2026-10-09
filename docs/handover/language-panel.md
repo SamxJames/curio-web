@@ -39,9 +39,9 @@ Model `claude-sonnet-5-5`, thinking on (the default), `output_config.effort: "me
 - `parent` is not a lineage language;
 - the facts' Wikipedia page does not look like a language page (a disambiguation page is never kept as facts at all).
 
-Reconstructed languages (all `Proto-*`, plus any the facts mark so) get `peakSpeakers: null` and the fixed note "Reconstructed by scholars — never written down."
+Reconstructed languages (all `Proto-*`, plus any the facts mark so) get `peakSpeakers: null` and the fixed note "Reconstructed by scholars. Never written down."
 
-An owner must clear `_problems` before approving: fix the draft JSON against the "Fetched facts" block, delete its `_problems` key and re-run `languages:review`. Deleting `_problems` does not hide anything: the checks run again at both later steps. `languages:review` re-runs `factProblems` (exported from `draftPrompt.ts`) against the facts file and shows its problems in red, and `languages:approve` loads `content/languages/facts/<same basename>.json` and refuses a draft whose `factProblems` is non-empty, even with `--all-valid`. It also refuses any draft that still has `_problems`. To accept a known mismatch on purpose, add a non-empty string `_override` to the draft JSON giving your reason. `_override` is never copied into `data.ts`.
+An owner must clear `_problems` before approving: fix the draft JSON against the "Fetched facts" block, delete its `_problems` key and re-run `languages:review`. Deleting `_problems` does not hide anything: the checks run again at both later steps. `languages:review` re-runs `factProblems` (exported from `draftPrompt.ts`) against the facts file and shows its problems in red, and `languages:approve` loads `content/languages/facts/<same basename>.json` and refuses a draft whose `factProblems` is non-empty, even with `--all-valid`. It also refuses any draft that still has `_problems`. To accept a known mismatch on purpose, add a non-empty string `_override` to the draft JSON giving your reason. `_override` is never copied into `data.ts`. To hold a draft back on purpose (no reliable source), add a non-empty `_skip` reason instead: `--all-valid` lists it as SKIPPED without counting it as a refusal.
 
 ### Honesty rules
 
@@ -53,7 +53,7 @@ An owner must clear `_problems` before approving: fix the draft JSON against the
 
 ### Aliases and skip list
 
-Both are in `lib/languages/facts.ts`. `ALIASES` merges lineage spellings under one canonical name: Lombardic -> Lombard, Kiswahili -> Swahili, Ottoman -> Ottoman Turkish, Old Provençal -> Old Occitan. `SKIP` never gets a sheet: English, Translingual, "Phrygian or Anatolian", Indian English, Late Middle English. Add to these before running `languages:facts` if more duplicate names turn up.
+Both are in `lib/languages/facts.ts`. `ALIASES` merges lineage spellings under one canonical name: Kiswahili -> Swahili, Ottoman -> Ottoman Turkish, Old Provençal -> Old Occitan. `SKIP` never gets a sheet: English, Translingual, "Phrygian or Anatolian", Indian English, Late Middle English. Add to these before running `languages:facts` if more duplicate names turn up, and check first that the two names really are one language (Lombardic -> Lombard was wrong and was removed on 2026-10-09: Lombardic is Germanic, Lombard is Romance).
 
 ### Bundle weight and lazy loading
 
@@ -64,24 +64,46 @@ Both are in `lib/languages/facts.ts`. `ALIASES` merges lineage spellings under o
 
 ### Current state
 
-**First batch done (2026-10-05): 29 sheets in `data.ts`.** These are the 30 most-used lineage languages minus Proto-West Germanic, whose only source is the West Germanic *group* page.
+**58 approved sheets in `data.ts` (2026-10-09).** These are the 60 most-used lineage languages minus two held back with a `_skip` reason because no reliable source exists:
+- Proto-West Germanic: the only Wikipedia match is the West Germanic *group* page.
+- Old Italian: the only match is the modern Italian page, which says nothing about Old Italian.
 
-The owner asked Claude to do the review. Claude checked every date, parent and status against the Wikipedia lead and Wikidata facts. Corrections and `_override` reasons are in `content/languages/drafts/`. The main corrections:
+The owner asked Claude to do the review for both batches (29 sheets on 2026-10-05, 29 more on 2026-10-09). Claude checked every date, parent, status, region and speaker figure against the Wikipedia lead and Wikidata facts. Corrections and `_override` reasons are in `content/languages/drafts/`. The rules the reviews settled:
+- `era.to: null` ("still spoken today") only for living languages. No open-ended era for anything else.
+- `parent` is the nearest ancestor the facts name (Middle French -> Old French, Gaulish -> Proto-Celtic). Never the modern language that a stage belongs to (Biblical Hebrew's parent is not Hebrew), and null when the facts name no ancestor.
+- `era.from` is the earliest date the facts give for this language. An ancestor's date is not borrowed (Norwegian has no dates, not Old Norse's 800).
+- `writtenUntil` stays null unless the facts say the language is still written after speech ended (only New Latin has one).
+
+Main corrections in batch 1:
 - Persian's era starts at about 800 (New Persian), not Old Persian's 550 BCE.
 - Middle French's parent is Old French, not French.
 - The Latin varieties are `extinct`.
 - Sanskrit is `living` (it has a census of native speakers).
 - Open-ended eras were removed from non-living languages.
 
-The review found two data-model bugs, now fixed and tested:
-- `era.to: null` ("still spoken today") is now valid only for living languages.
+Main corrections in batch 2:
+- Koine Greek, Biblical Hebrew and Middle Persian were drafted as still spoken. Koine Greek is now about 300 BCE to 500 CE (it became Medieval Greek), Biblical Hebrew about 1000 BCE to 70 CE (end of the Second Temple period), and Middle Persian has no dates, because its facts give none.
+- New Latin is `extinct`, spoken about 1300 to 1820 (Latin was a common tongue in the Austrian Empire "at least until the 1820s"), with a still-written tail.
+- Ottoman Turkish ended in 1999 in the draft. It is now 1922, the end of the Ottoman Empire. The lead says only "14th to 20th centuries", so this is the one year taken from outside the facts.
+- Scots now has a dated count: 1.5 million people able to speak it, from the 2022 census. Wikidata's figure has no year, and the lead dates it (`_override`).
+- Parents: Hebrew was Proto-Semitic (not in the facts) and is now none; Biblical Hebrew (was Hebrew) and Ottoman Turkish (was Turkish) are now none; Gaulish -> Proto-Celtic, Occitan -> Old Occitan and Germanic -> Proto-Germanic were added from the facts.
+- "Still written today" tails were removed from living languages, matching batch 1.
+- Byzantine Greek (page "Medieval Greek"), New Latin (page "Neo-Latin") and Middle High German (a chronolect page) have the right articles and are accepted with `_override`.
+- **Alias bug fixed.** `ALIASES` mapped Lombardic -> Lombard, but they are different languages. Lombardic is the Germanic language of the Lombards (behind gnocchi, stucco and balcony), and Lombard is a Romance language (behind artichoke and celery). The alias is gone, so the Lombard sheet no longer claims Lombardic, which will get its own sheet in a later batch.
+
+**Humanizer pass (2026-10-09)** on the prose of all 58 sheets (`classification`, `region`, `origin`, the speaker notes): no em or en dashes (year ranges use "to"), no puffery or AI vocabulary ("notably", "rich"), no first person ("our sources"), no vague attributions the facts don't make, and no added glosses. No fact, date, number or name changed. The reconstructed note is now "Reconstructed by scholars. Never written down." and the panel's status line is "reconstructed by scholars, never written down". The draft prompt now asks for a plain reference-book register and forbids dashes, so later drafts start cleaner.
+
+The review of batch 1 found two data-model bugs, still fixed and tested:
+- `era.to: null` ("still spoken today") is valid only for living languages.
 - `writtenUntil: null` used to draw a "still written today" tail on every timeline. Now only an actual year does.
 
-Coverage in this batch: 20 sheets have dates, 25 have a map, 19 have a parent and 12 have a speaker count. Some panels honestly say "Dates unknown", among them Latin, French and Italian, because their Wikipedia leads give no start year.
+Coverage now: 37 of 58 sheets have dates, 52 have a map, 34 have a parent and 22 have a speaker count. Some panels honestly say "Dates unknown", among them Latin, French, Italian, Hindi and Norwegian, because their Wikipedia leads give no start year.
 
-**Next batches.** Run `languages:facts -- --limit N` (or `--only`), then draft, review and approve, as above. Deferred minor items are in the SDD ledger (`progress.md`).
+**Next batches.** Run `languages:facts -- --limit N` (it takes the next N most-used languages that have no facts file yet), then draft, review and approve, as above. To hold back a draft that has no reliable source, add a non-empty `_skip` reason to it: `--all-valid` then lists it as SKIPPED and still exits 0, and naming it with `--only` refuses it. Next by usage: Old Irish, Old Saxon, Russian, Tamil, Andalusian Arabic, Classical Persian, Danish. Lombardic is now its own language. Deferred minor items are in the SDD ledger (`progress.md`).
 
 ### Verification
+
+Batch 2 and the humanizer pass (2026-10-09) were checked by lint, the full test suite and a production build only, not in a browser. The panel code did not change apart from the reconstructed status line.
 
 **Checked 2026-10-05 on a local dev server** (port 3100, from the branch) at 375px, with the real sheets. The favourites test used words added to local storage only, so nothing was synced to the owner's account; they were restored afterwards.
 

@@ -1,0 +1,23 @@
+{
+  "name": "Hindi",
+  "aliases": [],
+  "status": "living",
+  "classification": "Indo-Aryan language, a Sanskritised register of Hindustani",
+  "region": "Northern India → a lingua franca across much of northern, central, eastern, western and northeastern India",
+  "map": {
+    "lat": 23,
+    "lon": 80,
+    "radiusKm": 800
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 341000000,
+    "year": 2019,
+    "note": "Native speakers, Wikidata figure for 2019"
+  },
+  "unknownSpeakersNote": null,
+  "parent": "Hindustani",
+  "origin": "Modern Standard Hindi is an Indo-Aryan language written in the Devanagari script. It shares a common base with standard Urdu, known as Hindi-Urdu or Hindustani, and Hindi is considered the more Sanskritised register of the two. Apart from the script and formal vocabulary, the two are mutually intelligible.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Hindi",
+  "approved": true
+}

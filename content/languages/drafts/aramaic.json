@@ -1,0 +1,24 @@
+{
+  "name": "Aramaic",
+  "aliases": [],
+  "status": "living",
+  "classification": "Northwest group of the Semitic language family, alongside the Canaanite languages such as Hebrew and Phoenician",
+  "region": "Ancient Syria → Mesopotamia, the southern Levant, Sinai, southeastern Anatolia, the Caucasus and Eastern Arabia",
+  "map": {
+    "lat": 35,
+    "lon": 40,
+    "radiusKm": 1000
+  },
+  "era": {
+    "from": -1100,
+    "to": null,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "Wikidata records 445,000 speakers but gives no date for that figure.",
+  "parent": null,
+  "origin": "Aramaic began in the ancient region of Syria and spread quickly across much of West Asia. Its earliest inscriptions date from the 11th century BC, which places it among the earliest languages to be written down. The scholar Holger Gzella notes that its history before the first texts of the 9th century BC is unknown.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Aramaic",
+  "approved": true
+}

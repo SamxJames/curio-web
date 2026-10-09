@@ -1,0 +1,24 @@
+{
+  "name": "Koine Greek",
+  "aliases": [],
+  "status": "historical",
+  "classification": "Common form of Greek, based mainly on Attic and Ionic",
+  "region": "The Mediterranean region and the Middle East, following the conquests of Alexander the Great",
+  "map": {
+    "lat": 35,
+    "lon": 28,
+    "radiusKm": 1500
+  },
+  "era": {
+    "from": -300,
+    "to": 500,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "Ancient Greek",
+  "origin": "Koine Greek grew out of the spread of Greek after Alexander the Great's conquests in the fourth century BC. It was based mainly on Attic and related Ionic speech forms, with admixtures from other varieties through dialect levelling. Its name, ἡ κοινὴ διάλεκτος, means 'the common dialect', and it was a lingua franca across the Mediterranean and the Middle East.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Koine_Greek",
+  "approved": true
+}

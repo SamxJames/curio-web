@@ -1,0 +1,67 @@
+{
+  "name": "Hindi",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Hindi",
+    "extract": "Modern Standard Hindi, commonly referred to as Hindi, is an Indo-Aryan language written in the Devanagari script. It is an official language of the government of India, and is the lingua franca for most of the northern half of India.",
+    "url": "https://en.wikipedia.org/wiki/Hindi",
+    "description": "Indo-Aryan language",
+    "wikibaseItem": "Q1568",
+    "type": "standard",
+    "lead": "Modern Standard Hindi (Hindi: आधुनिक मानक हिन्दी, romanised: Ādhunik Mānak Hindī), commonly referred to as Hindi, is an Indo-Aryan language written in the Devanagari script. It is an official language of India and, alongside English, serves as a lingua franca across much of northern, central, eastern, western, and northeastern India, with South India being the main exception.\nHindi is an official language in ten states (Bihar, Chhattisgarh, Gujarat, Haryana, Himachal Pradesh, Jharkhand, Madhya Pradesh, Rajasthan, Uttar Pradesh, and  Uttarakhand), and six union territories (Andaman and Nicobar Islands, Delhi, Chandigarh, Dadra and Nagar Haveli and Daman and Diu, Ladakh, and Jammu and Kashmir) and an additional official language in the state of West Bengal.. Hindi is also one of the 22 scheduled languages of the Republic of India.\nApart from the script and formal vocabulary, Modern Standard Hindi is mutually intelligible with standard Urdu. The common base or language of the two registers is referred to as Hindi–Urdu or Hindustani, with Hindi being considered the more Sanskritised register. Hindustani may also occur in simplified forms, sometimes referred to as Bazaar Hindustani; pidginised varieties include Haflong Hindi. Outside India, several other languages are recognised officially as \"Hindi\" but do not refer to the Standard Hindi language and instead descend from other nearby languages, such as Awadhi and Bhojpuri. Examples of this are Bhojpuri-Hindustani spoken in South Africa and Mauritius; Fiji Hindi spoken in Fiji; and Caribbean Hindustani spoken in Suriname, Trinidad and Tobago, and Guyana.\nHindi is the fourth-most-spoken first language in the world, after Mandarin, Spanish, and English. When grouped with the mutually intelligible Urdu, it is the third-most-spoken language in the world, after Mandarin and English. According to reports of Ethnologue (2025), Hindi is the third most-spoken language in the world when including first and second language speakers.\nHindi is the fastest-growing language of India, followed by Kashmiri, Meitei, Gujarati and Bengali, according to the 2011 census of India.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q1568",
+    "coordinates": {
+      "lat": 23,
+      "lon": 80
+    },
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 341000000,
+      "year": 2019
+    },
+    "instanceOf": [
+      "language",
+      "modern language",
+      "register"
+    ],
+    "subclassOf": [
+      "Q11051"
+    ],
+    "indigenousTo": [
+      "Q311977",
+      "Q862086",
+      "Q668",
+      "Q1165",
+      "Q1353",
+      "Q1177",
+      "Q1188",
+      "Q22424",
+      "Q1437",
+      "Q1498",
+      "Q1499",
+      "Q1174"
+    ],
+    "parentLabels": [
+      "Hindustani"
+    ],
+    "regionLabels": [
+      "Dards",
+      "Indians",
+      "India",
+      "Bihar",
+      "Delhi",
+      "Himachal Pradesh",
+      "Madhya Pradesh",
+      "Punjab",
+      "Rajasthan",
+      "Uttar Pradesh",
+      "Uttarakhand",
+      "Haryana"
+    ]
+  },
+  "fetchedAt": "2026-10-09T22:23:11.763Z"
+}

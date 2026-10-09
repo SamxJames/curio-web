@@ -1,0 +1,24 @@
+{
+  "name": "Germanic",
+  "aliases": [],
+  "status": "living",
+  "classification": "Branch of the Indo-European language family, with West, North and East Germanic subgroups",
+  "region": "Iron Age Scandinavia and northern Germany → Europe, Northern America, Oceania and Southern Africa",
+  "map": {
+    "lat": 56,
+    "lon": 10,
+    "radiusKm": 600
+  },
+  "era": {
+    "from": -500,
+    "to": null,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No dated count exists. Wikipedia gives about 515 million native speakers across the branch.",
+  "parent": "Proto-Germanic",
+  "origin": "All Germanic languages descend from Proto-Germanic, spoken around the middle of the 1st millennium BC in Iron Age Scandinavia and northern Germany. In the 2nd century BC, Germanic tribes moved south to settle in what is now western Germany and along the Baltic coasts. Proto-Germanic is known for features such as the consonant change called Grimm's law.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Germanic_languages",
+  "approved": true
+}

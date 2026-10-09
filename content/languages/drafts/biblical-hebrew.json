@@ -1,0 +1,24 @@
+{
+  "name": "Biblical Hebrew",
+  "aliases": [],
+  "status": "historical",
+  "classification": "Canaanitic branch of the Semitic languages; an archaic form of Hebrew",
+  "region": "The Land of Israel, roughly west of the Jordan River and east of the Mediterranean Sea",
+  "map": {
+    "lat": 31.78,
+    "lon": 35.17,
+    "radiusKm": 100
+  },
+  "era": {
+    "from": -1000,
+    "to": 70,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": null,
+  "origin": "Biblical Hebrew was spoken by the Israelites in the Land of Israel. Its early form, Paleo-Hebrew, is attested in inscriptions from about the 10th century BCE, when it was almost identical to Phoenician and other Canaanite languages. The Hebrew Bible itself called the language 'language of Canaan' or 'Judean', not 'Hebrew'.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Biblical_Hebrew",
+  "approved": true
+}

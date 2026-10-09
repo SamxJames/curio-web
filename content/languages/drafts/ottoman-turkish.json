@@ -1,0 +1,22 @@
+{
+  "name": "Ottoman Turkish",
+  "aliases": [
+    "Ottoman"
+  ],
+  "status": "historical",
+  "classification": "A standardized register of Turkish",
+  "region": "The Ottoman Empire",
+  "map": null,
+  "era": {
+    "from": 1300,
+    "to": 1922,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": null,
+  "origin": "Ottoman Turkish was the standardized register of Turkish used in the Ottoman Empire, from roughly the 14th to the 20th centuries. Written in the Ottoman Turkish alphabet, it borrowed extensively from Persian and Arabic. Rural Turks, to whom it was largely unintelligible, kept using kaba Türkçe ('raw' or 'vulgar' Turkish), which had far fewer foreign loanwords and is the basis of modern standard Turkish.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Ottoman_Turkish",
+  "approved": true
+}

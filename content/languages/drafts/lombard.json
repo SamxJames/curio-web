@@ -1,0 +1,23 @@
+{
+  "name": "Lombard",
+  "aliases": [],
+  "status": "living",
+  "classification": "Gallo-Italic group of the Romance languages, within the Piedmontese-Lombard grouping",
+  "region": "Northern Italy and southern Switzerland: most of Lombardy, parts of eastern Piedmont and western Trentino, and the Swiss cantons of Ticino and Graubünden",
+  "map": {
+    "lat": 46,
+    "lon": 10,
+    "radiusKm": 150
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 3900000,
+    "year": 2002,
+    "note": "Native speakers, Wikidata figure for 2002"
+  },
+  "unknownSpeakersNote": null,
+  "parent": null,
+  "origin": "Lombard belongs to the Gallo-Italic group within the Romance languages. It has a Celtic substratum and a Lombardic superstratum. It is a cluster of homogeneous dialects spoken by millions in Northern Italy and southern Switzerland, and also in Santa Catarina, Brazil, by Lombard immigrants from the Province of Bergamo.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Lombard_language",
+  "approved": true
+}

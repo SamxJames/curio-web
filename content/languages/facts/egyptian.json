@@ -1,0 +1,34 @@
+{
+  "name": "Egyptian",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Egyptian language",
+    "extract": "The Egyptian language, or ancient Egyptian, is an extinct branch of the Afro-Asiatic language family that was spoken in Egypt. It is one of the earliest known written languages, first recorded in the hieroglyphic script in the late 4th millennium BC, and the longest-attested human language with a written record spanning over 5,000 years. Its classical form, known as \"Middle Egyptian,\" was the vernacular language of the Middle Kingdom of ancient Egypt, and remained the literary language of Egypt until its Christianisation during the Roman period. It is known today from a large corpus of surviving texts, which were deciphered in the early 19th century.",
+    "url": "https://en.wikipedia.org/wiki/Egyptian_language",
+    "description": "Extinct language in Egypt",
+    "wikibaseItem": "Q50868",
+    "type": "standard",
+    "lead": "The Egyptian language, or ancient Egyptian (r n kmt; 'speech of Egypt'), is an extinct branch of the Afro-Asiatic language family that was spoken in Egypt. It is one of the earliest known written languages, first recorded in the hieroglyphic script in the late 4th millennium BC, and the longest-attested human language with a written record spanning over 5,000 years. Its classical form, known as \"Middle Egyptian,\" was the vernacular language of the Middle Kingdom of ancient Egypt, and remained the literary language of Egypt until its Christianisation during the Roman period. It is known today from a large corpus of surviving texts, which were deciphered in the early 19th century.\nBy the time of classical antiquity, the spoken language had evolved into Demotic. By the Roman and Byzantine eras, the language later further diversified into various Coptic dialects written in the Greek alphabet. These were eventually supplanted by Arabic after the Arab conquest of Egypt, although Bohairic Coptic remains in use as the liturgical language of the Coptic Orthodox and Coptic Catholic churches.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q50868",
+    "coordinates": null,
+    "inception": -4000,
+    "dissolved": 1700,
+    "speakers": null,
+    "instanceOf": [
+      "dead language",
+      "ancient language"
+    ],
+    "subclassOf": [
+      "Q34610803"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "Egyptian"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-09T22:23:34.029Z"
+}

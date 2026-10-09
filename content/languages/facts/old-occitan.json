@@ -1,0 +1,50 @@
+{
+  "name": "Old Occitan",
+  "aliases": [
+    "Old Provençal"
+  ],
+  "wikipedia": {
+    "title": "Old Occitan",
+    "extract": "Old Occitan, also called Old Provençal, was the earliest form of the Occitano-Romance languages, as attested in writings dating from the 8th to the 14th centuries. Old Occitan generally includes Early and Old Occitan. Middle Occitan is sometimes included in Old Occitan, sometimes in Modern Occitan. As the term occitanus appeared around the year 1300, Old Occitan is referred to as \"Romance\" or \"Provençal\" in medieval texts.",
+    "url": "https://en.wikipedia.org/wiki/Old_Occitan",
+    "description": "Language of the Occitano-Romance group",
+    "wikibaseItem": "Q2779185",
+    "type": "standard",
+    "lead": "Old Occitan (Modern Occitan: occitan ancian, Catalan: occità antic), also called Old Provençal, was the earliest form of the Occitano-Romance languages, as attested in writings dating from the 8th to the 14th centuries. Old Occitan generally includes Early and Old Occitan. Middle Occitan is sometimes included in Old Occitan, sometimes in Modern Occitan. As the term occitanus appeared around the year 1300, Old Occitan is referred to as \"Romance\" (Occitan: romans) or \"Provençal\" (Occitan: proensals) in medieval texts.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q2779185",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 0,
+      "year": null
+    },
+    "instanceOf": [
+      "historical language"
+    ],
+    "subclassOf": [
+      "Q599958"
+    ],
+    "indigenousTo": [
+      "Q104285",
+      "Q18678265",
+      "Q204920",
+      "Q4018",
+      "Q1216"
+    ],
+    "parentLabels": [
+      "Occitano-Romance"
+    ],
+    "regionLabels": [
+      "Occitania",
+      "Occitania",
+      "Crown of Aragon",
+      "Navarre",
+      "Piedmont"
+    ]
+  },
+  "fetchedAt": "2026-10-09T22:23:14.404Z"
+}

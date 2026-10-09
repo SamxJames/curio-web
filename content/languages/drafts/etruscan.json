@@ -1,0 +1,24 @@
+{
+  "name": "Etruscan",
+  "aliases": [],
+  "status": "extinct",
+  "classification": "Tyrsenian (Tyrrhenian) family, related to Raetic and Lemnian; a Pre-Indo-European language",
+  "region": "Etruria, central Italy, including Etruria Padana and Etruria Campana",
+  "map": {
+    "lat": 43,
+    "lon": 11.5,
+    "radiusKm": 250
+  },
+  "era": {
+    "from": -700,
+    "to": 50,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": null,
+  "origin": "Etruscan was the language of the Etruscan civilization in Etruria, in what is now Italy. Most linguists place it in the Tyrrhenian family, closely related to Raetic in the Alps and to Lemnian on Lemnos, and not in the Indo-European family. Its alphabet came from the Greek alphabet, specifically the Euboean script brought to southern Italy by Greek colonists.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Etruscan_language",
+  "approved": true
+}

@@ -1,0 +1,23 @@
+{
+  "name": "Malay",
+  "aliases": [],
+  "status": "living",
+  "classification": "Malayan group of the Austronesian family; a pluricentric macrolanguage",
+  "region": "Islands of Maritime Southeast Asia and the Malay Peninsula → official language in Brunei, Malaysia and Singapore, with Indonesian as the standard form in Indonesia",
+  "map": {
+    "lat": 4,
+    "lon": 102,
+    "radiusKm": 1500
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 77000000,
+    "year": 2007,
+    "note": "Native speakers, Wikidata figure for 2007"
+  },
+  "unknownSpeakersNote": null,
+  "parent": null,
+  "origin": "Malay is an Austronesian language of the Malayan group and the ethnic language of the Malays. Its classical form, also called Court Malay, was the literary standard of the pre-colonial Malacca and Johor Sultanates. Several trade and creole languages, such as Ambonese Malay, are based on a lingua franca derived from Classical Malay.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Malay_language",
+  "approved": true
+}

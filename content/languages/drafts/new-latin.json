@@ -1,0 +1,25 @@
+{
+  "name": "New Latin",
+  "aliases": [],
+  "status": "extinct",
+  "classification": "Style of written Latin from the Renaissance onward",
+  "region": "Italy → across northern Europe, later Scandinavia, Russia and eastern Europe",
+  "map": {
+    "lat": 47,
+    "lon": 12,
+    "radiusKm": 1500
+  },
+  "era": {
+    "from": 1300,
+    "to": 1820,
+    "writtenUntil": 2026,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "Latin",
+  "origin": "New Latin, also called Neo-Latin, began in Italy during the Italian Renaissance of the fourteenth and fifteenth centuries, when scholars from Petrarch onwards promoted a Latin closer to that of the ancient Romans in grammar, style and spelling. It spread across northern Europe after about 1500 as part of the humanist movement, in line with its slogan ad fontes. The name is much younger, probably coined in Germany in the late eighteenth century as Neulatein.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Neo-Latin",
+  "approved": true,
+  "_override": "Wikipedia lead: 'Neo-Latin (also known as New Latin and Modern Latin)'. Same language."
+}

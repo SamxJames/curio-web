@@ -97,14 +97,15 @@ describe("buildSheetPrompt", () => {
   });
 
   it("sets Curio's voice and names the allowed parents", () => {
-    expect(prompt).toContain("warm, curious, and precise");
+    expect(prompt).toContain("plain, neutral and precise");
+    expect(prompt).toContain("never use em dashes or en dashes");
     expect(prompt).toContain("Proto-Italic");
   });
 
   it("tells the model plainly when there is no speakers fact", () => {
     const p = buildSheetPrompt("Proto-Indo-European", pieFacts);
     expect(p).toContain("There is NO speaker-count fact");
-    expect(p).toContain("Reconstructed by scholars — never written down.");
+    expect(p).toContain("Reconstructed by scholars. Never written down.");
   });
 });
 
@@ -265,7 +266,7 @@ describe("parseDraftResponse cross-checks against the facts (fix round 1)", () =
     expect(res.ok).toBe(true);
     if (!res.ok) return;
     expect(res.draft.peakSpeakers).toBeNull();
-    expect(res.draft.unknownSpeakersNote).toBe("Reconstructed by scholars — never written down.");
+    expect(res.draft.unknownSpeakersNote).toBe("Reconstructed by scholars. Never written down.");
     expect(res.draft._problems).toBeUndefined();
   });
 });

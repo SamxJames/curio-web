@@ -3,7 +3,7 @@
 
 /** Lineage spellings that mean the same language, mapped to the canonical name. */
 export const ALIASES: Record<string, string> = {
-  Lombardic: "Lombard",
+  // Not Lombardic -> Lombard: Lombardic is the Germanic language of the Lombards, Lombard a Romance one.
   Kiswahili: "Swahili",
   Ottoman: "Ottoman Turkish",
   "Old Provençal": "Old Occitan",

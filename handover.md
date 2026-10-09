@@ -1,6 +1,6 @@
 # Curio: Handover
 
-Last updated: 2026-10-05. Read this first; it's deliberately short. Open a file in `docs/handover/` only when the
+Last updated: 2026-10-09. Read this first; it's deliberately short. Open a file in `docs/handover/` only when the
 task touches that area. **Keep this file under ~200 lines:** current state, gotchas and pointers only. Put session
 detail in `docs/handover/history.md` and depth in the topic files.
 
@@ -23,10 +23,12 @@ every feature against it.
 - **Crons (UTC, Hobby fires anywhere in the hour):** 09:00 digest + Bluesky (`/api/cron/send-daily`), 10:00 Threads/IG
   (`/api/cron/social`). Mondays 06:00: demand report (GitHub Action → private `SamxJames/curio-reports`).
 
-## Current state (2026-10-05)
+## Current state (2026-10-09)
 - Language panel (Collection → language chip → "About") is live with the **first 29 reviewed sheets** (deployed
-  2026-10-05). Later batches use the same facts → draft → review → approve pipeline (`docs/handover/language-panel.md`).
-- `master` is in sync with origin, and there are no open worktrees or feature branches.
+  2026-10-05). **Batch 2 (2026-10-09): 58 sheets** plus a prose clean-up of all of them, reviewed and committed on branch
+  `worktree-agent-a46c2b22f8bd4505d`, **not merged or deployed yet**. Later batches use the same facts → draft → review →
+  approve pipeline (`docs/handover/language-panel.md`).
+- `master` is in sync with origin. The only open branch is the batch-2 worktree branch above.
 - Threads/Instagram are off until Meta tokens are set (`operations.md` → "Threads + Instagram: owner setup").
 - Double opt-in and the 200/day confirmation cap are live. The launch kit (`docs/launch-kit.md`) is ready to submit.
 - Friends-and-family onboarding is under way. The weekly check-in state is in `../checkins/state.md`.
@@ -61,7 +63,7 @@ every feature against it.
 - The demand report lives in a private repo and public Actions logs print counts only.
 
 ## Open threads
-- First language-sheet batch (Sam reviews).
+- Language sheets: merge and deploy batch 2 (branch above), then the next batch (Lombardic now needs its own sheet).
 - Submit the launch kit; themed collection pages (pSEO); "root word" phrasing in titles (demand report: ~593 pages
   have impressions, 5 clicks in 28 days).
 - Small UX: header wordmark crowding at 375px; signing in mid-visit changes the word; mobile email-provider buttons;

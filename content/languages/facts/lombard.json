@@ -1,0 +1,58 @@
+{
+  "name": "Lombard",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Lombard language",
+    "extract": "The Lombard language belongs to the Gallo-Italic group within the Romance languages. It is characterized by a Celtic linguistic substratum and a Lombardic linguistic superstratum and is a cluster of homogeneous dialects that are spoken by millions of speakers in Northern Italy and southern Switzerland. These include most of Lombardy and some areas of the neighbouring regions, notably the far eastern side of Piedmont and the extreme western side of Trentino, and in Switzerland in the cantons of Ticino and Graubünden. The language is also spoken in Santa Catarina in Brazil by Lombard immigrants from the Province of Bergamo, in Italy.",
+    "url": "https://en.wikipedia.org/wiki/Lombard_language",
+    "description": "Gallo-Italic language spoken in the Italian region of Lombardy",
+    "wikibaseItem": "Q33754",
+    "type": "standard",
+    "lead": "The Lombard language (Lombard: lombard, lumbard, lumbart or lombart, depending on the orthography; pronunciation: [lumˈbaːrt, lomˈbart]) belongs to the Gallo-Italic group within the Romance languages. It is characterized by a Celtic linguistic substratum and a Lombardic linguistic superstratum and is a cluster of homogeneous dialects that are spoken by millions of speakers in Northern Italy and southern Switzerland.  These include most of Lombardy and some areas of the neighbouring regions, notably the far eastern side of Piedmont and the extreme western side of Trentino, and in Switzerland in the cantons of Ticino and Graubünden. The language is also spoken in Santa Catarina in Brazil by Lombard immigrants from the Province of Bergamo, in Italy.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q33754",
+    "coordinates": {
+      "lat": 46,
+      "lon": 10
+    },
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 3900000,
+      "year": 2002
+    },
+    "instanceOf": [
+      "natural language",
+      "modern language"
+    ],
+    "subclassOf": [
+      "Q516074",
+      "Q123401462"
+    ],
+    "indigenousTo": [
+      "Q11925",
+      "Q12724",
+      "Q1210",
+      "Q1243",
+      "Q1263",
+      "Q16243",
+      "Q16289"
+    ],
+    "parentLabels": [
+      "Gallo-Italic",
+      "Piedmontese–Lombard"
+    ],
+    "regionLabels": [
+      "Canton of the Grisons",
+      "Canton of Ticino",
+      "Lombardy",
+      "Veneto",
+      "Emilia-Romagna",
+      "Province of Piacenza",
+      "Trentino"
+    ]
+  },
+  "fetchedAt": "2026-10-09T22:23:26.961Z"
+}

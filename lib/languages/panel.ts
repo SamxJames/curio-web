@@ -143,7 +143,7 @@ export function statusNote(sheet: LanguageSheet): string {
       // Lineage order records borrowing, not descent, so never name a later language here.
       return "an earlier stage of a language still spoken today";
     case "reconstructed":
-      return "reconstructed by scholars — never written down";
+      return "reconstructed by scholars, never written down";
   }
 }
 

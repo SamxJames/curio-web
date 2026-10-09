@@ -1,0 +1,42 @@
+{
+  "name": "Middle Persian",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Middle Persian",
+    "extract": "Middle Persian, also known by its endonym Pārsīg or, in an earlier form, Pārsīk, is a Western Middle Iranian language which became the literary language of the Sasanian Empire. For some time after the Sasanian collapse, Middle Persian continued to function as a prestige language. It descended from Old Persian, the language of the Achaemenid Empire and is the linguistic ancestor of New Persian, the official language of Iran, Afghanistan (Dari) and Tajikistan (Tajik).",
+    "url": "https://en.wikipedia.org/wiki/Middle_Persian",
+    "description": "Southwestern Iranian language",
+    "wikibaseItem": "Q32063",
+    "type": "standard",
+    "lead": "Middle Persian, also known by its endonym  Pārsīg or, in an earlier form, Pārsīk (Inscriptional Pahlavi script: 𐭯𐭠𐭫𐭮𐭩𐭪, Manichaean script: 𐫛𐫀𐫡𐫘𐫏𐫐‎, Avestan script: 𐬞𐬀𐬭𐬯𐬍𐬐), is a Western Middle Iranian language which became the literary language of the Sasanian Empire. For some time after the Sasanian collapse, Middle Persian continued to function as a prestige language. It descended from Old Persian, the language of the Achaemenid Empire and is the linguistic ancestor of New Persian, the official language of Iran (also known as Persia), Afghanistan (Dari) and Tajikistan (Tajik).",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q32063",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "natural language",
+      "historical language"
+    ],
+    "subclassOf": [
+      "Q390424",
+      "Q6841465"
+    ],
+    "indigenousTo": [
+      "Q484206",
+      "Q83891"
+    ],
+    "parentLabels": [
+      "Southwestern Iranian",
+      "Middle Iranian"
+    ],
+    "regionLabels": [
+      "Persians",
+      "Sasanian Empire"
+    ]
+  },
+  "fetchedAt": "2026-10-09T22:23:40.703Z"
+}

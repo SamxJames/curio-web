@@ -1,0 +1,41 @@
+{
+  "name": "Aramaic",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Aramaic",
+    "extract": "Aramaic is a Northwest Semitic language that originated in the ancient region of Syria and quickly spread to Mesopotamia, the southern Levant, Sinai, southeastern Anatolia, the Caucasus, and Eastern Arabia, where it has been continually written and spoken in different varieties for over 3,000 years.",
+    "url": "https://en.wikipedia.org/wiki/Aramaic",
+    "description": "Semitic language",
+    "wikibaseItem": "Q28602",
+    "type": "standard",
+    "lead": "Aramaic is a Northwest Semitic language that originated in the ancient region of Syria and quickly spread to Mesopotamia, the southern Levant, Sinai, southeastern Anatolia, the Caucasus, and Eastern Arabia, where it has been continually written and spoken in different varieties for over 3,000 years.\nAramaic served as a language of public life and administration of ancient kingdoms and empires—particularly the Neo-Assyrian Empire, Neo-Babylonian Empire, and Achaemenid Empire—and as a language of divine worship and religious study within Christianity and Gnosticism; it also has appeared to a limited degree in Judaism, where Hebrew remains primary. Several modern varieties of Aramaic are still spoken. The modern eastern branch is spoken by Assyrians, Mandeans, and a small contingent of Mizrahi Jews. Western Aramaic is still spoken by the Muslim and Christian Aramean inhabitants of the towns of Maaloula, Bakh'a and Jubb'adin in Syria. Classical varieties are used as liturgical and literary languages in several West Asian churches, and appear in a few places in Judaism (where Hebrew remains predominant), Samaritanism (where Samaritan Hebrew remains predominant), and Mandaeism. \nThe Aramaic language is considered endangered, with several varieties used mainly by certain older generations. Researchers are working to record and analyze all of the remaining varieties of Neo-Aramaic languages in case they become extinct.\nAramaic belongs to the Northwest group of the Semitic language family, which includes the mutually intelligible Canaanite languages such as Hebrew, Edomite, Moabite, Ekronite, Sutean, and Phoenician, as well as Amorite and Ugaritic. Aramaic varieties are written in the Aramaic alphabet, a descendant of the Phoenician alphabet. The most prominent variant of this alphabet is the Syriac alphabet, used in the ancient city of Edessa. The Aramaic alphabet became a base for the creation and adaptation of specific writing systems in some other Semitic languages of West Asia, such as the Hebrew alphabet and the Arabic alphabet.\nEarly Aramaic inscriptions date from the 11th century BC, placing it among the earliest languages to be written down. Aramaicist Holger Gzella notes, \"The linguistic history of Aramaic prior to the appearance of the first textual sources in the 9th century BC remains unknown.\" Aramaic is believed by most historians and scholars to have been the primary language spoken by Jesus of Nazareth both for preaching and in everyday life.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q28602",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 445000,
+      "year": null
+    },
+    "instanceOf": [
+      "genetic unit",
+      "language"
+    ],
+    "subclassOf": [
+      "Q162996"
+    ],
+    "indigenousTo": [
+      "Q175064"
+    ],
+    "parentLabels": [
+      "Northwest Semitic"
+    ],
+    "regionLabels": [
+      "Arameans"
+    ]
+  },
+  "fetchedAt": "2026-10-09T22:23:15.668Z"
+}

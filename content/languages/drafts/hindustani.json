@@ -1,0 +1,28 @@
+{
+  "name": "Hindustani",
+  "aliases": [],
+  "status": "living",
+  "classification": "Indo-Aryan language of the Western Hindi group",
+  "region": "India's Hindi Belt and Pakistan, plus the Deccani-speaking community in South India",
+  "map": {
+    "lat": 28.6,
+    "lon": 77.2,
+    "radiusKm": 800
+  },
+  "era": {
+    "from": 1200,
+    "to": null,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": {
+    "count": 490100000,
+    "year": 2006,
+    "note": "Speakers, Wikidata figure for 2006"
+  },
+  "unknownSpeakersNote": null,
+  "parent": "Prakrit",
+  "origin": "Its first written poetry, in Old Hindi, is traced to the Delhi Sultanate era of the twelfth and thirteenth centuries. In that period the Prakrit base of Old Hindi took in loanwords from Persian, Arabic and Turkic and developed into the present form of Hindustani. Its core vocabulary comes from Prakrit and Sanskrit (via Prakrit), with many loanwords from Persian and Arabic.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Hindustani_language",
+  "approved": true
+}

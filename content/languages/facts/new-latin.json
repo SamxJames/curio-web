@@ -1,0 +1,35 @@
+{
+  "name": "New Latin",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Neo-Latin",
+    "extract": "Neo-Latin is the style of written Latin used in original literary, scholarly, and scientific works, first in Italy during the Italian Renaissance of the fourteenth and fifteenth centuries, and then across northern Europe after about 1500, as a key feature of the humanist movement. Through comparison with Latin of the Classical period, scholars from Petrarch onwards promoted a standard of Latin closer to that of the ancient Romans, especially in grammar, style, and spelling. The term Neo-Latin was however coined much later, probably in Germany in the late eighteenth century, as Neulatein, spreading to French and other languages in the nineteenth century. Medieval Latin had diverged quite substantially from the classical standard and saw notable regional variation and influence from vernacular languages. Neo-Latin attempts to return to the ideal of Golden Latinity in line with the Humanist slogan ad fontes.",
+    "url": "https://en.wikipedia.org/wiki/Neo-Latin",
+    "description": "Form of the Latin language used from the 14th century to present",
+    "wikibaseItem": "Q1248221",
+    "type": "standard",
+    "lead": "Neo-Latin (also known as New Latin and Modern Latin) is the style of written Latin used in original literary, scholarly, and scientific works, first in Italy during the Italian Renaissance of the fourteenth and fifteenth centuries, and then across northern Europe after about 1500, as a key feature of the humanist movement. Through comparison with Latin of the Classical period, scholars from Petrarch onwards promoted a standard of Latin closer to that of the ancient Romans, especially in grammar, style, and spelling. The term Neo-Latin was however coined much later, probably in Germany in the late eighteenth century, as Neulatein, spreading to French and other languages in the nineteenth century. Medieval Latin had diverged quite substantially from the classical standard and saw notable regional variation and influence from vernacular languages. Neo-Latin attempts to return to the ideal of Golden Latinity in line with the Humanist slogan ad fontes.\nThe new style of Latin was adopted throughout Europe, first through the spread of urban education in Italy, and then the rise of the printing press and of early modern schooling. Latin was learnt as a spoken language as well as written, as the vehicle of schooling and University education, while vernacular languages were still infrequently used in such settings. As such, Latin dominated early publishing, and made up a significant portion of printed works until the early nineteenth century.\nIn Neo-Latin's most productive phase, it dominated science, philosophy, law, and theology, and it was important for history, literature, plays, and poetry. Classical styles of writing, including approaches to rhetoric, poetical metres, and theatrical structures, were revived and applied to contemporary subject matter. It was a pan-European language for the dissemination of knowledge and communication between people with different vernaculars in the Republic of Letters (Res Publica Litterarum). Even as Latin receded in importance after 1650, it remained vital for international communication of works, many of which were popularised in Latin translation, rather than as vernacular originals. This in large part explains the continued use of Latin in Scandinavian countries and Russia – places that had never belonged to the Roman Empire – to disseminate knowledge until the early nineteenth century.\nNeo-Latin includes extensive new word formation. Modern scholarly and technical nomenclature, such as in zoological and botanical taxonomy and international scientific vocabulary, draws extensively from this newly minted vocabulary, often in the form of classical or neoclassical compounds. Large parts of this new Latin vocabulary have seeped into English, French and several Germanic languages, particularly through Neo-Latin.\nIn the eighteenth century, Latin was increasingly being learnt as a written and read language, with less emphasis on oral fluency. While it still dominated education, its position alongside Greek was increasingly attacked and began to erode. In the nineteenth century, education in Latin (and Greek) focused increasingly on reading and grammar, and mutated into the 'classics' as a topic, although it often still dominated the school curriculum, especially for students aiming for entry to university. Learning moved gradually away from poetry composition and other written skills; as a language, its use was increasingly passive outside of classical commentaries and other specialised texts.\nLatin remained in active use in eastern Europe and Scandinavia for a longer period. In Poland, it was used as a vehicle of local government. This extended to those parts of Poland absorbed by Germany. Latin was used as a common tongue between parts of the Austrian Empire, particularly Hungary and Croatia, at least until the 1820s. Croatia maintained a Latin poetry tradition through the nineteenth century.",
+    "titleMatched": false
+  },
+  "wikidata": {
+    "qid": "Q1248221",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "literary language",
+      "chronolect",
+      "language variety"
+    ],
+    "subclassOf": [
+      "Q397"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "Latin"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-09T22:23:06.133Z"
+}

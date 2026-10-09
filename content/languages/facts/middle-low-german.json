@@ -1,0 +1,34 @@
+{
+  "name": "Middle Low German",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Middle Low German",
+    "extract": "Middle Low German, sometimes Middle Low Saxon, is a developmental stage of Low German. It developed from the Old Saxon language in the Middle Ages and has been documented in writing since about 1225–34. During the Hanseatic period, Middle Low German was the leading written language in the north of Central Europe and served as a lingua franca in the northern half of Europe. It was used parallel to medieval Latin also for purposes of diplomacy and for deeds.",
+    "url": "https://en.wikipedia.org/wiki/Middle_Low_German",
+    "description": "Developmental stage of Low German",
+    "wikibaseItem": "Q505674",
+    "type": "standard",
+    "lead": "Middle Low German, sometimes Middle Low Saxon, is a developmental stage of Low German. It developed from the Old Saxon language in the Middle Ages and has been documented in writing since about 1225–34 (Sachsenspiegel). During the Hanseatic period (from about 1300 to about 1600), Middle Low German was the leading written language in the north of Central Europe and served as a lingua franca in the northern half of Europe. It was used parallel to medieval Latin also for purposes of diplomacy and for deeds.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q505674",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "historical language",
+      "natural language"
+    ],
+    "subclassOf": [
+      "Q25433"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "Low German"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-09T22:23:20.708Z"
+}

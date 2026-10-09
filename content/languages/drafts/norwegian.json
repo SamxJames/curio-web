@@ -1,0 +1,23 @@
+{
+  "name": "Norwegian",
+  "aliases": [],
+  "status": "living",
+  "classification": "North Germanic (West Scandinavian) language of the Indo-European family",
+  "region": "Norway, where it is an official language alongside Sámi",
+  "map": {
+    "lat": 59.913333333333334,
+    "lon": 10.738888888888889,
+    "radiusKm": 400
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 5200000,
+    "year": 2015,
+    "note": "Speakers, Wikidata figure for 2015"
+  },
+  "unknownSpeakersNote": null,
+  "parent": "Old Norse",
+  "origin": "Norwegian descends from Old Norse, the common language of the Germanic peoples living in Scandinavia during the Viking Age. Bokmål grew out of the Dano-Norwegian language that replaced Middle Norwegian as the elite language after the union of Denmark-Norway in the 16th and 17th centuries, while Nynorsk was built from a collective of spoken Norwegian dialects.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Norwegian_language",
+  "approved": true
+}

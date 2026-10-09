@@ -1,0 +1,25 @@
+{
+  "name": "Byzantine Greek",
+  "aliases": [],
+  "status": "historical",
+  "classification": "Medieval stage of the Greek language",
+  "region": "Constantinople and the Byzantine Empire, across Anatolia and the Eastern Mediterranean",
+  "map": {
+    "lat": 41,
+    "lon": 28.98,
+    "radiusKm": 1000
+  },
+  "era": {
+    "from": 500,
+    "to": 1453,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "Koine Greek",
+  "origin": "Byzantine Greek is the link between Koine Greek, the older vernacular, and Modern Greek. Alexander the Great's conquests and the Hellenistic period had spread Greek across Anatolia and the Eastern Mediterranean, and from the 7th century it was the only language of administration and government in the Byzantine Empire. Its literature drew on Attic Greek and on vernacular Koine, the language of the New Testament.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Medieval_Greek",
+  "approved": true,
+  "_override": "Wikipedia lead: 'Medieval Greek (also known as Middle Greek, Byzantine Greek, or Romaic)'. Same language."
+}

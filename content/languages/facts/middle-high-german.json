@@ -1,0 +1,39 @@
+{
+  "name": "Middle High German",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Middle High German",
+    "extract": "Middle High German is the term for the form of High German spoken in the High Middle Ages. It is conventionally dated between 1050 and 1350, developing from Old High German (OHG) into Early New High German (ENHG). High German is defined as those varieties of German which were affected by the Second Sound Shift; the Middle Low German (MLG) and Middle Dutch languages spoken to the North and North West, which did not participate in this sound change, are not part of MHG.",
+    "url": "https://en.wikipedia.org/wiki/Middle_High_German",
+    "description": "Historical form of High German",
+    "wikibaseItem": "Q837985",
+    "type": "standard",
+    "lead": "Middle High German (MHG; endonym: diutsch or tiutsch; New High German: Mittelhochdeutsch [ˈmɪtl̩hoːxˌdɔʏtʃ] , shortened as Mhdt. or Mhd.) is the term for the form of High German spoken in the High Middle Ages. It is conventionally dated between 1050 and 1350, developing from Old High German (OHG) into Early New High German (ENHG). High German is defined as those varieties of German which were affected by the Second Sound Shift; the Middle Low German (MLG) and Middle Dutch languages spoken to the North and North West, which did not participate in this sound change, are not part of MHG.\nWhile there is no standard MHG, the prestige of the Hohenstaufen court gave rise in the late 12th century to a supra-regional literary language (mittelhochdeutsche Dichtersprache) based on Swabian, an Alemannic dialect. This historical interpretation is complicated by the tendency of modern editions of MHG texts to use normalised spellings based on this variety (usually called \"Classical MHG\"), which make the written language appear more consistent than it actually is in the manuscripts. Scholars are uncertain as to whether the literary language reflected a supra-regional spoken language of the courts.\nAn important development in this period was the Ostsiedlung, the eastward expansion of German settlement beyond the Elbe-Saale line which marked the limit of Old High German. This process started in the 11th century, and all the East Central German dialects are a result of this expansion.\n\"Judeo-German\", the precursor of the Yiddish language, is attested in the 12th–13th centuries, as a variety of Middle High German written in Hebrew characters.",
+    "titleMatched": false
+  },
+  "wikidata": {
+    "qid": "Q837985",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 0,
+      "year": null
+    },
+    "instanceOf": [
+      "natural language",
+      "historical language",
+      "chronolect",
+      "extinct language"
+    ],
+    "subclassOf": [
+      "Q52040"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "High German"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-09T22:23:13.167Z"
+}
