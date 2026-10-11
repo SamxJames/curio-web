@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { detectMailProvider, openMailProvider, MAIL_PROVIDERS } from "@/lib/mailProviders";
 import Button from "@/components/ui/Button";
+import { safeReturnPath } from "@/lib/returnPath";
 import TextField from "@/components/ui/TextField";
 
 type Status = "idle" | "submitting" | "sent" | "error";
@@ -12,6 +13,12 @@ type Status = "idle" | "submitting" | "sent" | "error";
 // verified somewhere else — see the effect below and app/api/auth/device-link.
 const DEVICE_LINK_POLL_MS = 3000;
 const DEVICE_LINK_MAX_POLLS = 300; // ~15 minutes, matching the Redis entry's TTL
+
+// The page the person came from (the header's Sign in link adds ?next=), so
+// signing in mid-visit returns them there instead of to today's word.
+function returnPath(): string {
+  return safeReturnPath(new URLSearchParams(window.location.search).get("next"));
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -26,7 +33,10 @@ export default function LoginPage() {
     e.preventDefault();
     setStatus("submitting");
     try {
-      const callbackUrl = attemptId ? `/api/auth/device-link?attempt=${attemptId}` : "/";
+      const next = returnPath();
+      const callbackUrl = attemptId
+        ? `/api/auth/device-link?attempt=${attemptId}&next=${encodeURIComponent(next)}`
+        : next;
       const result = await signIn("resend", { email, redirect: false, callbackUrl });
       setStatus(result?.error ? "error" : "sent");
     } catch {
@@ -54,8 +64,7 @@ export default function LoginPage() {
           // A full reload, not router.push — SessionProvider's useSession()
           // doesn't refetch on client-side navigation, only on focus/mount,
           // so a soft transition would land on "/" still showing signed out.
-          // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-          window.location.href = "/";
+          window.location.href = returnPath();
           return;
         }
       } catch {

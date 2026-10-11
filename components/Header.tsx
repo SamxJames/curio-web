@@ -7,6 +7,7 @@ import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import { useShowArrival } from "@/lib/useShowArrival";
 import { writeSessionHint } from "@/lib/storage";
+import { loginHref } from "@/lib/returnPath";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
@@ -70,13 +71,13 @@ export default function Header() {
               Account
             </Link>
           ) : status === "unauthenticated" ? (
-            <Link href="/login" className="text-sm text-ink-soft transition-colors hover:text-ink">
+            <Link href={loginHref(pathname)} className="text-sm text-ink-soft transition-colors hover:text-ink">
               Sign in
             </Link>
           ) : (
             <>
               <Link
-                href="/login"
+                href={loginHref(pathname)}
                 className="text-sm text-ink-soft transition-colors hover:text-ink signed-in:hidden"
               >
                 Sign in
