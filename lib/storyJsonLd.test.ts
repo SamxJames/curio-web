@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { buildStoryJsonLd, serializeJsonLd } from "./storyJsonLd";
+import { CURIO_PROFILES, buildSiteJsonLd, buildStoryJsonLd, serializeJsonLd } from "./storyJsonLd";
 import { WORDS } from "./words";
 
 const original = process.env.CURIO_SITE_URL;
@@ -53,5 +53,24 @@ describe("serializeJsonLd", () => {
     expect(output).not.toContain("</script>");
     expect(output).toContain("\\u003c");
     expect(JSON.parse(output)).toEqual({ name: "</script><script>alert(1)</script>" });
+  });
+});
+
+describe("buildSiteJsonLd", () => {
+  it("names the site Curio and links the organisation to its social accounts", () => {
+    const graph = buildSiteJsonLd()["@graph"] as Record<string, unknown>[];
+    const site = graph.find((node) => node["@type"] === "WebSite")!;
+    const org = graph.find((node) => node["@type"] === "Organization")!;
+    expect(site).toMatchObject({
+      name: "Curio",
+      url: "https://curio.example/",
+      publisher: { "@id": org["@id"] },
+    });
+    expect(org).toMatchObject({
+      name: "Curio",
+      url: "https://curio.example/",
+      logo: "https://curio.example/apple-icon.png",
+      sameAs: CURIO_PROFILES,
+    });
   });
 });
