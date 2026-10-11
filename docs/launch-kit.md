@@ -32,6 +32,7 @@ Prepared 2026-10-03 from the first weekly check-in ("Proposed Claude work #3").
 These list free daily games that are the same for everyone and need no login. `/play` qualifies on all three.
 
 ### The Dles: https://dles.aukspot.com
+- **Skip (checked 2026-10-09):** its form says "Games with content produced by Generative AI will not be added." Curio's stories are LLM-rewritten.
 - **How:** the suggestion form at https://tally.so/r/mOKOea, or a "dle suggestion" issue on https://github.com/qubit10/dles.
 - **Criteria** (from its README): it changes every day, it's the same for everyone, it's free, and it has no login or subscription.
 - **Paste:**
@@ -41,7 +42,7 @@ These list free daily games that are the same for everyone and need no login. `/
   - Description: use the 50-word blurb below.
 
 ### Dle Hunt: https://dlehunt.com
-- **How:** the site says makers can submit games. Use its submit link (check the footer or nav).
+- **How:** "Submit a dle" (top right). It needs a free Dle Hunt account (Google, Discord or email), which the owner creates. No AI-content rule found on the site (2026-10-09).
 - **Paste:** same as The Dles. Category: Word.
 
 ### Wordle-alternative lists (pitch the author, low odds, keep it short)
