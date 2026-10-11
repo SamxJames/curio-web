@@ -1,0 +1,41 @@
+{
+  "name": "Chinese",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Chinese language",
+    "extract": "Chinese is a collection of language varieties containing almost all Sinitic languages except Macro-Bai languages, natively spoken by the Han Chinese and some ethnic minorities in Greater China, as well as by communities of the overseas Chinese. Approximately 1.39 billion people, or 17% of the global population, speak one of the varieties of Chinese as their first language.",
+    "url": "https://en.wikipedia.org/wiki/Chinese_language",
+    "description": "Sino-Tibetan language",
+    "wikibaseItem": "Q7850",
+    "type": "standard",
+    "lead": "Chinese (spoken: simplified Chinese: 汉语; traditional Chinese: 漢語; pinyin: Hànyǔ, written: 中文; Zhōngwén) is a collection of language varieties containing almost all Sinitic languages except Macro-Bai languages, natively spoken by the Han Chinese and some ethnic minorities in Greater China, as well as by communities of the overseas Chinese. Approximately 1.39 billion people, or 17% of the global population, speak one of the varieties of Chinese as their first language.\nThe different Chinese language varieties together form the largest branch of the Sino-Tibetan languages. While the Chinese government defines all spoken Chinese varieties as merely diverse dialects of a single language, the frequent lack of mutual intelligibility, especially among those outside of the dominant northern varieties, has led linguists to consider them as separate languages within a language family. Investigation of the historical relationships among the varieties of Chinese is ongoing. Currently, most classifications posit 7 to 13 main regional groups based on phonetic developments from Middle Chinese, of which the most spoken by far is Mandarin with 66%, or around 800 million speakers, followed by Min (75 million, e.g., Hokkien and Teochew), Wu (74 million, e.g., Shanghainese) and Yue (68 million, e.g., Cantonese). These groups are unintelligible to each other, and many of their subgroups are unintelligible with other subgroups within the same branch (e.g. Northern Min vs. Southern Min). There are, however, transitional areas where varieties from different branches share enough features for some limited intelligibility, including New Xiang with Southwestern Mandarin, Xuanzhou Wu Chinese with Lower Yangtze Mandarin, Jin with Central Plains Mandarin and certain divergent dialects of Hakka with Gan. All varieties of Chinese are tonal at least to some degree, and are largely analytic.\nThe Chinese language is transcribed via a writing system consisting of logographic characters, historically in the grammatical form of Literary Chinese. The earliest attested written Chinese consists of the oracle bone inscriptions created during the Shang dynasty c. 1250 BCE. The phonetic categories of Old Chinese can be reconstructed from the rhymes of ancient Chinese poetry. During the Northern and Southern dynasties, Middle Chinese went through several sound changes and split into several varieties following prolonged geographic and political separation. The Qieyun, a rhyme dictionary, recorded a compromise between the pronunciations of different regions. The royal courts of the Ming and early Qing dynasties operated using a koiné language known as Guanhua, based on the Nanjing dialect of Mandarin.\nStandard Chinese, a standard language based on the Beijing dialect and first officially adopted in the 1930s, is the current official language of both the People's Republic of China (Mainland China) and the Republic of China (Taiwan), one of the four official languages of Singapore, and one of the six official languages of the United Nations. It is written primarily using modern written vernacular Chinese, the literacy of which is shared by educated readers who may otherwise speak mutually unintelligible varieties. Since the 1950s, the use of simplified Chinese characters has been promoted by the government of the People's Republic of China, with the government of Singapore officially adopting them in 1976. Traditional Chinese characters are still used in Taiwan, Hong Kong, Macau, areas of Malaysia with significant ethnic Chinese populations (e.g. Penang, Kuala Lumpur, Ipoh, Kuching), eastern Myanmar (e.g. Kokang), and among other overseas Chinese communities. Some ethnic minorities in Central Asia (e.g. the Dungan people) and the Russian Far East (e.g. the Taz people) also speak varieties of Chinese but write in cyrillized scripts.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q7850",
+    "coordinates": {
+      "lat": 32,
+      "lon": 108
+    },
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 1299877520,
+      "year": null
+    },
+    "instanceOf": [
+      "macrolanguage",
+      "modern language",
+      "language group"
+    ],
+    "subclassOf": [
+      "Q45961"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "Sino-Tibetan"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-09T22:23:32.591Z"
+}

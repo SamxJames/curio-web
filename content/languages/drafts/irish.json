@@ -1,0 +1,28 @@
+{
+  "name": "Irish",
+  "aliases": [],
+  "status": "living",
+  "classification": "Goidelic branch of the Celtic languages, within the Indo-European family",
+  "region": "Island of Ireland → carried to Scotland, the Isle of Man, Canada and Newfoundland",
+  "map": {
+    "lat": 53.5,
+    "lon": -7.5,
+    "radiusKm": 250
+  },
+  "era": {
+    "from": 400,
+    "to": null,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": {
+    "count": 1030000,
+    "year": 2012,
+    "note": "Speakers, Wikidata figure for 2012"
+  },
+  "unknownSpeakersNote": null,
+  "parent": null,
+  "origin": "Irish is a Celtic language of the Indo-European family, native to the Irish people and indigenous to the island of Ireland. Its earliest writing system, Ogham, dates back to at least the 4th century AD, and Latin script gradually replaced it from the 5th century. Irish speakers took the language to Scotland and the Isle of Man, where Middle Irish gave rise to Scottish Gaelic and Manx.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Irish_language",
+  "approved": true
+}

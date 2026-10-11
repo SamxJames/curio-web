@@ -3,7 +3,7 @@ export type LanguageStatus = "living" | "extinct" | "historical" | "reconstructe
 
 export type LanguageSheet = {
   name: string; // canonical display name, exactly as in word lineages (e.g. "Latin")
-  aliases: string[]; // other lineage spellings that mean the same language (e.g. ["Lombardic"])
+  aliases: string[]; // other lineage spellings that mean the same language (e.g. ["Kiswahili"])
   status: LanguageStatus;
   classification: string; // one line, e.g. "Italic branch of the Indo-European family"
   region: string; // one line, e.g. "Latium, central Italy → across the Roman Empire"

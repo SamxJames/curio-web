@@ -12,6 +12,7 @@ export type ApproveResult = {
   approved: string[];
   refused: { name: string; reasons: string[] }[];
   missing: string[]; // --only names with no draft
+  skipped: { name: string; reason: string }[]; // held back on purpose with a `_skip` reason
 };
 
 const byName = (a: LanguageSheet, b: LanguageSheet) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
@@ -65,7 +66,7 @@ export function approveSheets(
   facts?: Record<string, LanguageFacts>,
 ): ApproveResult {
   const wanted = "only" in select ? new Set(select.only.map(canonicalName)) : null;
-  const result: ApproveResult = { sheets: [], approved: [], refused: [], missing: [] };
+  const result: ApproveResult = { sheets: [], approved: [], refused: [], missing: [], skipped: [] };
   const batch = new Map<string, { sheet: LanguageSheet; fromCanonical: boolean }>();
   const seen = new Set<string>();
 
@@ -76,6 +77,13 @@ export function approveSheets(
     if (canonical) seen.add(canonical);
     if (wanted && (!canonical || !wanted.has(canonical))) return;
 
+    // The owner holds a draft back on purpose (e.g. no reliable source) by writing a reason in `_skip`.
+    // --all-valid passes over it quietly; naming it with --only is refused, so it is never approved by accident.
+    if (isRecord(raw) && typeof raw._skip === "string" && raw._skip.trim() !== "") {
+      if (wanted) result.refused.push({ name: label, reasons: [`held back: ${raw._skip}`] });
+      else result.skipped.push({ name: label, reason: raw._skip });
+      return;
+    }
     if (isRecord(raw) && Array.isArray(raw._problems) && raw._problems.length > 0) {
       result.refused.push({ name: label, reasons: raw._problems.map(String) });
       return;

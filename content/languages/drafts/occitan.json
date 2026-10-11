@@ -1,0 +1,23 @@
+{
+  "name": "Occitan",
+  "aliases": [],
+  "status": "living",
+  "classification": "Occitano-Romance language, within the Gallo-Romance group of Romance languages",
+  "region": "Southern France, Monaco, Italy's Occitan Valleys and the Val d'Aran in Spain, together sometimes called Occitania",
+  "map": {
+    "lat": 43,
+    "lon": 1,
+    "radiusKm": 400
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 542000,
+    "year": 2020,
+    "note": "Native speakers, Wikidata figure for 2020"
+  },
+  "unknownSpeakersNote": null,
+  "parent": "Old Occitan",
+  "origin": "Occitan is a Romance language of the Occitano-Romance and Gallo-Romance groups. Its closest relative is Catalan, which was considered a dialect of Occitan until the end of the 19th century. Over time, names such as Limousin, Languedocien, Gascon and Provençal have each been used for the whole language, though Provençal now mostly means the dialect of Provence.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Occitan_language",
+  "approved": true
+}

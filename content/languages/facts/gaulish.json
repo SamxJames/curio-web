@@ -1,0 +1,36 @@
+{
+  "name": "Gaulish",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Gaulish",
+    "extract": "Gaulish is an extinct Celtic language spoken in parts of Continental Europe before and during the period of the Roman Empire. In the narrow sense, Gaulish was the language of the Celts of Gaul. In a wider sense, it also comprises varieties of Celtic that were spoken across much of central Europe, parts of Southeastern Europe, and Anatolia (\"Galatian\"), which are thought to have been closely related. The more divergent Lepontic of Northern Italy has also sometimes been subsumed under Gaulish.",
+    "url": "https://en.wikipedia.org/wiki/Gaulish",
+    "description": "Extinct Celtic language of continental Europe",
+    "wikibaseItem": "Q29977",
+    "type": "standard",
+    "lead": "Gaulish is an extinct Celtic language spoken in parts of Continental Europe before and during the period of the Roman Empire. In the narrow sense, Gaulish was the language of the Celts of Gaul (modern France and neighboring areas roughly to the Rhine). In a wider sense, it also comprises varieties of Celtic that were spoken across much of central Europe, parts of Southeastern Europe, and Anatolia (\"Galatian\"), which are thought to have been closely related. The more divergent Lepontic of Northern Italy has also sometimes been subsumed under Gaulish.\nTogether with Lepontic, Galatian, Celtiberian, and potentially Gallaecian, spoken in the Iberian Peninsula, Gaulish is a member of the geographic group of Continental Celtic languages. The precise linguistic relationships among them, as well as between them and the modern Insular Celtic languages, are uncertain and a matter of ongoing debate because of their sparse attestation and complicated history.\nGaulish is found in some 800 (often fragmentary) surviving inscriptions including calendars, pottery accounts, funeral monuments, short dedications to gods, coin inscriptions, statements of ownership, and other texts, possibly curse tablets. Gaulish was first written in Greek script in southern France and in a variety of Old Italic script in northern Italy. After the Roman conquest of Gaul, writing shifted to the Latin script. During Julius Caesar's campaign in Gaul, he reported that the Helvetii were in possession of documents in the Greek script, and all Gaulish coins used the Greek script until about 50 BC.\nGaulish in Western Europe was supplanted by Vulgar Latin by around the end of the 5th century. It is thought to have survived in pockets possibly into the 6th century.\nThe legacy of Gaulish may be observed in the modern French language and the Gallo-Romance languages, in which 150–400 words, mainly referring to pastoral and daily activities, are known to be derived from the extinct Continental Celtic language. Following the 1066 Norman Conquest, some of these words have also entered the English language, through the influence of Old French.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q29977",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 0,
+      "year": null
+    },
+    "instanceOf": [
+      "dead language"
+    ],
+    "subclassOf": [
+      "Q215566"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "Continental Celtic"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-09T22:23:16.857Z"
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Middle Low German",
+  "aliases": [],
+  "status": "historical",
+  "classification": "A developmental stage of Low German, descended from Old Saxon",
+  "region": "The north of Central Europe → a lingua franca across the northern half of Europe during the Hanseatic period",
+  "map": null,
+  "era": {
+    "from": 1225,
+    "to": 1600,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "Old Saxon",
+  "origin": "Middle Low German developed from Old Saxon in the Middle Ages and has been documented in writing since about 1225 to 1234, with the Sachsenspiegel. During the Hanseatic period, from about 1300 to about 1600, it was the leading written language in the north of Central Europe. It was used alongside medieval Latin for diplomacy and for deeds.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Middle_Low_German",
+  "approved": true
+}

@@ -1,0 +1,26 @@
+{
+  "name": "Old Occitan",
+  "aliases": [
+    "Old Provençal"
+  ],
+  "status": "historical",
+  "classification": "Earliest form of the Occitano-Romance languages",
+  "region": "Occitania, the Crown of Aragon, Navarre and Piedmont",
+  "map": {
+    "lat": 44,
+    "lon": 2,
+    "radiusKm": 500
+  },
+  "era": {
+    "from": 700,
+    "to": 1400,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": null,
+  "origin": "Old Occitan was the earliest form of the Occitano-Romance languages, attested in writings from the 8th to the 14th centuries. The word occitanus only appeared around 1300, so medieval texts call the language \"Romance\" (romans) or \"Provençal\" (proensals). The term generally covers Early and Old Occitan, and sometimes Middle Occitan as well.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Old_Occitan",
+  "approved": true
+}

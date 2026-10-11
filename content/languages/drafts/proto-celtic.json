@@ -1,0 +1,24 @@
+{
+  "name": "Proto-Celtic",
+  "aliases": [],
+  "status": "reconstructed",
+  "classification": "Ancestor of the Celtic languages, a descendant of Proto-Indo-European",
+  "region": "Western Europe, often associated with the Urnfield and Hallstatt cultures",
+  "map": {
+    "lat": 48,
+    "lon": 8,
+    "radiusKm": 800
+  },
+  "era": {
+    "from": -1300,
+    "to": -800,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "Reconstructed by scholars. Never written down.",
+  "parent": "Proto-Indo-European",
+  "origin": "Proto-Celtic is the reconstructed ancestor of all known Celtic languages, and it descends from Proto-Indo-European. It is generally thought to have been spoken between 1300 and 800 BC, after which it began to split into different languages. Features shared with the Italic languages suggest there may once have been an Italo-Celtic unity.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Proto-Celtic_language",
+  "approved": true
+}

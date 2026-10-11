@@ -1,0 +1,38 @@
+{
+  "name": "Ottoman Turkish",
+  "aliases": [
+    "Ottoman"
+  ],
+  "wikipedia": {
+    "title": "Ottoman Turkish",
+    "extract": "Ottoman Turkish was the standardized register of the Turkish language in the Ottoman Empire. Written in the Ottoman Turkish alphabet, it borrowed extensively, in all aspects, from Persian and Arabic. Ottoman Turkish was largely unintelligible to rural Turks, who continued to use kaba Türkçe, which used far fewer foreign loanwords and is the basis of the modern standard.",
+    "url": "https://en.wikipedia.org/wiki/Ottoman_Turkish",
+    "description": "Standardized register of Turkish in the Ottoman Empire",
+    "wikibaseItem": "Q36730",
+    "type": "standard",
+    "lead": "Ottoman Turkish (لسان عثمانی, Lisân-ı Osmânî, Turkish pronunciation: [liˈsaːnɯ osˈmaːniː]; Turkish: Osmanlıca; Osmanlı Türkçesi) was the standardized register of the Turkish language in the Ottoman Empire (14th to 20th centuries CE). Written in the Ottoman Turkish alphabet, it borrowed extensively, in all aspects, from Persian and Arabic (through Persian). Ottoman Turkish was largely unintelligible to rural Turks, who continued to use kaba Türkçe (\"raw/vulgar Turkish\"; compare Vulgar Latin and Demotic Greek), which used far fewer foreign loanwords and is the basis of the modern standard. \nTerms for the language included lisân-ı Türkî or zebân-ı Türkî (\"Turkish language\"), or, alternatively during the Ottoman era, lisân-ı Rûm or zebân-ı Rûm (\"the language of Rum\").  The Tanzimât era (1839–1876) saw the application of the term \"Ottoman\" when referring to the language (لسان عثمانی lisân-ı Osmânî or عثمانلیجه Osmanlıca). Modern Turkish uses the same terms when referring to the language of that era (Osmanlıca and Osmanlı Türkçesi). More generically, the Turkish language was called تركجه Türkçe or تركی Türkî \"Turkish\".",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q36730",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "extinct language",
+      "historical language",
+      "chronolect",
+      "register"
+    ],
+    "subclassOf": [
+      "Q256"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "Turkish"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-09T22:23:04.547Z"
+}

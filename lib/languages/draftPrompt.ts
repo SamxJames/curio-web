@@ -73,26 +73,27 @@ export function buildSheetPrompt(
     .join("\n");
   const speakersRule = facts.wikidata?.speakers
     ? `There is a speaker-count fact above. Use exactly that count and its year in "peakSpeakers" ({"count", "year", "note"}); the note says plainly what the number counts and when (e.g. "Native speakers, Wikidata figure for <that year>"). If that fact has no year and the Wikipedia text gives none, set "peakSpeakers": null instead and write an "unknownSpeakersNote".`
-    : `There is NO speaker-count fact above. You MUST set "peakSpeakers": null and write an honest "unknownSpeakersNote", e.g. "No census of its speakers exists." or, for a reconstructed language, "Reconstructed by scholars — never written down."`;
+    : `There is NO speaker-count fact above. You MUST set "peakSpeakers": null and write an honest "unknownSpeakersNote", e.g. "No census of its speakers exists." or, for a reconstructed language, "Reconstructed by scholars. Never written down."`;
   const parentRule =
     knownLanguages.length > 0
       ? `"parent" is the language it descends from, ONLY if the facts name it AND it is exactly one of these names (otherwise null): ${knownLanguages.join(", ")}`
       : `"parent" is the language it descends from, only if the facts name it; otherwise null.`;
 
-  return `You are writing one language fact sheet for Curio, a daily-word-etymology app. Its voice is warm, curious, and precise — never academic, never cute. No streaks, no "don't miss out", no urgency words.
+  return `You are writing one language fact sheet for Curio, a daily-word-etymology app. Its voice is plain, neutral and precise, like a good reference book: never academic, never cute. No streaks, no "don't miss out", no urgency words.
 
 The language is: "${name}"
 
 Here are the ONLY facts you may use, fetched from Wikipedia and Wikidata:
 ${factsBlock}
 
-Do NOT invent, guess, or pad any detail beyond what's given above — if the facts are thin, write a short, honest sheet rather than adding unsourced material.
+Do NOT invent, guess, or pad any detail beyond what's given above. If the facts are thin, write a short, honest sheet rather than adding unsourced material.
 
 Rules:
-- Speakers: ${speakersRule} Never estimate, round or guess a speaker count. Whenever "peakSpeakers" is null, "unknownSpeakersNote" must be one honest line, e.g. "No census of its speakers exists." or "Reconstructed by scholars — never written down."
+- Speakers: ${speakersRule} Never estimate, round or guess a speaker count. Whenever "peakSpeakers" is null, "unknownSpeakersNote" must be one honest line, e.g. "No census of its speakers exists." or "Reconstructed by scholars. Never written down."
 - Status: "living", "extinct", "historical" (an earlier stage of a language still spoken today, e.g. Old English) or "reconstructed". Every "Proto-" language is "reconstructed", and a reconstructed language always has "peakSpeakers": null.
 - Map: give the approximate centre and spread of where it was spoken, from the coordinates, a place named in the lead section or the indigenous-to fact, or a region named in the facts. If no location is stated or implied by the facts, set "map": null.
 - Era: years as numbers, negative for BCE. "to" is null if it is still spoken natively today. Set "era": null if the facts give no dates at all, and "approximate": true unless the facts give exact years. You may take dates from dates stated in the lead section; mark them "approximate": true unless the lead gives exact years.
+- Style: never use em dashes or en dashes in any text field (use a period, comma, colon or parentheses; write year ranges as "224 to 651 CE"). Use simple "is", "are" and "has". No promotional or inflated words (pivotal, crucial, vibrant, rich, testament, enduring, notably, "serves as"), no tacked-on "-ing" clauses about significance, and no vague attributions such as "scholars believe" unless the facts say who.
 - Parent: ${parentRule} Prefer a name that appears in the Wikidata parent languages / groups fact or that the lead section names as the language's ancestor.
 
 Write a JSON object (and nothing else — no markdown fences, no commentary) with exactly these fields:
@@ -170,7 +171,7 @@ export function parseDraftResponse(
   return { ok: true, draft };
 }
 
-export const RECONSTRUCTED_NOTE = "Reconstructed by scholars — never written down.";
+export const RECONSTRUCTED_NOTE = "Reconstructed by scholars. Never written down.";
 const ERA_TOLERANCE_YEARS = 50;
 const MAP_TOLERANCE_KM = 1500;
 

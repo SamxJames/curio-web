@@ -64,21 +64,36 @@ describe("approveSheets", () => {
     expect(res.refused.map((r) => r.name)).toEqual(["Gothic"]);
   });
 
+  it("--all-valid passes over a draft held back with _skip, without refusing it", () => {
+    const res = approveSheets([draft("Latin"), draft("Old Italian", { _skip: "no reliable source" })], [], {
+      allValid: true,
+    });
+    expect(res.approved).toEqual(["Latin"]);
+    expect(res.refused).toEqual([]);
+    expect(res.skipped).toEqual([{ name: "Old Italian", reason: "no reliable source" }]);
+  });
+
+  it("refuses a _skip draft named with --only", () => {
+    const res = approveSheets([draft("Old Italian", { _skip: "no reliable source" })], [], { only: ["Old Italian"] });
+    expect(res.approved).toEqual([]);
+    expect(res.refused).toEqual([{ name: "Old Italian", reasons: ["held back: no reliable source"] }]);
+  });
+
   it("merges an alias-named draft under its canonical name", () => {
-    const res = approveSheets([draft("Lombardic")], [], { allValid: true });
-    expect(res.sheets.map((s) => [s.name, s.aliases])).toEqual([["Lombard", ["Lombardic"]]]);
+    const res = approveSheets([draft("Kiswahili")], [], { allValid: true });
+    expect(res.sheets.map((s) => [s.name, s.aliases])).toEqual([["Swahili", ["Kiswahili"]]]);
   });
 
   it("merges aliases with an existing sheet and lets a canonical draft win over an alias draft", () => {
-    const existing = [toSheet({ ...draft("Lombard", { aliases: ["Langobardic"] }), approved: true })];
+    const existing = [toSheet({ ...draft("Swahili", { aliases: ["Kiunguja"] }), approved: true })];
     const res = approveSheets(
-      [draft("Lombardic", { region: "from alias" }), draft("Lombard", { region: "from canonical" })],
+      [draft("Kiswahili", { region: "from alias" }), draft("Swahili", { region: "from canonical" })],
       existing,
       { allValid: true },
     );
     expect(res.sheets).toHaveLength(1);
     expect(res.sheets[0].region).toBe("from canonical");
-    expect(res.sheets[0].aliases).toEqual(["Langobardic", "Lombardic"]);
+    expect(res.sheets[0].aliases).toEqual(["Kiswahili", "Kiunguja"]);
   });
 
   it("keeps existing sheets that weren't re-approved", () => {

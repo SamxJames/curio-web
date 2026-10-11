@@ -1,0 +1,42 @@
+{
+  "name": "Etruscan",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Etruscan language",
+    "extract": "Etruscan was the language of the Etruscan civilization in the ancient region of Etruria, in Etruria Padana and Etruria Campana in what is now Italy. Etruscan influenced Latin but was eventually superseded by it. Around 13,000 Etruscan inscriptions have been found so far, only a small minority of which are of significant length; some bilingual inscriptions with texts also in Latin, Greek, or Phoenician; and a few dozen purported loanwords. It is attested from 700 BC to 50 AD and the relation of Etruscan to other languages has been a source of long-running speculation and study. Nowadays it is generally agreed to be in the Tyrrhenian language family but it used commonly to be treated as an isolate, although there were also a number of other lesser-known hypotheses.",
+    "url": "https://en.wikipedia.org/wiki/Etruscan_language",
+    "description": "Extinct language of ancient Italy",
+    "wikibaseItem": "Q35726",
+    "type": "standard",
+    "lead": "Etruscan ( ih-TRUSK-ən) was the language of the Etruscan civilization in the ancient region of Etruria, in Etruria Padana and Etruria Campana in what is now Italy. Etruscan influenced Latin but was eventually superseded by it. Around 13,000 Etruscan inscriptions have been found so far, only a small minority of which are of significant length; some bilingual inscriptions with texts also in Latin, Greek, or Phoenician; and a few dozen purported loanwords. It is attested from 700 BC to 50 AD and the relation of Etruscan to other languages has been a source of long-running speculation and study. Nowadays it is generally agreed to be in the Tyrrhenian language family but it used commonly to be treated as an isolate, although there were also a number of other lesser-known hypotheses.\nThe consensus among linguists and Etruscologists is that Etruscan was a Pre-Indo-European and Paleo-European language, closely related to the Raetic language that was spoken in the Alps, and to the Lemnian language, attested in a few inscriptions on Lemnos.\nThe Etruscan alphabet derived from the Greek alphabet, specifically from the Euboean script, which Greek colonists brought to southern Italy. Therefore linguists have been able to read the inscriptions in the sense of knowing roughly how they would have been pronounced but have not yet understood their meaning. However by using combinatory method it was possible to assign some Etruscan words to grammatical categories such as noun and verb, to identify some inflectional endings and to assign meanings to a few words of very frequent occurrence.\nA comparison between the Etruscan and Greek alphabets reveals how accurately the Etruscans preserved the Greek alphabet. The Etruscan alphabet contains letters that have since been dropped from the Greek alphabet, such as the digamma, sampi and qoppa.\nGrammatically the language is agglutinating, with nouns and verbs showing suffixed inflectional endings and some gradation of vowels. Nouns show five cases, singular and plural numbers, with a gender distinction between animate and inanimate in pronouns.\nEtruscan appears to have had a cross-linguistically common phonological system, with four phonemic vowels and an apparent contrast between aspirated and unaspirated stops. The records of the language suggest that phonetic change took place over time, with the loss and then re-establishment of word-internal vowels, possibly due to the effect of Etruscan's word-initial stress.\nEtruscan religion was influenced by that of the Greeks, and many of the few surviving Etruscan-language artifacts are of votive or religious significance. The Etruscan language is also believed to be the source of certain important cultural words of Western Europe such as military and person, which do not have obvious Indo-European roots.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q35726",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 0,
+      "year": null
+    },
+    "instanceOf": [
+      "language",
+      "dead language",
+      "ancient language"
+    ],
+    "subclassOf": [
+      "Q1344038"
+    ],
+    "indigenousTo": [
+      "Q206730"
+    ],
+    "parentLabels": [
+      "Tyrsenian"
+    ],
+    "regionLabels": [
+      "Etruria"
+    ]
+  },
+  "fetchedAt": "2026-10-09T22:23:23.646Z"
+}

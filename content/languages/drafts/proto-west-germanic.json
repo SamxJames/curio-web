@@ -11,5 +11,6 @@
   "parent": "Germanic",
   "origin": "Proto-West Germanic is the reconstructed common ancestor of the West Germanic languages, the largest of the three branches of the Germanic family. Its descendants include English, German, Dutch, Frisian, Afrikaans, Yiddish, Low Saxon, Luxembourgish, Hunsrik, and Scots. Classically, the branch is divided into North Sea Germanic, Weser–Rhine Germanic, and Elbe Germanic.",
   "sourceUrl": "https://en.wikipedia.org/wiki/West_Germanic_languages",
-  "approved": false
+  "approved": false,
+  "_skip": "No reliable source: the only Wikipedia match is the West Germanic languages group page, not the proto-language."
 }

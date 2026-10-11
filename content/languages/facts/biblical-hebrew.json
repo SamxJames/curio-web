@@ -1,0 +1,44 @@
+{
+  "name": "Biblical Hebrew",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Biblical Hebrew",
+    "extract": "Biblical Hebrew, also called Classical Hebrew, is an archaic form of the Hebrew language, a language in the Canaanitic branch of the Semitic languages spoken by the Israelites in the area known as the Land of Israel, roughly west of the Jordan River and east of the Mediterranean Sea. The term ʿiḇrîṯ 'Hebrew' was not used as the language in the Hebrew Bible, which was referred to as שְֹפַת כְּנַעַן śəp̄aṯ kənaʿan 'language of Canaan' or יְהוּדִית Yəhûḏîṯ 'Judean', but was used in Koine Greek and Mishnaic Hebrew texts.",
+    "url": "https://en.wikipedia.org/wiki/Biblical_Hebrew",
+    "description": "Archaic form of the Hebrew language",
+    "wikibaseItem": "Q1982248",
+    "type": "standard",
+    "lead": "Biblical Hebrew (Hebrew: עִבְרִית מִקְרָאִית, romanized: ʿiḇrîṯ miqrāʾîṯ or לְשׁוֹן הַמִּקְרָא, ləšôn ham-miqrāʾ), also called Classical Hebrew, is an archaic form of the Hebrew language, a language in the Canaanitic branch of the Semitic languages spoken by the Israelites in the area known as the Land of Israel, roughly west of the Jordan River and east of the Mediterranean Sea. The term ʿiḇrîṯ 'Hebrew' was not used as the language in the Hebrew Bible, which was referred to as שְֹפַת כְּנַעַן śəp̄aṯ kənaʿan 'language of Canaan' or יְהוּדִית Yəhûḏîṯ 'Judean', but was used in Koine Greek and Mishnaic Hebrew texts. \nPaleo-Hebrew is attested in inscriptions from about the 10th century BCE, when it was almost identical to Phoenician and other Canaanite languages, and spoken Hebrew persisted as a first language through and beyond the Second Temple period, which ended in 70 CE with the siege of Jerusalem. It eventually developed into Mishnaic Hebrew, which was employed as a second language until the 5th century.\nThe language of the Hebrew Bible reflects various stages of the Hebrew language in its consonantal skeleton, as well as the Tiberian vocalization system added in the Middle Ages by the Masoretes. There is evidence of regional dialectal variation, including differences between the northern Kingdom of Israel and the southern Kingdom of Judah. The consonantal text, called the Masoretic Text (\"𝕸\"), was transmitted in manuscript form and underwent redaction and modernization in the Second Temple period, but its earliest portions (parts of Amos, Isaiah, Hosea and Micah) can be dated to the late 8th to early 7th centuries BCE.\nBiblical Hebrew has several different writing systems. From around the 12th century BCE until the 6th century BCE, writers used the Paleo-Hebrew alphabet. This system was retained by the Samaritans, who use a descendant, the Samaritan script, to this day. However, the Imperial Aramaic alphabet gradually displaced the Paleo-Hebrew alphabet after the Babylonian captivity, and became the source for the current Hebrew alphabet. These scripts lack letters to represent all of the sounds of Biblical Hebrew, although these sounds are reflected in Greek and Latin transcriptions/translations of the time. They initially indicated only consonants, but certain letters, known by the Latin term matres lectionis, became increasingly used to mark vowels. In the Middle Ages, various systems of diacritics were developed to mark the vowels in Hebrew manuscripts; of these, only the Tiberian vocalization is still widely used.\nBiblical Hebrew possessed a series of emphatic consonants whose precise articulation (pronunciation) is disputed, likely ejective or possibly pharyngealized. Earlier Biblical Hebrew had three consonants that were not distinguished in the writing system and later merged with other consonants. The stop consonants developed fricative allophones under the influence of Aramaic, and these sounds (the \"begadkefat consonants\") eventually became marginally phonemic. The pharyngeal and glottal consonants underwent weakening in some regional dialects, as reflected, for example, in the modern Samaritan Hebrew reading tradition. The vowel system of Hebrew underwent changes over time and is reflected differently in Koine Greek and Latin transcriptions, medieval vocalization systems, and modern reading traditions. \nPremodern Hebrew had a typically Semitic nonconcatenative morphology, arranging roots into patterns to form words. Biblical Hebrew distinguished two grammatical genders (masculine and feminine), and three numbers (singular, plural, and the uncommon dual). Verbs were marked for voice and mood, and had two conjugations that may have indicated aspect or tense. The tense or aspect of verbs was also influenced by the conjunction ו, the \"waw-consecutive\" construction.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q1982248",
+    "coordinates": {
+      "lat": 31.780047222222223,
+      "lon": 35.17011111111111
+    },
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "language",
+      "sacred language",
+      "historical language"
+    ],
+    "subclassOf": [
+      "Q9288"
+    ],
+    "indigenousTo": [
+      "Q51669",
+      "Q192232"
+    ],
+    "parentLabels": [
+      "Hebrew"
+    ],
+    "regionLabels": [
+      "Israelites",
+      "Jerusalem District"
+    ]
+  },
+  "fetchedAt": "2026-10-09T22:23:31.130Z"
+}

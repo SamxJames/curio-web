@@ -1,0 +1,24 @@
+{
+  "name": "Chinese",
+  "aliases": [],
+  "status": "living",
+  "classification": "Largest branch of the Sino-Tibetan language family",
+  "region": "Greater China → overseas Chinese communities, with Dungan and Taz speakers in Central Asia and the Russian Far East",
+  "map": {
+    "lat": 32,
+    "lon": 108,
+    "radiusKm": 1500
+  },
+  "era": {
+    "from": -1250,
+    "to": null,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "Wikidata gives 1,299,877,520 speakers but no date for that figure. Wikipedia gives about 1.39 billion first-language speakers.",
+  "parent": null,
+  "origin": "Chinese is the largest branch of the Sino-Tibetan languages. Its earliest attested writing is the oracle bone inscriptions of the Shang dynasty, around 1250 BCE. The sounds of Old Chinese can be reconstructed from the rhymes of ancient poetry, and during the Northern and Southern dynasties Middle Chinese split into several varieties after long geographic and political separation.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Chinese_language",
+  "approved": true
+}

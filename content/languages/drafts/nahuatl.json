@@ -1,0 +1,28 @@
+{
+  "name": "Nahuatl",
+  "aliases": [],
+  "status": "living",
+  "classification": "Nahuan branch of the Uto-Aztecan family, among the Indigenous languages of the Americas",
+  "region": "Central Mexico, along the coastline, and in smaller immigrant communities in the United States",
+  "map": {
+    "lat": 19,
+    "lon": -96,
+    "radiusKm": 400
+  },
+  "era": {
+    "from": 600,
+    "to": null,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": {
+    "count": 1925620,
+    "year": 2015,
+    "note": "Speakers, Wikidata figure for 2015"
+  },
+  "unknownSpeakersNote": null,
+  "parent": null,
+  "origin": "Nahuatl has been spoken in central Mexico since at least the seventh century AD. It belongs to the Uto-Aztecan family and developed over a very long period alongside other Indigenous Mesoamerican languages. It was the language of the Mexica, whose influence made the Tenochtitlan variety a prestige language across Mesoamerica.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Nahuatl",
+  "approved": true
+}

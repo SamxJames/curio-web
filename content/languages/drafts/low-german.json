@@ -1,0 +1,19 @@
+{
+  "name": "Low German",
+  "aliases": [],
+  "status": "living",
+  "classification": "North Sea Germanic group of the West Germanic languages",
+  "region": "Northern Germany and the northeastern Netherlands → Russian Mennonite diaspora worldwide (Plautdietsch)",
+  "map": {
+    "lat": 53,
+    "lon": 9.5,
+    "radiusKm": 300
+  },
+  "era": null,
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "Wikidata gives 5,000,000 speakers but no date for that figure. Wikipedia estimates 2 to 5 million speakers in Germany and 2.15 million in the Netherlands.",
+  "parent": "Old Saxon",
+  "origin": "Low German evolved from Old Saxon (Old Low German), which is most closely related to Old Frisian and Old English. It was spoken in the area of Old Saxony, in northwestern Germany and the northeastern Netherlands, and later spread to northeastern Germany as speakers migrated east into areas that were originally Slavic-speaking. Unlike Standard High German, it did not undergo the High German consonant shift.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Low_German",
+  "approved": true
+}

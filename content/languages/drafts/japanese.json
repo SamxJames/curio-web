@@ -1,0 +1,28 @@
+{
+  "name": "Japanese",
+  "aliases": [],
+  "status": "living",
+  "classification": "Principal language of the Japonic family, which also includes the Ryukyuan languages and Hachijō",
+  "region": "Japan, where it is the national language → the Japanese diaspora worldwide",
+  "map": {
+    "lat": 36,
+    "lon": 138,
+    "radiusKm": 600
+  },
+  "era": {
+    "from": 700,
+    "to": null,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": {
+    "count": 128000000,
+    "year": 2019,
+    "note": "Speakers, Wikidata figure for 2019"
+  },
+  "unknownSpeakersNote": null,
+  "parent": null,
+  "origin": "Little is known of the prehistory of Japanese, or of when it first appeared in Japan. Chinese documents from the 3rd century AD recorded a few Japanese words, but substantial Old Japanese texts did not appear until the 8th century. Attempts to link it with Ainu, Austronesian or Koreanic have not gained widespread acceptance.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Japanese_language",
+  "approved": true
+}

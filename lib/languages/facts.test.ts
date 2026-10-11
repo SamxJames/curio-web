@@ -36,9 +36,9 @@ const words = [
   { lineage: ["Latin", "English"] },
   { lineage: ["Old Norse", "English"] },
   { lineage: ["Latin", "Latin", "Translingual", "English"] },
-  { lineage: ["Lombardic", "Italian", "English"] },
-  { lineage: ["Lombard", "English"] },
-  { lineage: ["Lombard", "English"] },
+  { lineage: ["Kiswahili", "Italian", "English"] },
+  { lineage: ["Swahili", "English"] },
+  { lineage: ["Swahili", "English"] },
   { lineage: ["Indian English", "English"] },
 ];
 
@@ -46,10 +46,10 @@ describe("collectLineageLanguages", () => {
   it("returns unique names minus English and Translingual, most-used first", () => {
     expect(collectLineageLanguages(words)).toEqual([
       "Latin",
-      "Lombard",
+      "Swahili",
       "Indian English",
       "Italian",
-      "Lombardic",
+      "Kiswahili",
       "Old French",
       "Old Norse",
     ]);
@@ -72,7 +72,7 @@ describe("ALIASES and SKIP", () => {
   });
 
   it("maps the agreed aliases", () => {
-    expect(canonicalName("Lombardic")).toBe("Lombard");
+    expect(canonicalName("Lombardic")).toBe("Lombardic"); // a different language from Lombard
     expect(canonicalName("Kiswahili")).toBe("Swahili");
     expect(canonicalName("Ottoman")).toBe("Ottoman Turkish");
     expect(canonicalName("Old Provençal")).toBe("Old Occitan");
@@ -83,8 +83,8 @@ describe("ALIASES and SKIP", () => {
 describe("languageTargets", () => {
   it("drops SKIP names and merges aliases under the canonical name", () => {
     const targets = languageTargets(words);
-    expect(targets.map((t) => t.name)).toEqual(["Latin", "Lombard", "Italian", "Old French", "Old Norse"]);
-    expect(targets.find((t) => t.name === "Lombard")?.aliases).toEqual(["Lombardic"]);
+    expect(targets.map((t) => t.name)).toEqual(["Latin", "Swahili", "Italian", "Old French", "Old Norse"]);
+    expect(targets.find((t) => t.name === "Swahili")?.aliases).toEqual(["Kiswahili"]);
     expect(targets.find((t) => t.name === "Latin")?.aliases).toEqual([]);
   });
 

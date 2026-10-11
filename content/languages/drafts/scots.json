@@ -1,0 +1,24 @@
+{
+  "name": "Scots",
+  "aliases": [],
+  "status": "living",
+  "classification": "Anglic language variety of the West Germanic branch, a sister language of Modern English",
+  "region": "Scottish Lowlands, Orkney and Shetland (the Northern Isles) → northern Ulster in Ireland, where it is called Ulster Scots",
+  "map": {
+    "lat": 57,
+    "lon": -3,
+    "radiusKm": 250
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 1500000,
+    "year": 2022,
+    "note": "People in Scotland able to speak Scots, 2022 census"
+  },
+  "unknownSpeakersNote": null,
+  "parent": "Middle English",
+  "origin": "Scots is a West Germanic language variety descended from Early Middle English, which makes Modern Scots a sister language of Modern English. It is sometimes called Lowland Scots to set it apart from Scottish Gaelic, and Broad Scots to set it apart from Scottish Standard English. Scholars and others often disagree about whether it counts as a dialect of English or a separate language, since there are no universally accepted criteria for deciding.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Scots_language",
+  "approved": true,
+  "_override": "Wikidata's 1,500,000 has no year; the Wikipedia lead dates it: 'In a Scottish census from 2022, over 1.5 million people in Scotland ... reported being able to speak Scots.'"
+}

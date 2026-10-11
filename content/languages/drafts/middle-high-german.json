@@ -1,0 +1,25 @@
+{
+  "name": "Middle High German",
+  "aliases": [],
+  "status": "historical",
+  "classification": "Stage of High German, the German varieties affected by the Second Sound Shift",
+  "region": "High German-speaking lands → eastward beyond the Elbe-Saale line",
+  "map": {
+    "lat": 49.5,
+    "lon": 10.5,
+    "radiusKm": 450
+  },
+  "era": {
+    "from": 1050,
+    "to": 1350,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "Old High German",
+  "origin": "Middle High German is the form of High German spoken in the High Middle Ages, conventionally dated 1050 to 1350. It grew out of Old High German and later became Early New High German. Speakers called it diutsch or tiutsch. In the late 12th century the prestige of the Hohenstaufen court gave rise to a literary language based on Swabian, an Alemannic dialect.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Middle_High_German",
+  "approved": true,
+  "_override": "Correct article: Middle High German is a stage (chronolect) of German, so Wikipedia does not class the page as a language."
+}

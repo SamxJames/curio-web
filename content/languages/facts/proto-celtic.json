@@ -1,0 +1,37 @@
+{
+  "name": "Proto-Celtic",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Proto-Celtic language",
+    "extract": "Proto-Celtic, or Common Celtic, is the reconstructed ancestral proto-language of all known Celtic languages, and a descendant of Proto-Indo-European. It is not attested in writing but has been partly reconstructed through the comparative method. Proto-Celtic is generally thought to have been spoken between 1300 and 800 BC, after which it began to split into different languages. Proto-Celtic is often associated with the Urnfield culture and particularly with the Hallstatt culture. Celtic languages share common features with Italic languages that are not found in other branches of Indo-European, suggesting the possibility of an earlier Italo-Celtic linguistic unity.",
+    "url": "https://en.wikipedia.org/wiki/Proto-Celtic_language",
+    "description": "Ancestor of the Celtic languages",
+    "wikibaseItem": "Q653649",
+    "type": "standard",
+    "lead": "Proto-Celtic, or Common Celtic, is the reconstructed ancestral proto-language of all known Celtic languages, and a descendant of Proto-Indo-European. It is not attested in writing but has been partly reconstructed through the comparative method. Proto-Celtic is generally thought to have been spoken between 1300 and 800 BC, after which it began to split into different languages. Proto-Celtic is often associated with the Urnfield culture and particularly with the Hallstatt culture. Celtic languages share common features with Italic languages that are not found in other branches of Indo-European, suggesting the possibility of an earlier Italo-Celtic linguistic unity.\nProto-Celtic is currently being reconstructed through the comparative method by relying on later Celtic languages. Though Continental Celtic presents much substantiation for Proto-Celtic phonology, and some for its morphology, recorded material is too scanty to allow a secure reconstruction of syntax, though some complete sentences are recorded in the Continental Gaulish and Celtiberian. So, the main sources for reconstruction come from Insular Celtic languages with the oldest literature found in Old Irish and Middle Welsh, dating back to authors flourishing in the 6th century AD.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q653649",
+    "coordinates": null,
+    "inception": -1300,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "proto-language"
+    ],
+    "subclassOf": [
+      "Q25293"
+    ],
+    "indigenousTo": [
+      "Q27496"
+    ],
+    "parentLabels": [
+      "Celtic languages"
+    ],
+    "regionLabels": [
+      "Western Europe"
+    ]
+  },
+  "fetchedAt": "2026-10-09T22:23:08.544Z"
+}

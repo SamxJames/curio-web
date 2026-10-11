@@ -1,0 +1,35 @@
+{
+  "name": "Koine Greek",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Koine Greek",
+    "extract": "Koine Greek, also variously known as Hellenistic Greek, Biblical Greek, Septuagint Greek or New Testament Greek, was the common supra-regional form of Greek spoken and written during the Hellenistic period, the Roman Empire, and the early Byzantine Empire. It evolved from the spread of Greek following the conquests of Alexander the Great in the fourth century BC, and served as the lingua franca of much of the Mediterranean region and the Middle East during the following centuries. It was based mainly on Attic and related Ionic speech forms, with various admixtures brought about through dialect levelling with other varieties.",
+    "url": "https://en.wikipedia.org/wiki/Koine_Greek",
+    "description": "Dialect of Greek in the ancient world",
+    "wikibaseItem": "Q107358",
+    "type": "standard",
+    "lead": "Koine Greek (ἡ κοινὴ διάλεκτος, hē koinḕ diálektos, lit. 'the common dialect'), also variously known as Hellenistic Greek, Biblical Greek, Septuagint Greek or New Testament Greek, was the common supra-regional form of Greek spoken and written during the Hellenistic period, the Roman Empire, and the early Byzantine Empire. It evolved from the spread of Greek following the conquests of Alexander the Great in the fourth century BC, and served as the lingua franca of much of the Mediterranean region and the Middle East during the following centuries. It was based mainly on Attic and related Ionic speech forms, with various admixtures brought about through dialect levelling with other varieties.\nKoine Greek included styles ranging from conservative literary forms to the spoken vernaculars of the time. As the dominant language of the Byzantine Empire, it developed further into Medieval Greek, which informed Modern Greek.\n\nLiterary Koine was the medium of much post-classical Greek literary and scholarly writing, such as the works of Plutarch and Polybius. Koine is also the language of the Septuagint (the 3rd century BC Greek translation of the Hebrew Bible), the Christian New Testament, and of most early Christian theological writing by the Church Fathers. In this context, Koine Greek is also known as \"Biblical\", \"New Testament\", \"ecclesiastical\", or \"patristic\" Greek. The Roman Emperor Marcus Aurelius wrote his private thoughts in Koine Greek in a work that is now known as Meditations. Koine Greek continues to be used as the liturgical language of services in the Greek Orthodox Church and in some Greek Catholic churches.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q107358",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "sacred language",
+      "historical language",
+      "dialect"
+    ],
+    "subclassOf": [
+      "Q3154119"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "Attic–Ionic Greek"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-09T22:23:38.058Z"
+}

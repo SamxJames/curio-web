@@ -1,0 +1,24 @@
+{
+  "name": "Old Dutch",
+  "aliases": [],
+  "status": "historical",
+  "classification": "Low Franconian dialects, descended from Frankish",
+  "region": "The Low Countries: southern Netherlands, northern Belgium, part of northern France, and parts of the Lower Rhine in Germany",
+  "map": {
+    "lat": 51.2,
+    "lon": 4.9,
+    "radiusKm": 200
+  },
+  "era": {
+    "from": 500,
+    "to": 1150,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "Frankish",
+  "origin": "Old Dutch is the set of dialects that evolved from Frankish in the Low Countries during the Early Middle Ages, from around the 6th to the 12th century. It was spoken by the descendants of the Salian Franks and is regarded as the first stage in the development of a separate Dutch language. Around the 12th century it evolved into Middle Dutch.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Old_Dutch",
+  "approved": true
+}

@@ -1,6 +1,7 @@
 // Approves reviewed drafts and rewrites lib/languages/data.ts and lib/languages/sheetIndex.ts. Refuses any draft that has
 // `_problems`, fails validateSheet, or contradicts its facts file (unless the draft has a
-// non-empty `_override` reason). `_override` is never copied into data.ts.
+// non-empty `_override` reason). `_override` is never copied into data.ts. A draft with a
+// non-empty `_skip` reason is held back: --all-valid lists it and still exits 0.
 //   npm run languages:approve -- --all-valid
 //   npm run languages:approve -- --only "Latin,Old French"
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -55,6 +56,7 @@ function main() {
   const result = approveSheets(drafts, LANGUAGE_SHEETS, select, facts);
   for (const r of result.refused) console.log(`REFUSED ${r.name}: ${r.reasons.join("; ")}`);
   for (const m of result.missing) console.log(`NO DRAFT for ${m}`);
+  for (const s of result.skipped) console.log(`SKIPPED ${s.name}: ${s.reason}`);
   const hadTrouble = result.refused.length > 0 || result.missing.length > 0;
 
   if (result.approved.length === 0) {

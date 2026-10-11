@@ -1,0 +1,19 @@
+{
+  "name": "Gaulish",
+  "aliases": [],
+  "status": "extinct",
+  "classification": "Continental Celtic language, grouped with Lepontic, Galatian, Celtiberian and possibly Gallaecian",
+  "region": "Gaul (modern France and neighboring areas roughly to the Rhine); in a wider sense, parts of central and southeastern Europe and Anatolia",
+  "map": {
+    "lat": 47,
+    "lon": 2.5,
+    "radiusKm": 600
+  },
+  "era": null,
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "Proto-Celtic",
+  "origin": "Gaulish belongs to the Continental Celtic languages, with Lepontic, Galatian, Celtiberian and possibly Gallaecian. How these languages relate to one another, and to the modern Insular Celtic languages, is uncertain because so little of them survives. It was first written in Greek script in southern France and in an Old Italic script in northern Italy, and in Latin script after the Roman conquest of Gaul.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Gaulish",
+  "approved": true
+}

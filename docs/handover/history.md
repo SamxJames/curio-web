@@ -1021,6 +1021,17 @@ Built on branch `feat/lang-panel` (worktree `.worktrees/lang-panel`), not yet me
 
 Merged and pushed earlier on 2026-10-04 with empty data. See docs/handover/language-panel.md → Verification for the first content batch (2026-10-05).
 
+## This session (2026-10-09): second language batch and a prose clean-up
+
+Pre-approved by Sam, reviewed by Claude, committed on branch `worktree-agent-a46c2b22f8bd4505d` (not merged, pushed or deployed).
+
+- Fetched facts for and drafted the next 30 most-used lineage languages (31 to 60 by usage). Approved 29. Old Italian is held back: its only Wikipedia match is the modern Italian page.
+- Checked every date, parent, status, region and speaker figure against the facts. The main fixes: three non-living languages drafted as still spoken (Koine Greek, Biblical Hebrew, Middle Persian); New Latin made `extinct` with a still-written tail; Ottoman Turkish's end year 1999 -> 1922; a dated 2022 census count for Scots; parents that pointed at a modern language or at a name the facts never give were removed, and Gaulish -> Proto-Celtic, Occitan -> Old Occitan and Germanic -> Proto-Germanic were added. Detail: `docs/handover/language-panel.md` -> Current state.
+- Found and fixed a wrong alias: Lombardic (Germanic) had been merged into Lombard (Romance). The tests now use Kiswahili -> Swahili as the alias example.
+- New `_skip` field on a draft: `languages:approve -- --all-valid` lists it as SKIPPED and still exits 0. Proto-West Germanic and Old Italian use it. Before this, any held-back draft made `--all-valid` exit 1.
+- Humanizer pass on the prose of all 58 sheets: no em or en dashes, no puffery, no first person, no unattributed "scholars say". No fact changed. The reconstructed note and the panel's reconstructed status line lost their em dash, and the draft prompt now asks for a plain reference-book register without dashes.
+- Verified: lint (0 errors), `npx vitest run` (all pass), `npm run build` (`/collection` still static). Not checked in a browser.
+
 ## Workflow notes for whoever picks this up
 
 - Two sessions so far have used the `superpowers` subagent-driven-development

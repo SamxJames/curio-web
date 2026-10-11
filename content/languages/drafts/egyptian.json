@@ -1,0 +1,24 @@
+{
+  "name": "Egyptian",
+  "aliases": [],
+  "status": "extinct",
+  "classification": "An extinct branch of the Afro-Asiatic language family",
+  "region": "Egypt",
+  "map": {
+    "lat": 26.8,
+    "lon": 30.8,
+    "radiusKm": 600
+  },
+  "era": {
+    "from": -4000,
+    "to": 1700,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": null,
+  "origin": "Egyptian is an extinct branch of the Afro-Asiatic language family, spoken in Egypt. It was first written in hieroglyphs in the late 4th millennium BC and is the longest-attested human language, with a written record of over 5,000 years. Its own name for itself, r n kmt, means 'speech of Egypt'.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Egyptian_language",
+  "approved": true
+}

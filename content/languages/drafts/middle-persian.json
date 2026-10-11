@@ -1,0 +1,19 @@
+{
+  "name": "Middle Persian",
+  "aliases": [],
+  "status": "historical",
+  "classification": "Western Middle Iranian language, in the Southwestern Iranian group",
+  "region": "The Sasanian Empire",
+  "map": {
+    "lat": 32,
+    "lon": 53,
+    "radiusKm": 1000
+  },
+  "era": null,
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "Old Persian",
+  "origin": "Middle Persian descended from Old Persian, the language of the Achaemenid Empire. It became the literary language of the Sasanian Empire, and kept its prestige for some time after that empire collapsed. It is the linguistic ancestor of New Persian, the official language of Iran, Afghanistan (Dari) and Tajikistan (Tajik).",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Middle_Persian",
+  "approved": true
+}

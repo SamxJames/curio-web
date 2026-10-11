@@ -1,0 +1,39 @@
+{
+  "name": "Old Dutch",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Old Dutch",
+    "extract": "In linguistics, Old Dutch or Old Low Franconian is the set of dialects that evolved from Frankish spoken in the Low Countries during the Early Middle Ages, from around the 6th to the 12th century. Old Dutch is mostly recorded on fragmentary relics, and words have been reconstructed from Middle Dutch and Old Dutch loanwords in French.",
+    "url": "https://en.wikipedia.org/wiki/Old_Dutch",
+    "description": "Indo-European language",
+    "wikibaseItem": "Q443089",
+    "type": "standard",
+    "lead": "In linguistics, Old Dutch (Modern Dutch: Oudnederlands) or Old Low Franconian (Modern Dutch: Oudnederfrankisch) is the set of dialects that evolved from Frankish spoken in the Low Countries during the Early Middle Ages, from around the 6th to the 12th century. Old Dutch is mostly recorded on fragmentary relics, and words have been reconstructed from Middle Dutch and Old Dutch loanwords in French.\nOld Dutch is regarded as the primary stage in the development of a separate Dutch language. It was spoken by the descendants of the Salian Franks who occupied what is now the southern Netherlands, northern Belgium, part of northern France, and parts of the Lower Rhine regions of Germany. It evolved into Middle Dutch around the 12th century. The inhabitants of northern Dutch provinces, including Groningen, Friesland, and the coast of North Holland, spoke Old Frisian, and some in the east (Achterhoek, Overijssel, and Drenthe) instead spoke Old Saxon.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q443089",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": 1150,
+    "speakers": null,
+    "instanceOf": [
+      "language",
+      "natural language",
+      "historical language"
+    ],
+    "subclassOf": [
+      "Q153050"
+    ],
+    "indigenousTo": [
+      "Q939852"
+    ],
+    "parentLabels": [
+      "Low Franconian"
+    ],
+    "regionLabels": [
+      "Salian Franks"
+    ]
+  },
+  "fetchedAt": "2026-10-09T22:23:07.345Z"
+}

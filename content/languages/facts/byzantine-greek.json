@@ -1,0 +1,33 @@
+{
+  "name": "Byzantine Greek",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Medieval Greek",
+    "extract": "Medieval Greek is the stage of the Greek language between the end of classical antiquity in the 5th–6th centuries and the end of the Middle Ages, conventionally dated to the Ottoman conquest of Constantinople in 1453.",
+    "url": "https://en.wikipedia.org/wiki/Medieval_Greek",
+    "description": "Medieval stage of the Greek language",
+    "wikibaseItem": "Q36387",
+    "type": "standard",
+    "lead": "Medieval Greek (also known as Middle Greek, Byzantine Greek, or Romaic; Greek: Ῥωμαϊκή) is the stage of the Greek language between the end of classical antiquity in the 5th–6th centuries and the end of the Middle Ages, conventionally dated to the Ottoman conquest of Constantinople in 1453.\nFrom the 7th century onwards, Greek was the only language of administration and government in the Byzantine Empire. This stage of language is thus described as Byzantine Greek. The study of the Medieval Greek language and literature is a branch of Byzantine studies, the study of the history and culture of the Byzantine Empire.\nThe conquests of Alexander the Great, and the ensuing Hellenistic period, had caused Greek to spread throughout Anatolia and the Eastern Mediterranean. The beginning of Medieval Greek is occasionally dated back to as early as the 4th century, either to 330 AD, when the political centre of the Roman Empire was moved to Constantinople, or to 395 AD, the division of the empire. However, this approach is rather arbitrary as it is more an assumption of political, as opposed to cultural and linguistic, developments. Indeed, by this time the spoken language, particularly pronunciation, had already shifted towards modern forms.\nMedieval Greek is the link between the older vernacular, known as Koine Greek, and Modern Greek. Though Byzantine Greek literature was still strongly influenced by Attic Greek, it was also influenced by vernacular Koine, which is the language of the New Testament and the liturgical language of the Greek Orthodox Church.",
+    "titleMatched": false
+  },
+  "wikidata": {
+    "qid": "Q36387",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "chronolect"
+    ],
+    "subclassOf": [
+      "Q9129"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "Greek"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-09T22:23:10.311Z"
+}
