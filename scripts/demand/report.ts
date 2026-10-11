@@ -385,7 +385,7 @@ export function renderReport(current: Snapshot, previous: Snapshot | null): stri
     const { offWord, otherIntent } = offPatternQueries(gsc, bySlug);
     section(
       "4. Queries that don't match the title pattern",
-      "Story titles read `<word>: the origin of the word — Curio`.",
+      "Story titles read `<word> word origin: from <source language> — Curio` (`<word>: the origin of the word — Curio` for words coined in English).",
       "",
       "### Off-word: the query doesn't contain the page's word",
       "",

@@ -242,7 +242,7 @@ describe("renderReport", () => {
 
   it("uses backticks for the section 4 intro pattern", () => {
     const md = renderReport(makeSnapshot(), null);
-    expect(md).toContain("`<word>: the origin of the word — Curio`");
+    expect(md).toContain("`<word> word origin: from <source language> — Curio`");
   });
 
   it("escapes special characters in query cells", () => {

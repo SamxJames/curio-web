@@ -104,7 +104,7 @@ describe("buildStoryCard", () => {
     const card = buildStoryCard(word("A teaser."));
     expect(card.uri).toBe(URL);
     expect(card.title).toBe(storyPageTitle(word("A teaser.")));
-    expect(card.title).toBe("quarantine: the origin of the word — Curio");
+    expect(card.title).toBe("quarantine word origin: from Italian — Curio");
     expect(card.description).toBe(CARD_DESCRIPTION);
     expect(card.thumbUrl).toBe("https://example.com/story/quarantine/opengraph-image");
   });
@@ -220,7 +220,7 @@ describe("postDailyWordToBluesky", () => {
       $type: "app.bsky.embed.external",
       external: {
         uri: URL,
-        title: "quarantine: the origin of the word — Curio",
+        title: "quarantine word origin: from Italian — Curio",
         description: CARD_DESCRIPTION,
         thumb: { ref: "bafy-thumb" },
       },
