@@ -1,13 +1,13 @@
 # Curio: Handover
 
-Last updated: 2026-10-09. Read this first; it's deliberately short. Open a file in `docs/handover/` only when the
+Last updated: 2026-10-12. Read this first; it's deliberately short. Open a file in `docs/handover/` only when the
 task touches that area. **Keep this file under ~200 lines:** current state, gotchas and pointers only. Put session
 detail in `docs/handover/history.md` and depth in the topic files.
 
 ## What this is
 A daily word-etymology app: one word a day and its origin story, an optional email digest, magic-link accounts with
 synced favourites, a Collection (favourites) and a History (archive), a daily puzzle (`/play`), and automated posts to
-Bluesky (with Threads and Instagram built but switched off). Positioning: **"one word, one story, every day: no feed, no
+Bluesky, Threads and Instagram. Positioning: **"one word, one story, every day: no feed, no
 backlog to catch up on."** The product principle **archive, never backlog** is in `AGENTS.md` (always loaded). Test
 every feature against it.
 
@@ -23,15 +23,18 @@ every feature against it.
 - **Crons (UTC, Hobby fires anywhere in the hour):** 09:00 digest + Bluesky (`/api/cron/send-daily`), 10:00 Threads/IG
   (`/api/cron/social`). Mondays 06:00: demand report (GitHub Action → private `SamxJames/curio-reports`).
 
-## Current state (2026-10-09)
-- Language panel (Collection → language chip → "About") is live with the **first 29 reviewed sheets** (deployed
-  2026-10-05). **Batch 2 (2026-10-09): 58 sheets** plus a prose clean-up of all of them, reviewed and committed on branch
-  `worktree-agent-a46c2b22f8bd4505d`, **not merged or deployed yet**. Later batches use the same facts → draft → review →
-  approve pipeline (`docs/handover/language-panel.md`).
-- `master` is in sync with origin. The only open branch is the batch-2 worktree branch above.
-- Threads/Instagram are off until Meta tokens are set (`operations.md` → "Threads + Instagram: owner setup").
-- Double opt-in and the 200/day confirmation cap are live. The launch kit (`docs/launch-kit.md`) is ready to submit.
-- Friends-and-family onboarding is under way. The weekly check-in state is in `../checkins/state.md`.
+## Current state (2026-10-12)
+- Language panel is live with **87 reviewed sheets** (29 + batch 2's 58, merged and deployed). Story titles name the
+  source language. Signing in now returns you to the page you were on. Pipeline: `docs/handover/language-panel.md`.
+- Homepage has WebSite + Organization JSON-LD and a canonical (49c9f8f, verified live; builder `buildSiteJsonLd` in
+  `lib/storyJsonLd.ts`). `/play` is still "unknown to Google".
+- Threads + Instagram switched ON 2026-10-11 (Meta app "Curio Poster", @curio.word.daily); 10:00 UTC cron.
+- **Next build: language pages** (spec `docs/superpowers/specs/2026-10-12-language-pages-design.md`, paste-ready prompt
+  `.../2026-10-12-implementation-prompt.md`, commit 31ee8db). A fresh session writes the plan at
+  `docs/superpowers/plans/2026-10-12-language-pages.md` and builds it.
+- GSC daily impressions fell ~1,300 (09-30) to ~300 (10-09); watch it in the Monday demand report.
+- Double opt-in and the 200/day confirmation cap are live. Weekly check-in state: `../checkins/state.md`.
+- Stale branch `brand-assets` (local + origin) has no commits beyond master; safe to delete.
 
 ## Gotchas (each one has bitten before)
 - `vercel link --project <name>` **silently creates a new empty project** if the name is wrong. Run `vercel project ls` first.
@@ -58,21 +61,21 @@ every feature against it.
 - **One shared daily word for everyone** (2026-09-26). Revisit ~4 weeks after F&F launch.
 - Launch schedule: hand-picked openers, then a stable shuffle (`LAUNCH_OPENERS` in `lib/words.ts`); no A–Z march.
 - Collection = favourites only; History = the archive, not in the nav (2026-10-04).
+- Themed pages = language pages only (2026-10-12); topic themes would need tagging 1,147 words.
 - Threads/IG tokens are the on/off switch. Bluesky format: teaser · word + lineage · hashtags, link in a card.
 - No retroactive history backfill, ever.
 - The demand report lives in a private repo and public Actions logs print counts only.
 
 ## Open threads
-- Language sheets: merge and deploy batch 2 (branch above), then the next batch (Lombardic now needs its own sheet).
-- Submit the launch kit; themed collection pages (pSEO); "root word" phrasing in titles (demand report: ~593 pages
-  have impressions, 5 clicks in 28 days).
-- Small UX: header wordmark crowding at 375px; signing in mid-visit changes the word; mobile email-provider buttons;
-  clue progression (clue 1 hardest → 3 strong hint).
-- Parked with reasons (favourite ordering and removal sync, rate limits, Auth.js key TTLs, ...): `docs/handover/parked.md`.
+- Build language pages (above); next language-sheet batch (Lombardic needs its own sheet).
+- Submit remaining launch-kit entries; "root word" phrasing in titles.
+- Small UX: header wordmark crowding at 375px; mobile email-provider buttons; clue progression (clue 1 hardest).
+- Parked with reasons: `docs/handover/parked.md`.
 
 ## Waiting on Sam
-- Meta tokens for Threads/IG · Vercel connector access to `etymology-app` / Web Analytics · tighten `_dmarc` to
-  `quarantine` after a few weeks of clean sends · `REPORTS_REPO_TOKEN` expires ~2027-10-04.
+- Search Console "Request indexing" for /play · add curioword.com to Bluesky/Threads/IG bios · submit remaining
+  launch-kit entries · Vercel connector access / Web Analytics · tighten `_dmarc` to `quarantine` later ·
+  `REPORTS_REPO_TOKEN` expires ~2027-10-04.
 
 ## Doc map
 | File | Open it when... |

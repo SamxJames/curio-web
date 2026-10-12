@@ -1081,3 +1081,15 @@ input), and a "send this word to a friend" low-friction share flow. The
 Bluesky presence and the arrival-hero/cron work that filled most of this
 session came from a separate, explicit ask — not a continuation of that
 brainstorm — so don't assume they closed out its open questions.
+
+
+## 2026-10-12: SEO, Meta on, language pages specced
+
+- Already on master (handover was stale): batch 2 language sheets (58) merged c78ce27 and deployed; story titles name
+  the source language (a7d842b); sign-in returns you to the same page (5616134); Threads + Instagram ON 2026-10-11.
+- Shipped 49c9f8f: WebSite + Organization JSON-LD (name Curio, alternateName Curio Word/curioword.com, sameAs Bluesky/
+  Threads/IG, logo /apple-icon.png) and canonical on "/". Verified live.
+- Search: homepage/words/story pages indexed; /play unknown to Google; "curio" alone is crowded, brand queries near
+  zero; GSC daily impressions ~1,300 (09-30) to ~300 (10-09).
+- Decision: themed pages are language pages only, for languages with an approved sheet and >=3 words (57 today), linked
+  from story lineage, a /languages index, /words and the sitemap. Spec and prompt committed in 31ee8db.

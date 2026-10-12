@@ -117,3 +117,8 @@ to everyone regardless of account age). If this comes up again, don't
 relitigate it — reuse that pattern. (Still true 2026-10-04. The
 "Favorites" tab that sat beside these two is gone: favourites live on
 `/collection`.)
+
+
+## 2026-10-12: Themed pages are language pages only
+Topic themes would require tagging all 1,147 words; language data already exists (approved sheets). Pages exist for
+languages with an approved sheet and at least 3 words. Revisit once language pages show search traction.
