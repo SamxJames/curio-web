@@ -1,5 +1,6 @@
 import { WORDS } from "./words";
 import { absoluteUrl } from "./siteUrl";
+import { languagePages } from "./languages/pages";
 
 /** Routes a crawler should index. Every other route is private,
  * account-scoped, an auth flow or an API endpoint — see DISALLOWED_PATHS. */
@@ -51,7 +52,18 @@ export function buildSitemapEntries(): SitemapEntry[] {
     priority: 0.6,
   }));
 
-  return [...routes, ...stories];
+  // The language pages and their index. Monthly: a page only changes when a new
+  // sheet batch or new words land.
+  const languages: SitemapEntry[] = [
+    { url: absoluteUrl("/languages"), changeFrequency: "weekly", priority: 0.8 },
+    ...languagePages().map((page) => ({
+      url: absoluteUrl(`/language/${page.slug}`),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
+  ];
+
+  return [...routes, ...stories, ...languages];
 }
 
 export type RobotsConfig = {

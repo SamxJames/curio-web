@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { buildSitemapEntries, buildRobots, PUBLIC_ROUTES, DISALLOWED_PATHS } from "./seoRoutes";
 import { WORDS } from "./words";
+import { languagePages } from "./languages/pages";
 
 const original = process.env.CURIO_SITE_URL;
 
@@ -14,9 +15,26 @@ afterEach(() => {
 });
 
 describe("buildSitemapEntries", () => {
-  it("lists every public route and every word, and nothing else", () => {
+  it("lists every public route, every word, /languages and every language page, and nothing else", () => {
     const entries = buildSitemapEntries();
-    expect(entries).toHaveLength(PUBLIC_ROUTES.length + WORDS.length);
+    expect(entries).toHaveLength(PUBLIC_ROUTES.length + WORDS.length + 1 + languagePages().length);
+  });
+
+  it("includes /languages (weekly, 0.8) and each language page (monthly, 0.7)", () => {
+    const entries = buildSitemapEntries();
+    expect(entries).toContainEqual({
+      url: "https://curio.example/languages",
+      changeFrequency: "weekly",
+      priority: 0.8,
+    });
+    for (const page of languagePages()) {
+      expect(entries).toContainEqual({
+        url: `https://curio.example/language/${page.slug}`,
+        changeFrequency: "monthly",
+        priority: 0.7,
+      });
+    }
+    expect(entries.some((e) => "lastModified" in e)).toBe(false);
   });
 
   it("includes every word's story URL exactly once", () => {
