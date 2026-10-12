@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import Link from "next/link";
 
 /** A horizontal breadcrumb of the languages a word passed through, oldest
  * first (e.g. "Latin → Italian → English"). Pure presentation — the actual
@@ -7,9 +8,13 @@ import clsx from "clsx";
 export default function EtymologyLineage({
   lineage,
   className,
+  hrefs,
 }: {
   lineage: string[];
   className?: string;
+  /** lineage name → href; built on the server by lib/languages/pages.ts, so
+   * nothing language-related is imported here. */
+  hrefs?: Record<string, string>;
 }) {
   if (lineage.length === 0) return null;
 
@@ -27,7 +32,17 @@ export default function EtymologyLineage({
               &rarr;
             </span>
           )}
-          <span>{language}</span>
+          {hrefs?.[language] ? (
+            <Link
+              href={hrefs[language]}
+              prefetch={false}
+              className="underline-offset-2 hover:underline focus-visible:underline"
+            >
+              {language}
+            </Link>
+          ) : (
+            <span>{language}</span>
+          )}
         </span>
       ))}
     </div>

@@ -10,6 +10,7 @@ import {
   languageDescription,
   languageHref,
   languagePages,
+  lineageHrefs,
 } from "./pages";
 
 const word = (w: string, lineage: string[]): WordEntry =>
@@ -106,6 +107,12 @@ describe("findLanguagePage / languageHref", () => {
     expect(languageHref("Ottoman", pages)).toBe("/language/ottoman-turkish");
     expect(languageHref("Lombard", pages)).toBeNull();
     expect(languageHref("English", pages)).toBeNull();
+  });
+
+  it("lineageHrefs maps only names that have pages", () => {
+    expect(lineageHrefs(["Ottoman", "Lombard", "English"], pages)).toEqual({
+      Ottoman: "/language/ottoman-turkish",
+    });
   });
 });
 

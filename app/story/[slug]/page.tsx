@@ -4,6 +4,7 @@ import StoryView from "@/components/StoryView";
 import { WORDS, getWordBySlug } from "@/lib/words";
 import { buildStoryJsonLd, serializeJsonLd } from "@/lib/storyJsonLd";
 import { getRelatedWords } from "@/lib/relatedWords";
+import { lineageHrefs } from "@/lib/languages/pages";
 import { storyPageTitle } from "@/lib/storyTitle";
 
 export function generateStaticParams() {
@@ -65,7 +66,7 @@ export default async function StoryPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildStoryJsonLd(word)) }}
       />
-      <StoryView word={word} related={getRelatedWords(slug)} />
+      <StoryView word={word} related={getRelatedWords(slug)} lineageHrefs={lineageHrefs(word.lineage)} />
     </>
   );
 }

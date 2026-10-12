@@ -72,7 +72,17 @@ export function languageHref(name: string, pages: LanguagePage[] = languagePages
   return page ? `/language/${page.slug}` : null;
 }
 
-/** First sentence of a sheet's origin (up to the first . ! or ? followed by a capital or the end). */
+/** Lineage name → language page href, for the names in one word's lineage that have a page. */
+export function lineageHrefs(lineage: string[], pages: LanguagePage[] = languagePages()): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const name of lineage) {
+    const href = languageHref(name, pages);
+    if (href) out[name] = href;
+  }
+  return out;
+}
+
+/** First sentence of a sheet's origin(up to the first . ! or ? followed by a capital or the end). */
 function firstSentence(text: string): string {
   const m = text.match(/^[\s\S]*?[.!?](?=\s+[A-Z]|\s*$)/);
   return (m ? m[0] : text).trim();
