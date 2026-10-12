@@ -20,7 +20,15 @@ const SECTIONS: { key: keyof Pick<WordEntry, "origin" | "journey" | "related">; 
   { key: "related", label: "Related words" },
 ];
 
-export default function StoryView({ word, related }: { word: WordEntry; related: RelatedWords }) {
+export default function StoryView({
+  word,
+  related,
+  lineageHrefs,
+}: {
+  word: WordEntry;
+  related: RelatedWords;
+  lineageHrefs?: Record<string, string>;
+}) {
   const day = useStoryDay(word.slug);
 
   useEffect(() => {
@@ -78,7 +86,7 @@ export default function StoryView({ word, related }: { word: WordEntry; related:
         {word.respelling} &middot; {word.partOfSpeech}
       </p>
 
-      <EtymologyLineage lineage={word.lineage} className="mt-4 text-sm" />
+      <EtymologyLineage lineage={word.lineage} hrefs={lineageHrefs} className="mt-4 text-sm" />
 
       <div className="mt-10 flex items-center gap-3">
         <Button
