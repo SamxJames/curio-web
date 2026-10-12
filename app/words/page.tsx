@@ -34,6 +34,13 @@ export default function WordsPage() {
       <p className="mt-3 font-sans text-sm text-ink-soft">
         Every word Curio has a story for — {WORDS.length} of them, A to Z.
       </p>
+      <p className="mt-2 font-sans text-sm text-ink-soft">
+        Or{" "}
+        <Link href="/languages" className="underline underline-offset-2 transition-colors hover:text-accent">
+          browse them by language
+        </Link>
+        .
+      </p>
 
       <nav aria-label="Jump to letter" className="mt-6 flex flex-wrap gap-x-3 gap-y-1">
         {groups.map(([letter]) => (
