@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import LanguagePanel, { LanguagePanelView } from "./LanguagePanel";
+import LanguagePanel from "./LanguagePanel";
+import LanguagePanelView from "./LanguagePanelView";
+import { panelModel } from "@/lib/languages/panel";
 import { LATIN_FIXTURE, PROTO_ITALIC_FIXTURE } from "@/lib/languages/__fixtures__/latin";
 import type { LanguageSheet } from "@/lib/languages/types";
 
 const render = (sheet: LanguageSheet, lineages: string[][] = [["Latin", "English"]]) =>
-  renderToStaticMarkup(<LanguagePanelView id="lp" sheet={sheet} favouriteLineages={lineages} />);
+  renderToStaticMarkup(
+    <LanguagePanelView id="lp" sheet={sheet} model={panelModel(sheet, lineages)} />,
+  );
 
 describe("LanguagePanel", () => {
   it("is a labelled inline region with every section in order", () => {
@@ -92,5 +96,32 @@ describe("LanguagePanel", () => {
 
   it("omits the dashed caption when nothing is reconstructed", () => {
     expect(render({ ...LATIN_FIXTURE, parent: null })).not.toContain("Dashed:");
+  });
+});
+
+describe("LanguagePanelView variant=page", () => {
+  const html = renderToStaticMarkup(
+    <LanguagePanelView
+      id="lp"
+      sheet={LATIN_FIXTURE}
+      model={panelModel(LATIN_FIXTURE, [["Latin", "English"], ["Latin", "Old French", "English"]])}
+      variant="page"
+    />,
+  );
+
+  it("headings read 'About {name}' with no Language eyebrow", () => {
+    expect(html).toContain('<h2 id="lp-heading"');
+    expect(html).toContain(">About Latin</h2>");
+    expect(html).not.toContain(">Language<");
+  });
+
+  it("never shows the per-reader favourites line", () => {
+    expect(html).not.toContain("favourites");
+  });
+
+  it("still renders every other part", () => {
+    for (const t of ["Where", "When", "Speakers", "Family path", "Where it came from"]) {
+      expect(html).toContain(`>${t}<`);
+    }
   });
 });
