@@ -1093,3 +1093,22 @@ brainstorm — so don't assume they closed out its open questions.
   zero; GSC daily impressions ~1,300 (09-30) to ~300 (10-09).
 - Decision: themed pages are language pages only, for languages with an approved sheet and >=3 words (57 today), linked
   from story lineage, a /languages index, /words and the sitemap. Spec and prompt committed in 31ee8db.
+
+## 2026-10-12 (later): language pages shipped
+
+- Built from spec `docs/superpowers/specs/2026-10-12-language-pages-design.md` via plan
+  `docs/superpowers/plans/2026-10-12-language-pages.md` (8 tasks, subagent-driven, each task reviewed; final opus review).
+  Merge 7a2d6f5, deployed `dpl_AZVZx9xWCgcngPVChCZh3Aar2MTU`.
+- New: `lib/languages/pages.ts` (server-only: page set, `languageHref`, `lineageHrefs`, description, family links),
+  `lib/languages/panelView.ts` + `components/LanguagePanelView.tsx` (data-free panel view; `variant="page"` drops the
+  favourites line and titles itself "About {Name}"), `app/language/[slug]` (57 SSG, `dynamicParams=false`),
+  `app/languages`, `buildLanguageJsonLd` (DefinedTermSet), sitemap entries, `/words` link, story lineage links.
+- Final-review fixes: language pages no longer override `openGraph` (the override dropped the site OG image); in-sentence
+  family links are underlined (WCAG 1.4.1).
+- Verified: clean npm ci, lint 0 errors, 850/850 tests, build lists 57 language paths; the Latin page's client chunks
+  contain no data.ts or words.ts content (positive control: the data.ts marker is present in Collection's lazy chunk);
+  375px/dark: no horizontal scroll on Latin, Arabic, Nahuatl, /languages; Tab reaches lineage links with underline +
+  accent outline. Production: sitemap 1,210 locs, /language/latin 200 with DefinedTermSet JSON-LD and og:image,
+  /language/nope 404, /story/acid links Latin and French pages.
+- Deferred (none affect today's data): no guard against an alias on two sheets; first-sentence split would break on
+  "St. X"-style abbreviations; `favouriteCount` still serialized (not rendered) in the page's panel model.

@@ -29,9 +29,10 @@ every feature against it.
 - Homepage has WebSite + Organization JSON-LD and a canonical (49c9f8f, verified live; builder `buildSiteJsonLd` in
   `lib/storyJsonLd.ts`). `/play` is still "unknown to Google".
 - Threads + Instagram switched ON 2026-10-11 (Meta app "Curio Poster", @curio.word.daily); 10:00 UTC cron.
-- **Next build: language pages** (spec `docs/superpowers/specs/2026-10-12-language-pages-design.md`, paste-ready prompt
-  `.../2026-10-12-implementation-prompt.md`, commit 31ee8db). A fresh session writes the plan at
-  `docs/superpowers/plans/2026-10-12-language-pages.md` and builds it.
+- **Language pages live** (2026-10-12, merge 7a2d6f5): `/language/{slug}` for every approved sheet with >=3 words (57
+  today; derived at build, so each sheet batch adds pages), `/languages` index, story lineage names link to them,
+  `/words` links the index, sitemap 1,210. Server-only module `lib/languages/pages.ts`; the page's panel is the
+  data-free `components/LanguagePanelView.tsx`. Search Console steps for Sam below.
 - GSC daily impressions fell ~1,300 (09-30) to ~300 (10-09); watch it in the Monday demand report.
 - Double opt-in and the 200/day confirmation cap are live. Weekly check-in state: `../checkins/state.md`.
 - Stale branch `brand-assets` (local + origin) has no commits beyond master; safe to delete.
@@ -67,13 +68,15 @@ every feature against it.
 - The demand report lives in a private repo and public Actions logs print counts only.
 
 ## Open threads
-- Build language pages (above); next language-sheet batch (Lombardic needs its own sheet).
+- Watch GSC for the language pages (impressions/clicks from "words from X" queries). Next language-sheet batch
+  (Lombardic needs its own sheet; approving Proto-West Germanic adds a 140-word page automatically).
 - Submit remaining launch-kit entries; "root word" phrasing in titles.
 - Small UX: header wordmark crowding at 375px; mobile email-provider buttons; clue progression (clue 1 hardest).
 - Parked with reasons: `docs/handover/parked.md`.
 
 ## Waiting on Sam
-- Search Console "Request indexing" for /play · add curioword.com to Bluesky/Threads/IG bios · submit remaining
+- Search Console: "Request indexing" for /play, /languages and /language/latin; URL Inspection "Test live URL" on
+  /language/latin; resubmit the sitemap (1,210 URLs) · add curioword.com to Bluesky/Threads/IG bios · submit remaining
   launch-kit entries · Vercel connector access / Web Analytics · tighten `_dmarc` to `quarantine` later ·
   `REPORTS_REPO_TOKEN` expires ~2027-10-04.
 
