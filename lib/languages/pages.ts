@@ -82,7 +82,7 @@ export function lineageHrefs(lineage: string[], pages: LanguagePage[] = language
   return out;
 }
 
-/** First sentence of a sheet's origin(up to the first . ! or ? followed by a capital or the end). */
+/** First sentence of a sheet's origin (up to the first . ! or ? followed by a capital or the end). */
 function firstSentence(text: string): string {
   const m = text.match(/^[\s\S]*?[.!?](?=\s+[A-Z]|\s*$)/);
   return (m ? m[0] : text).trim();

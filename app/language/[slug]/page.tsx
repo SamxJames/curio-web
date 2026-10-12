@@ -34,15 +34,16 @@ export async function generateMetadata({
     title,
     description,
     alternates: { canonical: `/language/${slug}` },
-    openGraph: { type: "website", siteName: "Curio", title, description, url: `/language/${slug}` },
   };
 }
 
 const linkClass = "text-ink transition-colors hover:text-accent";
+// In-sentence links also get an underline so they are not distinguished by colour alone.
+const inlineLinkClass = `${linkClass} underline underline-offset-2`;
 
 function Name({ link }: { link: FamilyLink }) {
   return link.href ? (
-    <Link href={link.href} prefetch={false} className={linkClass}>
+    <Link href={link.href} prefetch={false} className={inlineLinkClass}>
       {link.name}
     </Link>
   ) : (

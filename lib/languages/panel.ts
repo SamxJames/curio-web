@@ -1,4 +1,4 @@
-// Pure view-model helpers for components/LanguagePanel.tsx. No React, no map data:
+// Pure view-model helpers that build the model for components/LanguagePanelView.tsx (via LanguagePanel on Collection and the language page). No React, no map data:
 // LAND_DOTS is passed in by the caller after its lazy import.
 import { LANGUAGE_SHEETS } from "./data";
 import { familyPath, findSheet, nextLanguages } from "./lookup";
