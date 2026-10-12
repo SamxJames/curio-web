@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { CURIO_PROFILES, buildSiteJsonLd, buildStoryJsonLd, serializeJsonLd } from "./storyJsonLd";
+import {
+  CURIO_PROFILES,
+  buildLanguageJsonLd,
+  buildSiteJsonLd,
+  buildStoryJsonLd,
+  serializeJsonLd,
+} from "./storyJsonLd";
 import { WORDS } from "./words";
 
 const original = process.env.CURIO_SITE_URL;
@@ -71,6 +77,30 @@ describe("buildSiteJsonLd", () => {
       url: "https://curio.example/",
       logo: "https://curio.example/apple-icon.png",
       sameAs: CURIO_PROFILES,
+    });
+  });
+});
+
+describe("buildLanguageJsonLd", () => {
+  it("describes the page as a DefinedTermSet listing each word", () => {
+    expect(
+      buildLanguageJsonLd({
+        name: "Arabic",
+        slug: "arabic",
+        words: [
+          { word: "algebra", slug: "algebra" },
+          { word: "coffee", slug: "coffee" },
+        ],
+      }),
+    ).toEqual({
+      "@context": "https://schema.org",
+      "@type": "DefinedTermSet",
+      name: "Words from Arabic",
+      url: "https://curio.example/language/arabic",
+      hasDefinedTerm: [
+        { "@type": "DefinedTerm", name: "algebra", url: "https://curio.example/story/algebra" },
+        { "@type": "DefinedTerm", name: "coffee", url: "https://curio.example/story/coffee" },
+      ],
     });
   });
 });

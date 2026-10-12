@@ -23,6 +23,27 @@ export function buildStoryJsonLd(word: WordEntry): Record<string, unknown> {
   };
 }
 
+/** schema.org DefinedTermSet for a "Words from {language}" page: the page's name,
+ * its URL, and each word on it as a DefinedTerm pointing at its story page. Same
+ * rule as buildStoryJsonLd: only what the page itself shows. */
+export function buildLanguageJsonLd(page: {
+  name: string;
+  slug: string;
+  words: { word: string; slug: string }[];
+}): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "DefinedTermSet",
+    name: `Words from ${page.name}`,
+    url: absoluteUrl(`/language/${page.slug}`),
+    hasDefinedTerm: page.words.map((w) => ({
+      "@type": "DefinedTerm",
+      name: w.word,
+      url: absoluteUrl(`/story/${w.slug}`),
+    })),
+  };
+}
+
 /** JSON for embedding inside a <script> tag. The `<` escape is what stops
  * any future content containing "</script>" from closing the tag early —
  * the content is Curio's own today, but this is the cheap habit, not the
