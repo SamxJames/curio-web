@@ -6,6 +6,8 @@ import {
   MIN_WORDS,
   buildLanguagePages,
   findLanguagePage,
+  familyLinks,
+  languageDescription,
   languageHref,
   languagePages,
 } from "./pages";
@@ -104,6 +106,63 @@ describe("findLanguagePage / languageHref", () => {
     expect(languageHref("Ottoman", pages)).toBe("/language/ottoman-turkish");
     expect(languageHref("Lombard", pages)).toBeNull();
     expect(languageHref("English", pages)).toBeNull();
+  });
+});
+
+describe("languageDescription", () => {
+  const three = ["a", "b", "c"].map((w) => word(w, ["Latin", "English"]));
+
+  it("is the count line plus the origin's first sentence", () => {
+    const [page] = buildLanguagePages(three, [
+      sheet("Latin", { origin: "Latin was spoken in Latium. It spread with Rome." }),
+    ]);
+    expect(languageDescription(page)).toBe(
+      "3 English words that passed through Latin, each with its origin story. Latin was spoken in Latium.",
+    );
+  });
+
+  it("trims to about 155 characters at a word boundary", () => {
+    const long = `Latin ${"belongs to a very long family of words ".repeat(6)}indeed.`;
+    const [page] = buildLanguagePages(three, [sheet("Latin", { origin: long })]);
+    const d = languageDescription(page);
+    expect(d.length).toBeLessThanOrEqual(155);
+    expect(d.endsWith("…")).toBe(true);
+    expect(d).not.toMatch(/\s…$/);
+    expect(long).toContain(d.slice(d.indexOf("Latin belongs"), -1));
+  });
+});
+
+describe("familyLinks", () => {
+  const sheets = [
+    sheet("Latin", { parent: "Old Latin" }),
+    sheet("Italian", { parent: "Latin" }),
+    sheet("Late Latin", { parent: "Latin" }),
+    sheet("Medieval Latin", { parent: "Late Latin" }),
+    sheet("Unapproved Child", { parent: "Latin", approved: false }),
+  ];
+  const words = [
+    ...["a", "b", "c"].map((w) => word(w, ["Latin", "Italian", "English"])),
+    word("d", ["Late Latin", "English"]),
+  ];
+  const pages = buildLanguagePages(words, sheets);
+  const latin = findLanguagePage("latin", pages)!;
+  const italian = findLanguagePage("italian", pages)!;
+
+  it("parent without a page is plain text; children link only when they have a page, A to Z", () => {
+    expect(familyLinks(latin, sheets, pages)).toEqual({
+      parent: { name: "Old Latin", href: null },
+      children: [
+        { name: "Italian", href: "/language/italian" },
+        { name: "Late Latin", href: null },
+      ],
+    });
+  });
+
+  it("links a parent that has a page; no children → empty list", () => {
+    expect(familyLinks(italian, sheets, pages)).toEqual({
+      parent: { name: "Latin", href: "/language/latin" },
+      children: [],
+    });
   });
 });
 
