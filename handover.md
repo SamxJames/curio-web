@@ -27,12 +27,13 @@ every feature against it.
 - Language panel is live with **87 reviewed sheets** (29 + batch 2's 58, merged and deployed). Story titles name the
   source language. Signing in now returns you to the page you were on. Pipeline: `docs/handover/language-panel.md`.
 - Homepage has WebSite + Organization JSON-LD and a canonical (49c9f8f, verified live; builder `buildSiteJsonLd` in
-  `lib/storyJsonLd.ts`). `/play` is still "unknown to Google".
+  `lib/storyJsonLd.ts`). `/play` was "unknown to Google"; indexing requested 2026-10-12.
 - Threads + Instagram switched ON 2026-10-11 (Meta app "Curio Poster", @curio.word.daily); 10:00 UTC cron.
 - **Language pages live** (2026-10-12, merge 7a2d6f5): `/language/{slug}` for every approved sheet with >=3 words (57
   today; derived at build, so each sheet batch adds pages), `/languages` index, story lineage names link to them,
   `/words` links the index, sitemap 1,210. Server-only module `lib/languages/pages.ts`; the page's panel is the
-  data-free `components/LanguagePanelView.tsx`. Search Console steps for Sam below.
+  data-free `components/LanguagePanelView.tsx`. 2026-10-12: sitemap resubmitted; URL Inspection live test on
+  /language/latin passed (fetched, indexable); indexing requested for /languages, /language/latin, /play.
 - GSC daily impressions fell ~1,300 (09-30) to ~300 (10-09); watch it in the Monday demand report.
 - Double opt-in and the 200/day confirmation cap are live. Weekly check-in state: `../checkins/state.md`.
 - Stale branch `brand-assets` (local + origin) has no commits beyond master; safe to delete.
@@ -75,8 +76,7 @@ every feature against it.
 - Parked with reasons: `docs/handover/parked.md`.
 
 ## Waiting on Sam
-- Search Console: "Request indexing" for /play, /languages and /language/latin; URL Inspection "Test live URL" on
-  /language/latin; resubmit the sitemap (1,210 URLs) · add curioword.com to Bluesky/Threads/IG bios · submit remaining
+- Add curioword.com to Bluesky/Threads/IG bios · submit remaining
   launch-kit entries · Vercel connector access / Web Analytics · tighten `_dmarc` to `quarantine` later ·
   `REPORTS_REPO_TOKEN` expires ~2027-10-04.
 
