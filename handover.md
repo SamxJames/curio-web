@@ -23,19 +23,23 @@ every feature against it.
 - **Crons (UTC, Hobby fires anywhere in the hour):** 09:00 digest + Bluesky (`/api/cron/send-daily`), 10:00 Threads/IG
   (`/api/cron/social`). Mondays 06:00: demand report (GitHub Action → private `SamxJames/curio-reports`).
 
-## Current state (2026-10-12)
-- Language panel is live with **87 reviewed sheets** (29 + batch 2's 58, merged and deployed). Story titles name the
+## Current state (2026-10-13)
+- Language panel has **87 approved sheets** (batches 1 to 3; batch 3 added 29 on 2026-10-13, Classical Persian held back). Story titles name the
   source language. Signing in now returns you to the page you were on. Pipeline: `docs/handover/language-panel.md`.
 - Homepage has WebSite + Organization JSON-LD and a canonical (49c9f8f, verified live; builder `buildSiteJsonLd` in
   `lib/storyJsonLd.ts`). `/play` was "unknown to Google"; indexing requested 2026-10-12.
 - Threads + Instagram switched ON 2026-10-11 (Meta app "Curio Poster", @curio.word.daily); 10:00 UTC cron.
-- **Language pages live** (2026-10-12, merge 7a2d6f5): `/language/{slug}` for every approved sheet with >=3 words (57
-  today; derived at build, so each sheet batch adds pages), `/languages` index, story lineage names link to them,
+- **Language pages live** (2026-10-12, merge 7a2d6f5): `/language/{slug}` for every approved sheet with >=3 words (61
+  since batch 3; derived at build, so each sheet batch adds pages), `/languages` index, story lineage names link to them,
   `/words` links the index, sitemap 1,210. Server-only module `lib/languages/pages.ts`; the page's panel is the
   data-free `components/LanguagePanelView.tsx`. 2026-10-12: sitemap resubmitted; URL Inspection live test on
   /language/latin passed (fetched, indexable); indexing requested for /languages, /language/latin, /play.
 - GSC daily impressions fell ~1,300 (09-30) to ~300 (10-09); watch it in the Monday demand report.
 - Double opt-in and the 200/day confirmation cap are live. Weekly check-in state: `../checkins/state.md`.
+- 2026-10-13 polish: phone header spacing, 44px mail-app buttons on the sign-in "check your email" screen,
+  `languages:approve` refuses alias clashes, page descriptions no longer split at "St."/"c.".
+- Vercel: the MCP connector sees the team but not its projects; the **Vercel CLI** (logged in) works, including Web
+  Analytics: `vercel api "/v1/query/web-analytics/visits/count?projectId=etymology-app&teamId=<team>&since=..&until=.."`.
 - Stale branch `brand-assets` (local + origin) has no commits beyond master; safe to delete.
 
 ## Gotchas (each one has bitten before)
@@ -69,15 +73,15 @@ every feature against it.
 - The demand report lives in a private repo and public Actions logs print counts only.
 
 ## Open threads
-- Watch GSC for the language pages (impressions/clicks from "words from X" queries). Next language-sheet batch
-  (Lombardic needs its own sheet; approving Proto-West Germanic adds a 140-word page automatically).
+- Watch GSC for the language pages (impressions/clicks from "words from X" queries). Next language-sheet batch:
+  `languages:facts -- --limit 30`, draft, review, approve (Proto-West Germanic still has no usable source).
 - Submit remaining launch-kit entries; "root word" phrasing in titles.
-- Small UX: header wordmark crowding at 375px; mobile email-provider buttons; clue progression (clue 1 hardest).
+- Small UX: "clue progression (clue 1 hardest)" is unclear, since clues already run hardest-first; ask Sam what was meant.
 - Parked with reasons: `docs/handover/parked.md`.
 
 ## Waiting on Sam
 - Add curioword.com to Bluesky/Threads/IG bios · submit remaining
-  launch-kit entries · Vercel connector access / Web Analytics · tighten `_dmarc` to `quarantine` later ·
+  launch-kit entries · tighten `_dmarc` to `quarantine` later ·
   `REPORTS_REPO_TOKEN` expires ~2027-10-04.
 
 ## Doc map
