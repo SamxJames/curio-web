@@ -1,0 +1,24 @@
+{
+  "name": "Quechua",
+  "aliases": [],
+  "status": "living",
+  "classification": "Quechuan language family, one of the indigenous languages of the Americas",
+  "region": "Central Peru → other countries of the Andes",
+  "map": {
+    "lat": -14,
+    "lon": -72,
+    "radiusKm": 800
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 8900000,
+    "year": 2007,
+    "note": "Number of speakers, Wikidata figure for 2007"
+  },
+  "unknownSpeakersNote": null,
+  "parent": null,
+  "origin": "Quechua is a language family that originated in central Peru and later spread to other countries of the Andes. It derives from a common ancestral language called Proto-Quechua. It began expanding many centuries before the Incas, and it was the primary language family within the Inca Empire.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Quechuan_languages",
+  "approved": true,
+  "_override": "The facts page is \"Quechuan languages\", the family page; Curio's lineage name \"Quechua\" refers to the same family, and the lead opens \"Quechua ... is an indigenous language family\". Wikidata gives the Quechuan family an inception of year 1, a placeholder rather than a date, so the sheet shows no dates."
+}

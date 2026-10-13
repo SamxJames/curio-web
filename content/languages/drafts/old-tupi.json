@@ -1,0 +1,25 @@
+{
+  "name": "Old Tupi",
+  "aliases": [],
+  "status": "extinct",
+  "classification": "Classical Tupian language of the Tupi-Guarani family",
+  "region": "Coastal regions of South and Southeast Brazil",
+  "map": {
+    "lat": -22.5,
+    "lon": -44,
+    "radiusKm": 800
+  },
+  "era": {
+    "from": 1500,
+    "to": 1750,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": null,
+  "origin": "Old Tupi was spoken by the Indigenous Tupi people, who lived in coastal regions of South and Southeast Brazil. It belongs to the Tupi-Guarani language family and has a written history spanning the 16th, 17th and early 18th centuries. In the early colonial period it was used as a lingua franca throughout Brazil by Europeans and Amerindians, but it was later suppressed almost to extinction. Its sole living descendant is Nheengatu.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Tupi_language",
+  "approved": true,
+  "_override": "The Wikipedia page 'Tupi language' opens 'Old Tupi, Ancient Tupi or Classical Tupi', so it is the right article."
+}

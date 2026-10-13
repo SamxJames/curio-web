@@ -1,0 +1,25 @@
+{
+  "name": "Middle Chinese",
+  "aliases": [],
+  "status": "historical",
+  "classification": "Historical variety of Chinese in the Sinitic group",
+  "region": "China, combining northern and southern reading and poetic traditions",
+  "map": {
+    "lat": 34.27,
+    "lon": 108.95,
+    "radiusKm": 500
+  },
+  "era": {
+    "from": 601,
+    "to": 1150,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists. Its sounds are reconstructed by scholars from dictionaries and tables that do not record them directly.",
+  "parent": null,
+  "origin": "Middle Chinese is the variety of Chinese recorded in the Qieyun, a rhyme dictionary first published in 601. Bernhard Karlgren thought it recorded the speech standard of Chang'an, but most scholars now hold that it combines northern and southern reading and poetic traditions. Linguists call the Qieyun system Early Middle Chinese and the later variant shown in the mid-12th-century rime tables Late Middle Chinese. It follows Old Chinese.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Middle_Chinese",
+  "approved": true,
+  "_override": "The Wikipedia page describes the language itself: 'the historical variety of Chinese recorded in the Qieyun'. Its phonology framing is why it is not classed as a language page. era.to 1150 is the mid-12th-century rime tables that record Late Middle Chinese."
+}

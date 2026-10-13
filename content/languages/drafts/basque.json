@@ -1,0 +1,23 @@
+{
+  "name": "Basque",
+  "aliases": [],
+  "status": "living",
+  "classification": "Language isolate, the only known one in Europe, and the only surviving language of Paleo-European origin",
+  "region": "The Basque Country, straddling the westernmost Pyrenees in southwestern France and northern Spain",
+  "map": {
+    "lat": 42.88305555555556,
+    "lon": -1.9355555555555557,
+    "radiusKm": 100
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 750000,
+    "year": 2016,
+    "note": "Speakers, Wikidata figure for 2016"
+  },
+  "unknownSpeakersNote": null,
+  "parent": null,
+  "origin": "Basque has no known relation to any other language. The current mainstream scientific view is that early forms of Basque developed before Indo-European languages, including Celtic and Romance, arrived in the area. Those languages now surround the Basque-speaking region.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Basque_language",
+  "approved": true
+}

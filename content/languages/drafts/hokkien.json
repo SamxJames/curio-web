@@ -1,0 +1,19 @@
+{
+  "name": "Hokkien",
+  "aliases": [],
+  "status": "living",
+  "classification": "Southern Min branch of the Sinitic languages",
+  "region": "Minnan region of southern Fujian, China, and Taiwan → overseas Chinese communities across Southeast Asia",
+  "map": {
+    "lat": 24.5,
+    "lon": 118.1,
+    "radiusKm": 300
+  },
+  "era": null,
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No dated speaker count is recorded.",
+  "parent": null,
+  "origin": "Hokkien is a variety of Chinese from the Southern Min branch of the Sinitic languages. It is native to the Minnan region in the southern part of Fujian province and to the island of Taiwan. It is also called Quanzhang, after the cities of Quanzhou and Zhangzhou.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Hokkien",
+  "approved": true
+}

@@ -1,0 +1,19 @@
+{
+  "name": "Danish",
+  "aliases": [],
+  "status": "living",
+  "classification": "East Scandinavian (East Norse) branch of the North Germanic languages, Indo-European family",
+  "region": "Denmark and the surrounding area, with minority communities in Greenland, the Faroe Islands, Iceland and Southern Schleswig in northern Germany",
+  "map": {
+    "lat": 56,
+    "lon": 9,
+    "radiusKm": 200
+  },
+  "era": null,
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No dated count exists. Wikipedia gives about 5.5 million speakers.",
+  "parent": "Old Norse",
+  "origin": "Danish descends from Old Norse, the common language of the Germanic peoples who lived in Scandinavia during the Viking Era. Together with Swedish, it derives from the East Norse dialect group. Until the 16th century it was a continuum of dialects from Southern Jutland and Schleswig to Scania. With the Protestant Reformation and the printing press, a standard language developed from the dialect of Copenhagen.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Danish_language",
+  "approved": true
+}

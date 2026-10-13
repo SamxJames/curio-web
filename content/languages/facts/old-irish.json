@@ -1,0 +1,37 @@
+{
+  "name": "Old Irish",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Old Irish",
+    "extract": "Old Irish, also called Old Gaelic, is the oldest form of the Goidelic/Gaelic language for which there are extensive written texts. It was used from c. 600 to c. 900. The main contemporary texts are dated c. 700–850; by 900 the language had already transitioned into Early Middle Irish. Some Old Irish texts date from the 10th century, although these are presumably copies of texts written at an earlier time. Old Irish is the direct ancestor to Early Modern Irish, Manx Gaelic and Scots Gaelic.",
+    "url": "https://en.wikipedia.org/wiki/Old_Irish",
+    "description": "Oldest widely attested Gaelic language",
+    "wikibaseItem": "Q35308",
+    "type": "standard",
+    "lead": "Old Irish, also called Old Gaelic (endonym: Goídelc; Irish: Sean-Ghaeilge; Scottish Gaelic: Seann-Ghàidhlig; Manx: Shenn Yernish or Shenn Ghaelg), is the oldest form of the Goidelic/Gaelic language for which there are extensive written texts. It was used from c. 600 to c. 900. The main contemporary texts are dated c. 700–850; by 900 the language had already transitioned into Early Middle Irish. Some Old Irish texts date from the 10th century, although these are presumably copies of texts written at an earlier time. Old Irish is the direct ancestor to Early Modern Irish, Manx Gaelic and Scots Gaelic.\nOld Irish is known for having a particularly complex system of morphology and especially of allomorphy (more or less unpredictable variations in stems and suffixes in differing circumstances), as well as a complex sound system involving grammatically significant consonant mutations to the initial consonant of a word. Apparently, neither characteristic was present in the preceding Primitive Irish period, though initial mutations likely existed in a non-grammaticalised form in the prehistoric era.\nContemporary Old Irish scholarship is still greatly influenced by the works of a small number of scholars active in the late 19th and early 20th centuries, such as Rudolf Thurneysen (1857–1940) and Osborn Bergin (1873–1950).",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q35308",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 0,
+      "year": null
+    },
+    "instanceOf": [
+      "dead language",
+      "historical language"
+    ],
+    "subclassOf": [
+      "Q9142"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "Irish"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-13T19:50:54.996Z"
+}

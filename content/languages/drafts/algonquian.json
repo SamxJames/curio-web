@@ -1,0 +1,19 @@
+{
+  "name": "Algonquian",
+  "aliases": [],
+  "status": "living",
+  "classification": "Branch of the Algic language family",
+  "region": "From the east coast of North America to the Rocky Mountains",
+  "map": {
+    "lat": 48,
+    "lon": -90,
+    "radiusKm": 2000
+  },
+  "era": null,
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "Proto-Algonquian",
+  "origin": "The Algonquian languages are a branch of the Algic language family. All of them descend from Proto-Algonquian, which was spoken around 2,500 to 3,000 years ago. There is no scholarly consensus about where that language was spoken. The family's name is distinct from Algonquin, a dialect of Ojibwe. The term Algonquin has been suggested to derive from the Wolastoqey word elakómkwik, meaning \"they are our relatives/allies\".",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Algonquian_languages",
+  "approved": true
+}

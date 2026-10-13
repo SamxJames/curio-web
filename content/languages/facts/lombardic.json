@@ -1,0 +1,37 @@
+{
+  "name": "Lombardic",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Lombardic language",
+    "extract": "Lombardic, Langobardic or Langobardian is an extinct West Germanic language that was spoken by the Lombards, the Germanic people who settled in present-day Italy in the sixth century and established the Kingdom of the Lombards. It was already declining by the seventh century because the invaders quickly adopted the Vulgar Latin spoken by the local population. Many toponyms in modern Lombardy and Greater Lombardy and items of the Lombard language and broader Gallo-Italic vocabulary derive from Lombardic.",
+    "url": "https://en.wikipedia.org/wiki/Lombardic_language",
+    "description": "Extinct Germanic language",
+    "wikibaseItem": "Q35972",
+    "type": "standard",
+    "lead": "Lombardic, Langobardic or Langobardian (German: Langobardisch) is an extinct West Germanic language that was spoken by the Lombards (Langobardi), the Germanic people who settled in present-day Italy in the sixth century and established the Kingdom of the Lombards. It was already declining by the seventh century because the invaders quickly adopted the Vulgar Latin spoken by the local population. Many toponyms in modern Lombardy and Greater Lombardy (Northern Italy) and items of the Lombard language and broader Gallo-Italic vocabulary derive from Lombardic.\nLombardic is a Trümmersprache (literally, 'rubble-language'), that is, a language preserved only in fragmentary form: there are no texts in Lombardic, only individual words and personal names cited in Latin law codes, histories and charters. As a result, there are many aspects of the language about which nothing is known.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q35972",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 0,
+      "year": 1900
+    },
+    "instanceOf": [
+      "language",
+      "ancient language"
+    ],
+    "subclassOf": [
+      "Q26721"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "West Germanic languages"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-13T19:51:08.608Z"
+}

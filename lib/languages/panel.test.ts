@@ -70,7 +70,8 @@ describe("panelModel", () => {
   it("uses the shipped data by default without throwing; it holds only approved sheets", () => {
     expect(LANGUAGE_SHEETS.every((s) => s.approved)).toBe(true);
     const m = panelModel(LATIN_FIXTURE, lineages);
-    expect(m.family[0].map((c) => c.name)).toEqual(["Latin"]);
+    // Shipped data only; the exact path grows as more sheets are approved.
+    expect(m.family.flat().map((c) => c.name)).toContain("Latin");
   });
 });
 

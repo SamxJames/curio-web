@@ -1,0 +1,50 @@
+{
+  "name": "Scottish Gaelic",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Scottish Gaelic",
+    "extract": "Scottish Gaelic, also known as Scots Gaelic or simply Gaelic, is a Celtic language native to the Gaels of Scotland. As a member of the Goidelic branch of Celtic, Scottish Gaelic, alongside both Irish and Manx, developed out of Old Irish. It became a distinct spoken language sometime in the 13th century in the Middle Irish period, although a common literary language was shared by the Gaels of both Ireland and Scotland until well into the 17th century. Most of modern Scotland was once Gaelic-speaking, as evidenced especially by Gaelic-language place names.",
+    "url": "https://en.wikipedia.org/wiki/Scottish_Gaelic",
+    "description": "Celtic language",
+    "wikibaseItem": "Q9314",
+    "type": "standard",
+    "lead": "Scottish Gaelic (  GAL-ik; endonym: Gàidhlig [ˈkaːlɪkʲ] ), also known as Scots Gaelic or simply Gaelic, is a Celtic language native to the Gaels of Scotland. As a member of the Goidelic branch of Celtic, Scottish Gaelic, alongside both Irish and Manx, developed out of Old Irish. It became a distinct spoken language sometime in the 13th century in the Middle Irish period, although a common literary language was shared by the Gaels of both Ireland and Scotland until well into the 17th century. Most of modern Scotland was once Gaelic-speaking, as evidenced especially by Gaelic-language place names.\nIn the 2011 census of Scotland, 57,375 people (1.1% of the Scottish population, three years and older) reported being able to speak Gaelic, 1,275 fewer than in 2001. The highest percentages of Gaelic speakers were in the Outer Hebrides. Nevertheless, there is a language revival, and the number of speakers of the language under age 20 increased by 0.1% between the 2001 and 2011 censuses.  In the 2022 census of Scotland, it was found that 2.5% of the Scottish population had some skills in Gaelic, or 130,161 persons.  Of these, 69,701 people reported speaking the language, with a further 46,404 people reporting that they understood the language, but did not speak, read, or write in it.\nOutside of Scotland, a dialect known as Canadian Gaelic has been spoken in Canada since the 18th century. In the 2021 census, 2,170 Canadian residents claimed knowledge of Scottish Gaelic, a decline from 3,980 speakers in the 2016 census. There exists a particular concentration of speakers in Nova Scotia, with historic communities in other parts of North America, including North Carolina and Glengarry County, Ontario, having largely disappeared.\nScottish Gaelic is classed as an indigenous language under the European Charter for Regional or Minority Languages, which the UK Government has ratified, and the Gaelic Language (Scotland) Act 2005 established a language-development body, Bòrd na Gàidhlig. With the passing of the Scottish Languages Act 2025, Gaelic, alongside Scots, became an official language of Scotland.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q9314",
+    "coordinates": {
+      "lat": 58.1,
+      "lon": -6.6
+    },
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 60130,
+      "year": 2011
+    },
+    "instanceOf": [
+      "natural language",
+      "modern language"
+    ],
+    "subclassOf": [
+      "Q56433"
+    ],
+    "indigenousTo": [
+      "Q23436",
+      "Q4093",
+      "Q208279",
+      "Q22"
+    ],
+    "parentLabels": [
+      "Goidelic"
+    ],
+    "regionLabels": [
+      "Edinburgh",
+      "Glasgow",
+      "Highland",
+      "Scotland"
+    ]
+  },
+  "fetchedAt": "2026-10-13T19:51:31.659Z"
+}

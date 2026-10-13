@@ -1,0 +1,25 @@
+{
+  "name": "Swahili",
+  "aliases": [
+    "Kiswahili"
+  ],
+  "status": "living",
+  "classification": "Sabaki branch of the Bantu languages, in the Atlantic-Congo family",
+  "region": "East African coast and adjacent islands (Tanzania, Kenya, Mozambique) → lingua franca of the African Great Lakes region and East and Southern Africa",
+  "map": {
+    "lat": -6,
+    "lon": 33,
+    "radiusKm": 800
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 15437390,
+    "year": 2012,
+    "note": "Speaker count from Wikidata, figure for 2012. Wikipedia gives a wider estimate of 40 million to 200 million, including native and second-language speakers."
+  },
+  "unknownSpeakersNote": null,
+  "parent": null,
+  "origin": "Swahili is a Bantu language originally spoken by the Swahili people along the East African coast and nearby islands. About 40% of its vocabulary consists of Arabic loanwords, including the name of the language, from an Arabic word meaning 'of the coasts'. These loanwords date from the era of contact between Arab slave traders and the Bantu inhabitants of the coast, when Swahili also emerged as a lingua franca in the region.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Swahili",
+  "approved": true
+}

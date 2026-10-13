@@ -1,0 +1,83 @@
+{
+  "name": "Tamil",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Tamil language",
+    "extract": "Tamil is a Dravidian language spoken by the Tamil people of South Asia where they are concentrated in Tamil Nadu and Pondicherry in India and the Northern and Eastern Provinces in Sri Lanka. It is one of the longest-surviving classical languages in the world, attested since c. 300 BCE.",
+    "url": "https://en.wikipedia.org/wiki/Tamil_language",
+    "description": "Dravidian language",
+    "wikibaseItem": "Q5885",
+    "type": "standard",
+    "lead": "Tamil (தமிழ், Tamiḻ, pronounced [t̪amiɻ] ) is a Dravidian language spoken by the Tamil people of South Asia where they are concentrated in Tamil Nadu and Pondicherry in India and the Northern and Eastern Provinces in Sri Lanka. It is one of the longest-surviving classical languages in the world, attested since c. 300 BCE.\nTamil was the lingua franca for early maritime traders in South India, with Tamil inscriptions found outside of the Indian subcontinent, such as Indonesia, Thailand, and Egypt. The language has a well-documented history with literary works like Sangam literature, consisting of over 2,000 poems. Tamil script evolved from Tamil Brahmi, and later, the vatteluttu script was used until the current script was standardized. The language has a distinct grammatical structure, with agglutinative morphology that allows for complex word formations.\nTamil is the official language of the state of Tamil Nadu and union territory of Puducherry in India. It is also one of the official languages of Sri Lanka and Singapore. Tamil-speaking diaspora communities exist in several countries across the world. Tamil was the first to be recognized as a classical language of India by the Central Government in 2004.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q5885",
+    "coordinates": {
+      "lat": 10,
+      "lon": 78.5
+    },
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 75000000,
+      "year": 2019
+    },
+    "instanceOf": [
+      "natural language",
+      "modern language",
+      "sacred language"
+    ],
+    "subclassOf": [
+      "Q7681417"
+    ],
+    "indigenousTo": [
+      "Q15383",
+      "Q1159",
+      "Q1185",
+      "Q1186",
+      "Q66743",
+      "Q1445",
+      "Q723002",
+      "Q787421",
+      "Q1583950",
+      "Q647649",
+      "Q1520182",
+      "Q178003",
+      "Q527980",
+      "Q1587508",
+      "Q810960",
+      "Q612614",
+      "Q931057",
+      "Q1587175",
+      "Q334",
+      "Q854"
+    ],
+    "parentLabels": [
+      "Tamil languages"
+    ],
+    "regionLabels": [
+      "Sri Potti Sri Ramulu Nellore district",
+      "Andhra Pradesh",
+      "Karnataka",
+      "Kerala",
+      "Puducherry",
+      "Tamil Nadu",
+      "Kandy District",
+      "Matale District",
+      "Nuwara Eliya District",
+      "Galle District",
+      "Jaffna District",
+      "Mannar District",
+      "Vavuniya District",
+      "Mullaitivu District",
+      "Batticaloa District",
+      "Anuradhapura District",
+      "Polonnaruwa District",
+      "Ratnapura district",
+      "Singapore",
+      "Sri Lanka"
+    ]
+  },
+  "fetchedAt": "2026-10-13T19:51:00.182Z"
+}

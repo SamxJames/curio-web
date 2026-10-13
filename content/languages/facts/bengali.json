@@ -1,0 +1,58 @@
+{
+  "name": "Bengali",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Bengali language",
+    "extract": "Bengali, also known by its endonym Bangla, is an Indo-Aryan language belonging to the Indo-Iranian branch of the Indo-European language family. It is primarily spoken by the Bengali people, native to the Bengal region as well as in Barak Valley in Assam and Tripura in South Asia. With over 242 million native speakers and another 43 million as second language speakers as of 2025, Bengali is the sixth most spoken native language and the seventh most spoken language by the total number of speakers in the world.",
+    "url": "https://en.wikipedia.org/wiki/Bengali_language",
+    "description": "Indo-Aryan language",
+    "wikibaseItem": "Q9610",
+    "type": "standard",
+    "lead": "Bengali, also known by its endonym Bangla, is an Indo-Aryan language belonging to the Indo-Iranian branch of the Indo-European language family. It is primarily spoken by the Bengali people, native to the Bengal region (Bangladesh and India's West Bengal) as well as in Barak Valley in Assam and Tripura in South Asia. With over 242 million native speakers and another 43 million as second language speakers as of 2025, Bengali is the sixth most spoken native language and the seventh most spoken language by the total number of speakers in the world.\nBengali is the official, national, and most widely spoken language of Bangladesh, with 98% of Bangladeshis using Bengali as their first language. It is the second-most widely spoken language in India. It is the official language of the Indian states of West Bengal, Tripura and the Barak Valley region of the state of Assam. It is also the second official language of the Indian state of Jharkhand since September 2011. It is the most widely spoken language in the Andaman and Nicobar Islands in the Bay of Bengal, and is spoken by significant populations in other states including Bihar, Arunachal Pradesh, Delhi, Chhattisgarh, Meghalaya, Mizoram, Nagaland, Odisha and Uttarakhand. Bengali is also spoken by the Bengali diasporas (Bangladeshi diaspora and Indian Bengalis) across Europe, North America, the Middle East and other regions.\nBengali was accorded the status of a classical language by the Government of India on 3 October 2024. It is the second most spoken and fifth fastest growing language in India, following Hindi, Kashmiri, Gujarati, and Meitei (Manipuri), according to the 2011 census of India.\nBengali has developed over more than 1,400 years. Bengali literature, with its millennium-old literary history, was extensively developed during the Bengali Renaissance and is one of the most prolific and diverse literary traditions in Asia. The Bengali language movement from 1948 to 1956 demanding that Bengali be an official language of Pakistan fostered Bengali nationalism in East Bengal leading to the emergence of Bangladesh in 1971. In 1999, UNESCO recognised 21 February as International Mother Language Day in recognition of the language movement.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q9610",
+    "coordinates": {
+      "lat": 24,
+      "lon": 90
+    },
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 300000000,
+      "year": 2019
+    },
+    "instanceOf": [
+      "natural language",
+      "modern language"
+    ],
+    "subclassOf": [
+      "Q4179137"
+    ],
+    "indigenousTo": [
+      "Q402913",
+      "Q902",
+      "Q1164",
+      "Q1165",
+      "Q1184",
+      "Q22048",
+      "Q1363",
+      "Q1356"
+    ],
+    "parentLabels": [
+      "Bengali–Assamese"
+    ],
+    "regionLabels": [
+      "Bengalis",
+      "Bangladesh",
+      "Assam",
+      "Bihar",
+      "Jharkhand",
+      "Odisha",
+      "Tripura",
+      "West Bengal"
+    ]
+  },
+  "fetchedAt": "2026-10-13T19:51:50.800Z"
+}

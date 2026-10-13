@@ -1,0 +1,29 @@
+{
+  "name": "Classical Persian",
+  "aliases": [],
+  "status": "historical",
+  "classification": "Western Iranian language, Iranian branch of the Indo-Iranian subdivision of the Indo-European languages",
+  "region": "Fars in southwestern Iran, later used in many eastern courts across Greater Iran",
+  "map": {
+    "lat": 31,
+    "lon": 56,
+    "radiusKm": 500
+  },
+  "era": {
+    "from": 800,
+    "to": null,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": {
+    "count": 70000000,
+    "year": 2019,
+    "note": "Native speakers of Persian as a whole, Wikidata figure for 2019. It is not a count for the classical stage alone."
+  },
+  "unknownSpeakersNote": null,
+  "parent": "Middle Persian",
+  "origin": "Persian is a continuation of Middle Persian, an official language of the Sasanian Empire (224 to 651 CE), which itself continued Old Persian. It originated in the region of Fars in southwestern Iran. New Persian literature was first recorded in the ninth century, after the Muslim conquest of Persia, and has since used the Perso-Arabic script.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Persian_language",
+  "approved": false,
+  "_skip": "No reliable source: the only Wikipedia match is the Persian language page, which never names a classical period or gives its dates, and its speaker count is for modern Persian."
+}

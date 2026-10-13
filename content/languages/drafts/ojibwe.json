@@ -1,0 +1,23 @@
+{
+  "name": "Ojibwe",
+  "aliases": [],
+  "status": "living",
+  "classification": "Central Algonquian language of the Algonquian family",
+  "region": "Southwestern Quebec through Ontario, Manitoba and parts of Saskatchewan, and from Michigan to Wisconsin and Minnesota",
+  "map": {
+    "lat": 47,
+    "lon": -88,
+    "radiusKm": 1200
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 20470,
+    "year": 2016,
+    "note": "Native speakers, Wikidata figure for 2016"
+  },
+  "unknownSpeakersNote": null,
+  "parent": "Algonquian",
+  "origin": "Ojibwe is an indigenous language of North America of the Algonquian language family. It is a Central Algonquian language. Its dialects have local names and often local writing systems. No single dialect is considered the most prestigious, and no writing system covers all dialects.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Ojibwe_language",
+  "approved": true
+}

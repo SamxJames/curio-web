@@ -1,0 +1,34 @@
+{
+  "name": "Hokkien",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Hokkien",
+    "extract": "Hokkien is a variety of Chinese from the Southern Min branch of the Sinitic languages, native to the Minnan region in the southern part of Fujian province in southeastern China, as well as the island of Taiwan. It is also referred to as Quanzhang, named after the prefecture-level cities of Quanzhou and Zhangzhou.",
+    "url": "https://en.wikipedia.org/wiki/Hokkien",
+    "description": "Sinitic language spoken in East Asia",
+    "wikibaseItem": "Q1624231",
+    "type": "standard",
+    "lead": "Hokkien ( HOK-ee-en, US also  HOH-kee-en) is a variety of Chinese from the Southern Min branch of the Sinitic languages, native to the Minnan region in the southern part of Fujian province in southeastern China, as well as the island of Taiwan. It is also referred to as Quanzhang, named after the prefecture-level cities of Quanzhou and Zhangzhou.\nTaiwanese Hokkien is one of the national languages of Taiwan, and is also widely spoken within the overseas Chinese diaspora in Singapore, Malaysia, the Philippines, Indonesia, Cambodia, Myanmar, Hong Kong, Thailand, Brunei, Vietnam, and elsewhere across the world. Mutual intelligibility between Hokkien dialects varies, but they are still held together by ethnolinguistic identity.\nIn maritime Southeast Asia, Hokkien historically served as the lingua franca amongst overseas Chinese communities of all dialectal subgroups due to the prominence of Hokkien sailors in the Nanyang maritime trade networks since the Ming dynasty, and it still remains as the most spoken variety of Chinese in the region today, including in Singapore, Malaysia, Philippines, Indonesia, and Brunei. This applied to a lesser extent to mainland Southeast Asia. As a result of the significant influence and historical presence of its sizable overseas diaspora, certain considerable to ample amounts of Hokkien loanwords are also historically present in the languages it has had historical contact with in its sprachraum, such as nearby varieties of English, Tai languages, and other varieties of Chinese. Kelantan Peranakan Hokkien, in northern Malaya of Malaysia, and Hokaglish, spoken sporadically across the Philippines (especially Metro Manila), are also mixed languages, with Hokkien as the base lexifier.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q1624231",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "supradialect",
+      "varieties of Chinese"
+    ],
+    "subclassOf": [
+      "Q36495"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "Southern Min"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-13T19:51:07.260Z"
+}

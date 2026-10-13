@@ -1,0 +1,24 @@
+{
+  "name": "Austroasiatic",
+  "aliases": [],
+  "status": "living",
+  "classification": "Language family of Southeast Asia, with 168 languages identified by Ethnologue in thirteen established families",
+  "region": "Mainland Southeast Asia, South Asia and East Asia, including Vietnam, Cambodia, India, Myanmar and southern China",
+  "map": {
+    "lat": 18,
+    "lon": 100,
+    "radiusKm": 1800
+  },
+  "era": {
+    "from": -3000,
+    "to": null,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No dated count exists. Wikipedia gives about 117 million speakers across the family.",
+  "parent": null,
+  "origin": "Scholars generally date the ancestral language to about 3000 BC to 2000 BC, with a homeland in Mainland Southeast Asia or southern China. Sidwell (2022) proposes that Proto-Austroasiatic was spoken in the Red River Delta area from about 2500 BC to 2000 BC. The family has traditionally been grouped into two, Mon-Khmer and Munda, though newer classifications differ.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Austroasiatic_languages",
+  "approved": true
+}

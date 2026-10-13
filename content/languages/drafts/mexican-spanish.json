@@ -1,0 +1,19 @@
+{
+  "name": "Mexican Spanish",
+  "aliases": [],
+  "status": "living",
+  "classification": "Variety of Spanish, part of North American Spanish and Latin American Spanish",
+  "region": "Mexico and its bordering regions",
+  "map": {
+    "lat": 23.6,
+    "lon": -102.5,
+    "radiusKm": 1000
+  },
+  "era": null,
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No dated speaker count is recorded. Spanish is spoken by over 99% of Mexico's population.",
+  "parent": "Spanish",
+  "origin": "Mexican Spanish is the variety of dialects and sociolects of the Spanish language spoken in Mexico and its bordering regions. It belongs to the North American Spanish and Latin American Spanish groups. Mexico has the world's largest number of Spanish speakers, more than double any other country. Spanish is spoken by over 99% of the population and is the mother tongue of 93.8%.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Mexican_Spanish",
+  "approved": true
+}

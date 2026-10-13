@@ -1,0 +1,24 @@
+{
+  "name": "Old Saxon",
+  "aliases": [],
+  "status": "historical",
+  "classification": "West Germanic language, closely related to the Anglo-Frisian languages; the earliest recorded form of Low German",
+  "region": "Northwestern Germany, mainly the coastal regions, and the eastern Netherlands",
+  "map": {
+    "lat": 52.8,
+    "lon": 9,
+    "radiusKm": 250
+  },
+  "era": {
+    "from": 700,
+    "to": 1150,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": null,
+  "origin": "Old Saxon was spoken by the Saxons, a Germanic tribe that inhabited the region of Saxony. It is the earliest recorded form of Low German, and is documented from the 8th century until the 12th century, when it gradually evolved into Middle Low German. It partially shares the Ingvaeonic nasal spirant law with Old Frisian and Old English, which sets it apart from Low Franconian and Irminonic languages such as Dutch, Luxembourgish and German.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Old_Saxon",
+  "approved": true
+}

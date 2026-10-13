@@ -1,0 +1,29 @@
+{
+  "name": "Proto-Algonquian",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Proto-Algonquian language",
+    "extract": "Proto-Algonquian is the proto-language from which the various Algonquian languages are descended. It is generally estimated to have been spoken around 2,500 to 3,000 years ago, but there is less agreement on where it was spoken. The Algonquian family, which is a branch of the larger Algic language family, is usually divided into three subgroups: Eastern Algonquian, which is a genetic subgroup spoken in and around New England and the Chesapeake Bay; Central Algonquian, spoken around the Great Lakes in both the United States and Canada; and Plains Algonquian, spoken in the Great Plains of both the United States and Canada. Both Central and Plains Algonquian languages are areal groupings. In the historical linguistics of North America, Proto-Algonquian is one of the best studied and most thoroughly reconstructed proto-languages. It is descended from Proto-Algic.",
+    "url": "https://en.wikipedia.org/wiki/Proto-Algonquian_language",
+    "description": "Reconstructed ancestor of the Algonquian languages",
+    "wikibaseItem": "Q7251834",
+    "type": "standard",
+    "lead": "Proto-Algonquian (commonly abbreviated PA) is the proto-language from which the various Algonquian languages are descended. It is generally estimated to have been spoken around 2,500 to 3,000 years ago, but there is less agreement on where it was spoken. The Algonquian family, which is a branch of the larger Algic language family, is usually divided into three subgroups: Eastern Algonquian, which is a genetic subgroup spoken in and around New England and the Chesapeake Bay; Central Algonquian, spoken around the Great Lakes in both the United States and Canada; and Plains Algonquian, spoken in the Great Plains of both the United States and Canada. Both Central and Plains Algonquian languages are areal groupings. In the historical linguistics of North America, Proto-Algonquian is one of the best studied and most thoroughly reconstructed proto-languages. It is descended from Proto-Algic.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q7251834",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "proto-language"
+    ],
+    "subclassOf": [],
+    "indigenousTo": [],
+    "parentLabels": [],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-13T19:51:25.047Z"
+}

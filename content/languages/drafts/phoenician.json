@@ -1,0 +1,19 @@
+{
+  "name": "Phoenician",
+  "aliases": [],
+  "status": "extinct",
+  "classification": "Canaanite language of the Semitic language family",
+  "region": "Northern Levant, including present-day Lebanon → colonies along the southwestern Mediterranean coasts",
+  "map": {
+    "lat": 33.9,
+    "lon": 35.5,
+    "radiusKm": 400
+  },
+  "era": null,
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "Semitic",
+  "origin": "Phoenician is an extinct Canaanite language of the Semitic family, originally spoken by the Phoenicians. Tyro-Sidonian trade made it a lingua franca of the maritime Mediterranean during the Iron Age, and the Phoenician alphabet spread to Greece in this period. In North Africa it developed into the Punic language.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Phoenician_language",
+  "approved": true
+}

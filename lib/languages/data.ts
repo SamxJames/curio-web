@@ -4,6 +4,95 @@ import type { LanguageSheet } from "./types";
 
 export const LANGUAGE_SHEETS: LanguageSheet[] = [
   {
+    "name": "Abenaki",
+    "aliases": [],
+    "status": "living",
+    "classification": "Eastern Algonquian language, part of the Algonquian family",
+    "region": "Quebec and the northern states of New England (Vermont, Maine)",
+    "map": {
+      "lat": 44.5,
+      "lon": -71.5,
+      "radiusKm": 400
+    },
+    "era": null,
+    "peakSpeakers": {
+      "count": 20,
+      "year": 2012,
+      "note": "Speakers, Wikidata figure for 2012"
+    },
+    "unknownSpeakersNote": null,
+    "parent": "Algonquian",
+    "origin": "Abenaki is an Eastern Algonquian language spoken by the Abenaki in Quebec and the northern states of New England. It has Eastern and Western forms that differ in vocabulary and phonology. They are sometimes considered distinct languages.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Abenaki_language",
+    "approved": true
+  },
+  {
+    "name": "Akkadian",
+    "aliases": [],
+    "status": "extinct",
+    "classification": "East Semitic branch of the Semitic family",
+    "region": "Ancient Mesopotamia (Akkad, Assyria, Isin, Larsa, Babylonia) → lingua franca of much of the Ancient Near East",
+    "map": {
+      "lat": 33,
+      "lon": 44,
+      "radiusKm": 500
+    },
+    "era": {
+      "from": -2500,
+      "to": -700,
+      "writtenUntil": 100,
+      "approximate": true
+    },
+    "peakSpeakers": null,
+    "unknownSpeakersNote": "No census of its speakers exists.",
+    "parent": "Semitic",
+    "origin": "Akkadian is the earliest documented Semitic language and is named after the city of Akkad. Akkadian proper names first appear in Sumerian texts in the mid-3rd millennium BC, and texts fully written in Akkadian begin to appear from about the 24th century BC. It was written in cuneiform, a script originally used for Sumerian, which also influenced Akkadian phonology, vocabulary and syntax.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Akkadian_language",
+    "approved": true
+  },
+  {
+    "name": "Aleut",
+    "aliases": [],
+    "status": "living",
+    "classification": "Sole language of the Aleut branch of the Eskimo-Aleut family",
+    "region": "Aleutian Islands, Pribilof Islands, Commander Islands and the Alaska Peninsula",
+    "map": {
+      "lat": 53.5,
+      "lon": -166,
+      "radiusKm": 1200
+    },
+    "era": null,
+    "peakSpeakers": {
+      "count": 200,
+      "year": 2010,
+      "note": "Speakers, Wikidata figure for 2010"
+    },
+    "unknownSpeakersNote": null,
+    "parent": null,
+    "origin": "Aleut is the only language in the Aleut branch of the Eskimo-Aleut language family. Its speakers live in the Aleutian Islands, Pribilof Islands, Commander Islands and the Alaska Peninsula. The Aleut name for the Alaska Peninsula, Alaxsxa, is the origin of the state name Alaska.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Aleut_language",
+    "approved": true
+  },
+  {
+    "name": "Algonquian",
+    "aliases": [],
+    "status": "living",
+    "classification": "Branch of the Algic language family",
+    "region": "From the east coast of North America to the Rocky Mountains",
+    "map": {
+      "lat": 48,
+      "lon": -90,
+      "radiusKm": 2000
+    },
+    "era": null,
+    "peakSpeakers": null,
+    "unknownSpeakersNote": "No census of its speakers exists.",
+    "parent": "Proto-Algonquian",
+    "origin": "The Algonquian languages are a branch of the Algic language family. All of them descend from Proto-Algonquian, which was spoken around 2,500 to 3,000 years ago. There is no scholarly consensus about where that language was spoken. The family's name is distinct from Algonquin, a dialect of Ojibwe. The term Algonquin has been suggested to derive from the Wolastoqey word elakómkwik, meaning \"they are our relatives/allies\".",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Algonquian_languages",
+    "approved": true
+  },
+  {
     "name": "Ancient Greek",
     "aliases": [],
     "status": "historical",
@@ -25,6 +114,30 @@ export const LANGUAGE_SHEETS: LanguageSheet[] = [
     "parent": null,
     "origin": "Ancient Greek belongs to the Hellenic group and was used in ancient Greece and the ancient world from around 1500 BC to 300 BC. It is often divided into Mycenaean Greek, the Dark Ages, the Archaic or Homeric period, and the Classical period. Its dialects included Attic, Ionic, Doric, Aeolic, and Arcadocypriot, and Attic became the basis of Koine Greek, which followed it.",
     "sourceUrl": "https://en.wikipedia.org/wiki/Ancient_Greek",
+    "approved": true
+  },
+  {
+    "name": "Andalusian Arabic",
+    "aliases": [],
+    "status": "extinct",
+    "classification": "Variety or varieties of Arabic",
+    "region": "Al-Andalus, the Iberian Peninsula under Muslim rule",
+    "map": {
+      "lat": 37.5,
+      "lon": -4.5,
+      "radiusKm": 400
+    },
+    "era": {
+      "from": 700,
+      "to": 1700,
+      "writtenUntil": null,
+      "approximate": true
+    },
+    "peakSpeakers": null,
+    "unknownSpeakersNote": "No census of its speakers exists.",
+    "parent": null,
+    "origin": "Arabic spread gradually in Iberia during Muslim rule, mainly through conversion to Islam, and was also learned and spoken by Christians and Jews. For centuries it existed alongside Andalusi Romance in a situation of bilingualism. After the fall of Granada in 1492, Arabic was suppressed and the Moriscos were expelled in the early 17th century, after which it became extinct in Iberia. An Andalusi variety continued to be spoken to some degree in North Africa.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Andalusi_Arabic",
     "approved": true
   },
   {
@@ -91,6 +204,81 @@ export const LANGUAGE_SHEETS: LanguageSheet[] = [
     "parent": null,
     "origin": "Aramaic began in the ancient region of Syria and spread quickly across much of West Asia. Its earliest inscriptions date from the 11th century BC, which places it among the earliest languages to be written down. The scholar Holger Gzella notes that its history before the first texts of the 9th century BC is unknown.",
     "sourceUrl": "https://en.wikipedia.org/wiki/Aramaic",
+    "approved": true
+  },
+  {
+    "name": "Austroasiatic",
+    "aliases": [],
+    "status": "living",
+    "classification": "Language family of Southeast Asia, with 168 languages identified by Ethnologue in thirteen established families",
+    "region": "Mainland Southeast Asia, South Asia and East Asia, including Vietnam, Cambodia, India, Myanmar and southern China",
+    "map": {
+      "lat": 18,
+      "lon": 100,
+      "radiusKm": 1800
+    },
+    "era": {
+      "from": -3000,
+      "to": null,
+      "writtenUntil": null,
+      "approximate": true
+    },
+    "peakSpeakers": null,
+    "unknownSpeakersNote": "No dated count exists. Wikipedia gives about 117 million speakers across the family.",
+    "parent": null,
+    "origin": "Scholars generally date the ancestral language to about 3000 BC to 2000 BC, with a homeland in Mainland Southeast Asia or southern China. Sidwell (2022) proposes that Proto-Austroasiatic was spoken in the Red River Delta area from about 2500 BC to 2000 BC. The family has traditionally been grouped into two, Mon-Khmer and Munda, though newer classifications differ.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Austroasiatic_languages",
+    "approved": true
+  },
+  {
+    "name": "Basque",
+    "aliases": [],
+    "status": "living",
+    "classification": "Language isolate, the only known one in Europe, and the only surviving language of Paleo-European origin",
+    "region": "The Basque Country, straddling the westernmost Pyrenees in southwestern France and northern Spain",
+    "map": {
+      "lat": 42.88305555555556,
+      "lon": -1.9355555555555557,
+      "radiusKm": 100
+    },
+    "era": null,
+    "peakSpeakers": {
+      "count": 750000,
+      "year": 2016,
+      "note": "Speakers, Wikidata figure for 2016"
+    },
+    "unknownSpeakersNote": null,
+    "parent": null,
+    "origin": "Basque has no known relation to any other language. The current mainstream scientific view is that early forms of Basque developed before Indo-European languages, including Celtic and Romance, arrived in the area. Those languages now surround the Basque-speaking region.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Basque_language",
+    "approved": true
+  },
+  {
+    "name": "Bengali",
+    "aliases": [],
+    "status": "living",
+    "classification": "Indo-Aryan language of the Indo-Iranian branch of the Indo-European family",
+    "region": "Bengal region (Bangladesh and India's West Bengal), Barak Valley in Assam and Tripura → Bengali diasporas in Europe, North America and the Middle East",
+    "map": {
+      "lat": 24,
+      "lon": 90,
+      "radiusKm": 400
+    },
+    "era": {
+      "from": 600,
+      "to": null,
+      "writtenUntil": null,
+      "approximate": true
+    },
+    "peakSpeakers": {
+      "count": 300000000,
+      "year": 2019,
+      "note": "Number of speakers, Wikidata figure for 2019"
+    },
+    "unknownSpeakersNote": null,
+    "parent": null,
+    "origin": "Bengali, also known by its endonym Bangla, is an Indo-Aryan language of the Indo-European family. It is primarily spoken by the Bengali people, native to the Bengal region, and has developed over more than 1,400 years. It is the official, national and most widely spoken language of Bangladesh.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Bengali_language",
     "approved": true
   },
   {
@@ -163,6 +351,25 @@ export const LANGUAGE_SHEETS: LanguageSheet[] = [
     "parent": null,
     "origin": "Chinese is the largest branch of the Sino-Tibetan languages. Its earliest attested writing is the oracle bone inscriptions of the Shang dynasty, around 1250 BCE. The sounds of Old Chinese can be reconstructed from the rhymes of ancient poetry, and during the Northern and Southern dynasties Middle Chinese split into several varieties after long geographic and political separation.",
     "sourceUrl": "https://en.wikipedia.org/wiki/Chinese_language",
+    "approved": true
+  },
+  {
+    "name": "Danish",
+    "aliases": [],
+    "status": "living",
+    "classification": "East Scandinavian (East Norse) branch of the North Germanic languages, Indo-European family",
+    "region": "Denmark and the surrounding area, with minority communities in Greenland, the Faroe Islands, Iceland and Southern Schleswig in northern Germany",
+    "map": {
+      "lat": 56,
+      "lon": 9,
+      "radiusKm": 200
+    },
+    "era": null,
+    "peakSpeakers": null,
+    "unknownSpeakersNote": "No dated count exists. Wikipedia gives about 5.5 million speakers.",
+    "parent": "Old Norse",
+    "origin": "Danish descends from Old Norse, the common language of the Germanic peoples who lived in Scandinavia during the Viking Era. Together with Swedish, it derives from the East Norse dialect group. Until the 16th century it was a continuum of dialects from Southern Jutland and Schleswig to Scania. With the Protestant Reformation and the printing press, a standard language developed from the dialect of Copenhagen.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Danish_language",
     "approved": true
   },
   {
@@ -457,6 +664,25 @@ export const LANGUAGE_SHEETS: LanguageSheet[] = [
     "approved": true
   },
   {
+    "name": "Hokkien",
+    "aliases": [],
+    "status": "living",
+    "classification": "Southern Min branch of the Sinitic languages",
+    "region": "Minnan region of southern Fujian, China, and Taiwan → overseas Chinese communities across Southeast Asia",
+    "map": {
+      "lat": 24.5,
+      "lon": 118.1,
+      "radiusKm": 300
+    },
+    "era": null,
+    "peakSpeakers": null,
+    "unknownSpeakersNote": "No dated speaker count is recorded.",
+    "parent": null,
+    "origin": "Hokkien is a variety of Chinese from the Southern Min branch of the Sinitic languages. It is native to the Minnan region in the southern part of Fujian province and to the island of Taiwan. It is also called Quanzhang, after the cities of Quanzhou and Zhangzhou.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Hokkien",
+    "approved": true
+  },
+  {
     "name": "Irish",
     "aliases": [],
     "status": "living",
@@ -630,6 +856,25 @@ export const LANGUAGE_SHEETS: LanguageSheet[] = [
     "approved": true
   },
   {
+    "name": "Lombardic",
+    "aliases": [],
+    "status": "extinct",
+    "classification": "West Germanic language",
+    "region": "Present-day Italy, where the Lombards established the Kingdom of the Lombards",
+    "map": {
+      "lat": 45.5,
+      "lon": 9.5,
+      "radiusKm": 250
+    },
+    "era": null,
+    "peakSpeakers": null,
+    "unknownSpeakersNote": "No census of its speakers exists.",
+    "parent": null,
+    "origin": "Lombardic is a West Germanic language spoken by the Lombards, the Germanic people who settled in present-day Italy in the sixth century and established the Kingdom of the Lombards. It was already declining by the seventh century because the invaders quickly adopted the Vulgar Latin spoken by the local population. No texts survive, only individual words and personal names cited in Latin law codes, histories and charters.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Lombardic_language",
+    "approved": true
+  },
+  {
     "name": "Low German",
     "aliases": [],
     "status": "living",
@@ -693,6 +938,49 @@ export const LANGUAGE_SHEETS: LanguageSheet[] = [
     "parent": "Late Latin",
     "origin": "Medieval Latin continued Classical Latin and Late Latin, adding words for new concepts and for the growing place of Christianity. Its writers did not see it as a fundamentally different language, and scholars disagree about exactly where Late Latin ends and Medieval Latin begins. Some place the start in the mid-4th century, some around 500, and others around 900, when written Romance languages began to replace written Late Latin.",
     "sourceUrl": "https://en.wikipedia.org/wiki/Medieval_Latin",
+    "approved": true
+  },
+  {
+    "name": "Mexican Spanish",
+    "aliases": [],
+    "status": "living",
+    "classification": "Variety of Spanish, part of North American Spanish and Latin American Spanish",
+    "region": "Mexico and its bordering regions",
+    "map": {
+      "lat": 23.6,
+      "lon": -102.5,
+      "radiusKm": 1000
+    },
+    "era": null,
+    "peakSpeakers": null,
+    "unknownSpeakersNote": "No dated speaker count is recorded. Spanish is spoken by over 99% of Mexico's population.",
+    "parent": "Spanish",
+    "origin": "Mexican Spanish is the variety of dialects and sociolects of the Spanish language spoken in Mexico and its bordering regions. It belongs to the North American Spanish and Latin American Spanish groups. Mexico has the world's largest number of Spanish speakers, more than double any other country. Spanish is spoken by over 99% of the population and is the mother tongue of 93.8%.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Mexican_Spanish",
+    "approved": true
+  },
+  {
+    "name": "Middle Chinese",
+    "aliases": [],
+    "status": "historical",
+    "classification": "Historical variety of Chinese in the Sinitic group",
+    "region": "China, combining northern and southern reading and poetic traditions",
+    "map": {
+      "lat": 34.27,
+      "lon": 108.95,
+      "radiusKm": 500
+    },
+    "era": {
+      "from": 601,
+      "to": 1150,
+      "writtenUntil": null,
+      "approximate": true
+    },
+    "peakSpeakers": null,
+    "unknownSpeakersNote": "No census of its speakers exists. Its sounds are reconstructed by scholars from dictionaries and tables that do not record them directly.",
+    "parent": null,
+    "origin": "Middle Chinese is the variety of Chinese recorded in the Qieyun, a rhyme dictionary first published in 601. Bernhard Karlgren thought it recorded the speech standard of Chang'an, but most scholars now hold that it combines northern and southern reading and poetic traditions. Linguists call the Qieyun system Early Middle Chinese and the later variant shown in the mid-12th-century rime tables Late Middle Chinese. It follows Old Chinese.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Middle_Chinese",
     "approved": true
   },
   {
@@ -925,6 +1213,29 @@ export const LANGUAGE_SHEETS: LanguageSheet[] = [
     "approved": true
   },
   {
+    "name": "Ojibwe",
+    "aliases": [],
+    "status": "living",
+    "classification": "Central Algonquian language of the Algonquian family",
+    "region": "Southwestern Quebec through Ontario, Manitoba and parts of Saskatchewan, and from Michigan to Wisconsin and Minnesota",
+    "map": {
+      "lat": 47,
+      "lon": -88,
+      "radiusKm": 1200
+    },
+    "era": null,
+    "peakSpeakers": {
+      "count": 20470,
+      "year": 2016,
+      "note": "Native speakers, Wikidata figure for 2016"
+    },
+    "unknownSpeakersNote": null,
+    "parent": "Algonquian",
+    "origin": "Ojibwe is an indigenous language of North America of the Algonquian language family. It is a Central Algonquian language. Its dialects have local names and often local writing systems. No single dialect is considered the most prestigious, and no writing system covers all dialects.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Ojibwe_language",
+    "approved": true
+  },
+  {
     "name": "Old Dutch",
     "aliases": [],
     "status": "historical",
@@ -946,6 +1257,26 @@ export const LANGUAGE_SHEETS: LanguageSheet[] = [
     "parent": "Frankish",
     "origin": "Old Dutch is the set of dialects that evolved from Frankish in the Low Countries during the Early Middle Ages, from around the 6th to the 12th century. It was spoken by the descendants of the Salian Franks and is regarded as the first stage in the development of a separate Dutch language. Around the 12th century it evolved into Middle Dutch.",
     "sourceUrl": "https://en.wikipedia.org/wiki/Old_Dutch",
+    "approved": true
+  },
+  {
+    "name": "Old East Slavic",
+    "aliases": [],
+    "status": "historical",
+    "classification": "East Slavic branch of the Slavic languages",
+    "region": "Among the East Slavs",
+    "map": null,
+    "era": {
+      "from": 600,
+      "to": 1300,
+      "writtenUntil": null,
+      "approximate": true
+    },
+    "peakSpeakers": null,
+    "unknownSpeakersNote": "No census of its speakers exists.",
+    "parent": null,
+    "origin": "Old East Slavic was used by the East Slavs from the 7th or 8th century to the 13th or 14th century. It is traditionally also called Old Russian, and it may be described as a language or a group of dialects. It then diverged into Russian and Ruthenian, and Ruthenian later evolved into Belarusian, Rusyn and Ukrainian.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Old_East_Slavic",
     "approved": true
   },
   {
@@ -1014,6 +1345,50 @@ export const LANGUAGE_SHEETS: LanguageSheet[] = [
     "parent": "Germanic",
     "origin": "Old High German is the earliest stage of German, conventionally dated from around 500/750 to 1050. It was not one unified language but a family of West Germanic dialects that shared the consonantal changes known as the Second Sound Shift. Its earliest written traces are glosses from the latter half of the 8th century, notes in the margins of Latin texts made in monastic scriptoria.",
     "sourceUrl": "https://en.wikipedia.org/wiki/Old_High_German",
+    "approved": true
+  },
+  {
+    "name": "Old Irish",
+    "aliases": [],
+    "status": "historical",
+    "classification": "Goidelic (Gaelic) language, the oldest with extensive written texts",
+    "region": "Not recorded in the sources",
+    "map": null,
+    "era": {
+      "from": 600,
+      "to": 900,
+      "writtenUntil": null,
+      "approximate": true
+    },
+    "peakSpeakers": null,
+    "unknownSpeakersNote": "No census of its speakers exists.",
+    "parent": "Primitive Irish",
+    "origin": "Old Irish is the oldest form of the Goidelic/Gaelic language with extensive written texts, used from about 600 to 900. It followed the Primitive Irish period, when its complex morphology and grammatical consonant mutations were apparently not yet present. It is the direct ancestor of Early Modern Irish, Manx Gaelic and Scots Gaelic.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Old_Irish",
+    "approved": true
+  },
+  {
+    "name": "Old Latin",
+    "aliases": [],
+    "status": "extinct",
+    "classification": "Latino-Faliscan branch of the Italic languages",
+    "region": "Latium, central Italy",
+    "map": {
+      "lat": 41.9,
+      "lon": 12.5,
+      "radiusKm": 60
+    },
+    "era": {
+      "from": -700,
+      "to": -75,
+      "writtenUntil": null,
+      "approximate": true
+    },
+    "peakSpeakers": null,
+    "unknownSpeakersNote": "No census of its speakers exists.",
+    "parent": "Proto-Italic",
+    "origin": "Old Latin was the Latin language before about 75 BC, before the age of Classical Latin. It is a member of the Italic languages and descends from Proto-Italic. Latino-Faliscan is a separate branch from Osco-Umbrian, and these languages may be relatively closely related to Venetic and possibly to Celtic. The earliest known specimen is the Praeneste fibula, dated to the first half of the seventh century BC.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Old_Latin",
     "approved": true
   },
   {
@@ -1086,6 +1461,54 @@ export const LANGUAGE_SHEETS: LanguageSheet[] = [
     "approved": true
   },
   {
+    "name": "Old Saxon",
+    "aliases": [],
+    "status": "historical",
+    "classification": "West Germanic language, closely related to the Anglo-Frisian languages; the earliest recorded form of Low German",
+    "region": "Northwestern Germany, mainly the coastal regions, and the eastern Netherlands",
+    "map": {
+      "lat": 52.8,
+      "lon": 9,
+      "radiusKm": 250
+    },
+    "era": {
+      "from": 700,
+      "to": 1150,
+      "writtenUntil": null,
+      "approximate": true
+    },
+    "peakSpeakers": null,
+    "unknownSpeakersNote": "No census of its speakers exists.",
+    "parent": null,
+    "origin": "Old Saxon was spoken by the Saxons, a Germanic tribe that inhabited the region of Saxony. It is the earliest recorded form of Low German, and is documented from the 8th century until the 12th century, when it gradually evolved into Middle Low German. It partially shares the Ingvaeonic nasal spirant law with Old Frisian and Old English, which sets it apart from Low Franconian and Irminonic languages such as Dutch, Luxembourgish and German.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Old_Saxon",
+    "approved": true
+  },
+  {
+    "name": "Old Tupi",
+    "aliases": [],
+    "status": "extinct",
+    "classification": "Classical Tupian language of the Tupi-Guarani family",
+    "region": "Coastal regions of South and Southeast Brazil",
+    "map": {
+      "lat": -22.5,
+      "lon": -44,
+      "radiusKm": 800
+    },
+    "era": {
+      "from": 1500,
+      "to": 1750,
+      "writtenUntil": null,
+      "approximate": true
+    },
+    "peakSpeakers": null,
+    "unknownSpeakersNote": "No census of its speakers exists.",
+    "parent": null,
+    "origin": "Old Tupi was spoken by the Indigenous Tupi people, who lived in coastal regions of South and Southeast Brazil. It belongs to the Tupi-Guarani language family and has a written history spanning the 16th, 17th and early 18th centuries. In the early colonial period it was used as a lingua franca throughout Brazil by Europeans and Amerindians, but it was later suppressed almost to extinction. Its sole living descendant is Nheengatu.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Tupi_language",
+    "approved": true
+  },
+  {
     "name": "Ottoman Turkish",
     "aliases": [
       "Ottoman"
@@ -1136,6 +1559,25 @@ export const LANGUAGE_SHEETS: LanguageSheet[] = [
     "approved": true
   },
   {
+    "name": "Phoenician",
+    "aliases": [],
+    "status": "extinct",
+    "classification": "Canaanite language of the Semitic language family",
+    "region": "Northern Levant, including present-day Lebanon → colonies along the southwestern Mediterranean coasts",
+    "map": {
+      "lat": 33.9,
+      "lon": 35.5,
+      "radiusKm": 400
+    },
+    "era": null,
+    "peakSpeakers": null,
+    "unknownSpeakersNote": "No census of its speakers exists.",
+    "parent": "Semitic",
+    "origin": "Phoenician is an extinct Canaanite language of the Semitic family, originally spoken by the Phoenicians. Tyro-Sidonian trade made it a lingua franca of the maritime Mediterranean during the Iron Age, and the Phoenician alphabet spread to Greece in this period. In North Africa it developed into the Punic language.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Phoenician_language",
+    "approved": true
+  },
+  {
     "name": "Portuguese",
     "aliases": [],
     "status": "living",
@@ -1156,6 +1598,26 @@ export const LANGUAGE_SHEETS: LanguageSheet[] = [
     "parent": "Vulgar Latin",
     "origin": "Portuguese belongs to the Ibero-Romance group, which evolved from several dialects of Vulgar Latin in the medieval Kingdom of Galicia and the County of Portugal. Wikidata gives its parent as Galician-Portuguese, and it has kept some Celtic phonology. Its vocabulary is largely Latin, with loanwords from Celtic, Germanic, Arabic, African, Amerindian and Asian languages, brought by wars, trade and colonization.",
     "sourceUrl": "https://en.wikipedia.org/wiki/Portuguese_language",
+    "approved": true
+  },
+  {
+    "name": "Proto-Algonquian",
+    "aliases": [],
+    "status": "reconstructed",
+    "classification": "Ancestor of the Algonquian languages, a branch of the Algic language family",
+    "region": "Uncertain. Its descendants are spoken around New England and the Chesapeake Bay, the Great Lakes and the Great Plains",
+    "map": null,
+    "era": {
+      "from": -1000,
+      "to": -500,
+      "writtenUntil": null,
+      "approximate": true
+    },
+    "peakSpeakers": null,
+    "unknownSpeakersNote": "Reconstructed by scholars. Never written down.",
+    "parent": null,
+    "origin": "Proto-Algonquian is the proto-language from which the various Algonquian languages are descended. It is generally estimated to have been spoken around 2,500 to 3,000 years ago, but there is less agreement on where it was spoken. It is descended from Proto-Algic, and it is one of the best studied and most thoroughly reconstructed proto-languages in North American historical linguistics.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Proto-Algonquian_language",
     "approved": true
   },
   {
@@ -1261,6 +1723,76 @@ export const LANGUAGE_SHEETS: LanguageSheet[] = [
     "approved": true
   },
   {
+    "name": "Proto-Slavic",
+    "aliases": [],
+    "status": "reconstructed",
+    "classification": "Ancestor of all Slavic languages",
+    "region": "Eastern Europe, with the Slavic-speaking area expanding greatly during the Proto-Slavic period",
+    "map": {
+      "lat": 50,
+      "lon": 25,
+      "radiusKm": 800
+    },
+    "era": {
+      "from": -2000,
+      "to": 600,
+      "writtenUntil": null,
+      "approximate": true
+    },
+    "peakSpeakers": null,
+    "unknownSpeakersNote": "Reconstructed by scholars. Never written down.",
+    "parent": null,
+    "origin": "Proto-Slavic is the reconstructed proto-language of all Slavic languages. It represents Slavic speech from about the 2nd millennium BC through the 6th century AD. No writings from it have been found, so it is reconstructed by applying the comparative method to the attested Slavic languages and by taking other Indo-European languages into account.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Proto-Slavic_language",
+    "approved": true
+  },
+  {
+    "name": "Quechua",
+    "aliases": [],
+    "status": "living",
+    "classification": "Quechuan language family, one of the indigenous languages of the Americas",
+    "region": "Central Peru → other countries of the Andes",
+    "map": {
+      "lat": -14,
+      "lon": -72,
+      "radiusKm": 800
+    },
+    "era": null,
+    "peakSpeakers": {
+      "count": 8900000,
+      "year": 2007,
+      "note": "Number of speakers, Wikidata figure for 2007"
+    },
+    "unknownSpeakersNote": null,
+    "parent": null,
+    "origin": "Quechua is a language family that originated in central Peru and later spread to other countries of the Andes. It derives from a common ancestral language called Proto-Quechua. It began expanding many centuries before the Incas, and it was the primary language family within the Inca Empire.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Quechuan_languages",
+    "approved": true
+  },
+  {
+    "name": "Russian",
+    "aliases": [],
+    "status": "living",
+    "classification": "East Slavic language of the Balto-Slavic branch of the Indo-European family",
+    "region": "Russia → official also in Belarus, Kazakhstan and Kyrgyzstan, and a lingua franca in Ukraine, Moldova, the Caucasus and Central Asia",
+    "map": {
+      "lat": 55,
+      "lon": 38,
+      "radiusKm": 600
+    },
+    "era": null,
+    "peakSpeakers": {
+      "count": 171428900,
+      "year": 2010,
+      "note": "Speakers, Wikidata figure for 2010"
+    },
+    "unknownSpeakersNote": null,
+    "parent": null,
+    "origin": "Russian is an East Slavic language in the Balto-Slavic branch of the Indo-European family. It is one of four extant East Slavic languages and is the native language of the Russian people. It is written in the Russian alphabet of the Cyrillic script.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Russian_language",
+    "approved": true
+  },
+  {
     "name": "Sanskrit",
     "aliases": [],
     "status": "living",
@@ -1312,6 +1844,34 @@ export const LANGUAGE_SHEETS: LanguageSheet[] = [
     "approved": true
   },
   {
+    "name": "Scottish Gaelic",
+    "aliases": [],
+    "status": "living",
+    "classification": "Goidelic branch of the Celtic languages, alongside Irish and Manx",
+    "region": "Scotland, especially the Outer Hebrides → Canada, mainly Nova Scotia",
+    "map": {
+      "lat": 58.1,
+      "lon": -6.6,
+      "radiusKm": 200
+    },
+    "era": {
+      "from": 1200,
+      "to": null,
+      "writtenUntil": null,
+      "approximate": true
+    },
+    "peakSpeakers": {
+      "count": 60130,
+      "year": 2011,
+      "note": "Speakers, Wikidata figure for 2011"
+    },
+    "unknownSpeakersNote": null,
+    "parent": "Old Irish",
+    "origin": "Scottish Gaelic developed out of Old Irish, as did Irish and Manx. It became a distinct spoken language sometime in the 13th century, in the Middle Irish period. A common literary language was shared by the Gaels of Ireland and Scotland until well into the 17th century.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Scottish_Gaelic",
+    "approved": true
+  },
+  {
     "name": "Spanish",
     "aliases": [],
     "status": "living",
@@ -1337,6 +1897,101 @@ export const LANGUAGE_SHEETS: LanguageSheet[] = [
     "parent": "Vulgar Latin",
     "origin": "Spanish evolved from the Vulgar Latin spoken on the Iberian Peninsula, in dialects that developed after the Western Roman Empire collapsed in the 5th century. The oldest Latin texts with traces of Spanish come from mid-northern Iberia in the 9th century, and its first systematic written use came in Toledo in the 13th century. Spanish colonialism in the early modern period carried it overseas, above all to the Americas.",
     "sourceUrl": "https://en.wikipedia.org/wiki/Spanish_language",
+    "approved": true
+  },
+  {
+    "name": "Swahili",
+    "aliases": [
+      "Kiswahili"
+    ],
+    "status": "living",
+    "classification": "Sabaki branch of the Bantu languages, in the Atlantic-Congo family",
+    "region": "East African coast and adjacent islands (Tanzania, Kenya, Mozambique) → lingua franca of the African Great Lakes region and East and Southern Africa",
+    "map": {
+      "lat": -6,
+      "lon": 33,
+      "radiusKm": 800
+    },
+    "era": null,
+    "peakSpeakers": {
+      "count": 15437390,
+      "year": 2012,
+      "note": "Speaker count from Wikidata, figure for 2012. Wikipedia gives a wider estimate of 40 million to 200 million, including native and second-language speakers."
+    },
+    "unknownSpeakersNote": null,
+    "parent": null,
+    "origin": "Swahili is a Bantu language originally spoken by the Swahili people along the East African coast and nearby islands. About 40% of its vocabulary consists of Arabic loanwords, including the name of the language, from an Arabic word meaning 'of the coasts'. These loanwords date from the era of contact between Arab slave traders and the Bantu inhabitants of the coast, when Swahili also emerged as a lingua franca in the region.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Swahili",
+    "approved": true
+  },
+  {
+    "name": "Tamil",
+    "aliases": [],
+    "status": "living",
+    "classification": "Dravidian language, in the Tamil languages group",
+    "region": "Tamil Nadu and Pondicherry in India, and the Northern and Eastern Provinces of Sri Lanka",
+    "map": {
+      "lat": 10,
+      "lon": 78.5,
+      "radiusKm": 300
+    },
+    "era": {
+      "from": -300,
+      "to": null,
+      "writtenUntil": null,
+      "approximate": true
+    },
+    "peakSpeakers": {
+      "count": 75000000,
+      "year": 2019,
+      "note": "Speakers, Wikidata figure for 2019"
+    },
+    "unknownSpeakersNote": null,
+    "parent": "Dravidian",
+    "origin": "Tamil is a Dravidian language spoken by the Tamil people of South Asia. It is one of the longest-surviving classical languages in the world, attested since about 300 BCE. Its script evolved from Tamil Brahmi, and the vatteluttu script was used later, until the current script was standardized.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Tamil_language",
+    "approved": true
+  },
+  {
+    "name": "Taíno",
+    "aliases": [],
+    "status": "extinct",
+    "classification": "Arawakan language of the Ta-Arawakan group",
+    "region": "Puerto Rico, most of Hispaniola, easternmost Cuba and most of the Leeward Islands of the Lesser Antilles",
+    "map": {
+      "lat": 18.2,
+      "lon": -69,
+      "radiusKm": 800
+    },
+    "era": null,
+    "peakSpeakers": null,
+    "unknownSpeakersNote": "No census of its speakers exists.",
+    "parent": null,
+    "origin": "Taíno is an extinct Arawakan language spoken by the Taíno people of the Caribbean. At the time of Spanish contact it was the most common language in the Caribbean, and by the late 15th century it had displaced earlier languages of the Greater Antilles, except in westernmost Cuba and pockets of Hispaniola. As Taíno culture declined during Spanish colonization, the language was replaced by Spanish, English and French.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Ta%C3%ADno_language",
+    "approved": true
+  },
+  {
+    "name": "Turkish",
+    "aliases": [],
+    "status": "living",
+    "classification": "Western Oghuz branch of the Turkic languages",
+    "region": "Turkey and Cyprus, with smaller groups in Germany, Austria, Bulgaria, North Macedonia, Greece, the South Caucasus, and parts of Central Asia, Iraq, and Syria",
+    "map": {
+      "lat": 40,
+      "lon": 30,
+      "radiusKm": 600
+    },
+    "era": null,
+    "peakSpeakers": {
+      "count": 82231620,
+      "year": 2021,
+      "note": "Speakers, Wikidata figure for 2021"
+    },
+    "unknownSpeakersNote": null,
+    "parent": null,
+    "origin": "Turkish is the most widely spoken of the Turkic languages and belongs to their Western Oghuz group. Ottoman Turkish, the variety of Turkish used as the administrative and literary language of the Ottoman Empire, spread west as the empire expanded. In 1928, as one of Atatürk's reforms, the Perso-Arabic Ottoman Turkish alphabet was replaced with the Latin-based Turkish alphabet.",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Turkish_language",
     "approved": true
   },
   {

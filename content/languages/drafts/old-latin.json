@@ -1,0 +1,24 @@
+{
+  "name": "Old Latin",
+  "aliases": [],
+  "status": "extinct",
+  "classification": "Latino-Faliscan branch of the Italic languages",
+  "region": "Latium, central Italy",
+  "map": {
+    "lat": 41.9,
+    "lon": 12.5,
+    "radiusKm": 60
+  },
+  "era": {
+    "from": -700,
+    "to": -75,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "Proto-Italic",
+  "origin": "Old Latin was the Latin language before about 75 BC, before the age of Classical Latin. It is a member of the Italic languages and descends from Proto-Italic. Latino-Faliscan is a separate branch from Osco-Umbrian, and these languages may be relatively closely related to Venetic and possibly to Celtic. The earliest known specimen is the Praeneste fibula, dated to the first half of the seventh century BC.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Old_Latin",
+  "approved": true
+}

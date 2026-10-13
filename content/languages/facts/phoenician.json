@@ -1,0 +1,42 @@
+{
+  "name": "Phoenician",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Phoenician language",
+    "extract": "Phoenician is an extinct Canaanite language of the Semitic language family originally spoken by the Phoenicians. Extensive Tyro-Sidonian trade and commercial dominance led to Phoenician becoming a lingua franca of the maritime Mediterranean during the Iron Age. The Phoenician alphabet spread to Greece during this period, where it became the source of all modern European scripts.",
+    "url": "https://en.wikipedia.org/wiki/Phoenician_language",
+    "description": "Ancient Semitic language of the Mediterranean, specifically present-day Lebanon",
+    "wikibaseItem": "Q36734",
+    "type": "standard",
+    "lead": "Phoenician ( fə-NEE-shən; Phoenician: śpt knʿn 𐤔𐤐𐤕𐤟𐤊𐤍𐤏𐤍 lit. 'language of Canaan') is an extinct Canaanite language of the Semitic language family originally spoken by the Phoenicians. Extensive Tyro-Sidonian trade and commercial dominance led to Phoenician becoming a lingua franca of the maritime Mediterranean during the Iron Age. The Phoenician alphabet spread to Greece during this period, where it became the source of all modern European scripts.\nPhoenician belongs to the Canaanite languages and as such is quite similar to Biblical Hebrew and other languages of the group, at least in its early stages, and is therefore mutually intelligible with them.\nThe area in which Phoenician was spoken, which the Phoenicians called Pūt, includes the northern Levant, specifically the areas now including Lebanon, the Western Galilee, parts of Cyprus, some parts of Syria, some adjacent areas of Anatolia, and, at least as a prestige language, the rest of Anatolia. Phoenician was also spoken in the Phoenician colonies along the coasts of the southwestern Mediterranean Sea, including those of modern Tunisia, Morocco, Libya and Algeria as well as Malta, the west of Sicily, southwest Sardinia, the Balearic Islands and southernmost Spain. It developed into the Punic language in North Africa.\nIn modern times, the language was first decoded by Jean-Jacques Barthélemy in 1758, who noted that the name \"Phoenician\" was first given to the language by Samuel Bochart in his Geographia Sacra seu Phaleg et Canaan.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q36734",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": 200,
+    "speakers": null,
+    "instanceOf": [
+      "language",
+      "ancient language"
+    ],
+    "subclassOf": [
+      "Q34049",
+      "Q747547"
+    ],
+    "indigenousTo": [
+      "Q48214",
+      "Q27381"
+    ],
+    "parentLabels": [
+      "Semitic",
+      "Canaanite"
+    ],
+    "regionLabels": [
+      "Near East",
+      "North Africa"
+    ]
+  },
+  "fetchedAt": "2026-10-13T19:51:23.635Z"
+}

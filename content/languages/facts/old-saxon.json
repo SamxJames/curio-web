@@ -1,0 +1,37 @@
+{
+  "name": "Old Saxon",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Old Saxon",
+    "extract": "Old Saxon, also known as Old Low German, was a Germanic language and the earliest recorded form of Low German. It is a West Germanic language, closely related to the Anglo-Frisian languages. It is documented from the 8th century until the 12th century, when it gradually evolved into Middle Low German. It was spoken throughout modern northwestern Germany, primarily in the coastal regions and in the eastern Netherlands by Saxons, a Germanic tribe that inhabited the region of Saxony. It partially shares the Ingvaeonic nasal spirant law with Anglo-Frisian languages, which sets it apart from Low Franconian and Irminonic languages, such as Dutch, Luxembourgish and German.",
+    "url": "https://en.wikipedia.org/wiki/Old_Saxon",
+    "description": "Germanic language spoken from the 8th to 12th centuries",
+    "wikibaseItem": "Q35219",
+    "type": "standard",
+    "lead": "Old Saxon (Low German: Ooldsass'sche Spraak), also known as Old Low German (Low German: Ooldneddersche Spraak), was a Germanic language and the earliest recorded form of Low German (spoken nowadays in Northern Germany, the northeastern Netherlands, southern Denmark, the Americas and parts of Eastern Europe). It is a West Germanic language, closely related to the Anglo-Frisian languages. It is documented from the 8th century until the 12th century, when it gradually evolved into Middle Low German. It was spoken throughout modern northwestern Germany, primarily in the coastal regions and in the eastern Netherlands by Saxons, a Germanic tribe that inhabited the region of Saxony. It partially shares the Ingvaeonic nasal spirant law with Anglo-Frisian (Old Frisian, Old English) languages, which sets it apart from Low Franconian and Irminonic languages, such as Dutch, Luxembourgish and German.\nThe grammar of Old Saxon was fully inflected with five grammatical cases (nominative, accusative, genitive, dative, and instrumental), three grammatical numbers (singular, plural, and dual), and three grammatical genders (masculine, feminine, and neuter). The dual forms occurred in the first and second persons only.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q35219",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 0,
+      "year": null
+    },
+    "instanceOf": [
+      "language",
+      "historical language"
+    ],
+    "subclassOf": [
+      "Q25433"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "Low German"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-13T19:50:56.577Z"
+}

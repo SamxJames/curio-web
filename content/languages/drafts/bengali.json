@@ -1,0 +1,28 @@
+{
+  "name": "Bengali",
+  "aliases": [],
+  "status": "living",
+  "classification": "Indo-Aryan language of the Indo-Iranian branch of the Indo-European family",
+  "region": "Bengal region (Bangladesh and India's West Bengal), Barak Valley in Assam and Tripura → Bengali diasporas in Europe, North America and the Middle East",
+  "map": {
+    "lat": 24,
+    "lon": 90,
+    "radiusKm": 400
+  },
+  "era": {
+    "from": 600,
+    "to": null,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": {
+    "count": 300000000,
+    "year": 2019,
+    "note": "Number of speakers, Wikidata figure for 2019"
+  },
+  "unknownSpeakersNote": null,
+  "parent": null,
+  "origin": "Bengali, also known by its endonym Bangla, is an Indo-Aryan language of the Indo-European family. It is primarily spoken by the Bengali people, native to the Bengal region, and has developed over more than 1,400 years. It is the official, national and most widely spoken language of Bangladesh.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Bengali_language",
+  "approved": true
+}

@@ -1,0 +1,35 @@
+{
+  "name": "Middle Chinese",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Middle Chinese",
+    "extract": "Middle Chinese or the Qieyun system (QYS) is the historical variety of Chinese recorded in the Qieyun, a rhyme dictionary first published in 601 and followed by several revised and expanded editions. The Swedish linguist Bernhard Karlgren thought that the dictionary recorded a speech standard of the capital Chang'an of the Sui and Tang dynasties. However, based on the preface of the Qieyun, most scholars now believe that it records a compromise between northern and southern reading and poetic traditions from the late Northern and Southern dynasties period. This composite system contains important information for the reconstruction of the preceding system of Old Chinese phonology.",
+    "url": "https://en.wikipedia.org/wiki/Middle_Chinese",
+    "description": "Chinese pronunciation system (601 AD)",
+    "wikibaseItem": "Q2016252",
+    "type": "standard",
+    "lead": "Middle Chinese (formerly known as Ancient Chinese) or the Qieyun system (QYS) is the historical variety of Chinese recorded in the Qieyun, a rhyme dictionary first published in 601 and followed by several revised and expanded editions. The Swedish linguist Bernhard Karlgren thought that the dictionary recorded a speech standard of the capital Chang'an of the Sui and Tang dynasties. However, based on the preface of the Qieyun, most scholars now believe that it records a compromise between northern and southern reading and poetic traditions from the late Northern and Southern dynasties period. This composite system contains important information for the reconstruction of the preceding system of Old Chinese phonology (early 1st millennium BC).\nThe fanqie method used to indicate pronunciation in these dictionaries, though an improvement on earlier methods, proved awkward in practice. The mid-12th-century Yunjing and other rime tables (aka rhyme tables) incorporate a more sophisticated and convenient analysis of the Qieyun phonology. The rime tables attest to a number of sound changes that had occurred over the centuries following the publication of the Qieyun. Linguists sometimes refer to the system of the Qieyun as Early Middle Chinese and the variant revealed by the rime tables as Late Middle Chinese.\nThe dictionaries and tables describe pronunciations in relative terms, but do not give their actual sounds. Karlgren was the first to attempt a reconstruction of the sounds of Middle Chinese, comparing its categories with modern varieties of Chinese and the Sino-Xenic pronunciations used in the reading traditions of neighbouring countries. Several other scholars have produced their own reconstructions using similar methods.\nThe Qieyun system is often used as a framework for Chinese dialectology. With the exception of Min varieties, which show independent developments from Old Chinese, modern Chinese varieties can be largely treated as divergent developments from Middle Chinese. The study of Middle Chinese also provides for a better understanding and analysis of Classical Chinese poetry, such as the study of Tang poetry.",
+    "titleMatched": false
+  },
+  "wikidata": {
+    "qid": "Q2016252",
+    "coordinates": null,
+    "inception": 601,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "historical language"
+    ],
+    "subclassOf": [
+      "Q33857",
+      "Q10913056"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "Sinitic",
+      "Historical Chinese"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-13T19:51:13.331Z"
+}

@@ -1,0 +1,28 @@
+{
+  "name": "Scottish Gaelic",
+  "aliases": [],
+  "status": "living",
+  "classification": "Goidelic branch of the Celtic languages, alongside Irish and Manx",
+  "region": "Scotland, especially the Outer Hebrides → Canada, mainly Nova Scotia",
+  "map": {
+    "lat": 58.1,
+    "lon": -6.6,
+    "radiusKm": 200
+  },
+  "era": {
+    "from": 1200,
+    "to": null,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": {
+    "count": 60130,
+    "year": 2011,
+    "note": "Speakers, Wikidata figure for 2011"
+  },
+  "unknownSpeakersNote": null,
+  "parent": "Old Irish",
+  "origin": "Scottish Gaelic developed out of Old Irish, as did Irish and Manx. It became a distinct spoken language sometime in the 13th century, in the Middle Irish period. A common literary language was shared by the Gaels of Ireland and Scotland until well into the 17th century.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Scottish_Gaelic",
+  "approved": true
+}

@@ -1,0 +1,63 @@
+{
+  "name": "Turkish",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Turkish language",
+    "extract": "Turkish is the most widely spoken of the Turkic languages, with around 90 million speakers. It is the national language of Turkey and one of two official languages of Cyprus. Significant smaller groups of Turkish speakers also exist in Germany, Austria, Bulgaria, North Macedonia, Greece, other parts of Europe, the South Caucasus, and some parts of Central Asia, Iraq, and Syria. Turkish is the 21st-most spoken language in the world.",
+    "url": "https://en.wikipedia.org/wiki/Turkish_language",
+    "description": "Turkic language",
+    "wikibaseItem": "Q256",
+    "type": "standard",
+    "lead": "Turkish (Türkçe [ˈtyɾctʃɛ] , Türk dili [ˈtyɾc dilɪ], also known as Türkiye Türkçesi 'Turkish of Turkey') is the most widely spoken of the Turkic languages, with around 90 million speakers. It is the national language of Turkey and one of two official languages of Cyprus. Significant smaller groups of Turkish speakers also exist in Germany, Austria, Bulgaria, North Macedonia, Greece, other parts of Europe, the South Caucasus, and some parts of Central Asia, Iraq, and Syria. Turkish is the 21st-most spoken language in the world.\nTo the west, the influence of Ottoman Turkish—the variety of the Turkish language that was used as the administrative and literary language of the Ottoman Empire—spread as the Ottoman Empire expanded. In 1928, as one of Atatürk's reforms in the early years of the Republic of Turkey, the Perso-Arabic script-based Ottoman Turkish alphabet was replaced with the Latin script-based Turkish alphabet.\nTurkish grammar is characterized by extensive agglutination and is generally very regular. The basic word order is subject–object–verb. Turkish has no noun classes or grammatical gender. Other notable grammatical features include evidentiality, converbs, and a variety of tenses, aspects, and moods.\nTurkish phonology is marked by vowel harmony; native words typically contain only front vowels (⟨e, i, ö, ü⟩) or only back vowels (⟨a, ı, o, u⟩), a phenomenon known as palatal harmony. In addition, certain suffixes exhibit a fourfold harmony that also includes rounding harmony among high vowels. While most suffixes agree with vowel harmony, there are some exceptions. Loanwords are not required to follow this rule.\nTurkish has a word accent system that has been described as either stress- or pitch-based. Most native words are accented on the last syllable, though this can vary due to suffixes. Meanwhile, loanwords vary considerably in this regard.\nOver 80% of Turkish vocabulary stems from native Turkic, with significant contributions from Ottoman-era Arabic, French, and Persian loanwords, as well as smaller contributions from Italian, Greek, and English. Many loanwords, especially those from Arabic, were replaced by Turkish coinages during the Turkish language reform due to prevailing ideas of linguistic purism.\nThe language makes usage of honorifics and has a strong T–V distinction which distinguishes varying levels of politeness, social distance, age, courtesy or familiarity toward the addressee. The plural second-person pronoun and verb forms can be used for referring to a single person out of respect.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q256",
+    "coordinates": {
+      "lat": 40,
+      "lon": 30
+    },
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 82231620,
+      "year": 2021
+    },
+    "instanceOf": [
+      "natural language",
+      "modern language",
+      "field of study"
+    ],
+    "subclassOf": [
+      "Q97725298",
+      "Q34090"
+    ],
+    "indigenousTo": [
+      "Q84072",
+      "Q369220",
+      "Q1104675",
+      "Q2012430",
+      "Q182809",
+      "Q229",
+      "Q208303",
+      "Q208604",
+      "Q43"
+    ],
+    "parentLabels": [
+      "Western Oghuz",
+      "Turkic"
+    ],
+    "regionLabels": [
+      "Turkish people",
+      "Burgas",
+      "Kardzhali",
+      "Smolyan",
+      "Haskovo",
+      "Cyprus",
+      "Xanthi (regional unit)",
+      "Rhodope Prefecture",
+      "Turkey"
+    ]
+  },
+  "fetchedAt": "2026-10-13T19:51:37.540Z"
+}

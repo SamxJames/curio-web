@@ -1,0 +1,49 @@
+{
+  "name": "Quechua",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Quechuan languages",
+    "extract": "Quechua, also called Runa simi in Southern Quechua, is an indigenous language family that originated in central Peru and thereafter spread to other countries of the Andes. Derived from a common ancestral \"Proto-Quechua\" language, it is the most widely spoken pre-Columbian language family of the Americas, with an estimated 8–10 million speakers in 2004, and just under 7 million from the most recent census data available up to 2011. Approximately 13.9% of Peruvians speak a Quechua language.",
+    "url": "https://en.wikipedia.org/wiki/Quechuan_languages",
+    "description": "Language family of the Andes in South America",
+    "wikibaseItem": "Q5218",
+    "type": "standard",
+    "lead": "Quechua (; Spanish: [ˈketʃwa]), also called Runa simi in Southern Quechua (pronounced [ˈɾʊna ˈsɪmɪ], 'people's language'), is an indigenous language family that originated in central Peru and thereafter spread to other countries of the Andes. Derived from a common ancestral \"Proto-Quechua\" language, it is the most widely spoken pre-Columbian language family of the Americas, with an estimated 8–10 million speakers in 2004, and just under 7 million from the most recent census data available up to 2011. Approximately 13.9% (3.7 million) of Peruvians speak a Quechua language.\nAlthough Quechua began expanding many centuries before the Incas, that previous expansion also meant that it was the primary language family within the Inca Empire. The Spanish tolerated its use until the Peruvian struggle for independence in the 1780s. As a result, various Quechua languages are still widely spoken, being the majority language in a number of regions of Peru, the most-spoken or co-official language in many others, and, as the Kichwa language, the second most-spoken language of Ecuador, after Spanish.",
+    "titleMatched": false
+  },
+  "wikidata": {
+    "qid": "Q5218",
+    "coordinates": {
+      "lat": -14,
+      "lon": -72
+    },
+    "inception": 1,
+    "dissolved": null,
+    "speakers": {
+      "count": 8900000,
+      "year": 2007
+    },
+    "instanceOf": [
+      "language family",
+      "natural language",
+      "macrolanguage",
+      "modern language",
+      "human language"
+    ],
+    "subclassOf": [
+      "Q51739",
+      "Q12634451"
+    ],
+    "indigenousTo": [
+      "Q419"
+    ],
+    "parentLabels": [
+      "Indigenous languages of the Americas",
+      "Quechuan"
+    ],
+    "regionLabels": [
+      "Peru"
+    ]
+  },
+  "fetchedAt": "2026-10-13T19:51:28.748Z"
+}

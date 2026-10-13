@@ -1,0 +1,39 @@
+{
+  "name": "Taíno",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Taíno language",
+    "extract": "Taíno is an extinct Arawakan language spoken by the Taíno people of the Caribbean. At the time of Spanish contact it was the most common language spoken throughout the Caribbean. Classic Taíno, or Taíno proper, was the Indigenous language of the peoples living in most of the Leeward Islands of the Lesser Antilles, Puerto Rico, most of Hispaniola, and easternmost Cuba. The Ciboney dialect is essentially unattested, but colonial sources suggest that it was very similar to the Lucayan dialects of the Bahamas and to Classic Taíno, and was spoken in central Cuba, parts of western Hispaniola, and possibly Jamaica.",
+    "url": "https://en.wikipedia.org/wiki/Ta%C3%ADno_language",
+    "description": "Arawakan language",
+    "wikibaseItem": "Q5232952",
+    "type": "standard",
+    "lead": "Taíno is an extinct Arawakan language spoken by the Taíno people of the Caribbean. At the time of Spanish contact it was the most common language spoken throughout the Caribbean. Classic Taíno, or Taíno proper, was the Indigenous language of the peoples living in most of the Leeward Islands of the Lesser Antilles, Puerto Rico (known as Boriquen), most of Hispaniola (known as Ayiti), and easternmost Cuba. The Ciboney dialect is essentially unattested, but colonial sources suggest that it was very similar to the Lucayan dialects of the Bahamas and to Classic Taíno, and was spoken in central Cuba, parts of western Hispaniola, and possibly Jamaica.\nBy the late 15th century, Taíno had displaced earlier languages of the Greater Antilles, except in westernmost Cuba and in pockets in Hispaniola. (See Indigenous languages of the Caribbean § Unclassified languages.) As the Taíno culture declined during Spanish colonization, the language was replaced by Spanish, English and French. Although the language declined drastically due to colonization, some Taíno words were absorbed into those languages. As the first Indigenous language encountered by Europeans in the Americas, it was a major source of new words borrowed into European languages.\nThere are several ongoing projects to construct a modern Neo-Taíno language.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q5232952",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": 1700,
+    "speakers": null,
+    "instanceOf": [
+      "natural language",
+      "dead language",
+      "extinct language"
+    ],
+    "subclassOf": [
+      "Q7672731"
+    ],
+    "indigenousTo": [
+      "Q1183"
+    ],
+    "parentLabels": [
+      "Ta-Arawakan"
+    ],
+    "regionLabels": [
+      "Puerto Rico"
+    ]
+  },
+  "fetchedAt": "2026-10-13T19:51:35.156Z"
+}

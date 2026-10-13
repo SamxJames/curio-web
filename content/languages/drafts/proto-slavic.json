@@ -1,0 +1,24 @@
+{
+  "name": "Proto-Slavic",
+  "aliases": [],
+  "status": "reconstructed",
+  "classification": "Ancestor of all Slavic languages",
+  "region": "Eastern Europe, with the Slavic-speaking area expanding greatly during the Proto-Slavic period",
+  "map": {
+    "lat": 50,
+    "lon": 25,
+    "radiusKm": 800
+  },
+  "era": {
+    "from": -2000,
+    "to": 600,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "Reconstructed by scholars. Never written down.",
+  "parent": null,
+  "origin": "Proto-Slavic is the reconstructed proto-language of all Slavic languages. It represents Slavic speech from about the 2nd millennium BC through the 6th century AD. No writings from it have been found, so it is reconstructed by applying the comparative method to the attested Slavic languages and by taking other Indo-European languages into account.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Proto-Slavic_language",
+  "approved": true
+}

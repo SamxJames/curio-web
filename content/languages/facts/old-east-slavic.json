@@ -1,0 +1,40 @@
+{
+  "name": "Old East Slavic",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Old East Slavic",
+    "extract": "Old East Slavic was a language used by the East Slavs from the 7th or 8th century to the 13th or 14th century, until it diverged into the Russian and Ruthenian languages. Ruthenian eventually evolved into the Belarusian, Rusyn, and Ukrainian languages.",
+    "url": "https://en.wikipedia.org/wiki/Old_East_Slavic",
+    "description": "Slavic language used in the 7th–14th centuries",
+    "wikibaseItem": "Q35228",
+    "type": "standard",
+    "lead": "Old East Slavic (traditionally also Old Russian) was a language (or a group of dialects) used by the East Slavs from the 7th or 8th century to the 13th or 14th century, until it diverged into the Russian and Ruthenian languages. Ruthenian eventually evolved into the Belarusian, Rusyn, and Ukrainian languages.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q35228",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 0,
+      "year": null
+    },
+    "instanceOf": [
+      "extinct language",
+      "dead language",
+      "historical language",
+      "chronolect",
+      "language"
+    ],
+    "subclassOf": [
+      "Q144713"
+    ],
+    "indigenousTo": [],
+    "parentLabels": [
+      "East Slavic"
+    ],
+    "regionLabels": []
+  },
+  "fetchedAt": "2026-10-13T19:51:17.373Z"
+}

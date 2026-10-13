@@ -1,0 +1,28 @@
+{
+  "name": "Tamil",
+  "aliases": [],
+  "status": "living",
+  "classification": "Dravidian language, in the Tamil languages group",
+  "region": "Tamil Nadu and Pondicherry in India, and the Northern and Eastern Provinces of Sri Lanka",
+  "map": {
+    "lat": 10,
+    "lon": 78.5,
+    "radiusKm": 300
+  },
+  "era": {
+    "from": -300,
+    "to": null,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": {
+    "count": 75000000,
+    "year": 2019,
+    "note": "Speakers, Wikidata figure for 2019"
+  },
+  "unknownSpeakersNote": null,
+  "parent": "Dravidian",
+  "origin": "Tamil is a Dravidian language spoken by the Tamil people of South Asia. It is one of the longest-surviving classical languages in the world, attested since about 300 BCE. Its script evolved from Tamil Brahmi, and the vatteluttu script was used later, until the current script was standardized.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Tamil_language",
+  "approved": true
+}

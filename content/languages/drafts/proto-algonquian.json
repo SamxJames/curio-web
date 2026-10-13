@@ -1,0 +1,20 @@
+{
+  "name": "Proto-Algonquian",
+  "aliases": [],
+  "status": "reconstructed",
+  "classification": "Ancestor of the Algonquian languages, a branch of the Algic language family",
+  "region": "Uncertain. Its descendants are spoken around New England and the Chesapeake Bay, the Great Lakes and the Great Plains",
+  "map": null,
+  "era": {
+    "from": -1000,
+    "to": -500,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "Reconstructed by scholars. Never written down.",
+  "parent": null,
+  "origin": "Proto-Algonquian is the proto-language from which the various Algonquian languages are descended. It is generally estimated to have been spoken around 2,500 to 3,000 years ago, but there is less agreement on where it was spoken. It is descended from Proto-Algic, and it is one of the best studied and most thoroughly reconstructed proto-languages in North American historical linguistics.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Proto-Algonquian_language",
+  "approved": true
+}

@@ -1,0 +1,37 @@
+{
+  "name": "Proto-Slavic",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Proto-Slavic language",
+    "extract": "Proto-Slavic is the unattested, reconstructed proto-language of all Slavic languages. It represents Slavic speech approximately from the 2nd millennium BC through the 6th century AD. As with most other proto-languages, no attested writings have been found; scholars have reconstructed the language by applying the comparative method to all the attested Slavic languages and by taking into account other Indo-European languages.",
+    "url": "https://en.wikipedia.org/wiki/Proto-Slavic_language",
+    "description": "Proto-language of all the Slavic languages",
+    "wikibaseItem": "Q747537",
+    "type": "standard",
+    "lead": "Proto-Slavic (abbreviated PSl., PS.; also called Common Slavic or Common Slavonic) is the unattested, reconstructed proto-language of all Slavic languages. It represents Slavic speech approximately from the 2nd millennium BC through the 6th century AD. As with most other proto-languages, no attested writings have been found; scholars have reconstructed the language by applying the comparative method to all the attested Slavic languages and by taking into account other Indo-European languages.\nRapid development of Slavic speech occurred during the Proto-Slavic period, coinciding with the massive expansion of the Slavic-speaking area. Dialectal differentiation occurred early on during this period, but overall linguistic unity and mutual intelligibility continued for several centuries, into the 10th century or later. During this period, many sound changes diffused across the entire area, often uniformly. This makes it inconvenient to maintain the traditional definition of a proto-language as the latest reconstructable common ancestor of a language group, with no dialectal differentiation. (This would necessitate treating all pan-Slavic changes after the 6th century or so as part of the separate histories of the various daughter languages.) Instead, Slavicists typically handle the entire period of dialectally differentiated linguistic unity as Common Slavic.\nOne can divide the Proto-Slavic/Common Slavic time of linguistic unity roughly into three periods:\n\nan early period with little or no dialectal variation\na middle period of slight-to-moderate dialectal variation\na late period of significant variation\nAuthorities differ as to which periods should be included in Proto-Slavic and in Common Slavic. The language described in this article generally reflects the middle period, usually termed Late Proto-Slavic (sometimes Middle Common Slavic) and often dated to around the 7th to 8th centuries. This language remains largely unattested, but a late-period variant, representing the late 9th-century dialect spoken around Thessaloniki in Macedonia, is attested in Old Church Slavonic manuscripts.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q747537",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": null,
+    "instanceOf": [
+      "proto-language"
+    ],
+    "subclassOf": [
+      "Q23526"
+    ],
+    "indigenousTo": [
+      "Q27468"
+    ],
+    "parentLabels": [
+      "Slavic"
+    ],
+    "regionLabels": [
+      "Eastern Europe"
+    ]
+  },
+  "fetchedAt": "2026-10-13T19:51:26.421Z"
+}

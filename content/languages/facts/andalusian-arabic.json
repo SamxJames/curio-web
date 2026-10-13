@@ -1,0 +1,39 @@
+{
+  "name": "Andalusian Arabic",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Andalusi Arabic",
+    "extract": "Andalusi Arabic or Andalusian Arabic was a variety or varieties of Arabic spoken mainly from the 8th to the 15th century in Al-Andalus, the regions of the Iberian Peninsula under Muslim rule.",
+    "url": "https://en.wikipedia.org/wiki/Andalusi_Arabic",
+    "description": "Variety of Arabic formerly spoken on the Iberian Peninsula",
+    "wikibaseItem": "Q1137945",
+    "type": "standard",
+    "lead": "Andalusi Arabic or Andalusian Arabic (Arabic: اللهجة العربية الأندلسية, romanized: al-lahja al-ʿarabiyya al-ʾandalusiyya) was a variety or varieties of Arabic spoken mainly from the 8th to the 15th century in Al-Andalus, the regions of the Iberian Peninsula under Muslim rule.\nArabic spread gradually over the centuries of Muslim rule in Iberia, primarily through conversion to Islam, although it was also learned and spoken by Christians and Jews. Arabic became the language of administration and was the primary language of literature produced in al-Andalus; the Andalusi vernacular was distinct among medieval Arabic vernaculars in that it was used in poetry, in zajal and the kharjas of muwaššaḥāt.\nArabic in al-Andalus existed largely in a situation of bilingualism with Andalusi Romance (known popularly as Mozarabic) until the 13th century. Arabic in Iberia was also characterized by diglossia: in addition to standard written Arabic, spoken varieties could be subdivided into an urban, educated idiolect and a register of the less-privileged masses.\nAfter the fall of Granada in 1492, the Catholic rulers suppressed the use of Arabic, persecuting its speakers, passing policies against its use (such as the Pragmática Sanción de 1567, which led directly to the Rebellion of the Alpujarras), and expelling the Moriscos in the early 17th century, after which Arabic became an extinct language in Iberia. An Andalusi variety of Arabic continued to be spoken to some degree in North Africa after the expulsion, and it was notably preserved in Andalusi classical music traditions in North Africa. Andalusi speakers influenced the speech of those Maghrebi communities into which they fled and assimilated.\nSpoken Andalusi Arabic had distinct features. It is unique among colloquial dialects in retaining from Standard Arabic the internal passive voice through vocalization. Through contact with Romance, spoken Andalusi Arabic adopted the phonemes /p/ and /tʃ/. Like the other Iberian languages, Andalusi lacked vowel length but had stress instead (e.g. Andalusí in place of Andalusī). A feature shared with Maghrebi Arabic was that the first-person imperfect was marked with the prefix n- (نلعب nalʿab 'I play') like the plural in Standard Arabic, necessitating an analogical imperfect first-person plural, constructed with the suffix -ū (نلعبوا nalʿabū 'we play'). A feature characteristic of it was the extensive imala that transformed alif into an /e/ or /i/ (e.g. al-kirā (\"rent\") > al-kirē > Spanish \"alquiler\").",
+    "titleMatched": false
+  },
+  "wikidata": {
+    "qid": "Q1137945",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": 1700,
+    "speakers": null,
+    "instanceOf": [
+      "dialect",
+      "historical language",
+      "dead language"
+    ],
+    "subclassOf": [
+      "Q1194795"
+    ],
+    "indigenousTo": [
+      "Q208176"
+    ],
+    "parentLabels": [
+      "Maghrebi Arabic"
+    ],
+    "regionLabels": [
+      "Morisco"
+    ]
+  },
+  "fetchedAt": "2026-10-13T19:51:02.138Z"
+}

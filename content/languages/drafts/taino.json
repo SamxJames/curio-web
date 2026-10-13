@@ -1,0 +1,20 @@
+{
+  "name": "Taíno",
+  "aliases": [],
+  "status": "extinct",
+  "classification": "Arawakan language of the Ta-Arawakan group",
+  "region": "Puerto Rico, most of Hispaniola, easternmost Cuba and most of the Leeward Islands of the Lesser Antilles",
+  "map": {
+    "lat": 18.2,
+    "lon": -69,
+    "radiusKm": 800
+  },
+  "era": null,
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": null,
+  "origin": "Taíno is an extinct Arawakan language spoken by the Taíno people of the Caribbean. At the time of Spanish contact it was the most common language in the Caribbean, and by the late 15th century it had displaced earlier languages of the Greater Antilles, except in westernmost Cuba and pockets of Hispaniola. As Taíno culture declined during Spanish colonization, the language was replaced by Spanish, English and French.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Ta%C3%ADno_language",
+  "approved": true,
+  "_override": "The lead says only that Taino had displaced other languages by the late 15th century, which is not a start date, so the sheet shows no dates."
+}

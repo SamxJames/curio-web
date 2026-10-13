@@ -1,0 +1,46 @@
+{
+  "name": "Old Tupi",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Tupi language",
+    "extract": "Old Tupi, Ancient Tupi or Classical Tupi is a classical Tupian language which was spoken by the Indigenous Tupi people of Brazil, who inhabited coastal regions in South and Southeast Brazil. In the words of Brazilian tupinologist Eduardo Navarro, \"it is the classical indigenous language of Brazil, and the one which had the utmost importance to the cultural and spiritual formation of the country\".",
+    "url": "https://en.wikipedia.org/wiki/Tupi_language",
+    "description": "Tupian language of Brazil",
+    "wikibaseItem": "Q56944",
+    "type": "standard",
+    "lead": "Old Tupi, Ancient Tupi or Classical Tupi (Portuguese pronunciation: [tuˈpi]) is a classical Tupian language which was spoken by the Indigenous Tupi people of Brazil, who inhabited coastal regions in South and Southeast Brazil. In the words of Brazilian tupinologist Eduardo Navarro, \"it is the classical indigenous language of Brazil, and the one which had the utmost importance to the cultural and spiritual formation of the country\".\nOld Tupi belongs to the Tupi–Guarani language family, and has a written history spanning the 16th, 17th, and early 18th centuries. In the early colonial period, Tupi was used as a lingua franca throughout Brazil by Europeans and Amerindians, and had literary usage, but it was later suppressed almost to extinction. Today, its sole living descendant is the Nheengatu language.\nAs the most important native language of Brazil, it is the origin of most city names of indigenous origin (Pindamonhangaba, Ubatuba, Botucatu, Jacareí). It also names several plants and animals, and many proper names are Tupi names, such as Moacir, Iara, Iracema and Jandaia. It has a rich literature, which includes catechisms, poems and plays.\nThe names Old Tupi or Classical Tupi are used for the language in English and by modern scholars (it is referred to as tupi antigo in Portuguese). It has previously been known, in Portuguese, as língua brasílica \"Brazilian language\".",
+    "titleMatched": false
+  },
+  "wikidata": {
+    "qid": "Q56944",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 0,
+      "year": null
+    },
+    "instanceOf": [
+      "dead language",
+      "extinct language",
+      "language"
+    ],
+    "subclassOf": [
+      "Q148610",
+      "Q34070"
+    ],
+    "indigenousTo": [
+      "Q120684",
+      "Q1757881"
+    ],
+    "parentLabels": [
+      "Tupi–Guarani",
+      "Tupian"
+    ],
+    "regionLabels": [
+      "Tupí people",
+      "Tupinambá"
+    ]
+  },
+  "fetchedAt": "2026-10-13T19:51:21.960Z"
+}

@@ -1,0 +1,23 @@
+{
+  "name": "Turkish",
+  "aliases": [],
+  "status": "living",
+  "classification": "Western Oghuz branch of the Turkic languages",
+  "region": "Turkey and Cyprus, with smaller groups in Germany, Austria, Bulgaria, North Macedonia, Greece, the South Caucasus, and parts of Central Asia, Iraq, and Syria",
+  "map": {
+    "lat": 40,
+    "lon": 30,
+    "radiusKm": 600
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 82231620,
+    "year": 2021,
+    "note": "Speakers, Wikidata figure for 2021"
+  },
+  "unknownSpeakersNote": null,
+  "parent": null,
+  "origin": "Turkish is the most widely spoken of the Turkic languages and belongs to their Western Oghuz group. Ottoman Turkish, the variety of Turkish used as the administrative and literary language of the Ottoman Empire, spread west as the empire expanded. In 1928, as one of Atatürk's reforms, the Perso-Arabic Ottoman Turkish alphabet was replaced with the Latin-based Turkish alphabet.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Turkish_language",
+  "approved": true
+}

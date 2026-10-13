@@ -1,0 +1,24 @@
+{
+  "name": "Akkadian",
+  "aliases": [],
+  "status": "extinct",
+  "classification": "East Semitic branch of the Semitic family",
+  "region": "Ancient Mesopotamia (Akkad, Assyria, Isin, Larsa, Babylonia) → lingua franca of much of the Ancient Near East",
+  "map": {
+    "lat": 33,
+    "lon": 44,
+    "radiusKm": 500
+  },
+  "era": {
+    "from": -2500,
+    "to": -700,
+    "writtenUntil": 100,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "Semitic",
+  "origin": "Akkadian is the earliest documented Semitic language and is named after the city of Akkad. Akkadian proper names first appear in Sumerian texts in the mid-3rd millennium BC, and texts fully written in Akkadian begin to appear from about the 24th century BC. It was written in cuneiform, a script originally used for Sumerian, which also influenced Akkadian phonology, vocabulary and syntax.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Akkadian_language",
+  "approved": true
+}

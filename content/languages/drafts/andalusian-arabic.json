@@ -1,0 +1,25 @@
+{
+  "name": "Andalusian Arabic",
+  "aliases": [],
+  "status": "extinct",
+  "classification": "Variety or varieties of Arabic",
+  "region": "Al-Andalus, the Iberian Peninsula under Muslim rule",
+  "map": {
+    "lat": 37.5,
+    "lon": -4.5,
+    "radiusKm": 400
+  },
+  "era": {
+    "from": 700,
+    "to": 1700,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": null,
+  "origin": "Arabic spread gradually in Iberia during Muslim rule, mainly through conversion to Islam, and was also learned and spoken by Christians and Jews. For centuries it existed alongside Andalusi Romance in a situation of bilingualism. After the fall of Granada in 1492, Arabic was suppressed and the Moriscos were expelled in the early 17th century, after which it became extinct in Iberia. An Andalusi variety continued to be spoken to some degree in North Africa.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Andalusi_Arabic",
+  "approved": true,
+  "_override": "Wikipedia lead: 'Andalusi Arabic or Andalusian Arabic was a variety or varieties of Arabic'. Same language; Wikidata classes it as a dialect, so the page is not typed as a language."
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Old Irish",
+  "aliases": [],
+  "status": "historical",
+  "classification": "Goidelic (Gaelic) language, the oldest with extensive written texts",
+  "region": "Not recorded in the sources",
+  "map": null,
+  "era": {
+    "from": 600,
+    "to": 900,
+    "writtenUntil": null,
+    "approximate": true
+  },
+  "peakSpeakers": null,
+  "unknownSpeakersNote": "No census of its speakers exists.",
+  "parent": "Primitive Irish",
+  "origin": "Old Irish is the oldest form of the Goidelic/Gaelic language with extensive written texts, used from about 600 to 900. It followed the Primitive Irish period, when its complex morphology and grammatical consonant mutations were apparently not yet present. It is the direct ancestor of Early Modern Irish, Manx Gaelic and Scots Gaelic.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Old_Irish",
+  "approved": true
+}

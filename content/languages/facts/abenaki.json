@@ -1,0 +1,48 @@
+{
+  "name": "Abenaki",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Abenaki language",
+    "extract": "Abenaki is an endangered Eastern Algonquian language of Quebec and the northern states of New England spoken by the Abenaki. The language has Eastern and Western forms which differ in vocabulary and phonology and are sometimes considered distinct languages.",
+    "url": "https://en.wikipedia.org/wiki/Abenaki_language",
+    "description": "Algonquian language",
+    "wikibaseItem": "Q197936",
+    "type": "standard",
+    "lead": "Abenaki (Eastern: Alənαpαtəwéwαkan, Western: Alnôbaôdwawôgan) is an endangered Eastern Algonquian language of Quebec and the northern states of New England spoken by the Abenaki. The language has Eastern and Western forms which differ in vocabulary and phonology and are sometimes considered distinct languages.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q197936",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 20,
+      "year": 2012
+    },
+    "instanceOf": [
+      "language"
+    ],
+    "subclassOf": [
+      "Q2257525"
+    ],
+    "indigenousTo": [
+      "Q318806",
+      "Q774932",
+      "Q16551",
+      "Q176",
+      "Q724"
+    ],
+    "parentLabels": [
+      "Eastern Algonquian"
+    ],
+    "regionLabels": [
+      "Abenaki people",
+      "Penobscot Nation",
+      "Vermont",
+      "Quebec",
+      "Maine"
+    ]
+  },
+  "fetchedAt": "2026-10-13T19:51:39.592Z"
+}

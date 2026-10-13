@@ -1,0 +1,23 @@
+{
+  "name": "Abenaki",
+  "aliases": [],
+  "status": "living",
+  "classification": "Eastern Algonquian language, part of the Algonquian family",
+  "region": "Quebec and the northern states of New England (Vermont, Maine)",
+  "map": {
+    "lat": 44.5,
+    "lon": -71.5,
+    "radiusKm": 400
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 20,
+    "year": 2012,
+    "note": "Speakers, Wikidata figure for 2012"
+  },
+  "unknownSpeakersNote": null,
+  "parent": "Algonquian",
+  "origin": "Abenaki is an Eastern Algonquian language spoken by the Abenaki in Quebec and the northern states of New England. It has Eastern and Western forms that differ in vocabulary and phonology. They are sometimes considered distinct languages.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Abenaki_language",
+  "approved": true
+}

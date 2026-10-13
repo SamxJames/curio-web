@@ -1,0 +1,23 @@
+{
+  "name": "Aleut",
+  "aliases": [],
+  "status": "living",
+  "classification": "Sole language of the Aleut branch of the Eskimo-Aleut family",
+  "region": "Aleutian Islands, Pribilof Islands, Commander Islands and the Alaska Peninsula",
+  "map": {
+    "lat": 53.5,
+    "lon": -166,
+    "radiusKm": 1200
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 200,
+    "year": 2010,
+    "note": "Speakers, Wikidata figure for 2010"
+  },
+  "unknownSpeakersNote": null,
+  "parent": null,
+  "origin": "Aleut is the only language in the Aleut branch of the Eskimo-Aleut language family. Its speakers live in the Aleutian Islands, Pribilof Islands, Commander Islands and the Alaska Peninsula. The Aleut name for the Alaska Peninsula, Alaxsxa, is the origin of the state name Alaska.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Aleut_language",
+  "approved": true
+}

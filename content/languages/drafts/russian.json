@@ -1,0 +1,23 @@
+{
+  "name": "Russian",
+  "aliases": [],
+  "status": "living",
+  "classification": "East Slavic language of the Balto-Slavic branch of the Indo-European family",
+  "region": "Russia → official also in Belarus, Kazakhstan and Kyrgyzstan, and a lingua franca in Ukraine, Moldova, the Caucasus and Central Asia",
+  "map": {
+    "lat": 55,
+    "lon": 38,
+    "radiusKm": 600
+  },
+  "era": null,
+  "peakSpeakers": {
+    "count": 171428900,
+    "year": 2010,
+    "note": "Speakers, Wikidata figure for 2010"
+  },
+  "unknownSpeakersNote": null,
+  "parent": null,
+  "origin": "Russian is an East Slavic language in the Balto-Slavic branch of the Indo-European family. It is one of four extant East Slavic languages and is the native language of the Russian people. It is written in the Russian alphabet of the Cyrillic script.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/Russian_language",
+  "approved": true
+}

@@ -1,0 +1,52 @@
+{
+  "name": "Ojibwe",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Ojibwe language",
+    "extract": "Ojibwe, also known as Ojibwa, Ojibway, Otchipwe, Ojibwemowin, or Anishinaabemowin, is an indigenous language of North America of the Algonquian language family. The language has various dialects with local names and frequently local writing systems. No single dialect is considered the most prestigious or prominent, and no writing system covers all dialects.",
+    "url": "https://en.wikipedia.org/wiki/Ojibwe_language",
+    "description": "Central Algonquian language of North America",
+    "wikibaseItem": "Q33875",
+    "type": "standard",
+    "lead": "Ojibwe ( oh-JIB-way), also known as Ojibwa ( oh-JIB-wə), Ojibway, Otchipwe, Ojibwemowin, or Anishinaabemowin, is an indigenous language of North America of the Algonquian language family. The language has various dialects with local names and frequently local writing systems. No single dialect is considered the most prestigious or prominent, and no writing system covers all dialects.\nDialects of Ojibwemowin are spoken in Canada, from southwestern Quebec, through Ontario, Manitoba, and parts of Saskatchewan, with outlying communities in Alberta; and in the United States, from Michigan to Wisconsin and Minnesota, with communities in North Dakota and Montana, as well as groups that were removed to Kansas and Oklahoma by the Indian Removal Act. While there is some variation in the classification of its dialects, at least the following are recognized, from east to west: Algonquin, Eastern Ojibwe, Ottawa (Odawa), Western Ojibwe (Saulteaux), Oji-Cree (Severn Ojibwe), Northwestern Ojibwe, and Southwestern Ojibwe (Chippewa). Based upon contemporary field research, J. R. Valentine also recognizes several other dialects: Berens Ojibwe in northwestern Ontario, which he distinguishes from Northwestern Ojibwe; North of (Lake) Superior; and Nipissing. The latter two cover approximately the same territory as Central Ojibwa, which he does not recognize.\nThe aggregated dialects of Ojibwemowin comprise the second most commonly spoken First Nations language in Canada (after Cree), and the fourth most widely spoken Native American language in the United States or Canada behind Navajo, the Inuit languages and Cree.\nOjibwemowin is a relatively healthy indigenous language. The Waadookodaading Ojibwe Language Immersion School in Hayward, Wisconsin, teaches children in Ojibwe only. A similar program is in place at Lowell Elementary School in Duluth, Minnesota.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q33875",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 20470,
+      "year": 2016
+    },
+    "instanceOf": [
+      "natural language",
+      "macrolanguage",
+      "modern language"
+    ],
+    "subclassOf": [
+      "Q2153999"
+    ],
+    "indigenousTo": [
+      "Q1904",
+      "Q1948",
+      "Q1989",
+      "Q1973",
+      "Q1166",
+      "Q1212"
+    ],
+    "parentLabels": [
+      "Central Algonquian"
+    ],
+    "regionLabels": [
+      "Ontario",
+      "Manitoba",
+      "Saskatchewan",
+      "British Columbia",
+      "Michigan",
+      "Montana"
+    ]
+  },
+  "fetchedAt": "2026-10-13T19:51:15.946Z"
+}

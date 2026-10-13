@@ -95,7 +95,12 @@ describe("LanguagePanel", () => {
   });
 
   it("omits the dashed caption when nothing is reconstructed", () => {
-    expect(render({ ...LATIN_FIXTURE, parent: null })).not.toContain("Dashed:");
+    const sheet = { ...LATIN_FIXTURE, parent: null };
+    // Pass the sheet list explicitly: shipped data gives real Latin a reconstructed ancestry.
+    const html = renderToStaticMarkup(
+      <LanguagePanelView id="lp" sheet={sheet} model={panelModel(sheet, [["Latin", "English"]], [sheet])} />,
+    );
+    expect(html).not.toContain("Dashed:");
   });
 });
 

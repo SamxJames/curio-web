@@ -1,0 +1,43 @@
+{
+  "name": "Aleut",
+  "aliases": [],
+  "wikipedia": {
+    "title": "Aleut language",
+    "extract": "Aleut is the language spoken by the Aleut living in the Aleutian Islands, Pribilof Islands, Commander Islands, and the Alaska Peninsula. Aleut is the sole language in the Aleut branch of the Eskimo–Aleut language family. The Aleut language consists of three dialects, including Unalaska, Atka/Atkan, and Attu/Attuan.",
+    "url": "https://en.wikipedia.org/wiki/Aleut_language",
+    "description": "Eskimo–Aleut language",
+    "wikibaseItem": "Q27210",
+    "type": "standard",
+    "lead": "Aleut (, AL-ee-oot; endonym: Unangam Tunuu) is the language spoken by the Aleut living in the Aleutian Islands, Pribilof Islands, Commander Islands, and the Alaska Peninsula (in Aleut Alaxsxa, the origin of the state name Alaska). Aleut is the sole language in the Aleut branch of the Eskimo–Aleut language family. The Aleut language consists of three dialects, including Unalaska (Eastern Aleut), Atka/Atkan (Atka Aleut), and Attu/Attuan (Western Aleut, now extinct).\n\nVarious sources estimate there are fewer than 100 to 150 remaining active Aleut speakers. Because of this, Eastern and Atkan Aleut are classified as \"critically endangered and extinct\" and have an Expanded Graded Intergenerational Disruption Scale (EGIDS) rating of 7. The task of revitalizing Aleut has largely been left to local government and community organizations. The overwhelming majority of schools in the historically Aleut-speaking regions lack any language/culture courses in their curriculum, and those that do fail to produce fluent or even proficient speakers.",
+    "titleMatched": true
+  },
+  "wikidata": {
+    "qid": "Q27210",
+    "coordinates": null,
+    "inception": null,
+    "dissolved": null,
+    "speakers": {
+      "count": 200,
+      "year": 2010
+    },
+    "instanceOf": [
+      "natural language",
+      "modern language"
+    ],
+    "subclassOf": [
+      "Q11850745"
+    ],
+    "indigenousTo": [
+      "Q797",
+      "Q1144173"
+    ],
+    "parentLabels": [
+      "Aleut"
+    ],
+    "regionLabels": [
+      "Alaska",
+      "Pribilof Islands"
+    ]
+  },
+  "fetchedAt": "2026-10-13T19:51:43.440Z"
+}
