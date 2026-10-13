@@ -6,6 +6,7 @@ import {
   setThemePreference,
   useThemePreference,
 } from "@/lib/storage";
+import clsx from "clsx";
 import IconButton from "@/components/ui/IconButton";
 
 const OPTIONS: { value: ThemePreference; label: string; shortLabel: string; icon: typeof Sun }[] = [
@@ -14,7 +15,7 @@ const OPTIONS: { value: ThemePreference; label: string; shortLabel: string; icon
   { value: "dark", label: "Dark", shortLabel: "Dark", icon: Moon },
 ];
 
-export default function ThemeToggle() {
+export default function ThemeToggle({ className }: { className?: string }) {
   const pref = useThemePreference();
 
   function cycle() {
@@ -31,7 +32,7 @@ export default function ThemeToggle() {
       label={`Theme: ${current.label}. Click to change.`}
       title={`Theme: ${current.label}`}
       onClick={cycle}
-      className="sm:px-3"
+      className={clsx("sm:px-3", className)}
     >
       <Icon size={16} strokeWidth={1.75} />
       {/* Icon alone is enough on narrow viewports — the header nav is

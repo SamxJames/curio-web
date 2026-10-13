@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import clsx from "clsx";
 import { signIn } from "next-auth/react";
 import { detectMailProvider, openMailProvider, MAIL_PROVIDERS } from "@/lib/mailProviders";
 import Button from "@/components/ui/Button";
@@ -96,15 +97,24 @@ export default function LoginPage() {
         </p>
 
         {matched && (
-          <Button type="button" fullWidth className="mt-6" onClick={() => openMailProvider(matched)}>
+          <Button type="button" fullWidth className="mt-6 min-h-11" onClick={() => openMailProvider(matched)}>
             Open {matched.label}
           </Button>
         )}
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 font-sans text-sm text-ink-soft">
-          {!matched && <span className="text-ink-faint">Open your inbox:</span>}
+        {!matched && <p className="mt-6 font-sans text-sm text-ink-faint">Open your inbox:</p>}
+        {/* Bordered, full tap-height buttons in a two-column grid: as bare
+            text links these were ~20px tall and hard to hit on a phone. */}
+        <div className={clsx("grid grid-cols-2 gap-2", matched ? "mt-3" : "mt-2")}>
           {others.map((p) => (
-            <Button key={p.label} variant="ghost" type="button" onClick={() => openMailProvider(p)}>
+            <Button
+              key={p.label}
+              variant="secondary"
+              size="sm"
+              type="button"
+              className="min-h-11"
+              onClick={() => openMailProvider(p)}
+            >
               {p.label}
             </Button>
           ))}

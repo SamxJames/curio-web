@@ -44,11 +44,11 @@ export default function Header() {
 
   return (
     <header className="border-b border-line">
-      <div className="mx-auto flex max-w-page items-center justify-between px-4 py-5 sm:px-6">
+      <div className="mx-auto flex max-w-page items-center justify-between gap-4 px-4 py-5 sm:px-6">
         <Link href="/" className="font-serif text-lg tracking-tight">
           Curio
         </Link>
-        <nav className="flex items-center gap-3 sm:gap-5">
+        <nav className="flex items-center gap-2.5 sm:gap-5">
           <Link href="/" className={navLinkClass(todayActive)}>
             Today
           </Link>
@@ -90,7 +90,9 @@ export default function Header() {
               </Link>
             </>
           )}
-          <ThemeToggle />
+          {/* On a phone the 44px tap target bleeds into the page gutter so the
+              icon lines up with the edge and the wordmark keeps its gap. */}
+          <ThemeToggle className="-mr-3.5 sm:mr-0" />
         </nav>
       </div>
     </header>
