@@ -52,7 +52,8 @@ export const PAGES_UPDATED = {
 
 /** `lastModified` appears only where PAGES_UPDATED says when that page type
  * last changed. Home, /play, /history and /attribution carry none: the first
- * two change daily, and the other two haven't changed. `changeFrequency` and
+ * two change daily, and the other
+ * two change rarely and aren't tracked. `changeFrequency` and
  * `priority` are hints, not claims of fact, so they stay on every entry. */
 export function buildSitemapEntries(): SitemapEntry[] {
   const routes: SitemapEntry[] = PUBLIC_ROUTES.map((route) => ({

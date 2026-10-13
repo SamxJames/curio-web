@@ -27,7 +27,7 @@ export async function generateMetadata({
   // (storyMetaDescription), and the test keeps every result under 175
   // characters, so nothing needs truncating. Social cards keep the bare
   // teaser: Twitter inherits openGraph.description through Next's autofill.
-  const description = word.teaser;
+  const teaser = word.teaser;
   const title = storyPageTitle(word);
 
   return {
@@ -42,7 +42,7 @@ export async function generateMetadata({
       type: "website",
       siteName: "Curio",
       title,
-      description,
+      description: teaser,
       url: `/story/${slug}`,
     },
   };

@@ -22,12 +22,13 @@ function escapeXml(s: string): string {
 export function buildFeedXml(days: HistoryDay[], now: Date): string {
   const items = days.map(({ date, word }) => {
     const url = absoluteUrl(`/story/${word.slug}`);
-    // The utm tag lets /admin count feed clicks as the "rss" source.
+    // <link> stays the bare canonical URL (the feed is also a sitemap in robots.txt);
+    // only the in-body anchor carries the utm tag, so /admin can count "rss" clicks.
     const html = `<p>${escapeXml(word.teaser)}</p><p>${escapeXml(word.origin)}</p><p><a href="${url}?utm_source=rss">Read the full story on Curio</a></p>`;
     return [
       "<item>",
       `<title>${escapeXml(word.word)}</title>`,
-      `<link>${url}?utm_source=rss</link>`,
+      `<link>${url}</link>`,
       `<guid isPermaLink="true">${url}</guid>`,
       `<pubDate>${new Date(`${date}T00:00:00Z`).toUTCString()}</pubDate>`,
       `<description>${escapeXml(html)}</description>`,

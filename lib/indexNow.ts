@@ -4,6 +4,9 @@ import { buildSitemapEntries } from "./seoRoutes";
 
 /** IndexNow (Bing, Yandex, Seznam, Naver; Bing's index also feeds
  * DuckDuckGo, Copilot and ChatGPT search). Google does not use IndexNow.
+ * The ledger (a Redis set) holds `url|lastmod` members, so a page is re-sent
+ * when its sitemap lastmod moves: bumping PAGES_UPDATED re-submits those pages
+ * the next morning, and nothing else repeats.
  * The key is public by design: it's served at /<key>.txt to prove we own
  * the host. Rotating it means a new public/ file and a new constant. */
 export const INDEXNOW_KEY = "3f5e065a4027a9dbca71664664e0b4f1";
@@ -15,9 +18,10 @@ const lockKey = (day: string) => `curio:digest:indexnow:${day}`;
 
 export type IndexNowOutcome = "skipped" | "already-ran" | "submitted" | "failed";
 
-/** The pages whose HTML changes every day. */
+/** The pages whose HTML changes every day: home, /play, /history (gains a
+ * row daily) and today's story. */
 export function dailyIndexNowUrls(todaySlug: string): string[] {
-  return [absoluteUrl("/"), absoluteUrl("/play"), absoluteUrl(`/story/${todaySlug}`)];
+  return [absoluteUrl("/"), absoluteUrl("/play"), absoluteUrl("/history"), absoluteUrl(`/story/${todaySlug}`)];
 }
 
 /** Called from the 09:00 cron inside after(). Never throws, so it can't
@@ -38,10 +42,14 @@ export async function submitDailyIndexNow(
     claimed = (await redis.set(lockKey(day), new Date().toISOString(), { nx: true, ex: LOCK_TTL_SECONDS })) === "OK";
     if (!claimed) return "already-ran";
 
-    const sitemapUrls = buildSitemapEntries().map((e) => e.url);
-    const seen = await redis.smismember(SUBMITTED_KEY, sitemapUrls);
-    const unsent = sitemapUrls.filter((_, i) => !seen[i]);
-    const urlList = [...new Set([...dailyIndexNowUrls(todaySlug), ...unsent])].slice(0, MAX_URLS);
+    const entries = buildSitemapEntries().map((e) => ({ url: e.url, member: `${e.url}|${e.lastModified ?? ""}` }));
+    const seen = await redis.smismember(
+      SUBMITTED_KEY,
+      entries.map((e) => e.member)
+    );
+    const unsent = entries.filter((_, i) => !seen[i]);
+    const urlList = [...new Set([...dailyIndexNowUrls(todaySlug), ...unsent.map((e) => e.url)])].slice(0, MAX_URLS);
+    const sentUrls = new Set(urlList);
 
     const response = await fetcher(INDEXNOW_ENDPOINT, {
       method: "POST",
@@ -59,8 +67,8 @@ export async function submitDailyIndexNow(
       await release(day);
       return "failed";
     }
-    const sentFromSitemap = unsent.filter((u) => urlList.includes(u));
-    if (sentFromSitemap.length > 0) await redis.sadd(SUBMITTED_KEY, ...(sentFromSitemap as [string, ...string[]]));
+    const sentMembers = unsent.filter((e) => sentUrls.has(e.url)).map((e) => e.member);
+    if (sentMembers.length > 0) await redis.sadd(SUBMITTED_KEY, ...(sentMembers as [string, ...string[]]));
     console.log(`[curio:indexnow] ${day}: submitted ${urlList.length} URLs (HTTP ${response.status})`);
     return "submitted";
   } catch (err) {

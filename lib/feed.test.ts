@@ -50,9 +50,11 @@ describe("buildFeedXml", () => {
     expect(pubDates[0]).toBe(new Date("2026-10-13T00:00:00Z").toUTCString());
   });
 
-  it("tags item links with utm_source=rss and keeps the guid bare", () => {
+  it("keeps item links and guids bare; only the description anchor carries utm_source=rss", () => {
     for (const { word } of days) {
-      expect(xml).toContain(`<link>https://curio.example/story/${word.slug}?utm_source=rss</link>`);
+      expect(xml).toContain(`<link>https://curio.example/story/${word.slug}</link>`);
+      expect(xml).not.toContain(`<link>https://curio.example/story/${word.slug}?`);
+      expect(xml).toContain(`&lt;a href=&quot;https://curio.example/story/${word.slug}?utm_source=rss&quot;&gt;Read the full story on Curio&lt;/a&gt;`);
       expect(xml).toContain(`<guid isPermaLink="true">https://curio.example/story/${word.slug}</guid>`);
     }
   });

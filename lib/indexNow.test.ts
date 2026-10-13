@@ -27,6 +27,13 @@ const { fake } = vi.hoisted(() => {
 
 vi.mock("./redis", () => ({ redis: fake, usingUpstash: true }));
 
+const { sitemapFixture } = vi.hoisted(() => ({ sitemapFixture: { override: null as null | Array<{ url: string; lastModified?: string }> } }));
+
+vi.mock("./seoRoutes", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./seoRoutes")>();
+  return { ...actual, buildSitemapEntries: () => sitemapFixture.override ?? actual.buildSitemapEntries() };
+});
+
 const { submitDailyIndexNow, INDEXNOW_KEY, INDEXNOW_ENDPOINT } = await import("./indexNow");
 const { buildSitemapEntries } = await import("./seoRoutes");
 
@@ -41,6 +48,7 @@ let error: ReturnType<typeof vi.spyOn>;
 beforeEach(() => {
   vi.clearAllMocks();
   fake.store.clear();
+  sitemapFixture.override = null;
   vi.stubEnv("VERCEL_ENV", "production");
   vi.stubEnv("CURIO_SITE_URL", "https://curio.example");
   log = vi.spyOn(console, "log").mockImplementation(() => {});
@@ -86,10 +94,11 @@ describe("submitDailyIndexNow", () => {
     expect(body.urlList).toContain("https://curio.example/story/custard");
     expect(body.urlList).toContain("https://curio.example/");
     expect(body.urlList).toContain("https://curio.example/play");
+    expect(body.urlList).toContain("https://curio.example/history");
     for (const u of sitemap) expect(body.urlList).toContain(u);
     expect(new Set(body.urlList).size).toBe(body.urlList.length);
     const ledger = fake.store.get(SUBMITTED) as Set<string>;
-    for (const u of sitemap) expect(ledger.has(u)).toBe(true);
+    for (const e of buildSitemapEntries()) expect(ledger.has(`${e.url}|${e.lastModified ?? ""}`)).toBe(true);
   });
 
   it("a second call the same day is already-ran", async () => {
@@ -99,14 +108,45 @@ describe("submitDailyIndexNow", () => {
     expect(fetcher).not.toHaveBeenCalled();
   });
 
-  it("the next day sends only the three changing pages", async () => {
+  it("the next day sends only the four changing pages", async () => {
     await submitDailyIndexNow("custard", "2026-10-13", { fetcher: ok() });
     const fetcher = ok();
     expect(await submitDailyIndexNow("brunch", "2026-10-14", { fetcher })).toBe("submitted");
     const body = JSON.parse((fetcher.mock.calls[0] as unknown as [string, RequestInit])[1].body as string);
     expect(body.urlList.sort()).toEqual(
-      ["https://curio.example/", "https://curio.example/play", "https://curio.example/story/brunch"].sort()
+      [
+        "https://curio.example/",
+        "https://curio.example/play",
+        "https://curio.example/history",
+        "https://curio.example/story/brunch",
+      ].sort()
     );
+  });
+
+  it("re-sends a page whose lastModified moved, plus the daily pages, and nothing else", async () => {
+    const base = [
+      { url: "https://curio.example/words", lastModified: "2026-10-01" },
+      { url: "https://curio.example/story/a", lastModified: "2026-10-01" },
+      { url: "https://curio.example/story/b", lastModified: "2026-10-01" },
+    ];
+    sitemapFixture.override = base;
+    await submitDailyIndexNow("custard", "2026-10-13", { fetcher: ok() });
+
+    sitemapFixture.override = [base[0], { ...base[1], lastModified: "2026-10-14" }, base[2]];
+    const fetcher = ok();
+    expect(await submitDailyIndexNow("brunch", "2026-10-14", { fetcher })).toBe("submitted");
+    const body = JSON.parse((fetcher.mock.calls[0] as unknown as [string, RequestInit])[1].body as string);
+    expect(body.urlList.sort()).toEqual(
+      [
+        "https://curio.example/",
+        "https://curio.example/play",
+        "https://curio.example/history",
+        "https://curio.example/story/brunch",
+        "https://curio.example/story/a",
+      ].sort()
+    );
+    const ledger = fake.store.get(SUBMITTED) as Set<string>;
+    expect(ledger.has("https://curio.example/story/a|2026-10-14")).toBe(true);
   });
 
   it("HTTP 429 fails, releases the day lock and leaves the ledger alone", async () => {
