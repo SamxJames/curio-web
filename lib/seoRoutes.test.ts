@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { buildSitemapEntries, buildRobots, PUBLIC_ROUTES, DISALLOWED_PATHS } from "./seoRoutes";
+import {
+  buildSitemapEntries,
+  buildRobots,
+  PUBLIC_ROUTES,
+  DISALLOWED_PATHS,
+  PAGES_UPDATED,
+} from "./seoRoutes";
 import { WORDS } from "./words";
 import { languagePages } from "./languages/pages";
 
@@ -26,15 +32,16 @@ describe("buildSitemapEntries", () => {
       url: "https://curio.example/languages",
       changeFrequency: "weekly",
       priority: 0.8,
+      lastModified: PAGES_UPDATED.indexes,
     });
     for (const page of languagePages()) {
       expect(entries).toContainEqual({
         url: `https://curio.example/language/${page.slug}`,
         changeFrequency: "monthly",
         priority: 0.7,
+        lastModified: PAGES_UPDATED.languages,
       });
     }
-    expect(entries.some((e) => "lastModified" in e)).toBe(false);
   });
 
   it("includes every word's story URL exactly once", () => {
@@ -69,6 +76,51 @@ describe("buildSitemapEntries", () => {
   it("includes the A–Z index, which is the only page linking every word", () => {
     const urls = buildSitemapEntries().map((e) => e.url);
     expect(urls).toContain("https://curio.example/words");
+  });
+});
+
+describe("lastModified", () => {
+  const entryFor = (path: string) => {
+    const entry = buildSitemapEntries().find((e) => new URL(e.url).pathname === path);
+    if (!entry) throw new Error(`no sitemap entry for ${path}`);
+    return entry;
+  };
+  const underPrefix = (prefix: string) =>
+    buildSitemapEntries().filter((e) => new URL(e.url).pathname.startsWith(prefix));
+
+  it("dates every story page to the stories template date", () => {
+    const stories = underPrefix("/story/");
+    expect(stories).toHaveLength(WORDS.length);
+    for (const entry of stories) {
+      expect(entry.lastModified).toBe(PAGES_UPDATED.stories);
+    }
+  });
+
+  it("dates every language page to the languages template date", () => {
+    const pages = underPrefix("/language/");
+    expect(pages).toHaveLength(languagePages().length);
+    for (const entry of pages) {
+      expect(entry.lastModified).toBe(PAGES_UPDATED.languages);
+    }
+  });
+
+  it("dates /languages and /words to the indexes template date", () => {
+    expect(entryFor("/languages").lastModified).toBe(PAGES_UPDATED.indexes);
+    expect(entryFor("/words").lastModified).toBe(PAGES_UPDATED.indexes);
+  });
+
+  it("omits lastModified on /, /play, /history and /attribution", () => {
+    for (const path of ["/", "/play", "/history", "/attribution"]) {
+      expect("lastModified" in entryFor(path), path).toBe(false);
+    }
+  });
+
+  it("holds each date as a YYYY-MM-DD day that is not in the future", () => {
+    const today = new Date().toISOString().slice(0, 10);
+    for (const value of Object.values(PAGES_UPDATED)) {
+      expect(value).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(value <= today).toBe(true);
+    }
   });
 });
 

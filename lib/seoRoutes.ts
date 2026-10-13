@@ -31,12 +31,28 @@ export type SitemapEntry = {
   url: string;
   changeFrequency: "daily" | "weekly" | "monthly";
   priority: number;
+  /** ISO date (YYYY-MM-DD). Only ever set from PAGES_UPDATED. */
+  lastModified?: string;
 };
 
-/** No `lastModified` anywhere in here on purpose: Curio has no per-word
- * modification date, and a build timestamp would be a claim about the
- * content that isn't true. `changeFrequency`/`priority` are hints, not
- * claims of fact, so they stay. */
+/** The day each page type's HTML last changed in a way a crawler should
+ * re-read (links, metadata, content), set by hand. Not a build time: a
+ * redeploy that changes nothing must not claim a change. Bump the relevant
+ * date in the same commit as the template change. Home, /play and /history
+ * change daily and the sitemap is built once per deploy, so they carry none. */
+export const PAGES_UPDATED = {
+  // 2026-10-13: "Etymology of <word>:" descriptions and a Languages footer link.
+  stories: "2026-10-13",
+  // 2026-10-13: Languages footer link (pages first published 2026-10-12).
+  languages: "2026-10-13",
+  // /words and /languages: new description, footer link.
+  indexes: "2026-10-13",
+} as const;
+
+/** `lastModified` appears only where PAGES_UPDATED says when that page type
+ * last changed. Home, /play, /history and /attribution carry none: the first
+ * two change daily, and the other two haven't changed. `changeFrequency` and
+ * `priority` are hints, not claims of fact, so they stay on every entry. */
 export function buildSitemapEntries(): SitemapEntry[] {
   const routes: SitemapEntry[] = PUBLIC_ROUTES.map((route) => ({
     url: absoluteUrl(route),
@@ -44,22 +60,30 @@ export function buildSitemapEntries(): SitemapEntry[] {
     // puzzle); the index pages gain at most one row a day.
     changeFrequency: route === "/" || route === "/play" ? "daily" : "weekly",
     priority: route === "/" ? 1 : 0.8,
+    ...(route === "/words" ? { lastModified: PAGES_UPDATED.indexes } : {}),
   }));
 
   const stories: SitemapEntry[] = WORDS.map((word) => ({
     url: absoluteUrl(`/story/${word.slug}`),
     changeFrequency: "monthly",
     priority: 0.6,
+    lastModified: PAGES_UPDATED.stories,
   }));
 
   // The language pages and their index. Monthly: a page only changes when a new
   // sheet batch or new words land.
   const languages: SitemapEntry[] = [
-    { url: absoluteUrl("/languages"), changeFrequency: "weekly", priority: 0.8 },
+    {
+      url: absoluteUrl("/languages"),
+      changeFrequency: "weekly",
+      priority: 0.8,
+      lastModified: PAGES_UPDATED.indexes,
+    },
     ...languagePages().map((page) => ({
       url: absoluteUrl(`/language/${page.slug}`),
       changeFrequency: "monthly" as const,
       priority: 0.7,
+      lastModified: PAGES_UPDATED.languages,
     })),
   ];
 
