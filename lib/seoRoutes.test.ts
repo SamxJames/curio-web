@@ -137,8 +137,11 @@ describe("buildRobots", () => {
     }
   });
 
-  it("points at the absolute sitemap URL", () => {
-    expect(buildRobots().sitemap).toBe("https://curio.example/sitemap.xml");
+  it("points at the absolute sitemap URL and the recent-days feed", () => {
+    expect(buildRobots().sitemap).toEqual([
+      "https://curio.example/sitemap.xml",
+      "https://curio.example/feed.xml",
+    ]);
   });
 
   // Meta's fetcher may honour robots.txt, and Instagram must fetch the

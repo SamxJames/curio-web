@@ -15,6 +15,7 @@ describe("classifySource", () => {
     expect(classifySource("?utm_source=email&utm_medium=email", "https://www.google.com/", HOST)).toBe("email");
     expect(classifySource("?utm_source=share", "", HOST)).toBe("share");
     expect(classifySource("?utm_source=threads", "", HOST)).toBe("threads");
+    expect(classifySource("?utm_source=rss", "", HOST)).toBe("rss");
   });
 
   it("ignores an unknown utm_source and falls back to the referrer", () => {

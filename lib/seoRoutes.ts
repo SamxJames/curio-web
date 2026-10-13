@@ -1,5 +1,6 @@
 import { WORDS } from "./words";
 import { absoluteUrl } from "./siteUrl";
+import { FEED_PATH } from "./feed";
 import { languagePages } from "./languages/pages";
 
 /** Routes a crawler should index. Every other route is private,
@@ -92,7 +93,7 @@ export function buildSitemapEntries(): SitemapEntry[] {
 
 export type RobotsConfig = {
   rules: { userAgent: string; allow: string; disallow: string[] };
-  sitemap: string;
+  sitemap: string[];
 };
 
 /** One rule block for every crawler. The disallow list is the same
@@ -105,6 +106,8 @@ export function buildRobots(): RobotsConfig {
       allow: "/",
       disallow: [...DISALLOWED_PATHS],
     },
-    sitemap: absoluteUrl("/sitemap.xml"),
+    // Google and Bing both accept an RSS 2.0 feed as a sitemap; the short
+    // recent-items feed is a freshness companion to the full sitemap.
+    sitemap: [absoluteUrl("/sitemap.xml"), absoluteUrl(FEED_PATH)],
   };
 }
