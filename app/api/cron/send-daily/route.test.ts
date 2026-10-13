@@ -46,12 +46,18 @@ vi.mock("@/lib/email", () => ({
   ),
 }));
 vi.mock("@/lib/bluesky", () => ({ postDailyWordToBluesky: vi.fn(async () => ({ posted: true, thumb: true })) }));
+vi.mock("@/lib/indexNow", () => ({ submitDailyIndexNow: vi.fn(async () => "submitted") }));
+vi.mock("next/server", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next/server")>()),
+  after: vi.fn((cb: () => unknown) => { void cb(); }),
+}));
 
 const { GET, maxDuration } = await import("./route");
 const { getAllSubscribers } = await import("@/lib/db");
 const { sendDailyDigests } = await import("@/lib/email");
 const { postDailyWordToBluesky } = await import("@/lib/bluesky");
 const { resolveTodayWord } = await import("@/lib/words");
+const { submitDailyIndexNow } = await import("@/lib/indexNow");
 const { claimRun, getFailures, seedPending } = await import("@/lib/digestRuns");
 
 function cronRequest() {
@@ -418,5 +424,28 @@ describe("GET /api/cron/send-daily", () => {
   it("?bluesky=1 on its own is still a 400 that posts nothing (the deploy check relies on it)", async () => {
     expect((await GET(cronRequestTo("?bluesky=1"))).status).toBe(400);
     expect(postDailyWordToBluesky).not.toHaveBeenCalled();
+  });
+
+  it("a scheduled run pings IndexNow once for today, leaving the response unchanged", async () => {
+    const body = await (await GET(cronRequest())).json();
+
+    expect(submitDailyIndexNow).toHaveBeenCalledTimes(1);
+    expect(submitDailyIndexNow).toHaveBeenCalledWith("custard", dayKey(new Date()));
+    expect(body).toEqual({
+      word: "custard", attempted: 2, sent: 2, failed: 0, bluesky: true,
+      alreadyRan: { email: false, bluesky: false },
+    });
+  });
+
+  it("?resend=failed and ?repost=bluesky never ping IndexNow", async () => {
+    await GET(cronRequestTo("?resend=failed"));
+    await GET(cronRequestTo("?repost=bluesky"));
+    expect(submitDailyIndexNow).not.toHaveBeenCalled();
+  });
+
+  it("an IndexNow failure doesn't touch the digest or Bluesky result", async () => {
+    vi.mocked(submitDailyIndexNow).mockResolvedValueOnce("failed");
+    const body = await (await GET(cronRequest())).json();
+    expect(body).toMatchObject({ sent: 2, bluesky: true });
   });
 });
