@@ -1,0 +1,22 @@
+{
+  "slug": "abscess",
+  "word": "abscess",
+  "old": [
+    "Old medicine imagined the body sending trouble off to gather in one spot, like guests shown to a separate room.",
+    "Its Latin ancestor literally meant 'a going away.'",
+    "It's built from the same Latin root as 'cede' — the idea of departing or withdrawing."
+  ],
+  "clues": [
+    "This bodily ailment takes its name from a Latin word that meant both 'a going away' and 'a gathering of humors.'",
+    "A painful, swollen pocket of pus caused by infection. Unlike a simple cyst, it usually needs draining, since ancient doctors believed bad humors withdrew and collected there.",
+    "Dentists treat the tooth kind with antibiotics or a root canal. The word is a cousin of cede, sharing a Latin root meaning 'go.'"
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "abscess"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

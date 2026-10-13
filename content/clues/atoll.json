@@ -1,0 +1,22 @@
+{
+  "slug": "atoll",
+  "word": "atoll",
+  "old": [
+    "Its name may hark back to an old word for a calm, level crossing over water.",
+    "The Maldives gave English this word for a ring of coral, by way of Portuguese sailors.",
+    "Some trace it to Sanskrit tīrtha, \"ford,\" though a rival theory involving Persian for \"water-hillock\" turned out to be a dead end."
+  ],
+  "clues": [
+    "This ocean landform got its English name from the people of the Maldives, whose word for it was picked up by Portuguese sailors.",
+    "It is a ring-shaped coral reef or chain of islets enclosing a calm lagoon, rather than one solid island or a straight barrier reef.",
+    "Bikini in the Pacific is a famous example, and its name may trace back to an ancient Sanskrit phrase meaning 'level ford.'"
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "atoll"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

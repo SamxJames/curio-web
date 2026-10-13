@@ -1,0 +1,22 @@
+{
+  "slug": "bottle",
+  "word": "bottle",
+  "old": [
+    "Its name once simply meant 'a little cask' in the language that gave it shape.",
+    "It comes from a Late Latin diminutive, butticula, built on the word for 'cask.'",
+    "It shares an ancestor with the word botija, making the two doublets of buttis."
+  ],
+  "clues": [
+    "This everyday container comes from an ancient word for a cask, so at its root its name means simply 'a little cask.'",
+    "A narrow-necked container, unlike a wide-mouthed jar, holding water, wine or soda under a cap or cork. It partly replaced the Old English word flasce for such vessels.",
+    "Castaways toss a message in one out to sea, babies drink their milk from one, and you might pop open one of champagne to celebrate."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bottle"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

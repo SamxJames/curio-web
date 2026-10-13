@@ -1,0 +1,22 @@
+{
+  "slug": "salvo",
+  "word": "salvo",
+  "old": [
+    "It may echo an ancient greeting wishing someone good health.",
+    "It once meant a simultaneous discharge of guns, first spelled with an 'a' instead of an 'o.'",
+    "Its root, salve, is the very word Romans used to say hello."
+  ],
+  "clues": [
+    "This noun from the world of cannons and warships likely traces back to a Latin word for a salute, born from the everyday Roman greeting meaning 'hail.'",
+    "It names guns fired together in one coordinated burst, a single crash rather than a long continuous barrage, like a warship discharging its cannons at once.",
+    "Figuratively, a debater fires an 'opening' one: a first sharp burst of arguments or criticism aimed at an opponent."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "salvo"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

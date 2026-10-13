@@ -1,0 +1,23 @@
+{
+  "slug": "arraign",
+  "word": "arraign",
+  "old": [
+    "At its root sits a Latin word for reckoning or reasoning, dressed up with a simple 'toward' prefix.",
+    "It once simply meant 'to speak to' or 'to accuse' in a French-derived legal sense before English got hold of it.",
+    "Its silent extra letter, added in the 1500s by mistake, makes it a spelling cousin — sort of — of its doublet, 'areason.'"
+  ],
+  "clues": [
+    "This legal verb picked up a silent letter by mistake in the 1500s, when writers 'corrected' a spelling that never needed it. Its Old French ancestor meant to speak to or accuse someone in court.",
+    "It's not the same as indict: it's the courtroom step where a defendant stands before a judge, hears the formal charges read aloud, and enters a plea.",
+    "News reports say a suspect 'will be ___ed on Monday.' Figuratively, it also means to condemn harshly, as when a columnist ___s a government's handling of a crisis."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "arraign"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false,
+  "reviewNote": "Clue 1 said the Old French word 'simply meant to speak to someone', dropping the entry's 'or accuse in court'; rewrote with the entry's spelling-mistake fact."
+}

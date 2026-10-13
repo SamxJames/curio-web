@@ -1,0 +1,22 @@
+{
+  "slug": "bumblebee",
+  "word": "bumblebee",
+  "old": [
+    "Its name once leaned on an old word for a low, droning sound.",
+    "Before its current form, English called it humbul-be.",
+    "The name is a mash-up: a buzzing word plus bee, and a drink borrowed the idea from Ukrainian."
+  ],
+  "clues": [
+    "This flying insect has a name that absorbed a medieval verb meaning 'to boom, buzz,' so it carries its own soundtrack.",
+    "It is a big, fuzzy, round-bodied bee, chunkier and hairier than a honeybee, often seen lumbering between flowers with a deep, lazy drone.",
+    "In Middle English it was called a humbul-be, and today it also names a drink, a sense borrowed from a Ukrainian word for this insect."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bumblebee"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

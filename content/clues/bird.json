@@ -1,0 +1,22 @@
+{
+  "slug": "bird",
+  "word": "bird",
+  "old": [
+    "It once named only the wingless young, while a different old word covered anything airborne.",
+    "In Old English it meant a chick or fledgling, not a flying creature in general.",
+    "It slowly pushed aside \"fowl,\" the older general term, starting in the 1300s."
+  ],
+  "clues": [
+    "This everyday name for a large class of animals once meant only the babies of the group, while a different word covered the grown-ups.",
+    "Today it names any feathered, egg-laying creature with wings and a beak, from tiny sparrows to soaring eagles, not just the farmyard kind raised for eggs and meat.",
+    "Think of the early one that catches the worm. Its old rival, fowl, was once the general word, until the two swapped places in everyday speech."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bird"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

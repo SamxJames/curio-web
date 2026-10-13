@@ -1,0 +1,22 @@
+{
+  "slug": "almond",
+  "word": "almond",
+  "old": [
+    "Its shape lent its Latin name to a small structure tucked deep in the brain.",
+    "The word for this nut passed through Greek, then Latin, then Old French before reaching English.",
+    "It shares a root with amygdala and mandorla, even though it never actually came from Arabic despite looking like it did."
+  ],
+  "clues": [
+    "This tree nut picked up an extra letter by imitating the many European words borrowed from Arabic, even though it never came from Arabic itself.",
+    "Flatter and more teardrop-shaped than a hazelnut, it is ground into marzipan, sliced onto pastries, and pressed into a popular dairy-free milk.",
+    "Eyes described this way are long and gently tapered, and the brain's amygdala shares this nut's ancient name because it is shaped like one."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "almond"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

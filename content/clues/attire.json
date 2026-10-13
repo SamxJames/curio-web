@@ -1,0 +1,23 @@
+{
+  "slug": "attire",
+  "word": "attire",
+  "old": [
+    "Its ancestor described putting things into proper rank or order, not just covering the body.",
+    "The word once lived only as a verb — to equip or array someone.",
+    "Its French root, tire, is a cousin of German Zier, meaning ornament."
+  ],
+  "clues": [
+    "This noun for clothing comes from an old French verb meaning \"to equip,\" built on a word for rank or order.",
+    "A formal, slightly dressy word for what someone is wearing, more polished than plain \"clothes\" or \"outfit.\" It began as a verb for arranging and became the result itself.",
+    "Invitations may request \"formal ___\" and offices expect \"business ___.\" Its old root is akin to German Zier, \"ornament,\" and Old Norse words for glory."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "array",
+      "attire"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

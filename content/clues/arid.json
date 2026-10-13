@@ -1,0 +1,23 @@
+{
+  "slug": "arid",
+  "word": "arid",
+  "old": [
+    "Its distant root simply named the state of lacking moisture.",
+    "It comes from a Latin verb meaning 'to be dry' or 'parched.'",
+    "It's a cousin of Latin ārdeō, the root behind words for burning — dryness and fire, linked at the source."
+  ],
+  "clues": [
+    "This adjective for a kind of landscape or climate probably shares an ancient root with a Latin verb meaning 'to burn,' since dryness and fire are close cousins.",
+    "It describes land or climate with so little rain that hardly anything grows: a lasting, harsher condition than merely dry weather. Its Latin parent meant 'parched.'",
+    "Deserts like the Sahara are the classic example, and figuratively it can describe a dull, lifeless lecture or a painfully dry piece of writing."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "torrid",
+      "arid"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

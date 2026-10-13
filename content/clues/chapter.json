@@ -1,0 +1,23 @@
+{
+  "slug": "chapter",
+  "word": "chapter",
+  "old": [
+    "Its ancestor word literally meant 'a little head' in Latin — a small top piece standing in for a whole section.",
+    "It once named both a book division and a formal council of officials in Medieval Latin.",
+    "It's a linguistic cousin of 'capital' and 'capitulum,' both rooted in the Latin word for head."
+  ],
+  "clues": [
+    "This noun for a division of a larger whole traces back to a Latin word meaning 'little head.'",
+    "It is one of the main numbered divisions of a book, bigger than a paragraph and often given its own title. In Medieval Latin, the word also named a church council.",
+    "Starting a new one means beginning a fresh phase of life, a club's local branch is called one, and citing something precisely is giving '___ and verse.'"
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "section",
+      "chapter"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

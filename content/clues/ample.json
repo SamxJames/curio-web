@@ -1,0 +1,24 @@
+{
+  "slug": "ample",
+  "word": "ample",
+  "old": [
+    "Its possible root fuses a word for 'around' with one for 'full' — something bursting on every side.",
+    "It traces to the Latin amplus, meaning simply 'large.'",
+    "It shares a possible ancestor with 'ambient,' both touching on the idea of surrounding fullness."
+  ],
+  "clues": [
+    "A word for having more than enough, it may hide an ancient idea of being full on every side, filled all the way around.",
+    "It describes a supply that is generous, more than merely sufficient, or a space that is roomy with room to spare. Its Latin ancestor simply meant 'large.'",
+    "It fills the blanks in '___ time to finish the test' and '___ room for everyone.' The 'around' element it may contain also shows up in ambient."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "replete",
+      "ample"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false,
+  "reviewNote": "Clue 3's 'plenty of time, or blank time' phrasing was confusing; made the fill-in-the-blank usage clear."
+}

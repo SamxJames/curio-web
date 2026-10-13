@@ -1,0 +1,22 @@
+{
+  "slug": "bunker",
+  "word": "bunker",
+  "old": [
+    "Its oldest sense was just a box with a lid you could sit on.",
+    "In Scots it also meant a sand pit — the kind golfers still dread today.",
+    "German borrowed the coal-storage sense and gave it back to English as a bombproof shelter."
+  ],
+  "clues": [
+    "This kind of protective structure began life as a humble chest whose lid doubled as a seat, with storage tucked underneath.",
+    "A hardened shelter, often underground, built to withstand bombs and attack; more heavily fortified than a cellar or foxhole. English borrowed this sense back from German during World War II.",
+    "Golfers dread landing in one, since it is also the name for a sand trap. A ship's sleeping bunk likely comes from the same old root."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bunker"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

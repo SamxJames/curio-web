@@ -1,0 +1,22 @@
+{
+  "slug": "cat",
+  "word": "cat",
+  "old": [
+    "Its spread across languages seems to trace the same route this animal took out of the Near East, especially after it found fame in Egypt some 4,000 years ago.",
+    "Scholars suspect the English word ultimately comes from an Afroasiatic source, though every candidate word proposed so far runs into trouble.",
+    "It shares a root with Spanish and Portuguese 'gato,' and with words like French 'chat' and German 'Katze.'"
+  ],
+  "clues": [
+    "This household pet's name possibly began in an Afroasiatic language, and the animal itself was especially popular in Egypt around 4000 years ago.",
+    "Not a kitten but the grown animal: a whiskered, purring pet that hunts mice and grooms itself. Old English had separate forms for the male and the female.",
+    "Its relatives include Spanish gato, French chat and German Katze, and it is the animal said to have nine lives or to have gotten your tongue."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "cat"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

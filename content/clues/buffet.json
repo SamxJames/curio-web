@@ -1,0 +1,22 @@
+{
+  "slug": "buffet",
+  "word": "buffet",
+  "old": [
+    "Its origin as a piece of furniture is murky — no one is quite sure where the French word for that little table came from.",
+    "Before it meant a spread of food, this word named a humble stool, then a side table in French.",
+    "A completely different sense of this word, meaning a blow, is kin to English 'buffer' and 'buffoon.'"
+  ],
+  "clues": [
+    "This style of meal began as the name for a piece of furniture, first a small stool and later a side table where food was set out.",
+    "Unlike a banquet, nobody serves you at your seat. Diners help themselves from dishes laid out on a long table, often paying one price for all they can eat.",
+    "An unrelated twin, from an old word for a blow, gives the verb for a plane being knocked about by strong winds, and is kin to buffer and buffoon."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "buffet"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "armor",
+  "word": "armor",
+  "old": [
+    "Its deepest root points to something joined or fitted together, not to battle at all.",
+    "The Latin word behind it, arma, simply meant tools or equipment.",
+    "It shares a Latin ancestor with the English words armature and armure."
+  ],
+  "clues": [
+    "This kind of protective gear traces back to an ancient root meaning something like a fitting or joint, the kind of thing that holds a body together.",
+    "It is the full covering of metal plates or mail that knights wore into battle, far more complete than a shield. Its Latin ancestor meant equipment or tools.",
+    "Picture a knight in shining ___, or the heavy plating on a tank. The sculptor's word armature descends from the same Latin source."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "armor"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

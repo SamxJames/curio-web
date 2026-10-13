@@ -1,0 +1,22 @@
+{
+  "slug": "bedlam",
+  "word": "bedlam",
+  "old": [
+    "Its name traces back to a phrase meaning 'house of bread,' borrowed from a town in the Bible.",
+    "It began as the nickname for a London hospital that cared for the mentally ill from the 1400s onward.",
+    "In Spanish, belén carries a strikingly similar sense of confusion and disorder."
+  ],
+  "clues": [
+    "This noun for a kind of scene began life as the nickname of a London hospital, named after a biblical town meaning 'house of bread.'",
+    "It means a scene of wild uproar, far louder and more frenzied than mere disorder, like a classroom left unsupervised. That hospital once housed people with mental illness.",
+    "Reporters write that absolute ___ broke out in the stands after a last-second goal. Its source was Bethlem, the London hospital's shortened name."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bedlam"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "braille",
+  "word": "braille",
+  "old": [
+    "A system named for its creator got a new sound when it crossed the Channel — English readers pronounced the letters as they looked, not as the Frenchman said them.",
+    "It's named after a 19th-century French educator who was himself blind.",
+    "Say his surname the French way and it rhymes with 'eye,' not with 'day' — English chose the spelling over the sound."
+  ],
+  "clues": [
+    "This system of writing carries the surname of the French educator who devised it, though English speakers pronounce his name differently from the way the French do.",
+    "It uses patterns of raised dots that blind people read with their fingertips. Unlike sign language, which is watched, this is felt.",
+    "You'll find it on elevator buttons and ATM keypads. In French, its inventor Louis's surname sounds closer to 'brye' than to the English 'brayl'."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "Braille"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

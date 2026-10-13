@@ -1,0 +1,22 @@
+{
+  "slug": "candle",
+  "word": "candle",
+  "old": [
+    "Its root originally described something glowing white or shining bright, long before it meant an object at all.",
+    "The word for this waxy light-source came into English by way of Latin, through Old and Middle English forms almost identical to today's.",
+    "It shares a Latin ancestor with 'candid' and is a doublet of both 'candela' and 'chandelle'."
+  ],
+  "clues": [
+    "This source of light gets its name from an ancient Latin root meaning to be white, bright, or shining.",
+    "Unlike a lamp or lantern, it is its own fuel: a stick of wax around a wick, lit for dinners, vigils, or power cuts.",
+    "You blow them out on birthday cakes, and you burn one at both ends when overworking. The word candid shares its bright Latin root."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "candle"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

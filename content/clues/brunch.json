@@ -1,0 +1,22 @@
+{
+  "slug": "brunch",
+  "word": "brunch",
+  "old": [
+    "It's a meal born from mashing together the two on either side of it, not from any foreign tongue.",
+    "Take the start of one word for the first meal of the day and the end of the word for midday eating — glue them together.",
+    "Breakfast plus lunch, first spotted in Britain in 1895."
+  ],
+  "clues": [
+    "This meal's name was coined in Britain, and the idea took decades to cross the Atlantic before Americans embraced it.",
+    "A late-morning meal, often on weekends, that replaces two meals at once. It is later and more lavish than an ordinary breakfast, with eggs, pastries and perhaps mimosas.",
+    "Cafés and hotels advertise a bottomless Sunday buffet of it, and its name is a splice of the two meals it stands in for."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "brunch"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

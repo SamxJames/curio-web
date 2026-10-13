@@ -1,0 +1,22 @@
+{
+  "slug": "bill",
+  "word": "bill",
+  "old": [
+    "It began as a wax seal pressed onto an official document, long before it meant paper you owe money on.",
+    "Its Latin ancestor, bulla, meant a seal or sealed document.",
+    "It shares that Latin root with the word for a papal bull — both came from the same sealed-document sense."
+  ],
+  "clues": [
+    "This common written document traces back to a Latin word for a seal, and it first named an official paper stamped shut with wax.",
+    "It's the statement a restaurant, shop or utility company gives you showing what you owe, unlike a receipt, which proves you've already paid.",
+    "Lawmakers vote on one before it becomes law, you can pay with a five-dollar one, and it shares its Latin seal root with a pope's decree called a bull."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bill"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "anxiety",
+  "word": "anxiety",
+  "old": [
+    "Its deepest root describes a throat closing — the physical squeeze behind an emotional one.",
+    "The Latin ancestor meant being troubled or distressed, and gave English a familiar adjective ending in -ious.",
+    "It's kin to angst and anger, all descended from a Latin verb meaning to trouble or distress."
+  ],
+  "clues": [
+    "This uneasy emotion comes from a Latin verb meaning 'to distress,' which is linked to an Ancient Greek verb meaning 'to choke.'",
+    "It is a lingering, nervous unease about what might go wrong, vaguer and longer-lasting than a passing worry, and unlike fear, not tied to a clear present danger.",
+    "Doctors diagnose it alongside depression, as in 'social ___ disorder,' and it is related to anger and angst, all tracing back to that idea of choking distress."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "anxiety"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

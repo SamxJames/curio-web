@@ -1,0 +1,23 @@
+{
+  "slug": "blockade",
+  "word": "blockade",
+  "old": [
+    "This noun was formed by adding a suffix to a common English word for a solid obstruction.",
+    "Its shape may have been borrowed from a Dutch or German word for the same barrier.",
+    "The modern Dutch spelling is 'blokkade,' close cousin to the English term."
+  ],
+  "clues": [
+    "This term for a wartime tactic sounded official from the start, likely shaped by a Dutch or German word rather than invented fresh in English.",
+    "It means sealing off a port or coast, usually with warships, so supplies cannot get through. Unlike an embargo, it is physically enforced, not just a trade ban.",
+    "Daring ships that slipped past one were called runners, and the word shares its root with the everyday verb for obstructing someone's path."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "blitzkrieg",
+      "blockade"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

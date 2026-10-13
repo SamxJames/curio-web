@@ -1,0 +1,22 @@
+{
+  "slug": "bravery",
+  "word": "bravery",
+  "old": [
+    "It names a quality built from the act of facing danger head-on, dressed up with a French or Italian flourish.",
+    "The word behind it means 'to face boldly,' borrowed from French or Italian sources.",
+    "It's simply the verb 'brave' with -ery tacked on the end."
+  ],
+  "clues": [
+    "This admired quality of character came into English from either French or Italian, and the record leaves it open which language actually supplied it.",
+    "Close cousin of courage, often the word for the visible act: what firefighters, soldiers and rescuers show when they run toward danger rather than away.",
+    "Soldiers are decorated for it, and it names the quality behind the verb you use when you face down a storm or endure bitter cold."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bravery"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

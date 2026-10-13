@@ -1,0 +1,22 @@
+{
+  "slug": "apple",
+  "word": "apple",
+  "old": [
+    "Long ago, this word could mean almost any fruit — or even the round orb of an eye.",
+    "Its ties to sin come from a pun: a Latin word for this fruit sounded just like the Latin word for evil.",
+    "German speakers still call it Apfel, and Swedes say äpple — cousins of the very word you're guessing."
+  ],
+  "clues": [
+    "This orchard fruit has a name that, in Old English, could mean any fruit at all, and figuratively even an eyeball or a sphere.",
+    "Crisp and round with red, green or yellow skin, it lacks the pear's tapered neck and is the classic fruit for pies, cider and teachers' desks.",
+    "Genesis never names Eden's forbidden fruit; it likely became this one because Latin words for it and for evil looked alike. One a day keeps the doctor away."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "apple"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

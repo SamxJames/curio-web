@@ -1,0 +1,22 @@
+{
+  "slug": "spectrum",
+  "word": "spectrum",
+  "old": [
+    "Its distant root simply meant \"to look\" or \"to watch.\"",
+    "In Latin, this word once meant a ghostly \"appearance\" or \"apparition.\"",
+    "It shares its Latin ancestor with the English word specter."
+  ],
+  "clues": [
+    "This noun, at home in both physics class and political debate, began as a Latin word for an appearance or even a ghostly apparition, something simply seen.",
+    "It names the band of colors a prism spreads light into, and, more broadly than any rainbow, a continuous range between two extremes, like opinions from left to right.",
+    "It shares a Latin ancestor with specter, and you hear it in phrases like 'across the political ___' or 'at the opposite end of the ___'."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "spectrum"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

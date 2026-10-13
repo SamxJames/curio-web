@@ -119,6 +119,13 @@ relitigate it — reuse that pattern. (Still true 2026-10-04. The
 `/collection`.)
 
 
+## 2026-10-13: Puzzle clues say what the word is, then tell its history
+Synced plays showed 8 of 14 failed: every clue described only the word's history, so players had nothing to guess
+from until the end. New rule: clue 1 = category + one history fact, clue 2 = the modern meaning (ruling out the
+obvious near-synonym), clue 3 = nearly a giveaway from a new angle. History still comes only from the entry's own
+Wiktionary-based text, so the puzzle stays an etymology puzzle. The owner asked for an autonomous rewrite and
+review. Revisit if synced plays show most solves on clue 1 (too easy) or failures above ~20%.
+
 ## 2026-10-12: Themed pages are language pages only
 Topic themes would require tagging all 1,147 words; language data already exists (approved sheets). Pages exist for
 languages with an approved sheet and at least 3 words. Revisit once language pages show search traction.

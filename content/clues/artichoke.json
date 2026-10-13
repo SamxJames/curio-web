@@ -1,0 +1,22 @@
+{
+  "slug": "artichoke",
+  "word": "artichoke",
+  "old": [
+    "This name for a spiky, edible flower bud made a five-language relay race before reaching English speakers.",
+    "Its Arabic ancestor, al-ḵuršūf, passed through Spanish and Occitan hands before an Italian dialect gave it the shape we recognize.",
+    "Lombard articioch is the direct source of this English word for a vegetable with a heart worth digging for."
+  ],
+  "clues": [
+    "This garden vegetable's name began in Arabic and was reshaped by four more languages on its way to English.",
+    "It is the cultivated flower bud of a thistle, eaten leaf by leaf by scraping the tender bases with your teeth, saving the meaty heart for last.",
+    "Its hearts are sold marinated in jars, and it joins spinach in a warm, creamy, cheesy dip at parties."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "artichoke"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "appease",
+  "word": "appease",
+  "old": [
+    "This word traces back to a French verb meaning to settle something into a state of calm.",
+    "Its Middle English ancestor, apesen, meant to pacify or bring to peace.",
+    "The Old French root apeser is built around the very idea of \"peace.\""
+  ],
+  "clues": [
+    "This verb for dealing with someone's anger or demands traces back to an Old French word meaning to pacify, and it arrived in English already meaning to soothe.",
+    "It means calming someone by giving them what they want, more of a concession than simply soothing them. Critics use it for leaders who yield to aggressors to avoid conflict.",
+    "Ancient people did it to angry gods with offerings, and you can do it to your hunger with a snack. At its root, it means bringing someone peace."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "appease"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

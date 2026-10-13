@@ -1,0 +1,23 @@
+{
+  "slug": "besiege",
+  "word": "besiege",
+  "old": [
+    "This word is built from a piece meaning 'around, about' attached to something you'd lay down against a fortress.",
+    "Strip away the prefix meaning 'around' and you're left with the word for a prolonged military blockade.",
+    "It shares its core with 'siege' — just wrapped in the idea of being encircled."
+  ],
+  "clues": [
+    "This verb of warfare was built by fastening an old prefix meaning 'around, about' onto an existing military word, so the action literally encircles its target.",
+    "It means to surround a city or fortress with an army to force surrender. That is more than simply attacking or encircling it, since supplies are cut off until defenders give in.",
+    "Beyond armies, a celebrity can be ___ by reporters or a help desk ___ with requests. Its closest relative is the noun for the military blockade itself."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "circumvallate",
+      "besiege"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

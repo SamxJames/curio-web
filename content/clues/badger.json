@@ -1,0 +1,22 @@
+{
+  "slug": "badger",
+  "word": "badger",
+  "old": [
+    "An old English creature was once known by a completely different name, before people started noticing what was on its face.",
+    "The word for this animal literally means something like 'marked by an emblem,' from a term for a badge.",
+    "It shares a root with the everyday word badge — think of it as the original badge-wearer."
+  ],
+  "clues": [
+    "This nocturnal woodland mammal took over from an older English name, brock, which had served the animal since Old English times.",
+    "A stocky, short-legged burrower with a black-and-white striped face, it digs underground tunnels and, unlike a skunk, is known for fierce digging rather than spraying.",
+    "As a verb it means to pester someone relentlessly, and the animal was nicknamed for a badge: the white blaze on its face."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "badger"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

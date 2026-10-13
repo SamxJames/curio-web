@@ -1,0 +1,22 @@
+{
+  "slug": "cork",
+  "word": "cork",
+  "old": [
+    "It started as a word for the rough outer layer of a tree, long before it meant anything you'd pull from a bottle.",
+    "Its ancestor once meant a shoe sole made from bark, on its journey through Spanish and Dutch.",
+    "It shares a Latin root with 'cortex' — both once simply meant bark or rind."
+  ],
+  "clues": [
+    "This natural material may take its name from an old Spanish word for a kind of shoe sole.",
+    "Not just any bark, it is the light, springy, buoyant layer stripped from a certain oak, used for bulletin boards and floats. Its name first meant oak bark.",
+    "You pull one from a wine bottle with a screwlike tool. Its Latin source, meaning bark or rind, also gave science the word cortex."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "cork"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

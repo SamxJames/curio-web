@@ -1,0 +1,22 @@
+{
+  "slug": "cot",
+  "word": "cot",
+  "old": [
+    "It began as a word for a simple wooden frame you'd sleep on, carried into English from a language of South Asia.",
+    "Its ancestor is the Sanskrit word khaṭvā, meaning bedstead.",
+    "It arrived in English by way of Hindi khāṭ, naming a portable bed."
+  ],
+  "clues": [
+    "This piece of furniture was borrowed into English from Hindi, and its roots reach back to an ancient Sanskrit word for a wooden bedstead.",
+    "It is a narrow, lightweight bed, often folding, set up in camps, barracks or hospitals, and simpler and more portable than an ordinary bed or bunk.",
+    "In Britain it also means a baby's barred crib, and an unrelated twin word from Old English once named a small, humble dwelling."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "cot"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "bombard",
+  "word": "bombard",
+  "old": [
+    "Its root is a Latin word for a deep, droning sound — the kind that fills a room before you see its source.",
+    "It once named a heavy medieval cannon, one whose thunderous roar gave the weapon its name.",
+    "Its French cousin also named a low, buzzing woodwind instrument — same booming root, very different battlefield."
+  ],
+  "clues": [
+    "This verb for an aggressive action began as the name of a heavy medieval cannon, named for the deep boom it made.",
+    "Today it means to attack a place relentlessly with artillery or bombs, a heavier and more sustained assault than a single raid or volley.",
+    "Reporters may ___ a celebrity with questions. Its Latin root, meaning 'booming,' also gave a name to a low-voiced, bassoon-like instrument."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bombard"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

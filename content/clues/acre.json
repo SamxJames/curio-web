@@ -1,0 +1,22 @@
+{
+  "slug": "acre",
+  "word": "acre",
+  "old": [
+    "Its ancestor once meant simply the open ground where things grow, long before it meant a fixed size.",
+    "In Old English it named the field itself, not a measurement of it.",
+    "It shares a root with agriculture, and with the Latin word ager, meaning field."
+  ],
+  "clues": [
+    "This unit of measurement once had nothing to do with numbers: it simply meant a field where crops were grown.",
+    "It measures land in the US and UK, about 4,000 square metres or roughly the size of a football field, and is smaller than the metric hectare.",
+    "Winnie-the-Pooh lives in the Hundred ___ Wood, and the word shares an ancient root meaning 'field' with agriculture."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "acre"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

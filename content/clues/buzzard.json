@@ -1,0 +1,23 @@
+{
+  "slug": "buzzard",
+  "word": "buzzard",
+  "old": [
+    "Its name may trace back to a Latin word simply meaning 'hawk.'",
+    "An Old French word for a bird of prey picked up the suffix -ard to name this scavenger.",
+    "French speakers today still call a related bird of prey 'buse' — a cousin of this English word."
+  ],
+  "clues": [
+    "This bird of prey has a name that may trace back to an ancient Latin word meaning simply 'hawk', with a French ending added on.",
+    "Bulkier and slower than a falcon, it soars in lazy circles hunting voles; in America, people often use its name for the vultures that circle over roadkill.",
+    "Calling a cranky old man an old one of these birds is a mild insult, and modern French still calls the bird a buse, from the same root."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "falcon",
+      "buzzard"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

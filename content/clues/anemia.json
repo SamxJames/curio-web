@@ -1,0 +1,22 @@
+{
+  "slug": "anemia",
+  "word": "anemia",
+  "old": [
+    "Its name is built from a Greek negation glued to the word for the red stuff running through you.",
+    "Strip away the 'not' and you're left with the Greek root for blood itself.",
+    "It shares its -emia ending with other blood-condition words, all descended from Greek haîma."
+  ],
+  "clues": [
+    "This common health condition has a name that has barely changed since ancient Greek, where it already described a lack of something vital to the body.",
+    "It means having too few healthy red blood cells or too little hemoglobin, a real medical shortfall rather than ordinary tiredness. Its Greek roots literally mean 'without blood.'",
+    "Iron deficiency and sickle cell are well-known types, and its adjective form describes anything feeble, like sluggish sales or a lackluster performance."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "anemia"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

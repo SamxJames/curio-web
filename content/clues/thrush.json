@@ -1,0 +1,22 @@
+{
+  "slug": "thrush",
+  "word": "thrush",
+  "old": [
+    "One small word once quietly split in two — one path flew, the other stayed grounded in mystery.",
+    "It names a speckle-breasted songbird, but also, oddly, a sore mouth.",
+    "Its ancestor is echoed in German Drossel and Latin turdus — same bird, different tongues."
+  ],
+  "clues": [
+    "This songbird's name has a whole flock of European cousins, sharing an ancient root with German Drossel and Latin turdus, the scientific name for its family.",
+    "A brown woodland songbird with a boldly speckled breast, kin to the blackbird and American robin, prized for rich, repeated phrases far sweeter than a sparrow's chirp.",
+    "The same name also means a yeast infection that leaves white patches in the mouth or throat, a separate sense whose origin remains murky."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "thrush"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

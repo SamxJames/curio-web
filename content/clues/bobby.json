@@ -1,0 +1,22 @@
+{
+  "slug": "bobby",
+  "word": "bobby",
+  "old": [
+    "It honors the man who founded a city's police force, worn as a nickname rather than a title.",
+    "The word is just a friendly short form of a common first name, given to the officers of that force.",
+    "Think of the name behind it — Robert — shortened the way friends might call someone at home."
+  ],
+  "clues": [
+    "This affectionate British nickname for a kind of uniformed public servant began as the everyday, familiar form of one particular man's first name.",
+    "A police officer, especially one walking the beat, warmer and more old-fashioned than 'cop'. It first meant only London's officers, then spread to any in Britain.",
+    "It honors Sir Robert Peel, who established London's police force, and is simply the familiar form of Robert, as in the picture of one in a tall helmet."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bobby"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

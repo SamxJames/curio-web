@@ -1,0 +1,22 @@
+{
+  "slug": "bladder",
+  "word": "bladder",
+  "old": [
+    "This word once named any thin-skinned pocket that swells with fluid, like a blister on skin.",
+    "Its Old English ancestor, blǣdre, could mean either 'blister' or the organ we now picture first.",
+    "Its Proto-Germanic root, *blēdrǭ, sits behind both the skin-swelling sense and the internal organ we call it today."
+  ],
+  "clues": [
+    "This internal organ has a name that, over a thousand years ago in Old English, could just as easily mean a blister on your skin.",
+    "The stretchy muscular pouch that stores urine until you need the toilet, holding rather than filtering like the kidneys. Its name long covered any thin-skinned, fluid-filled swelling.",
+    "Fish have a swim version that keeps them afloat, the gall version stores bile, and a weak one sends road trippers hunting for rest stops."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bladder"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

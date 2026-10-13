@@ -1,0 +1,22 @@
+{
+  "slug": "bingo",
+  "word": "bingo",
+  "old": [
+    "It may echo a small chime, the kind of noise something makes when struck just right.",
+    "Some say it's a dressed-up version of a word for that ringing sound, first written down in the 1920s.",
+    "It might share a thread with \"stingo,\" though no one's entirely sure how tightly they're tied."
+  ],
+  "clues": [
+    "This crowd-pleasing game of chance may owe its name to someone imitating the ring of a bell, a sound echoed in the triumphant shout that ends each round.",
+    "Unlike a lottery or keno, each player daubs numbers on their own grid card as a caller draws them, racing to complete a row first in church halls everywhere.",
+    "People also cry it as an exclamation meaning \"Exactly, that's it!\" when something clicks into place. It may be linked to the old word \"stingo,\" though that connection is uncertain."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bingo"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

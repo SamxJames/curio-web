@@ -1,0 +1,22 @@
+{
+  "slug": "cabinet",
+  "word": "cabinet",
+  "old": [
+    "It began as a word for a tiny private chamber, not the people inside it.",
+    "The word for a government's inner circle once just meant a small room.",
+    "Like salon, it lets a room's name stand in for the group that meets there."
+  ],
+  "clues": [
+    "This name for a group of people began as the name for a small private room, and the meeting place eventually lent its name to those who met inside.",
+    "Today it means a president's or prime minister's inner circle of senior ministers who run government departments, a smaller and more powerful body than a parliament or council.",
+    "It is also a cupboard with shelves or drawers, like the one holding medicine in a bathroom. It works much like salon, a room that became a gathering."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "cabinet"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

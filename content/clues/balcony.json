@@ -1,0 +1,22 @@
+{
+  "slug": "balcony",
+  "word": "balcony",
+  "old": [
+    "Its deepest root simply meant a sturdy prop or beam — nothing about height or views.",
+    "In Old Italian, the word first named a kind of scaffold before it ever meant a place to stand and look out.",
+    "It's a distant cousin of the English word 'balk,' both descending from a Germanic word for 'beam.'"
+  ],
+  "clues": [
+    "This part of a building began with an ancient root meaning 'beam, pile, prop,' and in Old Italian its ancestor meant 'scaffold.'",
+    "Unlike a patio or porch at ground level, it is a railed platform jutting from an upper floor, where apartment or hotel guests step out for air.",
+    "Juliet famously speaks from one in Shakespeare's play, and theaters use the word for their upper seating level. It shares its beam root with the English word 'balk.'"
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "balcony"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

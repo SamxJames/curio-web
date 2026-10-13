@@ -1,0 +1,22 @@
+{
+  "slug": "apron",
+  "word": "apron",
+  "old": [
+    "Its first sound didn't originally belong to it — it wandered over from the little word beside it.",
+    "It once began with an 'n,' back when it meant a small tablecloth.",
+    "Like 'adder' and 'newt,' it lost a letter to the article 'a' standing next to it."
+  ],
+  "clues": [
+    "This piece of clothing lost its original first letter when speakers misheard it after 'a' and moved the n onto the article instead.",
+    "Tied over your front at the waist, it keeps clothes clean while you cook; unlike a smock, it is sleeveless and open at the back. Its ancestor meant 'little tablecloth.'",
+    "Someone overly dependent on their mother is said to be tied to her ___ strings, and the paved area where planes park at an airport shares the name."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "apron"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

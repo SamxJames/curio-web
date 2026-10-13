@@ -1,0 +1,22 @@
+{
+  "slug": "clue",
+  "word": "clue",
+  "old": [
+    "In an ancient Greek myth, a hero unwound a ball of thread behind him so he could find his way back out of a maze.",
+    "That myth is where this word for a hint that helps you solve something comes from — it was originally the literal thread itself.",
+    "It's spelled almost like its own ancestor, clew — today surviving only as a sailing term for the corner of a sail."
+  ],
+  "clues": [
+    "This everyday noun for a kind of help began life in Old English as something quite physical: a simple ball of thread.",
+    "It's a piece of evidence that points toward solving a mystery, like a detective's fingerprint or a crossword's prompt. It's something you find or follow, more than a gentle hint someone drops.",
+    "Theseus followed a thread out of the Minotaur's labyrinth, giving us this word. Someone utterly baffled says, \"I haven't a ___,\" and it names the board game starring Colonel Mustard."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "clue"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

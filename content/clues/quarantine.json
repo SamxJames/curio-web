@@ -1,0 +1,22 @@
+{
+  "slug": "quarantine",
+  "word": "quarantine",
+  "old": [
+    "A European port city once forced incoming ships to sit offshore for a set stretch of time before anyone could disembark.",
+    "Venice imposed this on ships from plague-affected ports in the 1300s — specifically, a wait of exactly forty days.",
+    "The Italian phrase behind it literally means “forty days”; quarter and quart are distant cousins, both from the Latin word for four."
+  ],
+  "clues": [
+    "This public health measure once lasted exactly forty days, the wait Venice imposed on ships from plague-affected ports before anyone could come ashore.",
+    "Today it means any enforced separation to stop a disease spreading, however long it lasts. Unlike isolation of the already sick, it often applies to people merely exposed.",
+    "During a pandemic, arriving travelers might be ordered into two weeks of hotel ___. The word is a distant cousin of quarter and quart, all from Latin for four."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "quarantine"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

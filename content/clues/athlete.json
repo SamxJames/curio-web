@@ -1,0 +1,22 @@
+{
+  "slug": "athlete",
+  "word": "athlete",
+  "old": [
+    "At its root sits a prize or a contest — the thing worth striving for, not the strider.",
+    "In Greek, the word simply meant someone who competes for a prize.",
+    "It reached English by way of Latin āthlēta, after a possible detour through Middle French."
+  ],
+  "clues": [
+    "This word for a certain kind of person traces back to an ancient Greek word that simply meant 'prize'.",
+    "Today it names someone trained to excel at sports or physical exercise. It is broader than 'player', covering runners, swimmers and gymnasts alike, and once meant one who competes for a prize.",
+    "Colleges recruit 'student' ones on scholarship, and the itchy foot fungus that spreads in locker rooms is named after them."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "athlete"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

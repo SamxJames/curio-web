@@ -1,0 +1,22 @@
+{
+  "slug": "aneurysm",
+  "word": "aneurysm",
+  "old": [
+    "It comes from a Greek phrase meaning to spread something upward and out.",
+    "The root idea is simply 'wide' — something stretched beyond its normal size.",
+    "It's related to the Greek verb for 'to dilate,' built from 'up' plus 'wide.'"
+  ],
+  "clues": [
+    "This dangerous medical condition takes its name from an ancient Greek word that simply meant 'a widening' or 'a dilation.'",
+    "It's a weak spot where an artery wall balloons outward. It is not a clot or a blockage, and if it ruptures it can be deadly.",
+    "Doctors screen for brain and aortic types, and a furious person might joke they're about to 'have one' over a minor annoyance."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "aneurysm"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

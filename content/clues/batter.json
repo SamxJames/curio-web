@@ -1,0 +1,22 @@
+{
+  "slug": "batter",
+  "word": "batter",
+  "old": [
+    "Its oldest form meant simply to strike something again and again.",
+    "One version of this word names a mixture made by repeatedly beating ingredients together.",
+    "It shares a root with 'bat' and even has a doublet called 'batture.'"
+  ],
+  "clues": [
+    "This verb for rough physical treatment was built with an old ending that signals an action done over and over, not just once.",
+    "Waves do this to a sea wall: strike it hard and repeatedly until it is damaged, far more relentless than a single knock or slap.",
+    "Its spelling also names the baseball player at the plate and the runny mixture poured for pancakes, each arriving by its own route from words for striking."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "batter"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

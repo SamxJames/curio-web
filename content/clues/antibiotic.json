@@ -1,0 +1,22 @@
+{
+  "slug": "antibiotic",
+  "word": "antibiotic",
+  "old": [
+    "This word is stitched from two pieces: one meaning 'against,' the other meaning 'of life.'",
+    "It crossed into English from French, where it already carried the sense of 'against life.'",
+    "Break it apart and you get anti- plus -biotic — a name for something opposed to living things, in this case, the small ones that make us sick."
+  ],
+  "clues": [
+    "This class of medicine came into English from French, and its name, piece by piece, literally means 'against life'.",
+    "A drug, such as penicillin, that kills or halts bacteria inside the body. Unlike an antiseptic wiped on skin, it is swallowed or injected, and it is useless against cold viruses.",
+    "Doctors tell you to finish the whole course for strep throat, and they warn that overprescribing these drugs breeds resistant superbugs."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "antibiotic"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

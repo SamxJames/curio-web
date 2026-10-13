@@ -1,0 +1,24 @@
+{
+  "slug": "caraway",
+  "word": "caraway",
+  "old": [
+    "This spice's name rode a relay of tongues — Greek to Aramaic to Arabic to Latin — before settling into English.",
+    "Its Arabic form, karāwiyā, named the same curled little seed used to flavor rye bread.",
+    "Medieval Latin called it carui, close cousin to the Greek káron it borrowed from."
+  ],
+  "clues": [
+    "This kitchen spice gets its name from a long relay of borrowing that began in ancient Greek, yet at every stage it seems to have named the same seed.",
+    "These small, curved, ridged brown seeds have a warm, faintly licorice-like bite. They resemble cumin but taste sweeter, and they are the specks in a classic deli rye bread.",
+    "It flavors Irish seed cake, sauerkraut and Scandinavian aquavit. In Arabic, one stop on its long relay of borrowing, it was called karawiya."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "cumin",
+      "caraway"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false,
+  "reviewNote": "Clue 2 ended in route-through-languages filler and clue 3's 'mistaken for rye' claim was shaky; moved rye bread to clue 2 and gave clue 3 the Arabic form."
+}

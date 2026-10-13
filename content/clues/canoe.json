@@ -1,0 +1,23 @@
+{
+  "slug": "canoe",
+  "word": "canoe",
+  "old": [
+    "Its root once named a hollowed-out vessel carved for water travel in the Caribbean.",
+    "The word for it entered Spanish as \"canoa\" before crossing into English in the 1500s.",
+    "Its Proto-Arawak ancestor *kanawa also gave rise to Wayuu \"anuwa\" and Lokono \"kanoa.\""
+  ],
+  "clues": [
+    "This kind of small boat takes its name from Taíno, a language of the Caribbean, and the word spread into nearly every language that met it.",
+    "A narrow, open boat pointed at both ends and moved with single-bladed paddles, unlike a kayak with its covered deck. The Taíno original named a boat hollowed from a single log.",
+    "Someone fiercely self-reliant is said to paddle their own one of these, and a related word in the Arawakan language Lokono is kanoa, also meaning boat."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "canoe"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false,
+  "reviewNote": "Clue 1 (small boat + Caribbean + hollowed log) was near-instant; moved the dugout fact to clue 2."
+}

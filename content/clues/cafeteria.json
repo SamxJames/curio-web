@@ -1,0 +1,22 @@
+{
+  "slug": "cafeteria",
+  "word": "cafeteria",
+  "old": [
+    "Its name once pointed only to a drink brewed from a bean, not the buffet of food you'd find there today.",
+    "In Mexican Spanish, the word this comes from simply meant 'coffeehouse.'",
+    "It shares a root with cafetière, the French word for a coffee pot."
+  ],
+  "clues": [
+    "This kind of place to eat began in Mexican Spanish as a word for a coffeehouse, built from the name for a coffee maker.",
+    "A self-service dining room where you carry a tray along a counter and pick your own food, unlike a restaurant with waiters. In English, coffee stopped being the point.",
+    "Students line up here at lunchtime with trays. Its French cousin, the cafetière, is a coffee pot descended from the same Arabic root for coffee."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "cafeteria"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

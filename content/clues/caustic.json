@@ -1,0 +1,22 @@
+{
+  "slug": "caustic",
+  "word": "caustic",
+  "old": [
+    "This quality once described something with the power to scorch, long before it described a stinging remark.",
+    "Its root simply means \"burning\" — first in Greek, then carried into Latin unchanged in spirit.",
+    "Trace it back far enough and you land on kaustós, Greek for \"burnt.\""
+  ],
+  "clues": [
+    "This adjective for a harsh quality, found in both remarks and chemicals, has meant 'burning' without a break since ancient Greek times.",
+    "It describes wit so bitter and scathing it seems to sear, harsher than merely sarcastic, as in a critic's withering review. Its Greek ancestor grew from a word meaning 'burnt.'",
+    "Chemists use it for substances that can burn or eat away skin, and paired with 'soda' it names lye."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "caustic"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

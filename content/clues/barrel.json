@@ -1,0 +1,23 @@
+{
+  "slug": "barrel",
+  "word": "barrel",
+  "old": [
+    "Its likely deep root just means 'to carry' — the same ancient idea behind the English word for holding weight or enduring something.",
+    "One guess ties it to a word for a bar or rod, but scholars say that link fails on meaning, not sound.",
+    "It may share a root with 'bear,' as if it were simply a thing built for bearing things."
+  ],
+  "clues": [
+    "This kind of container likely grew from an ancient root meaning 'to carry,' so at heart it was simply a thing for transporting goods.",
+    "A large wooden vessel with bulging sides bound by metal hoops, sealed rather than open like a tub, used to store and age wine, beer and whiskey.",
+    "It is also the tube of a gun, it measures crude oil, and it shares its ancient carrying root with the verb bear."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "basket",
+      "barrel"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

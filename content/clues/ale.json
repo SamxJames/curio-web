@@ -1,0 +1,22 @@
+{
+  "slug": "ale",
+  "word": "ale",
+  "old": [
+    "Some linguists trace its root to a word meaning simply \"bitter.\"",
+    "In Old English it was spelled ealu, and it named a fermented malt drink.",
+    "Scandinavian languages still call beer by a close cousin of this word: öl or øl."
+  ],
+  "clues": [
+    "This alcoholic drink has a name that may trace back to an ancient root meaning simply beer, or perhaps bitter.",
+    "A kind of beer brewed from fermented malt, usually fuller and fruitier than a crisp lager. Its meaning has barely changed since Old English times.",
+    "Its Swedish cousin is öl and its Danish cousin is øl. In a British pub, a pint of the brown or hoppy bitter kind is a classic order."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "ale"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

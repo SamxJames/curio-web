@@ -1,0 +1,22 @@
+{
+  "slug": "aristocracy",
+  "word": "aristocracy",
+  "old": [
+    "This word names a system where power was said to belong to whoever was born into the right family.",
+    "Its Greek roots literally translate to 'rule of the best.'",
+    "It ends with the same '-kratíā' root found in words like 'democracy,' both tracing back to Greek krátos, meaning power."
+  ],
+  "clues": [
+    "This noun for a privileged social group goes back to Greek words for 'best' and 'power,' so it first described government by the most excellent citizens.",
+    "It means a hereditary upper class of titled families, like dukes and countesses, set apart by birth rather than mere wealth. In practice, 'the best' came to mean the best-born.",
+    "It ends like democracy and bureaucracy, all built on a Greek word for rule. The French Revolution sent many of its powdered-wig members to the guillotine."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "aristocracy"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

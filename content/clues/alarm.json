@@ -1,0 +1,22 @@
+{
+  "slug": "alarm",
+  "word": "alarm",
+  "old": [
+    "It began as a shouted command urging soldiers to grab what they'd fight with.",
+    "Its Old Italian ancestor literally meant 'to the weapons!'",
+    "It's a distant cousin of the everyday word 'arms,' both from Latin arma."
+  ],
+  "clues": [
+    "This noun for a kind of signal began life as a real shout on the battlefield, a cry ordering soldiers to grab their weapons.",
+    "Today it means any sound or signal that warns of danger, like a ringing fire bell, more urgent than a simple warning and broader than just a siren.",
+    "You set one on your bedside clock to wake up, and a false one sends everyone outside for nothing. It shares its root with the word 'arms.'"
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "alarm"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

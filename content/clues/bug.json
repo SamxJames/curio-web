@@ -1,0 +1,22 @@
+{
+  "slug": "bug",
+  "word": "bug",
+  "old": [
+    "Long before it meant anything small and crawling, this word named something that haunted people in the dark — a scarecrow or hobgoblin.",
+    "By the 1600s it had settled onto a small biting pest that shares its bed with you at night.",
+    "Its insect sense may owe something to a lookalike word, budde, which is also kin to the word \"bud.\""
+  ],
+  "clues": [
+    "This casual name for a small creature once haunted nightmares instead: centuries ago it meant a scarecrow or hobgoblin, possibly from a Celtic root for goblins.",
+    "It's a loose, everyday catch-all for any creepy-crawly, broader than 'insect', and also names a glitch in software. That machine-error sense was used well before the famous computer moth.",
+    "Spies plant one to eavesdrop, you can catch a stomach one, and a cozy child is snug as one in a rug."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bug"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

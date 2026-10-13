@@ -1,0 +1,22 @@
+{
+  "slug": "cascade",
+  "word": "cascade",
+  "old": [
+    "At its root sits an ancient idea of coming down, nothing more.",
+    "In Italian, the verb it grew from simply means 'to fall.'",
+    "French borrowed an Italian word for a fall, and English borrowed it right back."
+  ],
+  "clues": [
+    "This noun for a feature of moving water has a gentle ancestry: its Italian source was a verb meaning simply \"to fall.\"",
+    "It names water tumbling down rocks in a series of small stages, rather than one sheer plunge like a waterfall. Every language it passed through kept that sense of falling.",
+    "It is also used for a chain of events where each one triggers the next, like a run of failures, or for long hair tumbling over the shoulders."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "cascade"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

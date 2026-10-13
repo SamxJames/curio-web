@@ -1,0 +1,22 @@
+{
+  "slug": "charisma",
+  "word": "charisma",
+  "old": [
+    "It traces back to a Greek root meaning 'to be happy,' by way of a word for showing favor.",
+    "Its oldest sense was a theological one: a gift or grace freely given.",
+    "A German sociologist's use of the word for magnetic leadership got borrowed straight into English — it shares an ancestor with 'charism.'"
+  ],
+  "clues": [
+    "This personal quality began as a theological term for a gift of grace freely given, from an ancient Greek word linked to one meaning 'to be happy.'",
+    "It is the magnetic presence that draws people in and makes them want to follow, something rarer and more compelling than simple charm or likability.",
+    "Sociologist Max Weber used it for a leader's special power to inspire devotion; today we say a magnetic politician or rock star simply oozes it."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "charisma"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

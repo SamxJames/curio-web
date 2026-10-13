@@ -1,0 +1,22 @@
+{
+  "slug": "agent",
+  "word": "agent",
+  "old": [
+    "Its ancestor meant simply to drive or lead something forward.",
+    "The Latin verb behind it, agere, meant to drive, lead, or perform.",
+    "It comes from agēns, the 'doing' form of the verb that also gives us words like act and action."
+  ],
+  "clues": [
+    "This noun for a person with an important job to do grew from an ancient root meaning to drive or lead.",
+    "More than a mere messenger, this person is authorized to negotiate and make deals on someone else's behalf, as for an athlete, author or home seller. It literally meant 'one who is doing.'",
+    "James Bond is the most famous secret one, and a chemist might call a substance that causes a reaction a cleaning or bleaching one."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "agent"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

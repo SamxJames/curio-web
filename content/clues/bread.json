@@ -1,0 +1,23 @@
+{
+  "slug": "bread",
+  "word": "bread",
+  "old": [
+    "Its earliest recorded sense in Old English wasn't the whole thing—just a crumb or broken bit of it.",
+    "The Old English word behind it, brēad, once meant simply \"morsel,\" before it came to mean the food itself.",
+    "It shares deep roots with German Brot and Dutch brood, all tracing to the same old Germanic word."
+  ],
+  "clues": [
+    "A kitchen staple found on tables around the world, its name likely traces back to an ancient root meaning \"to boil\" or \"to brew.\"",
+    "It's baked from flour, water and usually yeast, then sliced for toast or sandwiches. Plainer than cake, it's the food itself, not just one loaf of it.",
+    "Its German cousin is Brot, and it completes the phrases \"the best thing since sliced ___\" and \"give us this day our daily ___.\""
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "Coffee",
+      "bread"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

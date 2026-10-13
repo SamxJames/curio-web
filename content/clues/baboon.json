@@ -1,0 +1,22 @@
+{
+  "slug": "baboon",
+  "word": "baboon",
+  "old": [
+    "Its name may echo the puckered, mouthy expression it was imagined to make.",
+    "The Old French root behind it meant 'grimace' or 'muzzle.'",
+    "It shares a babbling root with words like babe and baby."
+  ],
+  "clues": [
+    "This primate's name may come from the wrinkled, grimacing face it was thought to wear, from an old French word meaning 'grimace' or 'muzzle'.",
+    "A large African monkey with a long, doglike muzzle that lives in big troops on the savanna, lacking the vivid red and blue face of its cousin the mandrill.",
+    "People also use it as an insult for a loud, boorish person. Its name shares an ancient imitative root with babble and baby, echoing infants' 'ba' sounds."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "baboon"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

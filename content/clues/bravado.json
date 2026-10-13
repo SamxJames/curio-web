@@ -1,0 +1,22 @@
+{
+  "slug": "bravado",
+  "word": "bravado",
+  "old": [
+    "Long before it named a swagger, this idea lived in the sound of someone loudly talking themselves up.",
+    "At its root is a French word that simply meant boasting or bragging.",
+    "It shares an Italian ancestor with a word for a dazzling, showy display of skill — bravura."
+  ],
+  "clues": [
+    "This noun names a kind of outward display of attitude, and it traces back to an Italian verb meaning \"to brag, to boast.\"",
+    "It is a loud, swaggering show of confidence or courage, often put on to hide fear. Unlike true bravery, it is mostly performance meant to impress others.",
+    "People often call it \"false\" when it masks nerves, like a boxer's boasts before a fight. It shares its root with bravura, from the same Italian family of boldness and show."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bravado"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

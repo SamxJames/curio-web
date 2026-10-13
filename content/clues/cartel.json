@@ -1,0 +1,23 @@
+{
+  "slug": "cartel",
+  "word": "cartel",
+  "old": [
+    "It began as a small written page passed between two sides before a formal challenge.",
+    "In French and Italian it once meant a written note or card — only later did it come to mean secretive business teamwork.",
+    "A 19th-century German politician's use of 'Kartell' in parliament helped give this word its modern, corporate edge."
+  ],
+  "clues": [
+    "This noun for a kind of alliance once named a formal note passed between rivals before a duel.",
+    "It means a group of independent companies that secretly agree to fix prices or limit supply, shadier than an ordinary partnership or merger. A German politician was the first to use it in the business sense.",
+    "Headlines speak of Mexican drug ones, and OPEC is often called an oil one. It shares an ancient root with 'card' and 'chart.'"
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "cartel"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false,
+  "reviewNote": "Entry says first used, not coined."
+}

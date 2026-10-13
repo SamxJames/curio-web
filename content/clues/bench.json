@@ -1,0 +1,23 @@
+{
+  "slug": "bench",
+  "word": "bench",
+  "old": [
+    "In several Germanic tongues, the word for where you sit is the same word for where you keep your money.",
+    "Its Old English ancestor meant simply a long seat, and it hasn't strayed far from that since.",
+    "It shares a root with 'bank' — both once named the same humble wooden seat."
+  ],
+  "clues": [
+    "This piece of furniture has barely changed its meaning since Old English times; people then used a nearly identical word for the very same kind of seat.",
+    "It's a long, usually hard seat for several people side by side, found in parks, locker rooms and workshops, plainer and more public than a sofa or settee.",
+    "Substitutes warm it during games, gym-goers use the word as shorthand for a lying barbell press, and it shares an ancient root with bank, which drifted toward money."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "stool",
+      "bench"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

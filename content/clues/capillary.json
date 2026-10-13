@@ -1,0 +1,22 @@
+{
+  "slug": "capillary",
+  "word": "capillary",
+  "old": [
+    "It's named after something that grows from the very top of you.",
+    "Its Latin root literally means 'pertaining to the hair.'",
+    "Trace it back far enough and you land on caput — the word for 'head.'"
+  ],
+  "clues": [
+    "This adjective describes something extremely narrow. Surprisingly, its Latin ancestor meant pertaining to hair, and that word traces back even further to the word for head.",
+    "Scientists use it for tubes, cracks or vessels as fine as a single strand of hair, a narrowness far beyond merely thin or slender.",
+    "It names the body's tiniest blood vessels, linking arteries to veins, and the action that lets a paper towel wick up spilled water."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "capillary"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

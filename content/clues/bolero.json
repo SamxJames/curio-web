@@ -1,0 +1,22 @@
+{
+  "slug": "bolero",
+  "word": "bolero",
+  "old": [
+    "Its root word simply means a round object you might toss or kick.",
+    "In Spanish, it's built from the word for 'ball' plus an ending that turns nouns into new ones.",
+    "It names both a short jacket and a lively Spanish dance, first written down in English in 1787."
+  ],
+  "clues": [
+    "This name for a Spanish dance traces back to the Spanish word for 'ball,' so at heart it once meant something like 'ball-related.'",
+    "It is a Spanish dance in triple time, performed with castanets and sudden poised stops, more measured than fiery flamenco. English borrowed the word whole, unchanged from Spanish.",
+    "It also names a short, open jacket ending above the waist, and Ravel's famous orchestral piece that repeats one hypnotic melody while building to a huge climax."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bolero"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

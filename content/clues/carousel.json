@@ -1,0 +1,22 @@
+{
+  "slug": "carousel",
+  "word": "carousel",
+  "old": [
+    "Its trail runs through two southern Italian dialects before settling into French, and even scholars aren't sure exactly where in that trail it began.",
+    "One old theory ties it to a word for 'cart,' but that idea doesn't survive close inspection.",
+    "Don't confuse it with 'carousal' — despite the near-twin spelling, the two aren't kin."
+  ],
+  "clues": [
+    "This amusement park ride has a name traced to Sicilian or Neapolitan dialect, though its exact root is uncertain. An old guess linking it to a word for \"cart\" doesn't hold up.",
+    "It's a revolving platform of painted horses that bob up and down to organ music, the name many Americans use instead of merry-go-round.",
+    "At the airport, you wait by the baggage one for your suitcase. Despite the resemblance, it is not believed to be related to \"carousal,\" a rowdy drinking party."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "carousel"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "cartilage",
+  "word": "cartilage",
+  "old": [
+    "This flexible body tissue once went by a homegrown English name before a French import muscled in.",
+    "Its ancestor is a Latin word, cartilāgō, borrowed into English by way of French.",
+    "The word it nudged aside, gristle, still shows up on your dinner plate."
+  ],
+  "clues": [
+    "This kind of body tissue arrived from French and largely pushed aside an older native English word for the same stuff, though that older word still survives.",
+    "It is the firm but bendy tissue that shapes your outer ears and nose tip and cushions your joints, softer and more flexible than bone.",
+    "Sharks have whole skeletons made of it, and the older English word it partly replaced, gristle, now mostly names the chewy bits in meat."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "cartilage"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

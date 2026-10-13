@@ -1,0 +1,22 @@
+{
+  "slug": "bandana",
+  "word": "bandana",
+  "old": [
+    "Its ancient root simply meant fastening two things so they hold together.",
+    "In Hindi, the source word bandhan means the act of tying a knot.",
+    "It shares a Proto-Indo-European ancestor with the English word \"bind.\""
+  ],
+  "clues": [
+    "This fashion accessory takes its name from a Hindi word meaning \"a bond\" or \"the act of binding.\"",
+    "A square of cloth, often printed with paisley, knotted around the head or neck. It is smaller and lighter than a scarf and is worn by cowboys and bikers.",
+    "It shares an ancient root with the everyday English verb \"bind,\" and movie outlaws pull one up over their nose and mouth before a robbery."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bandana"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "camel",
+  "word": "camel",
+  "old": [
+    "Its name may trace back to a single ancient Semitic root that named this animal thousands of years before English existed.",
+    "The English word for this desert animal passed through Greek and Latin before landing in French and then English.",
+    "It's a cousin of Arabic jamal and Hebrew gamál — same root, different alphabets."
+  ],
+  "clues": [
+    "This large domesticated animal has a name that barely changed in sound or meaning as it traveled from an ancient Semitic root into Greek, Latin, French and English.",
+    "A humped beast that carries riders and cargo across desert sands, going long stretches without water. It is far bigger than its South American cousin, the llama.",
+    "Arabic calls it jamal and Hebrew calls it gamál, and English has a famous saying about the final straw that breaks its back."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "camel"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

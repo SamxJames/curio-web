@@ -1,0 +1,23 @@
+{
+  "slug": "brain",
+  "word": "brain",
+  "old": [
+    "Its ancient root once pointed to the very top of the head, not what's inside it.",
+    "In Dutch, the word for this organ is 'brein' — nearly a mirror of its English cousin.",
+    "West Frisian speakers call it 'brein,' a close echo of the English word it shares deep roots with."
+  ],
+  "clues": [
+    "This organ of the body has been passed down in Germanic languages for over a thousand years without any documented shift in its meaning.",
+    "It fills your skull and handles thinking, memory and feeling, the physical organ rather than the abstract mind. An ancient Greek relative named the top of the head.",
+    "You rack it over a hard puzzle and call a clever friend this; Dutch and West Frisian speakers say brein."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "heart",
+      "brain"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

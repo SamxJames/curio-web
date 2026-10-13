@@ -1,0 +1,22 @@
+{
+  "slug": "bobcat",
+  "word": "bobcat",
+  "old": [
+    "It's named for a body part that was, quite literally, cut short.",
+    "The first half of its name describes a docked or cropped tail.",
+    "A trademarked yellow loader shares its name with this short-tailed wildcat."
+  ],
+  "clues": [
+    "This wild animal of North America is named for a plain description of one body part, the very feature that makes its silhouette look cut short.",
+    "A spotted, tufted-eared wildcat roughly twice the size of a house cat, with a stubby tail; it is smaller and far more widespread than its northern cousin, the lynx.",
+    "Builders also use its name for a small skid-steer loader, after a trademark passed into everyday use. It shares a root with a short, cropped haircut."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bobcat"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "chandelier",
+  "word": "chandelier",
+  "old": [
+    "Its name hides a single small flame that once lit every branch of it.",
+    "The word for this fixture came into English by way of French, tracing back to Latin for a burning wax stick.",
+    "It shares a Latin root with candelabrum — and with candle itself."
+  ],
+  "clues": [
+    "This decorative lighting fixture began as a Latin word meaning simply \"a candle,\" and its name has carried the idea of a candle-holder ever since.",
+    "It hangs from the ceiling with branching arms holding many lights, often dripping with crystals. Unlike its word-cousin candelabrum, which usually stands on a table, it is suspended overhead.",
+    "Wild partygoers are said to swing from one, and in The Phantom of the Opera a famous one comes crashing down over the audience."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "chandelier"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "cataract",
+  "word": "cataract",
+  "old": [
+    "It once named the gates thought to hold back the waters of the sky.",
+    "A portcullis-like blockage lent its name to a clouding of the eye's lens.",
+    "Greek katar(rh)áktēs, meaning both 'waterfall' and 'portcullis,' underlies both of this word's modern meanings."
+  ],
+  "clues": [
+    "This medical term first meant the floodgates of heaven, coming from an ancient Greek word for water rushing downwards.",
+    "It is a clouding of the eye's lens that blurs vision, common with age and fixed by lens-replacement surgery, unlike glaucoma, which involves pressure on the optic nerve.",
+    "The same word names a mighty, thundering waterfall, and medicine borrowed it for the eye because a clouded lens was likened to a portcullis shutting out light."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "cataract"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

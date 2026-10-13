@@ -1,0 +1,23 @@
+{
+  "slug": "beetle",
+  "word": "beetle",
+  "old": [
+    "Its name comes from what it was thought to do with its mouth.",
+    "The word literally means \"biter,\" built from an old verb plus a small suffix.",
+    "It shares a root with Danish bille and Old High German bicco, all pointing back to the act of biting."
+  ],
+  "clues": [
+    "This kind of insect has a name that literally means \"the biter,\" built from an old word for a creature that tends to bite.",
+    "More specific than just any bug, it is an insect whose front wings have hardened into a glossy shell. Ladybugs, scarabs, fireflies and weevils all belong to this huge group.",
+    "Volkswagen's classic rounded little car carries this name, and a famous Liverpool band borrowed it, with a musical twist, when naming themselves."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "Mosquito",
+      "beetle"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "baguette",
+  "word": "baguette",
+  "old": [
+    "Its ancestors all describe something thin, straight, and rigid — long before anyone baked with it.",
+    "In French, the word simply means \"stick.\"",
+    "It passed through Italian bacchetta on its way from Latin baculum to French, and finally into English."
+  ],
+  "clues": [
+    "This bakery staple carries a name that traces back to a Latin word for a staff or walking stick, a long way from anything you would eat.",
+    "It is a long, slender loaf with a crackly golden crust and airy inside, far longer than a dinner roll. In Italian, its ancestor simply meant a small stick.",
+    "Picture a Parisian strolling home with one tucked under an arm. Jewelers also use the same name for a slim, rectangular cut of gemstone."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "baguette"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

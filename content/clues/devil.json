@@ -1,0 +1,22 @@
+{
+  "slug": "devil",
+  "word": "devil",
+  "old": [
+    "Its ancestor described someone who hurls something across a space — in this case, an accusation.",
+    "The Greek original literally meant 'to throw across,' and came to mean 'slanderer.'",
+    "It shares a Latin root with diablo and diabolus, words for the same fallen figure."
+  ],
+  "clues": [
+    "This supernatural figure started out as a courtroom insult: its ancient Greek source meant a false accuser or slanderer, someone throwing accusations at you.",
+    "The chief spirit of evil, often pictured with horns, tail and pitchfork. It's the common noun, not the name Satan, though translators used it for that Hebrew title.",
+    "People say 'speak of the ___' when someone arrives right on cue, and a mischievous child is a little one. Spanish has the cousin word diablo."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "devil"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

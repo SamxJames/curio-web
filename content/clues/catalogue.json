@@ -1,0 +1,22 @@
+{
+  "slug": "catalogue",
+  "word": "catalogue",
+  "old": [
+    "Its final piece traces back to a Greek verb meaning simply 'to speak.'",
+    "The whole word once meant 'enrollment' or 'register' in Greek.",
+    "It's cousin to dialogue — both end in the Greek root for speaking."
+  ],
+  "clues": [
+    "This noun for a kind of organized record goes back to an ancient Greek verb meaning to recount or list things out, built on a root meaning to speak.",
+    "A complete, systematically arranged list of items, such as a library's holdings or a store's products, often printed as a booklet you browse. It is fuller and more formal than a brochure.",
+    "Shoppers once leafed through thick mail-order ones before ordering by post, and the word shares its speaking root with dialogue and epilogue."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "catalogue"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

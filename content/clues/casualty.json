@@ -1,0 +1,22 @@
+{
+  "slug": "casualty",
+  "word": "casualty",
+  "old": [
+    "Its ancestor simply meant something falling into place — by accident, not design.",
+    "The root word meant 'a chance event,' before it took on a darker sense of loss.",
+    "It's a cousin of 'case,' both falling from the Latin cāsus."
+  ],
+  "clues": [
+    "This somber noun for a kind of loss once meant any chance occurrence at all, whether lucky or unlucky.",
+    "It names a person killed or injured in a war, disaster or accident, so it is broader than a fatality, since the wounded count too. Its root is a Latin verb meaning 'to fall.'",
+    "The saying goes that truth is the first one of war, and in Britain the hospital emergency room is named for it. It shares its Latin root with 'case.'"
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "casualty"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}
