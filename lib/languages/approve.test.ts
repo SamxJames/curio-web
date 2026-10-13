@@ -40,6 +40,37 @@ describe("approveSheets", () => {
     expect(res.sheets[0].approved).toBe(true);
   });
 
+  it("refuses a draft whose alias is already another sheet's name or alias", () => {
+    const existing = [{ ...draft("Lombard", { aliases: ["Lumbaart"] }), approved: true } as LanguageSheet];
+    const res = approveSheets(
+      [draft("Lombardic", { aliases: ["Lombard"] }), draft("Gothic", { aliases: ["Lumbaart"] }), draft("Latin")],
+      existing,
+      { allValid: true },
+    );
+    expect(res.approved).toEqual(["Latin"]);
+    expect(res.refused).toEqual([
+      { name: "Lombardic", reasons: ['"Lombard" is already a name or alias of Lombard'] },
+      { name: "Gothic", reasons: ['"Lumbaart" is already a name or alias of Lombard'] },
+    ]);
+    expect(res.sheets.map((s) => s.name)).toEqual(["Latin", "Lombard"]);
+  });
+
+  it("refuses both drafts in one batch that claim the same alias", () => {
+    const res = approveSheets([draft("Old Saxon", { aliases: ["Saxon"] }), draft("Low German", { aliases: ["Saxon"] })], [], {
+      allValid: true,
+    });
+    expect(res.approved).toEqual([]);
+    expect(res.refused.map((r) => r.name)).toEqual(["Old Saxon", "Low German"]);
+    expect(res.sheets).toEqual([]);
+  });
+
+  it("lets a re-approved sheet keep its own existing aliases", () => {
+    const existing = [{ ...draft("Latin", { aliases: ["Classical Latin"] }), approved: true } as LanguageSheet];
+    const res = approveSheets([draft("Latin")], existing, { allValid: true });
+    expect(res.approved).toEqual(["Latin"]);
+    expect(res.sheets[0].aliases).toEqual(["Classical Latin"]);
+  });
+
   it("refuses a draft carrying _problems, even with --only", () => {
     const res = approveSheets([draft("Latin", { _problems: ["origin too short"] })], [], { only: ["Latin"] });
     expect(res.approved).toEqual([]);

@@ -128,6 +128,15 @@ describe("languageDescription", () => {
     );
   });
 
+  it("doesn't end the first sentence at an abbreviation such as St. or c.", () => {
+    const [page] = buildLanguagePages(three, [
+      sheet("Latin", { origin: "Monks at St. Gall wrote it down c. 800 AD. It spread with Rome." }),
+    ]);
+    expect(languageDescription(page, 500)).toBe(
+      "3 English words that passed through Latin, each with its origin story. Monks at St. Gall wrote it down c. 800 AD.",
+    );
+  });
+
   it("trims to about 155 characters at a word boundary", () => {
     const long = `Latin ${"belongs to a very long family of words ".repeat(6)}indeed.`;
     const [page] = buildLanguagePages(three, [sheet("Latin", { origin: long })]);

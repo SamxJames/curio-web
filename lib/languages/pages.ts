@@ -82,10 +82,19 @@ export function lineageHrefs(lineage: string[], pages: LanguagePage[] = language
   return out;
 }
 
-/** First sentence of a sheet's origin (up to the first . ! or ? followed by a capital or the end). */
+/** Abbreviations that end in a full stop without ending the sentence ("St. Gall", "c. 800"). */
+const ABBREVIATION = /(?:^|\s)(?:St|Mt|Ft|Dr|Mr|Mrs|Ms|Jr|Sr|ca|c|cf|vs|e\.g|i\.e|etc|approx|[A-Z])\.$/;
+
+/** First sentence of a sheet's origin (up to the first . ! or ? followed by a capital or the
+ * end, skipping full stops that close a known abbreviation). */
 function firstSentence(text: string): string {
-  const m = text.match(/^[\s\S]*?[.!?](?=\s+[A-Z]|\s*$)/);
-  return (m ? m[0] : text).trim();
+  const end = /[.!?](?=\s+[A-Z0-9]|\s*$)/g;
+  for (let m = end.exec(text); m; m = end.exec(text)) {
+    const upTo = text.slice(0, m.index + 1);
+    if (m[0] === "." && ABBREVIATION.test(upTo) && m.index + 1 < text.trimEnd().length) continue;
+    return upTo.trim();
+  }
+  return text.trim();
 }
 
 /** Meta description: "{n} English words that passed through {Name}, each with its origin

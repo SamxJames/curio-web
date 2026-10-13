@@ -139,6 +139,26 @@ export function approveSheets(
     if (old) sheet.aliases = uniqSorted([...old.aliases, ...sheet.aliases], name);
     merged.set(name, sheet);
   }
+
+  // A name may belong to one sheet only: two sheets sharing an alias would make the lineage
+  // link, the panel and the language page silently pick whichever sheet comes first.
+  const owners = new Map<string, string[]>();
+  for (const s of merged.values()) {
+    for (const n of new Set([s.name, ...s.aliases])) owners.set(n, [...(owners.get(n) ?? []), s.name]);
+  }
+  for (const [name, { sheet }] of batch) {
+    const reasons = [...new Set([name, ...sheet.aliases])].flatMap((n) => {
+      const others = owners.get(n)!.filter((o) => o !== name);
+      return others.length > 0 ? [`"${n}" is already a name or alias of ${others.join(", ")}`] : [];
+    });
+    if (reasons.length === 0) continue;
+    result.refused.push({ name, reasons });
+    result.approved = result.approved.filter((a) => a !== name);
+    const old = existing.find((s) => s.name === name);
+    if (old) merged.set(name, toSheet(old));
+    else merged.delete(name);
+  }
+
   result.sheets = [...merged.values()].sort(byName);
   return result;
 }
