@@ -3,7 +3,7 @@ import { WORDS } from "@/lib/words";
 
 export const metadata = {
   title: "All words A–Z — Curio",
-  description: "Every word Curio has a story for, listed A to Z.",
+  description: "Every English word Curio has an origin story for, A to Z: where each one came from and the languages it passed through.",
   alternates: { canonical: "/words" },
 };
 

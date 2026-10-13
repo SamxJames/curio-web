@@ -4,7 +4,11 @@ import { auth } from "@/lib/auth";
 import { getUserJoinedAt, recordUserSeen } from "@/lib/userData";
 import { resolveUniqueWordsMostRecent, resolveHistorySince } from "@/lib/words";
 
-export const metadata = { title: "History — Curio" };
+export const metadata = {
+  title: "History — Curio",
+  description: "Every word Curio has featured so far, most recent first, each with its origin story.",
+  alternates: { canonical: "/history" },
+};
 
 // HistoryList only ever reads `.slug` and `.word` off each entry's word —
 // projecting down to that here (rather than sending the full WordEntry,

@@ -11,6 +11,9 @@ export default function Footer() {
         <Link href="/words" className="hover:text-ink-soft">
           All words
         </Link>
+        <Link href="/languages" className="hover:text-ink-soft">
+          Languages
+        </Link>
         <Link href="/attribution" className="ml-auto hover:text-ink-soft">
           Word origins from Wiktionary (CC BY-SA)
         </Link>

@@ -1,4 +1,8 @@
-export const metadata = { title: "Attribution — Curio" };
+export const metadata = {
+  title: "Attribution — Curio",
+  description: "Where Curio's word origins come from: Wiktionary's etymology data (CC BY-SA), rewritten into short stories by a language model.",
+  alternates: { canonical: "/attribution" },
+};
 
 export default function AttributionPage() {
   return (
