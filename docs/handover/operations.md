@@ -213,6 +213,17 @@ curl -sS -H "Authorization: Bearer $CURIO_CRON_SECRET" "https://curioword.com/ap
 curl -sS -H "Authorization: Bearer $CURIO_CRON_SECRET" "https://curioword.com/api/cron/send-daily?repost=bluesky"
 ```
 
+**IndexNow (Bing & co.).** The 09:00 run pings IndexNow after it responds. Check it in Vercel runtime logs: search
+`[curio:indexnow]` for "submitted N URLs (HTTP 200)" or 202. If it logged a failure, the day lock was released, so a
+**plain** re-run retries it. That re-run sends no email and no Bluesky post, because their day locks are already held:
+
+```bash
+curl -sS -H "Authorization: Bearer $CURIO_CRON_SECRET" "https://curioword.com/api/cron/send-daily"
+```
+
+`?resend=` and `?repost=` runs never ping. Deleting `curio:digest:indexnow:<day>` by hand is never needed. Bing Webmaster
+Tools → IndexNow shows what arrived.
+
 **Reading the response:** `attempted`/`sent`/`failed` are this run's email
 counts, `bluesky` is whether this run posted, and `alreadyRan: { email,
 bluesky }` says which channels were skipped because today's lock was

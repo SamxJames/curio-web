@@ -293,7 +293,30 @@
   sitemap), `buildSitemapEntries()` (consumed by `app/sitemap.ts`) and
   `buildRobots()` (consumed by `app/robots.ts`) — the one source of truth
   so the sitemap, `robots.txt` and the app's actual route structure can't
-  drift apart.
+  drift apart. Since 2026-10-13 it also owns `PAGES_UPDATED`: hand-set
+  `lastmod` dates for story pages, language pages and the two A–Z indexes
+  (`/words`, `/languages`). Bump the date in the same commit as a template
+  change to that page type; home, `/play`, `/history` and `/attribution`
+  carry none. `robots.txt` lists two sitemaps: `/sitemap.xml` and `/feed.xml`.
+- `lib/feed.ts` + `app/feed.xml/route.ts` — RSS 2.0 of the last 30 days of
+  the shared calendar (`FEED_DAYS`), newest first, rendered per request
+  (never at build, so it can't freeze a stale day). `<link>`/`<guid>` are
+  bare canonical story URLs; only the in-body "Read the full story" anchor
+  carries `?utm_source=rss` (traffic source `rss` in `lib/traffic.ts`).
+  `app/layout.tsx` advertises it with `<link rel="alternate"
+  type="application/rss+xml">`. Archive only: every item is a day that has
+  already happened.
+- `lib/indexNow.ts` — `submitDailyIndexNow`, called inside `after()` from
+  `/api/cron/send-daily` (skipped on `?resend=`/`?repost=` runs). Pings
+  Bing/Yandex/Seznam/Naver (not Google) with home, `/play`, `/history` and
+  today's story, plus every sitemap URL whose `url|lastmod` isn't yet in the
+  ledger set `curio:digest:indexnow:submitted`. So the first production run
+  sends all ~1,210 URLs, and bumping `PAGES_UPDATED` re-sends that page type
+  once. Day lock `curio:digest:indexnow:<day>` (3-day TTL), released on any
+  failure. Production + https + Redis only; never throws; logs
+  `[curio:indexnow]` with `err.name` only. The key (`INDEXNOW_KEY`) is public
+  by design, served from `public/<key>.txt`. To rotate: add the new
+  `public/<new>.txt`, change the constant, deploy, then delete the old file.
 - `lib/relatedWords.ts` — `getRelatedWords(slug)`, the deterministic
   inter-story linking (see "This session (2026-09-20)" below for why it's
   split into `peers`/`neighbours` rather than one prose-matched list).

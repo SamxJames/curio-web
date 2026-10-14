@@ -1,7 +1,11 @@
 import PuzzleGame from "@/components/PuzzleGame";
 import { getTodayPuzzle } from "@/lib/puzzle";
 
-export const metadata = { title: "Daily puzzle — Curio" };
+export const metadata = {
+  title: "Daily puzzle — Curio",
+  description: "A daily word puzzle: guess the word from up to three clues about where it came from. Free, no login, the same puzzle for everyone.",
+  alternates: { canonical: "/play" },
+};
 
 // getTodayPuzzle() is date-dependent (via lib/day.ts's clock), same as
 // app/page.tsx and app/history/page.tsx — those get dynamic rendering for

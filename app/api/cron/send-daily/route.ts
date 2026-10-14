@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { authorizeCron } from "@/lib/cronAuth";
 import { getAllSubscribers } from "@/lib/db";
 import { sendDailyDigests } from "@/lib/email";
@@ -8,6 +8,7 @@ import { unsubscribeSecret } from "@/lib/unsubscribeToken";
 import { claimRun, getFailures, releaseRun, removeFailures, seedPending } from "@/lib/digestRuns";
 import { redactAddresses } from "@/lib/digestSend";
 import { dayKey } from "@/lib/day";
+import { submitDailyIndexNow } from "@/lib/indexNow";
 
 /** Vercel Hobby with Fluid compute allows up to 300s (the project default
  * is also 300; pinned here so a dashboard change can't cut a retrying send
@@ -36,7 +37,10 @@ const SEND_BUDGET_MS = 240_000;
  *   hasn't today...
  * - `?force=1&bluesky=1` — ...unless this is added.
  * - `?repost=bluesky` — re-posts to Bluesky only, forcing just that lock;
- *   email, its lock and the pending set are left alone. */
+ *   email, its lock and the pending set are left alone.
+ *
+ * The same scheduled run also pings IndexNow for today's pages, after the
+ * response (see lib/indexNow.ts). */
 export async function GET(req: NextRequest) {
   const { secret, denied } = authorizeCron(req);
   if (denied) return denied;
@@ -71,6 +75,11 @@ export async function GET(req: NextRequest) {
   const now = new Date();
   const day = dayKey(now);
   const word = await resolveTodayWord(now);
+
+  // Search-engine ping (Bing & co.) for today's pages. after(): it runs once
+  // the response is decided and can't delay, fail or alter the digest or the
+  // Bluesky post. It has its own day lock, and resend/repost runs skip it.
+  if (!resendFailed && repost === null) after(() => submitDailyIndexNow(word.slug, day));
 
   // Bluesky-only re-post: for a day whose post failed or went out wrong.
   // Forces only the Bluesky lock; email, its lock and the pending set are

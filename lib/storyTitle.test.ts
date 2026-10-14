@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { WORDS, type WordEntry } from "./words";
-import { sourceLanguage, storyPageTitle } from "./storyTitle";
+import { sourceLanguage, storyMetaDescription, storyPageTitle } from "./storyTitle";
 
 function word(slug: string, lineage: string[]): WordEntry {
   return {
@@ -43,5 +43,16 @@ describe("storyPageTitle", () => {
   it("keeps every real title short enough for search results (≤ 65 characters)", () => {
     const long = WORDS.map(storyPageTitle).filter((t) => t.length > 65);
     expect(long).toEqual([]);
+  });
+});
+
+describe("storyMetaDescription", () => {
+  it("leads with the word and 'etymology' so the snippet matches how people search", () => {
+    const w = { ...word("jungle", ["Hindustani", "English"]), teaser: "A tangle of trees once meant dry, open land." };
+    expect(storyMetaDescription(w)).toBe("Etymology of jungle: A tangle of trees once meant dry, open land.");
+  });
+
+  it("stays within ~170 characters for every word in the bank", () => {
+    for (const w of WORDS) expect(storyMetaDescription(w).length).toBeLessThanOrEqual(175);
   });
 });

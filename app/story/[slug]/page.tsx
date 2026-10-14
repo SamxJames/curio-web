@@ -5,7 +5,7 @@ import { WORDS, getWordBySlug } from "@/lib/words";
 import { buildStoryJsonLd, serializeJsonLd } from "@/lib/storyJsonLd";
 import { getRelatedWords } from "@/lib/relatedWords";
 import { lineageHrefs } from "@/lib/languages/pages";
-import { storyPageTitle } from "@/lib/storyTitle";
+import { storyMetaDescription, storyPageTitle } from "@/lib/storyTitle";
 
 export function generateStaticParams() {
   return WORDS.map((w) => ({ slug: w.slug }));
@@ -23,14 +23,16 @@ export async function generateMetadata({
   // `teaser` is the field written to be read cold by a human — one
   // sentence, no mid-thought opening, and deliberately distinct from
   // `origin` (which is the full explanation and starts with "From Latin…"
-  // more often than not). Every teaser in the bank is ≤151 characters, so
-  // nothing needs truncating for a meta description.
-  const description = word.teaser;
+  // more often than not). The meta description prefixes it with the word
+  // (storyMetaDescription), and the test keeps every result under 175
+  // characters, so nothing needs truncating. Social cards keep the bare
+  // teaser: Twitter inherits openGraph.description through Next's autofill.
+  const teaser = word.teaser;
   const title = storyPageTitle(word);
 
   return {
     title,
-    description,
+    description: storyMetaDescription(word),
     // Relative on purpose: app/layout.tsx's metadataBase resolves it
     // against CURIO_SITE_URL, so this can't drift from the sitemap's origin.
     alternates: { canonical: `/story/${slug}` },
@@ -40,7 +42,7 @@ export async function generateMetadata({
       type: "website",
       siteName: "Curio",
       title,
-      description,
+      description: teaser,
       url: `/story/${slug}`,
     },
   };

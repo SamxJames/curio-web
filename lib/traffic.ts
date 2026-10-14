@@ -7,6 +7,7 @@ export const TRAFFIC_SOURCES = [
   "threads",
   "instagram",
   "share",
+  "rss",
   "search",
   "reddit",
   "hn",
@@ -20,7 +21,7 @@ export function isTrafficSource(x: unknown): x is TrafficSource {
 }
 
 /** utm_source values our own links carry (digest, social posts, share). */
-const TAGGED: readonly TrafficSource[] = ["email", "bluesky", "threads", "instagram", "share"];
+const TAGGED: readonly TrafficSource[] = ["email", "bluesky", "threads", "instagram", "share", "rss"];
 
 const REFERRER_RULES: { source: TrafficSource; test: RegExp }[] = [
   // Google and Yandex are anchored to their search hosts so mail.google.com,

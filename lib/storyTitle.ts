@@ -25,3 +25,13 @@ export function storyPageTitle(word: WordEntry): string {
     ? `${word.word} word origin: from ${source} — Curio`
     : `${word.word}: the origin of the word — Curio`;
 }
+
+/** The story page's <meta name="description">. The teaser alone ("This unit of
+ * loudness is quietly a fraction of something bigger.") never names the word,
+ * and pages sitting at positions 8–12 were getting ~0% click-through. Leading
+ * with "Etymology of <word>:" matches how people actually search (the demand
+ * report's queries: "<word> etymology", "<word> origin"). OG/Twitter keep the
+ * bare teaser: on a social card the word is already in the image. */
+export function storyMetaDescription(word: WordEntry): string {
+  return `Etymology of ${word.word}: ${word.teaser}`;
+}

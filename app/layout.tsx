@@ -8,7 +8,8 @@ import ThemeInit from "@/components/ThemeInit";
 import SessionHintInit from "@/components/SessionHintInit";
 import AccountFavoritesSync from "@/components/AccountFavoritesSync";
 import TrafficBeacon from "@/components/TrafficBeacon";
-import { siteUrl } from "@/lib/siteUrl";
+import { absoluteUrl, siteUrl } from "@/lib/siteUrl";
+import { FEED_PATH } from "@/lib/feed";
 // Self-hosted (not next/font/google) so the app builds without reaching
 // fonts.googleapis.com at build time — works the same in dev, CI, and prod.
 import "@fontsource/newsreader/400.css";
@@ -61,6 +62,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <ThemeInit />
         <SessionHintInit />
+        {/* In <head> directly, not metadata.alternates: pages that set their own
+            alternates.canonical would replace the layout's alternates object and
+            drop the feed link. */}
+        <link rel="alternate" type="application/rss+xml" title="Curio" href={absoluteUrl(FEED_PATH)} />
       </head>
       <body className="min-h-full flex flex-col bg-paper text-ink">
         <SessionProvider>
