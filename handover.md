@@ -1,6 +1,6 @@
 # Curio: Handover
 
-Last updated: 2026-10-12. Read this first; it's deliberately short. Open a file in `docs/handover/` only when the
+Last updated: 2026-10-14. Read this first; it's deliberately short. Open a file in `docs/handover/` only when the
 task touches that area. **Keep this file under ~200 lines:** current state, gotchas and pointers only. Put session
 detail in `docs/handover/history.md` and depth in the topic files.
 
@@ -23,24 +23,25 @@ every feature against it.
 - **Crons (UTC, Hobby fires anywhere in the hour):** 09:00 digest + Bluesky (`/api/cron/send-daily`), 10:00 Threads/IG
   (`/api/cron/social`). Mondays 06:00: demand report (GitHub Action → private `SamxJames/curio-reports`).
 
-## Current state (2026-10-13)
-- Language panel has **87 approved sheets** (batches 1 to 3; batch 3 added 29 on 2026-10-13, Classical Persian held back). Story titles name the
-  source language. Signing in now returns you to the page you were on. Pipeline: `docs/handover/language-panel.md`.
-- Homepage has WebSite + Organization JSON-LD and a canonical (49c9f8f, verified live; builder `buildSiteJsonLd` in
-  `lib/storyJsonLd.ts`). `/play` was "unknown to Google"; indexing requested 2026-10-12.
-- Threads + Instagram switched ON 2026-10-11 (Meta app "Curio Poster", @curio.word.daily); 10:00 UTC cron.
-- **Language pages live** (2026-10-12, merge 7a2d6f5): `/language/{slug}` for every approved sheet with >=3 words (61
-  since batch 3; derived at build, so each sheet batch adds pages), `/languages` index, story lineage names link to them,
-  `/words` links the index, sitemap 1,210. Server-only module `lib/languages/pages.ts`; the page's panel is the
-  data-free `components/LanguagePanelView.tsx`. 2026-10-12: sitemap resubmitted; URL Inspection live test on
-  /language/latin passed (fetched, indexable); indexing requested for /languages, /language/latin, /play.
+## Current state (2026-10-14)
+- **Shipped 2026-10-13/14 (merge 4a0e473, deployed, 7/7 live checks pass):** `/feed.xml` RSS (last 30 days, also a 2nd
+  sitemap in robots.txt, `utm_source=rss` traffic source); story meta descriptions "Etymology of <word>: ..." (og stays the
+  teaser); canonicals on /play, /history, /attribution; footer Languages link; hand-set sitemap lastmod (`PAGES_UPDATED` in
+  `lib/seoRoutes.ts`); IndexNow ping from the 09:00 send-daily cron (`lib/indexNow.ts`; Bing/Yandex etc., not Google).
+  Plan: `docs/superpowers/plans/2026-10-13-indexnow-feed-seo-fixes.md`. First IndexNow run is unverified (see Open threads).
+- Language panel has **87 approved sheets** (Classical Persian held back). Story titles name the source language. Signing in
+  returns you to the page you were on. Pipeline: `docs/handover/language-panel.md`.
+- **Language pages live** (2026-10-12): `/language/{slug}` for every approved sheet with >=3 words (61), `/languages`
+  index, story lineage links, sitemap 1,210. Module `lib/languages/pages.ts`; view `components/LanguagePanelView.tsx`.
+- Homepage has WebSite + Organization JSON-LD and a canonical (`buildSiteJsonLd` in `lib/storyJsonLd.ts`).
+- Threads + Instagram ON since 2026-10-11 (Meta app "Curio Poster", @curio.word.daily); 10:00 UTC cron.
 - GSC daily impressions fell ~1,300 (09-30) to ~300 (10-09); watch it in the Monday demand report.
 - Double opt-in and the 200/day confirmation cap are live. Weekly check-in state: `../checkins/state.md`.
-- 2026-10-13 polish: phone header spacing, 44px mail-app buttons on the sign-in "check your email" screen,
-  `languages:approve` refuses alias clashes, page descriptions no longer split at "St."/"c.".
 - Vercel: the MCP connector sees the team but not its projects; the **Vercel CLI** (logged in) works, including Web
   Analytics: `vercel api "/v1/query/web-analytics/visits/count?projectId=etymology-app&teamId=<team>&since=..&until=.."`.
 - Stale branch `brand-assets` (local + origin) has no commits beyond master; safe to delete.
+- Worktree `polish-oct13` (branch `worktree-polish-oct13`) has 1 unmerged commit, 070f591 (clue rewrite pipeline, first
+  202 reviewed clue sets, UK spellings accepted); its own suite is 868/868 green.
 
 ## Gotchas (each one has bitten before)
 - `vercel link --project <name>` **silently creates a new empty project** if the name is wrong. Run `vercel project ls` first.
@@ -61,6 +62,7 @@ every feature against it.
 - Cloudflare DNS records for Vercel/Resend must be **grey-cloud (DNS only)**.
 - Meta logging: never log raw fetch errors or Upstash error messages (they can contain tokens). See `architecture.md` → `lib/metaGraph.ts`.
 - Clean up after verifying: stop dev servers, `rm -rf .next`, remove merged worktrees (they confuse lint/vitest).
+- Running vitest/lint from the main repo sweeps `.claude/worktrees/*` and reports bogus failures; run from each worktree's own root.
 - No Python on this machine; write scripts in Node/tsx.
 
 ## Decisions in force (full reasoning: `docs/handover/decisions.md`)
@@ -70,11 +72,15 @@ every feature against it.
 - Themed pages = language pages only (2026-10-12); topic themes would need tagging 1,147 words.
 - Threads/IG tokens are the on/off switch. Bluesky format: teaser · word + lineage · hashtags, link in a card.
 - No retroactive history backfill, ever.
+- Sitemap lastmod is hand-set per page type, never a build timestamp (2026-10-13).
 - The demand report lives in a private repo and public Actions logs print counts only.
 
 ## Open threads
-- Watch GSC for the language pages (impressions/clicks from "words from X" queries). Next language-sheet batch:
-  `languages:facts -- --limit 30`, draft, review, approve (Proto-West Germanic still has no usable source).
+- **2026-10-15:** verify the first IndexNow run in Vercel logs: look for `[curio:indexnow] 2026-10-15: submitted ~1214 URLs (HTTP 200|202)`.
+- Merge the `polish-oct13` worktree (070f591) next.
+- Consider a vitest/lint exclude for `.claude/**` (see gotcha).
+- Watch GSC for the feed and language pages. Next language-sheet batch: `languages:facts -- --limit 30`, draft, review,
+  approve (Proto-West Germanic still has no usable source).
 - Submit remaining launch-kit entries; "root word" phrasing in titles.
 - Small UX: "clue progression (clue 1 hardest)" is unclear, since clues already run hardest-first; ask Sam what was meant.
 - Parked with reasons: `docs/handover/parked.md`.

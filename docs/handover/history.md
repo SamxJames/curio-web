@@ -1112,3 +1112,18 @@ brainstorm — so don't assume they closed out its open questions.
   /language/nope 404, /story/acid links Latin and French pages.
 - Deferred (none affect today's data): no guard against an alias on two sheets; first-sentence split would break on
   "St. X"-style abbreviations; `favouriteCount` still serialized (not rendered) in the page's panel model.
+
+
+## 2026-10-14: IndexNow + RSS feed + SEO fixes shipped
+Branch `feat/growth-indexnow-feed` merged to master (4a0e473), deployed (dpl_FWnEHmARc2wKZLonHv47nyHiWjxL); all 7 live
+checks passed on curioword.com. Plan: `docs/superpowers/plans/2026-10-13-indexnow-feed-seo-fixes.md`.
+- `/feed.xml` RSS (last 30 days), listed as a second sitemap in robots.txt; links carry `utm_source=rss`.
+- Story meta descriptions now "Etymology of <word>: ..." (og:description still the teaser).
+- Canonicals added on /play, /history, /attribution; footer links to Languages.
+- Sitemap lastmod hand-set per page type via `PAGES_UPDATED` in `lib/seoRoutes.ts` (stories, language pages, /words,
+  /languages only). Decision in decisions.md (2026-10-13).
+- IndexNow ping from the 09:00 send-daily cron (`lib/indexNow.ts`); covers Bing/Yandex etc., not Google.
+- Gotcha found: vitest/lint run from the main repo sweeps `.claude/worktrees/*` (e.g. polish-oct13's
+  `app/sharedDay.test.ts`) and reports bogus failures. Run from each worktree's root or exclude `.claude/**`.
+- Cleanup: `curio-web-growth` worktree and branch removed.
+- Next: check first IndexNow run in Vercel logs on 2026-10-15; merge `polish-oct13` (070f591).
