@@ -122,3 +122,10 @@ relitigate it — reuse that pattern. (Still true 2026-10-04. The
 ## 2026-10-12: Themed pages are language pages only
 Topic themes would require tagging all 1,147 words; language data already exists (approved sheets). Pages exist for
 languages with an approved sheet and at least 3 words. Revisit once language pages show search traction.
+
+## 2026-10-13: Hand-set lastmod per page type in the sitemap
+Supersedes "no lastmod anywhere". Google ignores lastmod unless it's consistently accurate, so a build timestamp (every
+deploy claims every page changed) is worse than none. `PAGES_UPDATED` in `lib/seoRoutes.ts` holds one date per page type,
+bumped by hand in the commit that changes that template. Pages that change daily (home, `/play`, `/history`) carry none:
+the sitemap is built once per deploy, so any date there is wrong by the next morning. Their freshness comes from
+`/feed.xml` (listed as a second sitemap) and the daily IndexNow ping. The same dates drive IndexNow's re-submission ledger.
