@@ -176,17 +176,20 @@ export default function PuzzleGame({
             {word.respelling} &middot; {word.partOfSpeech}
           </p>
 
-          <Link
-            href={`/story/${word.slug}`}
-            className="mt-6 inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-90"
-          >
-            Read the full story &rarr;
-          </Link>
-
-          <Button variant="ghost" className="mt-6 flex items-center gap-2 text-sm" onClick={handleShare}>
-            <Share size={15} strokeWidth={1.75} />
-            {shareCopied ? "Copied" : "Share your result"}
-          </Button>
+          {/* Sharing is the primary action: it's how the puzzle reaches
+           * new people. The story is one tap away as the secondary. */}
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <Button className="inline-flex items-center gap-2 border border-transparent" onClick={handleShare}>
+              <Share size={15} strokeWidth={1.75} />
+              {shareCopied ? "Copied" : "Share your result"}
+            </Button>
+            <Link
+              href={`/story/${word.slug}`}
+              className="inline-flex items-center gap-2 rounded-full border border-line-strong px-5 py-2.5 font-sans text-sm text-ink-soft transition-colors hover:border-accent hover:text-ink"
+            >
+              Read the full story &rarr;
+            </Link>
+          </div>
 
           {/* Signed-in readers manage the email from /account — don't pitch
            * it at them. signed-in:hidden covers useSession()'s loading state
