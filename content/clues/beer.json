@@ -1,0 +1,22 @@
+{
+  "slug": "beer",
+  "word": "beer",
+  "old": [
+    "Its oldest traceable root may have simply meant the living stuff that makes bread rise and drinks ferment.",
+    "One old English scholar noted the word appeared 'rare, except in poetry' before it became an everyday drink.",
+    "Dutch and German speakers use a word — 'bier' and 'Bier' — that's nearly identical to this one."
+  ],
+  "clues": [
+    "This alcoholic drink has a disputed origin: one account traces its name to an ancient Germanic root meaning brewer's yeast, while others link it to a Latin verb meaning to drink.",
+    "Brewed from malted grain and hops, it is poured by the pint in pubs, and it is the broad term covering both ale and lager rather than a type of either.",
+    "Germans order a Bier and Icelanders a bjór; in English it fills steins at Oktoberfest, comes on tap or in bottles, and lends its name to a pot belly."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "beer"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

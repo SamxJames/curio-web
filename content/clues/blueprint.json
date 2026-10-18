@@ -1,0 +1,23 @@
+{
+  "slug": "blueprint",
+  "word": "blueprint",
+  "old": [
+    "One 19th-century scientist needed a name for a plan rendered in a single, unmistakable hue.",
+    "It joins a color and a mark left by pressing something onto paper.",
+    "Its two halves are simply 'blue' and 'print,' fused by Sir John Herschel in 1842."
+  ],
+  "clues": [
+    "This noun for a kind of plan was introduced by an astronomer, Sir John Herschel, a surprising origin for a word now tied to builders and engineers.",
+    "More exact than a rough sketch or outline, it is the detailed technical drawing architects and engineers work from, or any thorough guide to achieving something.",
+    "Its name recalls the color these copies once literally came out, and today people speak of a detailed one for success, for peace, or for life itself."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "elevation",
+      "blueprint"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

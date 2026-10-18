@@ -1,0 +1,22 @@
+{
+  "slug": "artillery",
+  "word": "artillery",
+  "old": [
+    "Its distant root simply meant making something fit for a job.",
+    "The French word behind it once meant any gear used to dress a soldier in armor.",
+    "It's a cousin of the word 'apt' — both trace back to that same idea of being made capable."
+  ],
+  "clues": [
+    "This military noun once covered any gear for kitting yourself out for war, especially armor, before it came to mean battle engines like crossbows and lances.",
+    "Today it means heavy guns such as howitzers and mortars that hurl shells over long distances, the whole class rather than a single cannon, or the army branch using them.",
+    "When a debater saves her strongest arguments for last, people say she is bringing out the heavy kind of this. It shares an ancient root with 'apt.'"
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "artillery"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

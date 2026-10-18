@@ -1,0 +1,22 @@
+{
+  "slug": "robot",
+  "word": "robot",
+  "old": [
+    "This word for a mechanical worker was invented for a 1920s stage play, not borrowed from everyday speech.",
+    "Its Czech root means forced labor or drudgery, coined by the writer Karel Čapek.",
+    "That root is related to an old Slavic word for slave — English has no native relatives for it at all, making this one of the few everyday words borrowed wholesale from Czech."
+  ],
+  "clues": [
+    "This name for a kind of machine was coined by Czech writer Karel Čapek for a 1920 stage play, from a Slavic word for forced labor or drudgery.",
+    "A programmable machine that carries out tasks on its own, such as welding cars or vacuuming floors. Unlike an android, it needn't look human at all.",
+    "R2-D2 and WALL-E are beloved movie examples, and a person who works mechanically, without feeling, is sometimes called one too."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "robot"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

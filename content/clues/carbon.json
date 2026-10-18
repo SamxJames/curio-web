@@ -1,0 +1,22 @@
+{
+  "slug": "carbon",
+  "word": "carbon",
+  "old": [
+    "It started as a word for the black, burnt remains left in a fire pit.",
+    "A French scientist took an old Latin word for charcoal and turned it into a new element's name.",
+    "Trace it back far enough and you may hit a root meaning simply 'to burn.'"
+  ],
+  "clues": [
+    "This chemical element got its name from a word Romans used for charcoal and burnt wood, borrowed on purpose by the French chemist Antoine Lavoisier.",
+    "Not coal itself but the element in it, present in every living thing and found pure as diamond and graphite. Its name may come from an ancient root meaning to burn.",
+    "Climate talk is full of it: we breathe out its dioxide, and people try to shrink their ___ footprint by flying less."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "carbon"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

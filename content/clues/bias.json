@@ -1,0 +1,22 @@
+{
+  "slug": "bias",
+  "word": "bias",
+  "old": [
+    "It once named the slant a weighted ball takes as it curves off a straight path.",
+    "Its journey ran from a slanted line, through a game of bowls, to a slant of the mind.",
+    "It may descend from a Vulgar Latin word meaning 'with two axes,' via Occitan and French."
+  ],
+  "clues": [
+    "A name for a tendency of the mind, it first meant a literal slanted line, then the lopsided weighting that makes a ball curve in the game of bowls.",
+    "It's an inclination that tilts judgment unfairly toward or against something, subtler and more everyday than outright prejudice, as when a referee seems to favor the home team.",
+    "Psychologists warn about the confirmation kind, news outlets are accused of a media one, and dressmakers cut fabric on it, diagonally across the grain."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bias"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

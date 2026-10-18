@@ -1,0 +1,22 @@
+{
+  "slug": "bishop",
+  "word": "bishop",
+  "old": [
+    "Its root described someone posted to watch from a higher vantage point — nothing religious about it at first.",
+    "The word simply meant 'overseer,' a sense the Tyndale Bible preserved by translating it plainly into English.",
+    "It shares its Greek root, epískopos, with the modern word 'episcopal.'"
+  ],
+  "clues": [
+    "This church title once meant simply an overseer, built from Greek words for 'over' and 'watcher,' and in ancient times it also named civil officials.",
+    "A senior Christian clergy member who oversees a whole diocese of parishes, ranking well above an ordinary priest and often wearing a tall pointed mitre.",
+    "It is also the chess piece that moves only diagonally, and a common family name taken straight from the church title."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bishop"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

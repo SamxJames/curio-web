@@ -1,0 +1,22 @@
+{
+  "slug": "alto",
+  "word": "alto",
+  "old": [
+    "This word for a musical range shares a deep root with a word meaning aged.",
+    "Its Italian source simply means 'high.'",
+    "It's a doublet of the English word 'old.'"
+  ],
+  "clues": [
+    "This term for a singing voice comes straight from an Italian word meaning \"high,\" even though the voice it names is not the highest.",
+    "In a four-part choir, this voice sits below the soprano but above the tenor, and it is usually sung by women with deeper, richer voices.",
+    "It also names a popular saxophone, smaller than the tenor sax. Surprisingly, it shares an ancient root with the everyday English word \"old.\""
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "alto"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

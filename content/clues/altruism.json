@@ -1,0 +1,22 @@
+{
+  "slug": "altruism",
+  "word": "altruism",
+  "old": [
+    "At its core sits a very old idea: the other one, not yourself.",
+    "It comes from a French legal phrase about 'the good, the right of the other.'",
+    "A philosopher named Comte coined it in 1830 — and it shares a root with the English word 'alter.'"
+  ],
+  "clues": [
+    "This quality of character was invented on purpose by a French philosopher, Auguste Comte, rather than evolving naturally like most words.",
+    "It means unselfish concern for others' welfare as a principle, broader than charity or generosity. Comte was apparently inspired by a French legal phrase about 'the good of the other.'",
+    "Its opposite is egoism, and an 'effective' movement devoted to doing the most good bears its name. It shares a Latin root meaning 'other' with the word alter."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "altruism"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

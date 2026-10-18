@@ -1,0 +1,22 @@
+{
+  "slug": "bridge",
+  "word": "bridge",
+  "old": [
+    "Its oldest known ancestor once simply meant wooden flooring or decking laid down to walk on.",
+    "In Old English, the related verb meant to pave or build a causeway.",
+    "Germans call it Brücke, the Dutch call it brug — same ancient family, different accents."
+  ],
+  "clues": [
+    "This piece of built infrastructure has a name tracing back to an ancient root meaning wooden flooring or decking.",
+    "It carries a road, railway or footpath over a river, valley or other gap, crossing above the obstacle rather than burrowing under it like a tunnel.",
+    "You might burn one behind you, and it also names a card game, the top of your nose, and the raised piece holding a violin's strings."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bridge"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

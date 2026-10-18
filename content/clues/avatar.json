@@ -1,0 +1,22 @@
+{
+  "slug": "avatar",
+  "word": "avatar",
+  "old": [
+    "Its ancient root describes something crossing downward, from a realm above into ours.",
+    "In Sanskrit, it named a deity's descent from heaven to earth.",
+    "Long before you picked a profile picture, this word described gods like Vishnu taking on earthly form — related to Sanskrit tāra, from the same root meaning \"to cross.\""
+  ],
+  "clues": [
+    "A kind of stand-in or embodiment, it began in Sanskrit as the word for a god descending from heaven to take an earthly form.",
+    "Today it's the character or picture representing you in a video game or online forum, a digital body rather than just a username. Neal Stephenson's novel Snow Crash helped spread it.",
+    "James Cameron named his blockbuster about the blue-skinned Na'vi of Pandora after it, and Hindus use it for Krishna as an earthly form of Vishnu."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "avatar"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "band",
+  "word": "band",
+  "old": [
+    "Its ancestors described the act of tying or fastening something tight.",
+    "One old form meant a chain, fetter, or ribbon — something that holds things together.",
+    "It shares a root with 'bond' and 'bind,' and once described a regiment of soldiers united as one."
+  ],
+  "clues": [
+    "This noun for a group of people once had a military side: one of its ancestors meant a regiment of troops bound together as a unit.",
+    "A group of musicians playing together, smaller and looser than an orchestra, like a rock or jazz group. In Old English it meant a chain or ribbon.",
+    "It also names a strip that encircles things, like the rubber kind around a bundle of pencils or a wedding ring, and it's a cousin of bond and bind."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "band"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "muscle",
+  "word": "muscle",
+  "old": [
+    "To Roman anatomists, a flexing body part looked like a small animal moving just beneath the skin.",
+    "That resemblance is Latin for “little mouse” — the nickname stuck so well it became the official word for it.",
+    "The same Latin root for “mouse” gives us the small rodent itself, and much later, the computer accessory named after it."
+  ],
+  "clues": [
+    "This part of the body gets its name from a Latin word meaning \"little mouse,\" an image the Romans saw in it.",
+    "The general name for the body tissue that contracts to move your bones, which weightlifters build up; not the tendon that anchors it, nor any single one like the bicep.",
+    "You might pull one at the gym, and hired tough guys are called this. Its ancient root also gave us the word mouse, and later the computer mouse."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "muscle"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

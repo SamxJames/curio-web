@@ -1,0 +1,22 @@
+{
+  "slug": "cape",
+  "word": "cape",
+  "old": [
+    "One meaning traces back to a Latin word for 'head' — the same root hiding inside 'chief' and 'captain.'",
+    "A rocky point jutting into the sea once shared this very name, borrowed through Old French from that Latin word for head.",
+    "The other sense comes through Old Occitan and Late Latin 'cappa' — think of the cloth draped over a superhero's shoulders."
+  ],
+  "clues": [
+    "This garment has a spelling twin naming a point of land, which traces back to an ancient root meaning \"head,\" the same root behind chief and chef.",
+    "A sleeveless outer garment fastened at the neck and hanging loose over the shoulders and back, usually shorter than a cloak; Superman and Batman famously wear one.",
+    "On a map it means a headland jutting into the sea, as in ___ Cod or ___ Town, and slang uses it as a verb for defending someone."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "cape"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

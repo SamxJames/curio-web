@@ -1,0 +1,22 @@
+{
+  "slug": "candy",
+  "word": "candy",
+  "old": [
+    "Its earliest ancestor simply meant to split something into pieces — a fitting fate for anything you snap or crunch.",
+    "Before it was sweet in English, it was sukkar qandī in Arabic, literally \"sugar of the rock-hard kind.\"",
+    "It shares a root with khaṇḍī, a old unit of weight in Marathi — both come from the Sanskrit idea of breaking things into fragments."
+  ],
+  "clues": [
+    "This sweet treat's name may trace back to an ancient Sanskrit word meaning 'piece' or 'fragment,' first describing sugar broken into hard bits.",
+    "Lollipops, gummies and chocolate bars all count: it's a sugary confection eaten as a snack, not a baked dessert, and children collect bags of it on Halloween.",
+    "It completes 'cotton ___' at the fair, '___ cane' on the Christmas tree, and the phrase for an easy win: 'like taking ___ from a baby.'"
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "candy"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

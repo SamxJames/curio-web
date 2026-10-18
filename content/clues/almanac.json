@@ -1,0 +1,22 @@
+{
+  "slug": "almanac",
+  "word": "almanac",
+  "old": [
+    "Its deepest root once simply meant the weather and seasons overhead.",
+    "It passed through Arabic, Latin, and French before landing as a yearly book of dates.",
+    "Related to the Arabic al-munāḵ, the word for 'climate' itself."
+  ],
+  "clues": [
+    "This type of annual reference book has a name that traces back to an Arabic word whose older root meant 'climate.'",
+    "Published yearly, it pairs the calendar with sunrise times, moon phases, tide tables and weather forecasts, so it is far richer than a plain wall calendar.",
+    "Farmers have long consulted the Old Farmer's edition for planting dates and frost predictions, and Benjamin Franklin famously published Poor Richard's version."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "almanac"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

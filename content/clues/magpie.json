@@ -1,0 +1,22 @@
+{
+  "slug": "magpie",
+  "word": "magpie",
+  "old": [
+    "Its name pairs a common girl's nickname with an old word for a noisy bird, as if calling out a talkative woman.",
+    "The second half once stood alone as the word for this bird, borrowed through French from a Latin term for it.",
+    "It edged out older English words like agu and aguster, though a trace of the latter survives in 'haggister.'"
+  ],
+  "clues": [
+    "This bird's name is basically an old joke about a gossipy woman: a personal nickname once used to mean a chatterer was added to an older word for the bird.",
+    "A noisy, long-tailed relative of the crow with bold black-and-white plumage, unlike the all-black crow or jackdaw, and famous in folklore for stealing shiny objects.",
+    "Someone who compulsively collects bright trinkets gets called one of these. Its name replaced older native English words for the bird, one of which survives as haggister."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "magpie"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

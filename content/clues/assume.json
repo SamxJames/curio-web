@@ -1,0 +1,22 @@
+{
+  "slug": "assume",
+  "word": "assume",
+  "old": [
+    "It's built from a piece meaning \"toward\" fused onto a piece meaning \"take up.\"",
+    "Its Latin ancestor meant simply \"to accept\" or \"to take.\"",
+    "Strip the ad- prefix and you're left with sūmō, the same root buried inside this everyday verb."
+  ],
+  "clues": [
+    "This everyday verb about thinking and taking on comes from a Latin word meaning \"accept, take,\" and at heart it still means taking something onto yourself.",
+    "It means to take something as true without proof or checking. It is less tentative than merely guessing, and people warn that doing it makes fools of everyone.",
+    "Its other sense is taking up a role or duty: a new leader does this to office, a spy to a false identity, and a manager to responsibility."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "assume"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

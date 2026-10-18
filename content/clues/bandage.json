@@ -1,0 +1,22 @@
+{
+  "slug": "bandage",
+  "word": "bandage",
+  "old": [
+    "Its name literally names the strip of cloth it's made from, plus a small ending that turns 'strip' into 'the act of wrapping one.'",
+    "In French, it's built from the word for a band or strip, joined to a common suffix meaning 'the result of.'",
+    "English simply took the French word for wound-wrapping straight over, spelling and all."
+  ],
+  "clues": [
+    "This first-aid item hides a grammar lesson: French built it from a word for a strip, plus an ending that turns a thing into the act of using it.",
+    "It is a strip of gauze or cloth wound around an injury to cover or support it, longer than a small sticky plaster. English borrowed the French word whole.",
+    "A nurse winds an elastic one around a sprained ankle, and a mummy is wrapped in them from head to toe."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bandage"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

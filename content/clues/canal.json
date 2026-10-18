@@ -1,0 +1,22 @@
+{
+  "slug": "canal",
+  "word": "canal",
+  "old": [
+    "Its story starts with a hollow plant stem that gave its shape to something long and narrow.",
+    "In Latin, the word for this waterway also meant \"pipe\" or \"tube\" — borrowed from a word for reed.",
+    "It shares a Latin ancestor with the word channel, and with cane, the plant it was named after."
+  ],
+  "clues": [
+    "This kind of waterway began as an ancient Akkadian word for a reed, the hollow plant stem, before passing through Greek and Latin.",
+    "It is a waterway dug by people for boats or irrigation, unlike a naturally formed river and far larger than a ditch. Venice is famous for its many.",
+    "Ships cross between oceans through the famous one at Panama or Suez. It shares its reed root with cane and is a sibling of the word channel."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "canal"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

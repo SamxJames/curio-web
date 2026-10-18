@@ -1,0 +1,22 @@
+{
+  "slug": "carpet",
+  "word": "carpet",
+  "old": [
+    "Its name was carried west by 13th-century Florentine merchants trading with an Armenian kingdom.",
+    "Before it wore an English coat, it wore an Italian and French one — carpita and carpite.",
+    "Trace it back far enough and you land on Armenian կապերտ (kapert), the word's oldest known form."
+  ],
+  "clues": [
+    "This household furnishing takes its name from Armenian; Florentines brought the word into Europe in the 13th century.",
+    "A thick woven or tufted covering for a floor, often fitted wall to wall, unlike a rug, which is a loose piece covering only part of the room.",
+    "Celebrities walk the red one at premieres, Aladdin soars over Agrabah on a magic one, and being called on it means getting a scolding."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "carpet"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

@@ -1,0 +1,23 @@
+{
+  "slug": "beetroot",
+  "word": "beetroot",
+  "old": [
+    "Think of the plainest possible way to name a vegetable by the part of it you actually eat.",
+    "It's formed from two ordinary English words stuck together, one of them being a plant name.",
+    "The second half of the word is simply 'root' — and the first half names the plant itself."
+  ],
+  "clues": [
+    "This vegetable has one of the plainest names in English, because it simply and literally describes which part of its plant ends up on your plate.",
+    "A round, deep crimson root vegetable with an earthy sweetness that stains your fingers, often pickled or boiled; larger and sweeter than a radish.",
+    "Embarrassed Britons blush as red as one, Americans usually call it by its plant's name alone, beet, and both simmer it into borscht."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "Root",
+      "beetroot"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

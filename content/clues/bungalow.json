@@ -1,0 +1,22 @@
+{
+  "slug": "bungalow",
+  "word": "bungalow",
+  "old": [
+    "Its name secretly points to a region on the map, not to how many floors it has.",
+    "It comes from a Gujarati word for a house built in the style of a particular eastern homeland.",
+    "It's a doublet of Bangla and bangalo — cousins all tracing back to Bengal."
+  ],
+  "clues": [
+    "This kind of house hides the name of a whole region inside it: it began as a word for a home built in the style of Bengal.",
+    "Today it names a modest detached house with all its rooms on a single floor, smaller and cozier than a sprawling ranch house, and often favored by retirees.",
+    "Picture a Craftsman-style one with a deep front porch, or a British seaside holiday rental. It shares its origin with the word Bangla."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bungalow"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

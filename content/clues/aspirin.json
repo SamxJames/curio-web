@@ -1,0 +1,22 @@
+{
+  "slug": "aspirin",
+  "word": "aspirin",
+  "old": [
+    "Its name once belonged to one company alone, until a postwar ruling let the word loose for everyone to use.",
+    "The name is a shortened nod to an acid found in a flowering plant, dressed up with a chemical process called acetylation.",
+    "It shares its trademark fate with heroin — both were German brand names stripped of protection after World War I."
+  ],
+  "clues": [
+    "This everyday medicine began life as a protected German trade name, and it only became an ordinary English word after World War I stripped that protection away in the United States.",
+    "A white tablet taken for headaches, fever and inflammation, and in a small daily dose to help prevent heart attacks; unlike ibuprofen or paracetamol, it thins the blood.",
+    "The classic doctor's advice: \"Take two of these and call me in the morning.\" Heroin is its sibling, another German trademark that slipped into ordinary use after the war."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "aspirin"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

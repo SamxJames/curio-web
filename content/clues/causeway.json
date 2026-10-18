@@ -1,0 +1,22 @@
+{
+  "slug": "causeway",
+  "word": "causeway",
+  "old": [
+    "Its middle may trace to a Latin word for either limestone or the heel that stamps it flat.",
+    "The second half of this word is simply 'way' — the first once meant a paved route in Old French.",
+    "It shares ancestry with French chaussée, a paved road built to survive wet or wild ground."
+  ],
+  "clues": [
+    "This kind of route takes its name from an ancient root linked either to limestone, the stuff it was paved with, or to stamping with the heels.",
+    "Unlike a bridge resting on spans, it is a road or path raised on a solid embankment across water or marsh, often linking a tidal island to the mainland.",
+    "Think of Northern Ireland's famous Giant's ___ of basalt columns; its French cousin, chaussée, still means a paved road or highway."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "causeway"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

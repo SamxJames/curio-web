@@ -1,0 +1,22 @@
+{
+  "slug": "carol",
+  "word": "carol",
+  "old": [
+    "Long before it named a song, this word could mean people moving in a circle, voices rising together as they turned.",
+    "Its Middle English ancestor named a round dance with singing — and, oddly, also a small writing desk or study stall.",
+    "It shares distant roots with 'chorus,' both possibly tracing back to a Greek word for a circling dance of singers."
+  ],
+  "clues": [
+    "This kind of song once named a round dance, in which a circle of people moved together while singing.",
+    "Today it names a joyful Christmas song, often sung by groups going door to door, and usually lighter and more festive than a solemn hymn.",
+    "Dickens titled his tale of Scrooge 'A Christmas ___.' In medieval English the word could even mean a writing desk or a small enclosed stall."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "carol"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

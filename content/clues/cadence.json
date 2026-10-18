@@ -1,0 +1,22 @@
+{
+  "slug": "cadence",
+  "word": "cadence",
+  "old": [
+    "At its root is an ancient word for simply losing your footing and dropping.",
+    "It once named the moment a musical phrase falls silent at its close.",
+    "It's a hidden twin of both 'cadenza' and 'chance,' all born from the same Latin word for falling."
+  ],
+  "clues": [
+    "This noun for a pattern in sound or motion comes from a Latin verb meaning to fall. It first described a musical phrase falling to its close.",
+    "It is the rise and fall of a speaking voice, or the steady beat of marching feet: more of a lilting, patterned flow than plain rhythm.",
+    "Cyclists track their pedaling one. It shares its old falling root with the word chance and with cadenza, a soloist's showy flourish."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "cadence"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "augur",
+  "word": "augur",
+  "old": [
+    "In ancient Rome, certain officials studied the sky and the behavior of birds to sense what was coming.",
+    "This word means to predict or foreshadow, especially by reading signs.",
+    "It shares a root with a Latin verb meaning \"to interpret omens.\""
+  ],
+  "clues": [
+    "This verb about the future comes from a Latin word whose origin even scholars find uncertain, tied to ancient officials who once read the sky for signs.",
+    "It means to signal what is coming, usually said of events or signs rather than seers: less like 'predict' and more like hinting at a good or bad outcome ahead.",
+    "Its Latin relative meant 'to interpret omens,' and today we might say a strong first week can ___ well for the whole season."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "augur"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

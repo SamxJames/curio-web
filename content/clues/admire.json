@@ -1,0 +1,22 @@
+{
+  "slug": "admire",
+  "word": "admire",
+  "old": [
+    "Its Latin root literally means 'to wonder at,' with a little prefix tacked on the front.",
+    "It passed through Middle French before landing in Middle English as 'admyren.'",
+    "Strip the French spelling and you're basically staring at the Latin verb 'admīror.'"
+  ],
+  "clues": [
+    "This verb for a warm feeling directed at someone or something goes back to a Latin word meaning 'to wonder at,' with no recorded shift in meaning since.",
+    "It means to regard someone or something with respectful approval, like a mentor's courage or a painter's skill. It is felt quietly, unlike praise, which is spoken aloud.",
+    "Anonymous valentines come from a secret one who does this, and on a clear evening you might pause to do it to a sunset."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "admire"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

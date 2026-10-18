@@ -1,0 +1,23 @@
+{
+  "slug": "bullion",
+  "word": "bullion",
+  "old": [
+    "Its possible ancestor described a pot's contents bubbling away over heat.",
+    "One theory ties it to a French word for broth, stretched to mean 'melting.'",
+    "Don't confuse it with a similar Middle Dutch word for base metal — that one comes from billon, a different root entirely."
+  ],
+  "clues": [
+    "This term from the world of precious metals may once have described something bubbling away in a pot, before its sense perhaps stretched toward melting.",
+    "It means gold or silver in bulk, such as bars or ingots, valued by weight and purity rather than shaped into coins or jewelry.",
+    "It may share roots with bouillon, the French word for broth. Central banks guard stacks of it in their vaults."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "seethe",
+      "bullion"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

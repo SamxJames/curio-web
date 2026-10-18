@@ -1,0 +1,22 @@
+{
+  "slug": "avocado",
+  "word": "avocado",
+  "old": [
+    "This fruit's original name in Nahuatl referred to a rather personal part of the body — a nod to how it hangs in pairs from the tree.",
+    "Spanish speakers reshaped that word, and a later mix-up with the Spanish word for lawyer helped push it toward its modern form — which is also why English once called it an “alligator pear.”",
+    "Guacamole comes from the very same Nahuatl root, just combined with the word for sauce."
+  ],
+  "clues": [
+    "This tree fruit's name comes from a Nahuatl word that also meant \"testicle,\" likely describing how the fruit hangs from the tree in pairs.",
+    "Pear-shaped but not sweet, it has bumpy dark green skin, buttery pale green flesh and one big pit. English speakers once called it the alligator pear.",
+    "Mash it with lime and onion to make guacamole, whose name joins the same Nahuatl root with a word for sauce."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "avocado"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

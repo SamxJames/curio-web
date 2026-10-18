@@ -1,0 +1,22 @@
+{
+  "slug": "asparagus",
+  "word": "asparagus",
+  "old": [
+    "Its old English-born name has vanished, pushed aside by a word borrowed from far away.",
+    "In some dialects, ordinary speakers misheard it and reshaped it into something involving a small bird.",
+    "That folk version, 'sparrowgrass,' still echoes in old country speech."
+  ],
+  "clues": [
+    "This spring vegetable once had a homegrown Old English name meaning something like 'earth navel,' until a borrowed Greek word pushed it aside.",
+    "Its slender green spears with tight, scaly tips are sold in upright bundles, snapped at the woody end, then steamed or roasted; they are stalks, not pods like green beans.",
+    "Some English dialects reshaped its unfamiliar name into 'sparrowgrass,' and eating it famously gives urine a distinctive smell soon afterward."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "asparagus"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

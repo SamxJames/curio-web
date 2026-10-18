@@ -1,0 +1,22 @@
+{
+  "slug": "symptom",
+  "word": "symptom",
+  "old": [
+    "Its Greek ancestors described something that simply 'falls together' alongside something else.",
+    "At its root are two Greek pieces meaning 'together' and 'to fall.'",
+    "It's a cousin of every English word built on the Greek prefix 'syn-,' meaning 'together.'"
+  ],
+  "clues": [
+    "This noun for a kind of telltale sign comes from an ancient Greek word for something that falls together with, or accompanies, something else.",
+    "A change a patient feels and reports, like nausea or a headache, that points to an illness without being the illness itself. Its Greek ancestor also meant an accident.",
+    "Cold medicines promise to relieve these, doctors ask you to describe yours, and rising crime is often called one of a deeper social problem."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "symptom"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

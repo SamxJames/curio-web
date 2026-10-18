@@ -1,0 +1,22 @@
+{
+  "slug": "boulevard",
+  "word": "boulevard",
+  "old": [
+    "Picture a city's old defenses — this word once named the sturdy wall built to keep enemies out.",
+    "Its ancestor meant 'rampart' in Middle French, before the word crossed into English wearing a more elegant coat.",
+    "It shares a Germanic root with 'bulwark' — same defensive stone, two different doors into English."
+  ],
+  "clues": [
+    "This name for a kind of city street began life as a word for a defensive rampart, a fortress wall built to keep enemies out.",
+    "It is a broad city thoroughfare, wider and grander than a typical avenue, often lined with trees. Many were laid out where old fortifications once stood.",
+    "Sunset in Los Angeles is a famous one, and the word shares its Germanic root with bulwark, a word that still means a protective wall."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "boulevard"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

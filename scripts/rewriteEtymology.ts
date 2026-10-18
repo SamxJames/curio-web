@@ -15,7 +15,10 @@ export type DraftEntry = {
  * allowed to draw on. Explicit "do not invent" language plus "even if the
  * facts are thin" covers both failure modes item 4 of the spec called
  * out: padding an etymology with unsourced detail, and silently skipping
- * an entry because there wasn't much to say. */
+ * an entry because there wasn't much to say.
+ * The clues here are only first drafts: after content:approve, run
+ * `npm run clues:rewrite -- --only <word>` for the checked, blind-tested
+ * version (lib/clues.ts, docs/superpowers/plans/2026-10-13-clue-rewrite.md). */
 export function buildRewritePrompt(word: string, facts: string[]): string {
   const factsBlock = facts.map((f, i) => `${i + 1}. ${f}`).join("\n");
   return `You are writing one entry for Curio, a daily-word-etymology app. Its voice is warm, curious, and precise — never academic, never cute.
@@ -37,11 +40,12 @@ Write a JSON object (and nothing else — no markdown fences, no commentary) wit
   "related": "1-2 sentences connecting this word to a cognate or related English word, drawn only from the facts above (if none is supported by the facts, say so plainly rather than inventing one)",
   "lineage": ["array of language names, oldest first, always ending with \\"English\\" — only languages actually named in the facts above, in the order they appear in the word's history"],
   "clues": [
-    "clue 1 (most oblique): must NOT contain the word \\"${word}\\" itself, its direct translation, or any word sharing a visible stem with it — describe the underlying fact obliquely instead",
-    "clue 2 (more revealing): may state the direct translation or an additional fact from above, but still must not contain \\"${word}\\" itself",
-    "clue 3 (nearly a giveaway): may name a cognate or related word, but must still never contain \\"${word}\\" itself"
+    "clue 1: says plainly what kind of thing, action or quality the word names today (a broad category, not a giveaway), then one surprising fact from above",
+    "clue 2: describes the modern meaning well enough that an ordinary adult could name it, ruling out the obvious near-synonym",
+    "clue 3 (nearly a giveaway): a usage, second meaning, familiar phrase or related word; never mention letters (the game adds a letter hint)"
   ]
-}`;
+}
+No clue may contain \\"${word}\\" itself or spell it out as its parts.`;
 }
 
 /** Validates and shapes Claude's raw text response into a DraftEntry,

@@ -1,0 +1,22 @@
+{
+  "slug": "armada",
+  "word": "armada",
+  "old": [
+    "This word grew out of a past-tense form describing something that had been outfitted with weapons.",
+    "In Spanish, this word simply means \"fleet\" or \"navy.\"",
+    "It shares a Latin ancestor with the English word army."
+  ],
+  "clues": [
+    "This noun for a large, imposing group comes from a Latin verb meaning to equip someone with weapons.",
+    "Today it names a huge fleet of warships, far grander and more menacing than an ordinary fleet, and English took it straight from the Spanish word for a navy.",
+    "Its sibling word is army, born from the same Latin root. People also use it loosely for any vast advancing crowd, such as a whole sea of drones or fishing boats."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "armada"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

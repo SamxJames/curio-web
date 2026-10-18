@@ -1,0 +1,22 @@
+{
+  "slug": "abattoir",
+  "word": "abattoir",
+  "old": [
+    "Its name literally describes what happens to the animals inside, via a French verb for bringing something down.",
+    "The word's root, abattre, means \"to slaughter,\" and -oir simply marks the place where that happens.",
+    "It shares a root with the English word abate — both come from the French verb abattre."
+  ],
+  "clues": [
+    "This kind of industrial building borrowed its name from French, where a suffix meaning \"place for\" was attached to a verb describing exactly what happens inside.",
+    "It is a facility where livestock are killed and prepared for meat; think of a more formal, French-sounding word than slaughterhouse. It has meant this ever since its coinage.",
+    "Its French parent verb, meaning \"to slaughter,\" also gave English the word abate, as in a storm that slowly abates."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "abattoir"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

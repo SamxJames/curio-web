@@ -1,0 +1,22 @@
+{
+  "slug": "autocracy",
+  "word": "autocracy",
+  "old": [
+    "Its root pairs a word for 'self, alone' with a word for 'power.'",
+    "It names a system where one person holds all the control.",
+    "It shares a root with autokratḗs, Greek for 'one who governs alone.'"
+  ],
+  "clues": [
+    "This form of government has kept the same core sense since ancient Greek times, built partly from an ancient root meaning 'self, alone.'",
+    "It is rule by one person holding absolute, unchecked power. It is broader than dictatorship, which suggests seized control, and unlike monarchy it needn't involve a crown.",
+    "Often set against democracy, it describes the tsars' rule in imperial Russia. A related ancient Greek word meant 'one who governs alone.'"
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "autocracy"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

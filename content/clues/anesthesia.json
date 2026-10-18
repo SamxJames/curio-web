@@ -1,0 +1,24 @@
+{
+  "slug": "anesthesia",
+  "word": "anesthesia",
+  "old": [
+    "This state is named for what it removes, not what it adds — a total blank where perception used to be.",
+    "Its Greek root literally means 'without sensation,' built from a prefix for 'not' and a word for 'sensation.'",
+    "It shares that sensation-root with words describing the ability to perceive or feel — just with the negative stuck on front."
+  ],
+  "clues": [
+    "This state of the body once meant any general lack of feeling, and for more than a century and a half in English it had nothing to do with doctors.",
+    "Doctors bring it on deliberately with drugs or gases so a patient feels no pain during surgery, a controlled loss of sensation rather than mere numbness or ordinary sleep.",
+    "Before an operation you may be offered it in general or local form; its ancient Greek source meant simply 'without sensation.'"
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "palsy",
+      "anaesthesia",
+      "anesthesia"
+    ],
+    "solvedAt": 3
+  },
+  "tooHard": false
+}

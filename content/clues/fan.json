@@ -1,0 +1,22 @@
+{
+  "slug": "fan",
+  "word": "fan",
+  "old": [
+    "It began as a farmer's tool for tossing grain into a breeze so the husks would blow away.",
+    "Its ancestor root simply meant 'to blow.'",
+    "It shares that root with Latin ventus — 'wind' — and with Dutch and German words for a winnowing basket."
+  ],
+  "clues": [
+    "This everyday comfort item began as a farmer's basket for tossing grain into the wind, so the light husks blew away and left the clean wheat behind.",
+    "Today it names anything with blades or a folding sheet that pushes air to cool you, from a handheld paper one to a spinning ceiling one, much simpler than an air conditioner.",
+    "In US baseball slang it took on a second meaning, an enthusiast, so a devoted follower of a team or a pop star shares this name."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "fan"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

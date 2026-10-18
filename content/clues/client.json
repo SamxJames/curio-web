@@ -1,0 +1,22 @@
+{
+  "slug": "client",
+  "word": "client",
+  "old": [
+    "At its root sits a Latin word for leaning on something, or someone.",
+    "The person who depends on you for service traces back to that same idea of leaning.",
+    "It shares an ancestor with the Latin verb clinare — to lean."
+  ],
+  "clues": [
+    "This noun names a kind of person in a working relationship, and it traces back to a Latin word akin to a verb meaning \"to lean.\"",
+    "It is someone who pays a professional such as a lawyer, accountant or therapist for services, a more personal and ongoing tie than a shopper who is simply a customer.",
+    "In computing, it is the program or device that asks a server for data, like the email app on your phone."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "client"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

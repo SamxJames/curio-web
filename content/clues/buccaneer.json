@@ -1,0 +1,22 @@
+{
+  "slug": "buccaneer",
+  "word": "buccaneer",
+  "old": [
+    "Its story starts with a wooden grill, not a ship.",
+    "The word once simply meant someone who smoked meat over an open fire.",
+    "It comes from French boucanier, itself rooted in a Tupi word for a grill."
+  ],
+  "clues": [
+    "This noun for a kind of outlaw originally named someone who smoked meat over a wooden grill, from a Tupi word for that very grill.",
+    "It names the swashbuckling raiders who plundered Spanish ships and colonies in the Caribbean in the 1600s, a more specific, colorful term than plain pirate.",
+    "Tampa Bay's NFL team carries this name, and it also describes a daring, rule-bending business tycoon who takes big risks."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "buccaneer"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "cadre",
+  "word": "cadre",
+  "old": [
+    "Its distant root is a number word meaning four, tied to the four sides of a shape.",
+    "Before it meant a group of people, it meant a square or a picture's border.",
+    "It's related to 'quadrant' through their shared ancestor, Latin quattuor."
+  ],
+  "clues": [
+    "A word for a kind of group of people, it began by naming a literal frame or square, the kind that borders a painting.",
+    "Today it means a small core of trained people who form the backbone of a larger organization, like key officers or party activists. It is more select than a mere team.",
+    "News stories describe a loyal ___ of volunteers or party officials. Its deepest root, the Latin word for four, also gave English quadrant and quart."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "cadre"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

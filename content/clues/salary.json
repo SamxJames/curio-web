@@ -1,0 +1,22 @@
+{
+  "slug": "salary",
+  "word": "salary",
+  "old": [
+    "Roman soldiers' pay was once connected, in a roundabout way, to an everyday seasoning.",
+    "That seasoning was salt — this word's Latin ancestor was built directly from the Latin word for it.",
+    "The same Latin word for salt also gives English salad, sauce, and sausage — and lives on in the phrase “worth one's salt.”"
+  ],
+  "clues": [
+    "This everyday workplace noun began as an allowance for Roman soldiers, traditionally linked to salt, a commodity so valuable it may once have been part of what they received.",
+    "It is the fixed yearly sum an employer pays you, divided into regular paychecks, unlike an hourly wage that rises and falls with the hours you work.",
+    "Job ads promise a competitive one, and its salty Latin root also gives English salad, sauce, sausage, and the phrase \"worth one's salt.\""
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "salary"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

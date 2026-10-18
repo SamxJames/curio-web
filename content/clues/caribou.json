@@ -1,0 +1,24 @@
+{
+  "slug": "caribou",
+  "word": "caribou",
+  "old": [
+    "Its name once described an action performed by hooves clearing a path through drifts.",
+    "The word behind it literally means 'it shovels snow.'",
+    "A related Mi'kmaq word, 'qalipi', means 'to shovel snow.'"
+  ],
+  "clues": [
+    "This hoofed mammal of the far north has a name tracing back to an ancient Algonquian root that literally meant 'it shovels snow'.",
+    "A wild deer of North America's tundra, it is the same species as the reindeer but roams untamed in vast migrating herds, and both sexes grow antlers.",
+    "It appears on Canada's quarter, and in the Mi'kmaq language of eastern Canada its name is qalipu."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "moose",
+      "caribou"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false,
+  "reviewNote": "Clue 3 repeated clue 1's 'shovels snow' fact; trimmed to the Mi'kmaq name."
+}

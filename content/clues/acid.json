@@ -1,0 +1,22 @@
+{
+  "slug": "acid",
+  "word": "acid",
+  "old": [
+    "This quality was named for a taste — the kind that makes you wince.",
+    "Its Latin ancestor meant simply 'sour.'",
+    "It shares an ancient root with the word 'agita.'"
+  ],
+  "clues": [
+    "This adjective for a sharp quality traces back to a Latin verb that simply meant 'to be sour.'",
+    "More scientific than plain 'sour,' it describes the sharp bite of lemon juice or vinegar, and in chemistry anything with a pH below seven, the opposite of alkaline.",
+    "It also describes a biting wit or tongue, and as a noun it falls as polluted rain or names the 'test' that proves something's true worth."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "acid"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

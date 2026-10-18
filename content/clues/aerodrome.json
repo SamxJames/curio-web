@@ -1,0 +1,22 @@
+{
+  "slug": "aerodrome",
+  "word": "aerodrome",
+  "old": [
+    "Its second half once described running or a course, borrowed for a track built for horses long before it meant a runway for machines.",
+    "It first named a flying machine itself, coined in 1897, before settling on the meaning of an airfield.",
+    "It shares its ending with hippodrome, both built from a Greek word for a course or race."
+  ],
+  "clues": [
+    "This old-fashioned name for a kind of transport site was first given by inventor Samuel Langley in 1897 to his flying machine itself, not to any place.",
+    "Today it means a field where aircraft take off and land, a quainter, more old-fashioned word than airport and often used for smaller, simpler airfields.",
+    "Its ending was shaped by analogy with hippodrome, the Greek-derived word for a horse racecourse, as if the racetrack had been reimagined for planes."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "aerodrome"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

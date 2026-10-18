@@ -1,0 +1,22 @@
+{
+  "slug": "biography",
+  "word": "biography",
+  "old": [
+    "It's built from two old Greek pieces — one meaning existence, one meaning the act of setting marks down.",
+    "Break it apart and you get 'life' plus 'writing,' straight from Greek.",
+    "It passed through New Latin before landing in English, keeping its Greek roots βίος and -γραφία intact."
+  ],
+  "clues": [
+    "This kind of nonfiction book has a name built partly from an ancient Greek root meaning writing, the same root behind many English words.",
+    "It tells the true story of a real person's life, usually written by someone else, unlike a memoir. Fittingly, its first ancient Greek root meant life.",
+    "An authorized one is written with its subject's cooperation, and Walter Isaacson wrote famous ones about Steve Jobs and Albert Einstein."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "biography"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

@@ -1,0 +1,23 @@
+{
+  "slug": "broker",
+  "word": "broker",
+  "old": [
+    "Its root sense had nothing to do with money — it meant simply the custom or use of a thing.",
+    "It first named someone who knew the usages of trade, a kind of go-between for deals.",
+    "It shares a Germanic root with the verb brook, in its old meaning 'to use or tolerate.'"
+  ],
+  "clues": [
+    "This name for a kind of business professional traces back to an ancient root meaning 'to use, enjoy,' and in medieval times simply meant a small trader.",
+    "A go-between who arranges deals in stocks, insurance or property for clients, earning a commission. Unlike a dealer, they don't buy and sell on their own account.",
+    "Behind-the-scenes political kingmakers are called 'power' ones, and diplomats are said to do this as a verb when they negotiate a truce or peace deal."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "merchant",
+      "broker"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

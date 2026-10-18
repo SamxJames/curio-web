@@ -1,0 +1,23 @@
+{
+  "slug": "brief",
+  "word": "brief",
+  "old": [
+    "Its earliest ancestor, a root meaning 'short,' also quietly shaped a word we now use for feeling cheerful.",
+    "It comes from a Latin word, brevis, meaning simply 'short.'",
+    "It's a doublet of 'breve' — two English words grown from one Latin seed."
+  ],
+  "clues": [
+    "This adjective about time and length shares an ancient root with the cheerful word merry, yet its own meaning has stayed remarkably steady all along.",
+    "It describes something lasting only a short while or using few words, like a visit, pause, or remark; unlike plain 'short,' it rarely means physically small. It comes from Latin for short.",
+    "As a noun it names a lawyer's written case summary, and in the plural it means snug men's underwear."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "long",
+      "brief"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

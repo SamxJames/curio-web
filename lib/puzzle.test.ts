@@ -300,6 +300,16 @@ describe("isCorrectGuess", () => {
     expect(isCorrectGuess("  quarantine  ", "quarantine")).toBe(true);
   });
 
+  it("accepts British and American spellings either way", () => {
+    expect(isCorrectGuess("anaesthesia", "anesthesia")).toBe(true);
+    expect(isCorrectGuess("color", "colour")).toBe(true);
+    expect(isCorrectGuess("centre", "center")).toBe(true);
+    expect(isCorrectGuess("organize", "organise")).toBe(true);
+    expect(isCorrectGuess("foetus", "fetus")).toBe(true);
+    expect(isCorrectGuess("colours", "color")).toBe(true);
+    expect(isCorrectGuess("tour", "tor")).toBe(false);
+  });
+
   it("tolerates a simple trailing plural on the guess", () => {
     expect(isCorrectGuess("companions", "companion")).toBe(true);
   });

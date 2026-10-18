@@ -211,6 +211,18 @@ function normalizeGuess(s: string): string {
   return s.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
+/** Folds common British spellings onto American ones, applied to both guess
+ * and answer, so "anaesthesia"/"anesthesia" or "colour"/"color" match. Only
+ * patterns safe on a single word: ae/oe digraphs inside a word, a final
+ * "-our" after 3+ letters, "-tre" endings and "-ise"/"-isation" forms. */
+function foldSpelling(s: string): string {
+  return s
+    .replace(/(\w)(ae|oe)(?=\w)/g, "$1e")
+    .replace(/(\w{3,})our(s?)$/, "$1or$2")
+    .replace(/(\w{2,})tre(s?)$/, "$1ter$2")
+    .replace(/(\w{3,})is(e|es|ed|ing|ation|ations)$/, "$1iz$2");
+}
+
 /** Every plausible singular reading of `s`: itself, unchanged, plus (when
  * applicable) both an "-es" strip and an "-s" strip. Both candidates are
  * offered rather than picking one branch, because committing to just the
@@ -233,8 +245,8 @@ export function isCorrectGuess(guess: string, answer: string): boolean {
   const a = normalizeGuess(answer);
   if (!g) return false;
   if (g === a) return true;
-  const guessForms = pluralForms(g);
-  const answerForms = pluralForms(a);
+  const guessForms = pluralForms(g).map(foldSpelling);
+  const answerForms = pluralForms(a).map(foldSpelling);
   return guessForms.some((gf) => answerForms.includes(gf));
 }
 

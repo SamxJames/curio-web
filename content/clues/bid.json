@@ -1,0 +1,22 @@
+{
+  "slug": "bid",
+  "word": "bid",
+  "old": [
+    "Two separate old verbs, one meaning to plead and the other to announce, quietly fused into a single spelling over centuries.",
+    "In some Germanic relatives, one sense survives in a word for praying, and the other in a word for proposing terms.",
+    "Its cousin 'bede,' still faintly related in English, shares the branch that once meant to offer or make known."
+  ],
+  "clues": [
+    "This short verb for offering or asking has a split personality: one of its two Old English ancestors traces to an ancient root meaning 'be awake, aware.'",
+    "At an auction, you do this to name a price, more specific than simply offering. As a noun it can mean an attempt, like a run for office.",
+    "It completes the phrase '___ someone farewell,' and its German cousins are bitten, tied to asking, and bieten, tied to offering."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bid"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

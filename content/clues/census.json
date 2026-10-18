@@ -1,0 +1,22 @@
+{
+  "slug": "census",
+  "word": "census",
+  "old": [
+    "This word's root verb meant to judge or assess, not merely to tally.",
+    "In Latin, it named the act of assessing a population, a duty tied to weighing worth as much as counting heads.",
+    "It's kin to 'censor,' another word built on the Latin verb cēnseō."
+  ],
+  "clues": [
+    "This official government undertaking began as an act of judgment, not just arithmetic: its Latin source was tied to a verb meaning to assess or judge.",
+    "It is an official count of everyone living in a country, recording details about each household, and far more complete than a poll or survey that samples only some people.",
+    "It shares its Latin root with censor, and in the United States its forms arrive every ten years to help divide seats in Congress."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "census"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "armistice",
+  "word": "armistice",
+  "old": [
+    "It's built from a word for weapons plus a word meaning 'to stand still.'",
+    "Its Latin root sistere means 'to halt' — the arms simply stop moving.",
+    "French, Italian, Portuguese, and Spanish all have near-identical cousins of this word."
+  ],
+  "clues": [
+    "This kind of formal agreement between nations takes its name from Latin words for weapons and for making something stand still.",
+    "It is an agreement by warring sides to stop fighting, more formal than a brief ceasefire or truce but not yet a full peace treaty.",
+    "Many countries mark November 11 as the Day named for this, recalling the end of fighting in 1918. Spanish speakers call it armisticio."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "armistice"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

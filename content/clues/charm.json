@@ -1,0 +1,22 @@
+{
+  "slug": "charm",
+  "word": "charm",
+  "old": [
+    "Its earliest known rival was a native word that meant both poison and enchantment — and lost.",
+    "Trace it back far enough and it's just a song, or an incantation sung aloud.",
+    "It shares old Germanic roots with 'chirm,' a word for a cry or calling sound."
+  ],
+  "clues": [
+    "This personal quality traces back to a Latin word meaning song or incantation, because it first named a magic spell that was chanted aloud.",
+    "It is the delightful power to win people over through warmth and manner, gentler than commanding charisma and less about looks than beauty. It pushed out an older English word, lybb.",
+    "It also names a small trinket dangling from a bracelet, and a lucky one is carried for good fortune. When something works perfectly, it works like one."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "charm"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

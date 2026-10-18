@@ -1,0 +1,23 @@
+{
+  "slug": "adagio",
+  "word": "adagio",
+  "old": [
+    "Musicians sometimes borrow a whole foreign phrase just to tell you: don't hurry.",
+    "It's a tempo marking meaning 'slowly,' lifted straight from another language.",
+    "Its Italian source shares no additional word history noted here — but you'll recognize the term itself printed above many a slow movement's staff."
+  ],
+  "clues": [
+    "This musical direction printed on sheet music was borrowed straight from Italian, and English musicians still use it exactly as Italian ones always have.",
+    "It tells performers to play slowly and at ease, a gentle, leisurely tempo that is noticeably slower than the walking pace of andante.",
+    "As a noun it names a whole slow piece or passage, like Samuel Barber's famous mournful work for strings, often heard at memorials."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "crescendo",
+      "adagio"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

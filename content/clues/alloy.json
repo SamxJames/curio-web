@@ -1,0 +1,23 @@
+{
+  "slug": "alloy",
+  "word": "alloy",
+  "old": [
+    "Its ancestors all point back to the simple act of tying two things together.",
+    "The word describes a blend, but its roots are about joining, not mixing.",
+    "It's a linguistic cousin of words meaning \"to bind,\" like ligare's other descendants."
+  ],
+  "clues": [
+    "A name for a kind of material, it traces back to a Latin verb meaning 'to bind to' or 'tie to.'",
+    "It is a metal made by melting two or more elements together, as copper and tin make bronze. Unlike a pure metal, it is a deliberate blend.",
+    "Steel, brass and pewter are all examples, and car enthusiasts often upgrade to lightweight wheels made of one."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "ligature",
+      "alloy"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

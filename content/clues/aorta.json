@@ -1,0 +1,24 @@
+{
+  "slug": "aorta",
+  "word": "aorta",
+  "old": [
+    "Its name traces to a verb meaning simply \"to lift or raise\" — nothing to do with blood at all, originally.",
+    "The Greek word it comes from once described the arteries branching straight out of the heart.",
+    "The lengthened Greek form aortéō, built on aeírō, gave English its word for the body's main artery."
+  ],
+  "clues": [
+    "This blood vessel's name traces back to an ancient Greek verb meaning to lift or raise, an image of hoisting rather than flowing.",
+    "It is the body's largest artery, the main trunk rather than a branch, carrying oxygen-rich blood out of the heart's left ventricle. In Greek its name covered the arteries springing from the heart.",
+    "It arches over the top of the heart, then runs down through the chest and belly, and doctors watch it closely for dangerous bulges called aneurysms."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "artery",
+      "aorta"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false,
+  "reviewNote": "Clue 2's 'English borrowed its Greek name directly, meaning intact' was filler and read as if the name meant 'intact'; swapped for the entry's Greek-sense fact."
+}

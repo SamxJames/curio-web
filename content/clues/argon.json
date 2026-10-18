@@ -1,0 +1,22 @@
+{
+  "slug": "argon",
+  "word": "argon",
+  "old": [
+    "Its name literally means 'without work' — a nod to a job it never does.",
+    "The Greek root means 'idle' or 'lazy,' describing a gas that reacts with nothing.",
+    "It shares its ending with 'carbon,' the word that set the pattern for naming noble gases."
+  ],
+  "clues": [
+    "This chemical element was named after an ancient Greek word for 'idle' or 'lazy,' because it refuses to react with anything else.",
+    "A colorless noble gas making up about one percent of air, far more than helium or neon. It fills old-style light bulbs and shields welding from oxygen.",
+    "Element 18, it fills many double-pane windows for insulation. Its name's ending was borrowed from carbon, like those of its noble gas siblings neon and krypton."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "argon"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

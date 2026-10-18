@@ -1,0 +1,22 @@
+{
+  "slug": "arsenic",
+  "word": "arsenic",
+  "old": [
+    "Its ancient root once simply meant 'golden,' long before it named anything poisonous.",
+    "The Greek word for it was reshaped by a similar-sounding word meaning 'potent' or 'virile.'",
+    "It's a distant cousin of the English word 'yellow,' both from a root meaning 'gold' or 'yellow.'"
+  ],
+  "clues": [
+    "This deadly poison has a name that traces back to ancient Iranian words meaning 'golden.'",
+    "A chemical element and the classic poison of Victorian murder mysteries, not the almond-scented cyanide. In Greek, its name was reshaped by a similar-sounding word meaning 'potent, virile.'",
+    "It completes the title of the classic comedy '___ and Old Lace,' and it shares an ancient root with the English word 'yellow.'"
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "arsenic"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

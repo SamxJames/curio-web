@@ -1,0 +1,22 @@
+{
+  "slug": "benign",
+  "word": "benign",
+  "old": [
+    "This word is built from a root meaning 'well' fused to a root meaning 'origin' or 'kind' — a good start, essentially.",
+    "It traces back to Latin bene, 'well,' joined to genus, 'kind,' via Old French into Middle English.",
+    "Its shadow-twin, formed the same way but with 'bad' instead of 'well,' is 'malign.'"
+  ],
+  "clues": [
+    "This adjective for a gentle, kindly quality comes from a Latin word built from 'well' and 'origin,' so it literally suggests being well-born.",
+    "It describes a person, climate, or influence that is mild and favorable and poses no threat, implying quiet goodwill rather than simply being nice or harmless.",
+    "Doctors use it for a growth that is not cancerous, and its mirror image, malign, swaps in the Latin prefix for 'bad' instead of 'well.'"
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "benign"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

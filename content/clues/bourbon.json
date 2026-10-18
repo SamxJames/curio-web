@@ -1,0 +1,22 @@
+{
+  "slug": "bourbon",
+  "word": "bourbon",
+  "old": [
+    "Its ultimate root names a god of hot, foaming springs.",
+    "It's named after a French royal house, by way of a county in Kentucky.",
+    "Some also trace it to a New Orleans street named for that same dynasty."
+  ],
+  "clues": [
+    "This liquor has a name that traces back, through a French royal dynasty, to a Celtic god of bubbling hot springs.",
+    "A distinctly American whiskey, made mostly from corn and aged in new charred oak barrels, sweeter than Scotch or rye. It is named for a Kentucky county.",
+    "The classic base of a mint julep or Old Fashioned, it shares its name with New Orleans' famous French Quarter party street, which possibly helped name it."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bourbon"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

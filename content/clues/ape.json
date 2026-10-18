@@ -1,0 +1,23 @@
+{
+  "slug": "ape",
+  "word": "ape",
+  "old": [
+    "Some think this creature's name once belonged to a spirit living in rivers.",
+    "Its oldest known meaning names a monkey, and no one agrees on where the word was born.",
+    "German speakers call the same animal Affe — a close cousin of this word."
+  ],
+  "clues": [
+    "This animal name is so old that some scholars tie it to an ancient root meaning \"water,\" as if it once named a water sprite.",
+    "A large tailless primate such as a gorilla, chimpanzee or orangutan, distinct from a tailed monkey. Traditionally seen as an ancient loan from an African or Asian language.",
+    "As a verb it means to mimic someone clumsily, and to \"go\" this means to lose your cool wildly. Its Dutch cousin is aap, its German cousin Affe."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "otter",
+      "ape"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

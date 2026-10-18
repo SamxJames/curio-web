@@ -1,0 +1,23 @@
+{
+  "slug": "capacious",
+  "word": "capacious",
+  "old": [
+    "Long ago, English had its own homegrown word for this idea, but it lost ground to a newcomer.",
+    "The word that replaced it traces to a Latin root meaning wide, spacious, or able to hold a lot.",
+    "That Latin root, capāx, is a cousin of the word capable — both about having room or ability to hold."
+  ],
+  "clues": [
+    "This adjective about size and room pushed out a native Old English word, numol, which had once covered much the same ground.",
+    "It describes something roomy enough to hold a great deal, like a deep handbag or a vast closet, and sounds more formal than plain roomy.",
+    "Admirers might use it to praise a scholar's huge memory, and it shares its Latin root with capable: both point to being able to hold much."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "large",
+      "capacious"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

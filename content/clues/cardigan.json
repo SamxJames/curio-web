@@ -1,0 +1,22 @@
+{
+  "slug": "cardigan",
+  "word": "cardigan",
+  "old": [
+    "It honors a 19th-century British officer, not a fabric or shape.",
+    "The garment's name is literally someone's title — an earl's.",
+    "That earl was James Brudenell, 7th Earl of a Welsh town's name."
+  ],
+  "clues": [
+    "This piece of knitwear is named after a man, not a pattern or a place: a British earl who served as a military commander in the 1800s.",
+    "It is a knitted top that opens all the way down the front and usually fastens with buttons, unlike a pullover sweater you tug on over your head.",
+    "You might throw one over a blouse on a chilly office day, and Mister Rogers famously changed into one at the start of every episode."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "cardigan"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

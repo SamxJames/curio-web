@@ -1,0 +1,24 @@
+{
+  "slug": "ambience",
+  "word": "ambience",
+  "old": [
+    "This word names a quality by tacking a noun-making ending onto a word that already described something surrounding you.",
+    "It's formed from a word meaning 'surrounding' plus a suffix that turns qualities into nouns.",
+    "Think of its adjective cousin, 'ambient' — this word is just that idea turned into a thing you can feel in a room."
+  ],
+  "clues": [
+    "This noun names something you sense on walking into a restaurant or hotel lobby, rather than anything you can see or touch. English made it by adding a noun ending to an adjective.",
+    "It means the overall feel of a place, shaped by lighting, sound and decor; a touch more refined than plain atmosphere, and a favorite word of restaurant reviewers.",
+    "It was built directly from its closest relative, ambient, the adjective behind ambient music and ambient lighting."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "brightness",
+      "ambience"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false,
+  "reviewNote": "Clue 1 was too abstract to guess (solver said brightness); now anchors it to a setting."
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "catfish",
+  "word": "catfish",
+  "old": [
+    "A river creature earned its name from whiskers that recall a household pet, and later lent that name to a very different kind of disguise online.",
+    "In Dutch it's katvis and in West Frisian katfisk — literally 'cat' plus 'fish,' after its whisker-like barbels.",
+    "Think of German's Seekatze, or 'sea-cat' — the same whiskered logic behind the fish that gave a 2010 documentary its title, and a new verb its meaning."
+  ],
+  "clues": [
+    "This river fish got its name from a comparison to a familiar animal, one that Dutch and West Frisian speakers made in exactly the same way.",
+    "Scaleless and bottom-feeding, it is no carp: the long feelers around its mouth likely reminded people of a household pet's whiskers.",
+    "Since a 2010 documentary, it also means luring someone online with a fake identity, supposedly inspired by fishermen storing cod with nipping fish to keep them lively."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "catfish"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

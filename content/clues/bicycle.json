@@ -1,0 +1,23 @@
+{
+  "slug": "bicycle",
+  "word": "bicycle",
+  "old": [
+    "Its name simply counts its wheels and names their shape, in a word stitched together from two borrowed pieces.",
+    "The second half comes from a Greek word for \"circle,\" the same root behind the English word cycle.",
+    "French built it from bi- meaning \"two\" plus cycle, before English adopted it in 1868."
+  ],
+  "clues": [
+    "This everyday vehicle got its English name from French, where speakers later swapped the original word for a longer version while English kept it unchanged.",
+    "A pedal-powered vehicle with two wheels in a line and handlebars for steering; unlike a motorcycle it has no engine, and unlike a tricycle no third wheel.",
+    "A skill you never forget, people say, is just like riding one. Its name counts its wheels, and its second half traces to an ancient Greek word for circle."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "taxi",
+      "bicycle"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

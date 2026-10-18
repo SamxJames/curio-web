@@ -1,0 +1,23 @@
+{
+  "slug": "earn",
+  "word": "earn",
+  "old": [
+    "Its oldest ancestor wasn't about effort or wages at all — it was a noun for the season's yield from the fields.",
+    "In Old English, this verb described the act of gathering in a harvest, long before it meant deserving a reward.",
+    "The Proto-Germanic root *azaniz literally meant 'harvest' — the seed from which this everyday verb grew."
+  ],
+  "clues": [
+    "This verb for gaining something was built from an ancient noun meaning harvest, so at first it meant bringing in the crops.",
+    "It means gaining money, respect or rest through your own effort or merit, unlike winning by luck or simply being handed something.",
+    "You do this with a wage, a living, or someone's trust, and a break after hard work is called a well-______ rest."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "garner",
+      "earn"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

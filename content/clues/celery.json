@@ -1,0 +1,22 @@
+{
+  "slug": "celery",
+  "word": "celery",
+  "old": [
+    "An old English name for this plant, 'smallage,' quietly lost the naming contest to a foreign newcomer.",
+    "Its name traveled from a Greek word through Latin and a Lombard plural before landing in French.",
+    "The French called it céleri, echoing the Greek sélīnon that started it all."
+  ],
+  "clues": [
+    "This garden vegetable had to fight for its place in English, eventually pushing out two older names for the very same plant, march and smallage.",
+    "Its pale green, ribbed stalks are crunchy and watery, a staple of soups and stock alongside onion and carrot. Unlike rhubarb, it is eaten savory rather than tart.",
+    "Fill its stalk with peanut butter and dot it with raisins for the snack called ants on a log, or stand one upright in a Bloody Mary."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "celery"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

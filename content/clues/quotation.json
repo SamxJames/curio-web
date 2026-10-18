@@ -1,0 +1,24 @@
+{
+  "slug": "quotation",
+  "word": "quotation",
+  "old": [
+    "It once described a share or portion of something, a sense now long forgotten.",
+    "By the 1600s it had shifted to naming a borrowed fragment of speech or text.",
+    "It's built on the same root as the verb \"quote,\" with -ation tacked on."
+  ],
+  "clues": [
+    "This noun for a bit of language once had nothing to do with words at all: it named a mere share or portion, tied to counting things out.",
+    "Today it names a passage of someone else's exact words repeated in your writing or speech; a citation merely points to the source, while this reproduces the words.",
+    "A plumber gives you one as a price estimate before starting a job, and whole books are filled with famous ones, each framed by inverted commas."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "particle",
+      "quote",
+      "quotation"
+    ],
+    "solvedAt": 3
+  },
+  "tooHard": false
+}

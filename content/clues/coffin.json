@@ -1,0 +1,23 @@
+{
+  "slug": "coffin",
+  "word": "coffin",
+  "old": [
+    "Long before it held the dead, this container held something you might carry home from a market stall.",
+    "Its root word simply means \"basket\" — a humble start for something so solemn.",
+    "It shares a Latin ancestor with the word \"coffer,\" both once meaning nothing more than a box for keeping things safe."
+  ],
+  "clues": [
+    "This lidded container's name traces back to an ancient Greek word for an ordinary woven basket, the kind once used for loaves of bread.",
+    "It is the wooden box a body is laid in for burial, traditionally tapered at the shoulders unlike a rectangular casket. It pushed out a native Old English word.",
+    "A setback that hastens something's end is called another nail in one. Its sibling word, coffer, split from the same Latin root meaning basket."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "canister",
+      "coffin"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

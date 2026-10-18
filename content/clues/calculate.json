@@ -1,0 +1,22 @@
+{
+  "slug": "calculate",
+  "word": "calculate",
+  "old": [
+    "Long before symbols and equations, people worked out sums by moving small stones around.",
+    "The Latin word behind this one, calculō, literally meant reckoning with pebbles.",
+    "It's a cousin of \"calculus\" — both trace back to calx, the Latin word for limestone."
+  ],
+  "clues": [
+    "This verb for a kind of careful mental work traces back to a Latin word for a little pebble, built from the word for limestone.",
+    "To work out an amount or answer using math, more precise than estimating and more involved than simply counting. Its Latin ancestor meant reckoning by means of pebbles.",
+    "You might do this to figure out the tip at dinner. It shares its pebble root with calculus, which became the name of a whole branch of mathematics."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "calculate"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

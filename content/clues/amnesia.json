@@ -1,0 +1,22 @@
+{
+  "slug": "amnesia",
+  "word": "amnesia",
+  "old": [
+    "At its heart sits a verb meaning 'to remember' — but a tiny prefix has quietly taken that away.",
+    "In Greek, this word meant simply 'forgetfulness.'",
+    "It traveled from Greek into modified Latin before settling into English almost unchanged."
+  ],
+  "clues": [
+    "This condition of the mind takes its name from an ancient Greek verb meaning 'to remember,' with a tiny prefix attached that cancels that meaning out.",
+    "It is the loss of memory, often after injury or illness, far beyond everyday forgetfulness: a person may lose whole stretches of their past or even their identity.",
+    "A staple of soap operas and spy thrillers, it strikes Jason Bourne, who wakes with no idea who he is. Doctors speak of retrograde and anterograde types."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "amnesia"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

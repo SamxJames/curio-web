@@ -1,0 +1,22 @@
+{
+  "slug": "ampere",
+  "word": "ampere",
+  "old": [
+    "A unit of current quietly credits a man who studied the forces flowing through wires.",
+    "It's named for a French physicist who died in 1836.",
+    "Say his surname, André-Marie ___, and you've nearly said the word."
+  ],
+  "clues": [
+    "This scientific unit of measurement honors a French physicist who lived from 1775 to 1836, so his memory travels with every reading taken.",
+    "It measures how much electric current flows through a wire, not the electrical push behind it like a volt, nor the power used like a watt.",
+    "A typical household circuit breaker trips when the current running through it climbs past about 15 or 20 of these units."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "ampere"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

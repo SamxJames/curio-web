@@ -1,0 +1,22 @@
+{
+  "slug": "marzipan",
+  "word": "marzipan",
+  "old": [
+    "Its name may trace back to a Burmese port once known for shipping spices across the sea.",
+    "Before it meant a sweet paste, the word may have simply meant 'spice box' in Arabic.",
+    "Italian speakers shaped the word further, possibly under the influence of pane, their word for bread."
+  ],
+  "clues": [
+    "This sweet confection's name is believed to trace back to an Arabic word for a spice box, itself named after a Burmese port famous for exporting spices.",
+    "A pliable paste of ground almonds and sugar, unlike all-sugar fondant, often molded into tiny fruits and animals. Its final form was likely shaped by an Italian word for bread.",
+    "Bakers roll it over a traditional British Christmas cake beneath the white icing, and it hides as a sweet seam in the center of German stollen."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "marzipan"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

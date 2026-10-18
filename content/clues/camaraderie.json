@@ -1,0 +1,22 @@
+{
+  "slug": "camaraderie",
+  "word": "camaraderie",
+  "old": [
+    "This word slipped into English from another tongue without changing its clothes at all.",
+    "In French, this word describes the warm bond among close companions.",
+    "Listen closely and you might hear an echo of 'comrade' hiding in how some Americans say it."
+  ],
+  "clues": [
+    "This warm social feeling came into English straight from French, borrowed whole and left essentially unchanged.",
+    "It's the easy trust and goodwill among people who share work, sport or hardship, a bond spread across a whole group rather than a friendship between two.",
+    "Soldiers, teammates and castmates often feel it. It shares a root with comrade, and that word shapes how some Americans pronounce it."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "camaraderie"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

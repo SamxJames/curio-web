@@ -1,0 +1,23 @@
+{
+  "slug": "ammunition",
+  "word": "ammunition",
+  "old": [
+    "Its extra syllable didn't come from meaning — it came from someone mishearing where a French article ended and a noun began.",
+    "The French phrase for 'the war supplies' got glued together the wrong way, and English kept the mistake.",
+    "It's really just munition with a stray article stuck to its front."
+  ],
+  "clues": [
+    "This military noun for a kind of supply was born from a slip of the ear, when French speakers misheard the word for 'the' as part of the word itself.",
+    "It means the bullets, shells and cartridges that guns fire, not the weapons themselves. That accidental extra syllable stuck and became the standard English word.",
+    "In a debate, a damaging fact you hand your opponent is called this. It shares a Latin root with a shorter sibling word that never picked up the mistaken article."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "limber",
+      "ammunition"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "apocalypse",
+  "word": "apocalypse",
+  "old": [
+    "Its root sense involves taking something away from a covering, letting what was hidden show.",
+    "It comes from a Greek word literally meaning 'uncovering' or 'revelation.'",
+    "It's tied to the Book of Revelation, once called by its Greek name for that very act of uncovering."
+  ],
+  "clues": [
+    "This noun for a dramatic, final kind of event once meant simply a revelation, built from ancient Greek words meaning 'away from' and 'to cover.'",
+    "Today it means the end of the world, or a catastrophe so total it feels like one, far beyond an ordinary disaster. Think survivors scavenging ruined cities in films.",
+    "It completes 'Four Horsemen of the ___' and 'zombie ___', and it is another name for the Bible's Book of Revelation, the source of its doomsday sense."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "apocalypse"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

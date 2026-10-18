@@ -1,0 +1,23 @@
+{
+  "slug": "bone",
+  "word": "bone",
+  "old": [
+    "Its deepest possible root may point to striking or beating, not the hard structure it later named.",
+    "In several Germanic languages, the word for this body part doubles as the word for 'leg.'",
+    "It's related to Old Norse beinn, meaning 'straight' — a sense preserved in the English word bain, meaning prompt or direct."
+  ],
+  "clues": [
+    "This part of your anatomy traces back to an ancient root meaning 'straight,' a sense that still survives in a Scots word for prompt or in good condition.",
+    "One of the hard, rigid pieces that together form your skeleton; an adult has about 206. Some trace it even further back to a root meaning 'to hit or strike.'",
+    "A dog buries one in the yard, and you might pick one with someone over a grievance. Its German cousin Bein can also mean 'leg.'"
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "spine",
+      "bone"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

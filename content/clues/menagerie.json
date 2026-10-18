@@ -1,0 +1,22 @@
+{
+  "slug": "menagerie",
+  "word": "menagerie",
+  "old": [
+    "Its root once meant simply looking after a home — animals included.",
+    "The French word behind it, ménager, means \"to keep house.\"",
+    "Related to ménager, this word now names a collection of wild animals on display."
+  ],
+  "clues": [
+    "This noun for a kind of collection began with housework: it comes from a French verb meaning \"to keep house.\"",
+    "Because housekeeping once included tending domestic animals, it came to mean a collection of exotic animals kept for display, often grander or more private than a zoo.",
+    "Figuratively, it describes a lively, mixed assortment of odd characters, and Tennessee Williams named a famous play The Glass ___ after a collection of tiny animal figurines."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "menagerie"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

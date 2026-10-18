@@ -1,0 +1,22 @@
+{
+  "slug": "cash",
+  "word": "cash",
+  "old": [
+    "Its oldest ancestor simply meant the act of grasping or taking hold.",
+    "One root meant a box — the container money was kept in, not the money itself.",
+    "It shares a Latin root, capsa, with the English words case and chase."
+  ],
+  "clues": [
+    "This everyday form of payment once named nothing more than the box it was kept in, coming from a Latin word for a box rooted in 'take, seize.'",
+    "It means banknotes and coins in hand, narrower than money in general and the opposite of paying by card. English speakers also used it for small coins across South and East Asia.",
+    "Shoppers pay in cold, hard ___, and the person at the register who takes it has a job title from the same word family."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "cash"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

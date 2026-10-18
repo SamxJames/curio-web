@@ -1,0 +1,22 @@
+{
+  "slug": "alligator",
+  "word": "alligator",
+  "old": [
+    "Its name once simply pointed at a scaly creature, no fangs implied.",
+    "In Spanish, the phrase behind it literally means 'the lizard.'",
+    "A coincidental Latin word for 'one who binds' may have nudged its final spelling."
+  ],
+  "clues": [
+    "This reptile's name began as a Spanish phrase meaning nothing scarier than 'the lizard,' with the little word for 'the' fused right onto the noun.",
+    "A big, toothy swamp dweller of the southeastern United States and China, with a broader, rounder snout than a crocodile's. Its spelling was possibly nudged by an unrelated Latin word meaning 'one who binds.'",
+    "It finishes the rhyming goodbye 'See you later...', which gets the reply 'In a while, crocodile.' Spanish speakers called the creature el lagarto."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "alligator"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

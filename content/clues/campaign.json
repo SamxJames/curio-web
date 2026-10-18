@@ -1,0 +1,22 @@
+{
+  "slug": "campaign",
+  "word": "campaign",
+  "old": [
+    "It began as a word for wide, open ground, long before it meant marching orders or ballot boxes.",
+    "Its ancestor meant a military operation carried out across open country.",
+    "It shares its root with champagne — both trace back to a flat, open field."
+  ],
+  "clues": [
+    "This noun for a kind of organized undertaking traces back to a simple Latin word meaning a plain, open field.",
+    "It names a sustained, planned series of actions toward one goal, like winning votes or selling a product, not a one-off push. Armies once used it for battlefield operations.",
+    "Candidates hit the trail for one before election day, and it shares its ancient field root with champagne, the sparkling wine."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "campaign"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

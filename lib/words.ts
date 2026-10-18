@@ -20,15 +20,14 @@ export type WordEntry = {
    * origin/journey/related text, in the order they're introduced. Powers
    * the etymology lineage breadcrumb (components/EtymologyLineage.tsx). */
   lineage: string[];
-  /** Three STANDALONE clues for the /play puzzle (lib/puzzle.ts) — unlike
-   * origin/journey/related, each must make sense read in isolation, since
-   * only one is shown at a time. Ordered most-to-least oblique: clue[0]
-   * must not name the word, its direct translation, or any word sharing a
-   * visible stem with it; clue[2] may name cognates and get close to
-   * giving the word away outright, but (like all three) must never contain
-   * the word itself or its stem — see lib/words.test.ts's "WORDS clues"
-   * block for the mechanical half of that check, and this comment for the
-   * editorial half a test can't fully capture. */
+  /** Three clues for the /play puzzle (lib/puzzle.ts), revealed one at a
+   * time and kept on screen. Since 2026-10-13: clue[0] says what kind of
+   * thing the word is plus one history fact, clue[1] describes the modern
+   * meaning well enough to name it, clue[2] is nearly a giveaway (the game
+   * adds the letter hint). History comes only from this entry's own text;
+   * none may contain the word or its stem. Written and checked by
+   * scripts/rewriteClues.ts + lib/clues.ts — see
+   * docs/superpowers/plans/2026-10-13-clue-rewrite.md. */
   clues: [string, string, string];
 };
 

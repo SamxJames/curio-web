@@ -1,0 +1,22 @@
+{
+  "slug": "bear",
+  "word": "bear",
+  "old": [
+    "Its common name in several old languages may not be its true name at all, but a polite substitute for something people were afraid to say aloud.",
+    "The word is thought to simply mean \"the brown one\" — a description standing in for a forbidden name.",
+    "It shares deep roots with \"brown\", \"bruin\", and even \"beaver\", all pointing to the same shining or brown-colored root."
+  ],
+  "clues": [
+    "This large forest animal's name may be a nervous nickname, likely meaning 'the brown one', used so speakers could avoid saying its older, real name out loud.",
+    "A big, shaggy mammal that may sleep through winter; the general name covering grizzlies, pandas and polar kinds. Russian, from the same instinct, calls it 'honey-eater'.",
+    "Its root is said to connect to 'bruin' and 'brown'. On Wall Street, an investor expecting falling prices is called one, the opposite of a bull."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bear"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

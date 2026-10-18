@@ -1,0 +1,22 @@
+{
+  "slug": "azure",
+  "word": "azure",
+  "old": [
+    "Its name once pointed to a mining region tucked into the mountains of Badakhshan.",
+    "The word for this color began as the name of a prized blue stone, lapis lazuli.",
+    "French speakers mistook its first letter for their own word 'the,' and dropped it — much like the Spanish azul or Italian azzurro."
+  ],
+  "clues": [
+    "This color word started life as the name of a mountain region in Afghanistan, where a prized stone was mined.",
+    "It names the bright, clear blue of a cloudless sky, a more poetic word than plain blue. Its Arabic ancestor meant lapis lazuli, the deep blue stone.",
+    "Its Spanish cousin is azul, and the French Riviera's name, Côte d'Azur, celebrates this same Mediterranean blue."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "azure"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

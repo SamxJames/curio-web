@@ -1,0 +1,23 @@
+{
+  "slug": "bee",
+  "word": "bee",
+  "old": [
+    "Its name has barely changed in thousands of years, drifting quietly down from a single ancient root.",
+    "Germanic languages nearly all echo it: Dutch says 'bij,' Danish and Swedish say 'bi.'",
+    "German speakers call it 'Biene' — a cousin word for the same striped insect."
+  ],
+  "clues": [
+    "This small flying insect has a name that has barely changed in thousands of years, tracing back to an ancient root that already meant exactly the same creature.",
+    "It lives in a hive, visits flowers for nectar and pollen, and makes honey, which sets it apart from its stinging cousin the wasp.",
+    "People who stay very productive are called busy as one, children compete in a spelling one, and its German cousin is Biene."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "gnat",
+      "bee"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

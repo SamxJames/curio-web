@@ -1,0 +1,22 @@
+{
+  "slug": "banshee",
+  "word": "banshee",
+  "old": [
+    "This word points to a female figure once linked to a mound said to house otherworldly folk.",
+    "It comes from Irish words meaning 'woman' and 'fairy mound.'",
+    "Its ancestor is Old Irish ben síde — a phrase almost identical in shape to the English word it produced in 1771."
+  ],
+  "clues": [
+    "This spirit of Irish folklore was named for where it was believed to live, not for what it did: its original name meant 'woman of the fairy mound.'",
+    "Not the ghost of someone who died, she is a fairy woman whose eerie nighttime wailing is said to warn a family that one of them will soon die.",
+    "When someone lets out a piercing, unearthly scream, people often say they are shrieking or howling 'like a ___.'"
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "banshee"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

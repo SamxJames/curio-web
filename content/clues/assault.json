@@ -1,0 +1,22 @@
+{
+  "slug": "assault",
+  "word": "assault",
+  "old": [
+    "Underneath it all is the image of someone jumping toward you — not gently.",
+    "It comes from a word meaning 'to jump at' — the sense of sudden, forceful approach.",
+    "Its close cousin, meaning much the same thing, is 'assail' — both trace back to the same Old French verb."
+  ],
+  "clues": [
+    "This word for a violent act, used as both noun and verb, traces back to Latin words meaning 'toward' and 'jump,' so at heart it is a leap at someone.",
+    "It means a sudden, forceful attack on a person or a stronghold, more serious than a scuffle, and in law it names a specific crime against a person.",
+    "A close cousin of assail, it completes the legal phrase '___ and battery,' and a blaring, garish spectacle can be called an ___ on the senses."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "assault"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

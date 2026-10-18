@@ -1,0 +1,22 @@
+{
+  "slug": "disaster",
+  "word": "disaster",
+  "old": [
+    "This word for a sudden catastrophe was once a literal verdict handed down by the position of the sky.",
+    "Its two Italian building blocks mean “bad” and “star” — misfortune was once blamed directly on an unlucky alignment overhead.",
+    "The “star” half also shows up in astronomy and astronaut; the “bad” half resurfaces in disgrace and discord."
+  ],
+  "clues": [
+    "This noun for a sudden turn of events was once a literal astrological verdict, blaming misfortune on an unfavorable alignment of the stars.",
+    "Today it means a sudden event causing great damage or loss, like a flood or earthquake, or jokingly a total flop. It is the everyday word, commoner than catastrophe.",
+    "Relief agencies respond to the natural kind, and a risky plan is called a recipe for one. Its star root reappears in astronomy and astronaut."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "disaster"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

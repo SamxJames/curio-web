@@ -1,0 +1,22 @@
+{
+  "slug": "inspect",
+  "word": "inspect",
+  "old": [
+    "This act involves sending your eyes into something, piece by piece, until nothing's hidden.",
+    "It comes from a Latin verb meaning \"to look into.\"",
+    "The Latin root specere, \"to look at,\" paired with in-, gives this word its inward gaze."
+  ],
+  "clues": [
+    "This verb for a careful kind of looking comes from a Latin verb meaning simply 'to look into,' as if your gaze travels right inside the thing.",
+    "It means to look over something closely and officially for flaws or problems, the way a health officer checks a restaurant kitchen. It is more formal and thorough than simply checking.",
+    "A general does this to troops lined up on parade, and the bumbling detective Clouseau's police rank is named for the person who does it."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "inspect"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

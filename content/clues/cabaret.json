@@ -1,0 +1,23 @@
+{
+  "slug": "cabaret",
+  "word": "cabaret",
+  "old": [
+    "Its ancestor simply meant a vaulted little room, nothing showy at all.",
+    "Before it meant a night of song and spectacle, this French word named a modest tavern.",
+    "It shares a Latin root with 'camera' — both once just meant a small chamber."
+  ],
+  "clues": [
+    "This kind of nightlife venue gets its name from an ancient Greek word for a vaulted room, long before it meant anything lively.",
+    "A restaurant or club where guests sit at small tables watching singers, dancers or comedians, cozier than a theater. In French it once meant a small tavern.",
+    "Liza Minnelli famously sang that life is one of these, old chum. It shares its deep root with camera, both from the Latin for a vaulted room."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "crypt",
+      "cabaret"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

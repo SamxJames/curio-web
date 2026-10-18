@@ -1,0 +1,22 @@
+{
+  "slug": "blanket",
+  "word": "blanket",
+  "old": [
+    "Its name once simply meant the color of fresh snow, not the comfort it gives.",
+    "In Old French, this word was a small version of 'blanc' — white.",
+    "It's a cousin of 'blank,' and it quietly nudged out an English word that became 'whittle.'"
+  ],
+  "clues": [
+    "This everyday household textile was named for its color rather than its purpose, coming from an old French word meaning 'white' that described a kind of woollen cloth.",
+    "A large, soft cover of wool or fleece you pull over yourself in bed, thicker and warmer than a sheet. It replaced a native English word built from 'white.'",
+    "A spoilsport is called a wet one, and snow can lay one across a field. As an adjective it means covering every case without exception, as in a ___ ban."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "blanket"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

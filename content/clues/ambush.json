@@ -1,0 +1,22 @@
+{
+  "slug": "ambush",
+  "word": "ambush",
+  "old": [
+    "Its oldest root just means a thicket of woody stems — the same one gives us a florist's arrangement.",
+    "It once simply meant to conceal yourself among branches before it meant to strike from hiding.",
+    "It shares a source with the fancier word ambuscade, and even with bouquet."
+  ],
+  "clues": [
+    "This battlefield tactic, which is also a verb, shares its roots with a bride's bouquet: both trace back to an old word for 'wood'.",
+    "It means a surprise attack by people lying in wait out of sight, not just any raid. Fittingly, the word first meant hiding yourself in a wood or thicket.",
+    "Journalists get accused of this when they spring a gotcha question on an unprepared guest. Its longer, fancier relative is ambuscade."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "ambush"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

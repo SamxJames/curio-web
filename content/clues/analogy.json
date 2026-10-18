@@ -1,0 +1,22 @@
+{
+  "slug": "analogy",
+  "word": "analogy",
+  "old": [
+    "Its root pieces mean roughly \"according to\" plus \"reckoning\" — a word about matching one accounting to another.",
+    "It traces back through Latin to a Greek term meaning proportion, built from a prefix meaning \"according to.\"",
+    "The second half of the word comes from lógos, the same root found in words ending in \"-logy.\""
+  ],
+  "clues": [
+    "This tool of reasoning and explanation began as a mathematical idea: matching one ratio to another, built from Greek pieces meaning 'according to' and 'reckoning.'",
+    "It explains something unfamiliar by mapping it onto something familiar, like calling the heart a pump; it's a reasoned, point-by-point likeness, more extended than a simple simile or metaphor.",
+    "Writers love to 'draw an' one between two situations, and old school tests posed them as puzzles like 'bird is to nest as bee is to hive.'"
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "analogy"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

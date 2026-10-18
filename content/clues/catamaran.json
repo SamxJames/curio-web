@@ -1,0 +1,22 @@
+{
+  "slug": "catamaran",
+  "word": "catamaran",
+  "old": [
+    "Its name once described the simple act of binding pieces of timber together.",
+    "In Tamil, it means something like 'tied wood.'",
+    "The maram half of its Tamil root literally means 'tree' or 'wood.'"
+  ],
+  "clues": [
+    "This kind of boat takes its name from a Tamil compound meaning, quite literally, tied wood, describing how the earliest versions were lashed together from logs.",
+    "Today it names a sailing or motor vessel with two parallel hulls joined side by side, prized for stability and speed, and one hull short of a trimaran.",
+    "Island resorts offer sunset cruises aboard one, and it is a familiar sight as a fast ferry or a twin-hulled racing yacht."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "catamaran"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

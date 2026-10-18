@@ -1,0 +1,23 @@
+{
+  "slug": "anthem",
+  "word": "anthem",
+  "old": [
+    "Its root idea is two voices calling and answering, sound set against sound.",
+    "It traces back to a Greek word built from \"over against\" plus \"voice.\"",
+    "It shares its deepest roots with the word \"antiphon,\" though they took different paths into English."
+  ],
+  "clues": [
+    "This kind of song traces back to an ancient Greek term built from words meaning 'over against' and 'voice, sound.'",
+    "Less purely religious than a hymn, it is a stirring song of pride or loyalty that unites a group. It started out meaning voices answering each other across a church.",
+    "Crowds rise for the national one before a big game, and it shares its ancient source with 'antiphon,' which reached English by a different route."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "antiphon",
+      "anthem"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

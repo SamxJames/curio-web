@@ -1,0 +1,22 @@
+{
+  "slug": "bonanza",
+  "word": "bonanza",
+  "old": [
+    "This word once described a sea so still that sailors barely noticed it moving — until people mistook its Latin roots for meaning the opposite of that stillness.",
+    "In Spanish, it could mean fair weather, dead calm, or a rich vein of ore before English borrowed it for sudden fortune.",
+    "Its transformation was nudged by the Latin word for 'good' — the same root behind English's own 'bonus.'"
+  ],
+  "clues": [
+    "This noun for a stroke of great good fortune began as something far less thrilling: its ancient Latin ancestor simply meant a calm sea.",
+    "It means a sudden, abundant source of wealth or profit, richer and longer lasting than a single windfall. In Spanish it could also mean a rich lode of ore.",
+    "Headlines hail a record weekend as a box office one. Its reshaped form was influenced by Latin bonus, meaning good, which also gives English the word bonus."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "bonanza"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "tulip",
+  "word": "tulip",
+  "old": [
+    "Its name began as a word for wound cloth worn on the head, long before it meant anything with petals.",
+    "The flower was named for a resemblance — its shape reminded people of a wrapped headpiece.",
+    "It shares an ancestor with the English word 'turban,' just took a different path through French to get here."
+  ],
+  "clues": [
+    "This spring flower takes its name from an old Persian word for a turban, the length of cloth people once wound around their heads.",
+    "Grown from a bulb, it holds one cup-shaped bloom on a tall stem, unlike a daffodil's trumpet. The name likely stuck because that bloom recalled a wrapped turban.",
+    "Holland is famous for vast, striped fields of these in red, yellow and pink each spring, and an old song invites you to tiptoe through them."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "tulip"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}

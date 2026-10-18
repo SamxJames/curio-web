@@ -1,0 +1,23 @@
+{
+  "slug": "replace",
+  "word": "replace",
+  "old": [
+    "A little piece meaning 'again' has traveled from an ancient Italic root through Latin and French before landing quietly in English.",
+    "Attach 'again' to the front of a word meaning 'spot' or 'position,' and you'll find this verb.",
+    "Its cousin prefix re- shows up in words like return and reuse — here it's fused right onto 'place.'"
+  ],
+  "clues": [
+    "This everyday verb about what fills a spot wasn't borrowed whole from another language; English built it by joining a prefix meaning \"again\" or \"back\" to a common word.",
+    "It means taking away something worn out or broken and putting a new one in its spot, like a dead battery. Unlike repairing, the old item doesn't stay.",
+    "A beloved legend is someone nobody can ever do this to, and a library sign asks you to do it with books, setting each back on its shelf."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "refill",
+      "replace"
+    ],
+    "solvedAt": 2
+  },
+  "tooHard": false
+}

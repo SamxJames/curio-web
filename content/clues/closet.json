@@ -1,0 +1,22 @@
+{
+  "slug": "closet",
+  "word": "closet",
+  "old": [
+    "Long before it held your coats, this word named a fenced-in patch of open ground, not a room at all.",
+    "Its French ancestor meant a small, private, walled-off space — but out under the sky, not inside a house.",
+    "It's built the same way as the word close plus a diminutive ending — literally, a 'little shut-off place.'"
+  ],
+  "clues": [
+    "This small household space began in French as a word only for little open-air enclosures, a fenced-off patch of outdoor ground rather than any kind of room.",
+    "Built into the wall rather than freestanding like a wardrobe, it's a small enclosed space with a door, often holding hanging clothes. English first used it for small private rooms.",
+    "Families keep skeletons in one, and people come out of one when they reveal they're gay. It shares its root with close, from Latin meaning shut or enclosed."
+  ],
+  "attempts": 1,
+  "solve": {
+    "guesses": [
+      "closet"
+    ],
+    "solvedAt": 1
+  },
+  "tooHard": false
+}
