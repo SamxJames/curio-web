@@ -56,7 +56,8 @@ every feature against it.
 - Manual `?repost=` / `?force=1` runs post **today's UTC word** and post every time. Sam is UTC+1, so late-evening runs cross days.
 - Word of the day = `WORDS[daysSinceStart % length]`, **locked in Redis on first view**. App code must use
   `resolveTodayWord`/`resolveHistory*`, never raw `getWordForDate`. Reorder only positions after today's index.
-- Client components may only `import type` from `lib/words.ts` (the value is ~13k lines). Same rule for
+- Client components may only `import type` from `lib/words.ts` (the value is ~13k lines), or from any module that
+  imports its values (`lib/puzzle.ts`: client code uses `lib/puzzleGuess.ts`). Same rule for
   `lib/languages/data.ts`: the panel loads it with `next/dynamic`. Never hand-edit `data.ts`/`sheetIndex.ts`.
 - Redis keys must use an existing prefix: `curio:subscriber|hour|auth|user|wordoftheday|digest|social|traffic|confirm*`.
 - Auth.js's default session has **no `user.id`**; `lib/auth.ts` adds it. `useShowArrival` must check resolved
@@ -80,8 +81,6 @@ every feature against it.
 
 ## Open threads
 - **2026-10-15:** verify the first IndexNow run in Vercel logs: look for `[curio:indexnow] 2026-10-15: submitted ~1214 URLs (HTTP 200|202)`.
-- `/play` ships the whole word bank to the browser (answers + clues, since 2026-09-13): `components/PuzzleGame.tsx` imports
-  value helpers from `lib/puzzle.ts`, which imports `WORDS`. Fix: move the pure helpers to a words-free module.
 - Clue rewrite for the remaining 945 words (`clues:rewrite`, review sample + `tooHard`, `clues:apply -- --keep-today`).
   Revisit the clue rules if synced plays show most solves on clue 1 or failures above ~20%.
 - Watch GSC for the feed and language pages. Next language-sheet batch: `languages:facts -- --limit 30`, draft, review,

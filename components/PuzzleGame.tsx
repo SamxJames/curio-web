@@ -5,7 +5,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import { Share } from "lucide-react";
 import type { WordEntry } from "@/lib/words";
-import { isCorrectGuess, buildPuzzleShareText, buildLetterHint } from "@/lib/puzzle";
+import { isCorrectGuess, buildPuzzleShareText, buildLetterHint } from "@/lib/puzzleGuess";
 import { dayKey } from "@/lib/day";
 import { sendTrafficEvent } from "@/lib/trafficClient";
 import {
