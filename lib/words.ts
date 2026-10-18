@@ -50,11 +50,7 @@ export const WORDS: WordEntry[] = [
     related:
       "Quarantine's root, quaranta, traces back to Latin quadraginta (forty), which makes it a distant cousin of quarter and quart — all ultimately from quattuor, four.",
     lineage: ["Latin", "Italian", "English"],
-    clues: [
-      "A European port city once forced incoming ships to sit offshore for a set stretch of time before anyone could disembark.",
-      "Venice imposed this on ships from plague-affected ports in the 1300s — specifically, a wait of exactly forty days.",
-      "The Italian phrase behind it literally means “forty days”; quarter and quart are distant cousins, both from the Latin word for four.",
-    ],
+    clues: ["This public health measure once lasted exactly forty days, the wait Venice imposed on ships from plague-affected ports before anyone could come ashore.","Today it means any enforced separation to stop a disease spreading, however long it lasts. Unlike isolation of the already sick, it often applies to people merely exposed.","During a pandemic, arriving travelers might be ordered into two weeks of hotel ___. The word is a distant cousin of quarter and quart, all from Latin for four."],
   },
   {
     slug: "salary",
@@ -69,11 +65,7 @@ export const WORDS: WordEntry[] = [
     related:
       "The same Latin sal gives English salad, sauce, and sausage, and lives on in the phrase \u201cworth one's salt.\u201d",
     lineage: ["Latin", "English"],
-    clues: [
-      "Roman soldiers' pay was once connected, in a roundabout way, to an everyday seasoning.",
-      "That seasoning was salt — this word's Latin ancestor was built directly from the Latin word for it.",
-      "The same Latin word for salt also gives English salad, sauce, and sausage — and lives on in the phrase “worth one's salt.”",
-    ],
+    clues: ["This everyday workplace noun began as an allowance for Roman soldiers, traditionally linked to salt, a commodity so valuable it may once have been part of what they received.","It is the fixed yearly sum an employer pays you, divided into regular paychecks, unlike an hourly wage that rises and falls with the hours you work.","Job ads promise a competitive one, and its salty Latin root also gives English salad, sauce, sausage, and the phrase \"worth one's salt.\""],
   },
   {
     slug: "disaster",
@@ -88,11 +80,7 @@ export const WORDS: WordEntry[] = [
     related:
       "The astro- root resurfaces in astronomy and astronaut; the dis- prefix shows up again in disgrace and discord.",
     lineage: ["Italian", "English"],
-    clues: [
-      "This word for a sudden catastrophe was once a literal verdict handed down by the position of the sky.",
-      "Its two Italian building blocks mean “bad” and “star” — misfortune was once blamed directly on an unlucky alignment overhead.",
-      "The “star” half also shows up in astronomy and astronaut; the “bad” half resurfaces in disgrace and discord.",
-    ],
+    clues: ["This noun for a sudden turn of events was once a literal astrological verdict, blaming misfortune on an unfavorable alignment of the stars.","Today it means a sudden event causing great damage or loss, like a flood or earthquake, or jokingly a total flop. It is the everyday word, commoner than catastrophe.","Relief agencies respond to the natural kind, and a risky plan is called a recipe for one. Its star root reappears in astronomy and astronaut."],
   },
   {
     slug: "clue",
@@ -107,11 +95,7 @@ export const WORDS: WordEntry[] = [
     related:
       "Clew survives today only as a sailing term for the corner of a sail; clue and clew are, at root, the very same word.",
     lineage: ["Old English", "English"],
-    clues: [
-      "In an ancient Greek myth, a hero unwound a ball of thread behind him so he could find his way back out of a maze.",
-      "That myth is where this word for a hint that helps you solve something comes from — it was originally the literal thread itself.",
-      "It's spelled almost like its own ancestor, clew — today surviving only as a sailing term for the corner of a sail.",
-    ],
+    clues: ["This everyday noun for a kind of help began life in Old English as something quite physical: a simple ball of thread.","It's a piece of evidence that points toward solving a mystery, like a detective's fingerprint or a crossword's prompt. It's something you find or follow, more than a gentle hint someone drops.","Theseus followed a thread out of the Minotaur's labyrinth, giving us this word. Someone utterly baffled says, \"I haven't a ___,\" and it names the board game starring Colonel Mustard."],
   },
   {
     slug: "muscle",
@@ -126,11 +110,7 @@ export const WORDS: WordEntry[] = [
     related:
       "Musculus is a diminutive of mus (mouse) — the same root behind mouse itself, and, much later, the computer mouse.",
     lineage: ["Latin", "English"],
-    clues: [
-      "To Roman anatomists, a flexing body part looked like a small animal moving just beneath the skin.",
-      "That resemblance is Latin for “little mouse” — the nickname stuck so well it became the official word for it.",
-      "The same Latin root for “mouse” gives us the small rodent itself, and much later, the computer accessory named after it.",
-    ],
+    clues: ["This part of the body gets its name from a Latin word meaning \"little mouse,\" an image the Romans saw in it.","The general name for the body tissue that contracts to move your bones, which weightlifters build up; not the tendon that anchors it, nor any single one like the bicep.","You might pull one at the gym, and hired tough guys are called this. Its ancient root also gave us the word mouse, and later the computer mouse."],
   },
   {
     slug: "robot",
@@ -145,11 +125,7 @@ export const WORDS: WordEntry[] = [
     related:
       "Robota is related to rab, an old Slavic word for slave. English has no native cognates for it, making robot one of the few everyday English words borrowed wholesale from Czech.",
     lineage: ["Slavic", "Czech", "English"],
-    clues: [
-      "This word for a mechanical worker was invented for a 1920s stage play, not borrowed from everyday speech.",
-      "Its Czech root means forced labor or drudgery, coined by the writer Karel Čapek.",
-      "That root is related to an old Slavic word for slave — English has no native relatives for it at all, making this one of the few everyday words borrowed wholesale from Czech.",
-    ],
+    clues: ["This name for a kind of machine was coined by Czech writer Karel Čapek for a 1920 stage play, from a Slavic word for forced labor or drudgery.","A programmable machine that carries out tasks on its own, such as welding cars or vacuuming floors. Unlike an android, it needn't look human at all.","R2-D2 and WALL-E are beloved movie examples, and a person who works mechanically, without feeling, is sometimes called one too."],
   },
   {
     slug: "avocado",
@@ -165,11 +141,7 @@ export const WORDS: WordEntry[] = [
     related:
       "Guacamole comes from the same Nahuatl root, combining \u0101huacatl with molli (sauce).",
     lineage: ["Nahuatl", "Spanish", "English"],
-    clues: [
-      "This fruit's original name in Nahuatl referred to a rather personal part of the body — a nod to how it hangs in pairs from the tree.",
-      "Spanish speakers reshaped that word, and a later mix-up with the Spanish word for lawyer helped push it toward its modern form — which is also why English once called it an “alligator pear.”",
-      "Guacamole comes from the very same Nahuatl root, just combined with the word for sauce.",
-    ],
+    clues: ["This tree fruit's name comes from a Nahuatl word that also meant \"testicle,\" likely describing how the fruit hangs from the tree in pairs.","Pear-shaped but not sweet, it has bumpy dark green skin, buttery pale green flesh and one big pit. English speakers once called it the alligator pear.","Mash it with lime and onion to make guacamole, whose name joins the same Nahuatl root with a word for sauce."],
   },
   {
     slug: "companion",
@@ -184,11 +156,7 @@ export const WORDS: WordEntry[] = [
     related:
       "The same panis gives English pantry (where bread was kept), and, through French, company and accompany.",
     lineage: ["Latin", "Old French", "English"],
-    clues: [
-      "This word for someone who's with you started as a description of a very specific shared activity.",
-      "Literally, in Latin, it means “one who breaks bread with you” — together plus the word for bread.",
-      "That same root for bread also gives us pantry, where it was kept, and — through French — company and accompany.",
-    ],
+    clues: ["This noun for a certain kind of person in your life comes from Latin words meaning 'together' and 'bread,' first picturing someone who shares your meals.","Today it means anyone who accompanies you or spends time at your side, like a fellow traveler or a paid caregiver. It stresses shared presence more than affection, unlike 'friend.'","A loyal dog is often called a faithful one, and a 'constant' one never leaves your side. The same bread root gave English 'pantry.'"],
   },
   {
     slug: "alarm",
@@ -200,7 +168,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began as an actual battle cry telling soldiers to grab their weapons, and over time it settled into English as a general word for any signal of danger.",
     related: "It shares its root with 'arms,' both tracing back to Latin arma — one word stayed literal, the other became a cry of warning.",
     lineage: ["Latin","Old Italian","Middle French","Middle English","English"],
-    clues: ["It began as a shouted command urging soldiers to grab what they'd fight with.","Its Old Italian ancestor literally meant 'to the weapons!'","It's a distant cousin of the everyday word 'arms,' both from Latin arma."],
+    clues: ["This noun for a kind of signal began life as a real shout on the battlefield, a cry ordering soldiers to grab their weapons.","Today it means any sound or signal that warns of danger, like a ringing fire bell, more urgent than a simple warning and broader than just a siren.","You set one on your bedside clock to wake up, and a false one sends everyone outside for nothing. It shares its root with the word 'arms.'"],
   },
   {
     slug: "apron",
@@ -212,7 +180,7 @@ export const WORDS: WordEntry[] = [
     journey: "The shift happened through rebracketing: 'a napron' was misheard and reanalyzed as 'an apron,' so the n slid over and stuck to the article instead of the noun.",
     related: "It shares this exact kind of slip-of-the-ear reshaping with words like adder, newt, and umpire, which also lost or gained a letter by trading it with 'a' or 'an.'",
     lineage: ["Latin","Old French","Middle English","English"],
-    clues: ["Its first sound didn't originally belong to it — it wandered over from the little word beside it.","It once began with an 'n,' back when it meant a small tablecloth.","Like 'adder' and 'newt,' it lost a letter to the article 'a' standing next to it."],
+    clues: ["This piece of clothing lost its original first letter when speakers misheard it after 'a' and moved the n onto the article instead.","Tied over your front at the waist, it keeps clothes clean while you cook; unlike a smock, it is sleeveless and open at the back. Its ancestor meant 'little tablecloth.'","Someone overly dependent on their mother is said to be tied to her ___ strings, and the paved area where planes park at an airport shares the name."],
   },
   {
     slug: "barrel",
@@ -224,7 +192,7 @@ export const WORDS: WordEntry[] = [
     journey: "The link to *barre (bar, rod) fits the sound but not the sense, so the more convincing story ties the word to carrying and containers rather than to bars or bolts.",
     related: "It's built the same way as bear, with a -le suffix added to the root for carrying — making a barrel, at its core, 'a thing for bearing or transporting.'",
     lineage: ["Proto-Indo-European","Proto-Germanic","Frankish","Old French","Anglo-Norman","Middle English","English"],
-    clues: ["Its likely deep root just means 'to carry' — the same ancient idea behind the English word for holding weight or enduring something.","One guess ties it to a word for a bar or rod, but scholars say that link fails on meaning, not sound.","It may share a root with 'bear,' as if it were simply a thing built for bearing things."],
+    clues: ["This kind of container likely grew from an ancient root meaning 'to carry,' so at heart it was simply a thing for transporting goods.","A large wooden vessel with bulging sides bound by metal hoops, sealed rather than open like a tub, used to store and age wine, beer and whiskey.","It is also the tube of a gun, it measures crude oil, and it shares its ancient carrying root with the verb bear."],
   },
   {
     slug: "bedlam",
@@ -236,7 +204,7 @@ export const WORDS: WordEntry[] = [
     journey: "What began as a place name for a specific London hospital became a general word for any scene of madness and chaos, as the hospital's reputation gave its name a life of its own.",
     related: "Spanish speakers reached for a similar idea with belén, which also means 'confusion, disorder' — worth noting as a parallel, though the facts don't establish a direct link between the two words.",
     lineage: ["Hebrew","Greek","English"],
-    clues: ["Its name traces back to a phrase meaning 'house of bread,' borrowed from a town in the Bible.","It began as the nickname for a London hospital that cared for the mentally ill from the 1400s onward.","In Spanish, belén carries a strikingly similar sense of confusion and disorder."],
+    clues: ["This noun for a kind of scene began life as the nickname of a London hospital, named after a biblical town meaning 'house of bread.'","It means a scene of wild uproar, far louder and more frenzied than mere disorder, like a classroom left unsupervised. That hospital once housed people with mental illness.","Reporters write that absolute ___ broke out in the stands after a last-second goal. Its source was Bethlem, the London hospital's shortened name."],
   },
   {
     slug: "bench",
@@ -248,7 +216,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word has stayed remarkably close to its original meaning — a long seat — across all these centuries and languages. More recently, it's also been shortened from 'bench press,' giving it a second life as gym shorthand.",
     related: "It's a doublet of bank, banc, and banco — words that split off from the same root but drifted toward money and finance instead of furniture. Its closest cousins are found across Germanic languages: Dutch and West Frisian bank, German Bank, Danish bænk, Swedish bänk, and Icelandic bekkur.",
     lineage: ["Proto-Indo-European","Proto-Germanic","Proto-West Germanic","Old English","Middle English","English"],
-    clues: ["In several Germanic tongues, the word for where you sit is the same word for where you keep your money.","Its Old English ancestor meant simply a long seat, and it hasn't strayed far from that since.","It shares a root with 'bank' — both once named the same humble wooden seat."],
+    clues: ["This piece of furniture has barely changed its meaning since Old English times; people then used a nearly identical word for the very same kind of seat.","It's a long, usually hard seat for several people side by side, found in parks, locker rooms and workshops, plainer and more public than a sofa or settee.","Substitutes warm it during games, gym-goers use the word as shorthand for a lying barbell press, and it shares an ancient root with bank, which drifted toward money."],
   },
   {
     slug: "blanket",
@@ -260,7 +228,7 @@ export const WORDS: WordEntry[] = [
     journey: "The French word for white woollen cloth was likely also shaped by Old English hwītel, a native word for 'blanket' or 'cloak' built from hwīt ('white') plus a diminutive suffix — so English speakers already had a near-identical idea in their own tongue. Eventually the French-derived blanket pushed out that native word, whytel, from everyday use.",
     related: "Blanket shares its 'white' root with blank, both descending from the same Germanic source for whiteness or blankness. It's also quietly related to whittle, which comes from that displaced Old English word hwītel for a blanket or cloak.",
     lineage: ["Germanic","Old Northern French","Middle English","English"],
-    clues: ["Its name once simply meant the color of fresh snow, not the comfort it gives.","In Old French, this word was a small version of 'blanc' — white.","It's a cousin of 'blank,' and it quietly nudged out an English word that became 'whittle.'"],
+    clues: ["This everyday household textile was named for its color rather than its purpose, coming from an old French word meaning 'white' that described a kind of woollen cloth.","A large, soft cover of wool or fleece you pull over yourself in bed, thicker and warmer than a sheet. It replaced a native English word built from 'white.'","A spoilsport is called a wet one, and snow can lay one across a field. As an adjective it means covering every case without exception, as in a ___ ban."],
   },
   {
     slug: "blueprint",
@@ -272,7 +240,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts available only note its coinage in 1842 by Herschel — no further shift in meaning is recorded here.",
     related: "It's built directly from two familiar English words, blue and print, joined together to name something new.",
     lineage: ["English"],
-    clues: ["One 19th-century scientist needed a name for a plan rendered in a single, unmistakable hue.","It joins a color and a mark left by pressing something onto paper.","Its two halves are simply 'blue' and 'print,' fused by Sir John Herschel in 1842."],
+    clues: ["This noun for a kind of plan was introduced by an astronomer, Sir John Herschel, a surprising origin for a word now tied to builders and engineers.","More exact than a rough sketch or outline, it is the detailed technical drawing architects and engineers work from, or any thorough guide to achieving something.","Its name recalls the color these copies once literally came out, and today people speak of a detailed one for success, for peace, or for life itself."],
   },
   {
     slug: "bottle",
@@ -284,7 +252,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word entered English already meaning a container for liquid, and it partially displaced the native Old English word flasce as the everyday term for such a vessel.",
     related: "Bottle is a doublet of botija, meaning both descend from the same Latin ancestor, buttis, but arrived in English by different routes.",
     lineage: ["Latin","Late Latin","Old French","Middle English","English"],
-    clues: ["Its name once simply meant 'a little cask' in the language that gave it shape.","It comes from a Late Latin diminutive, butticula, built on the word for 'cask.'","It shares an ancestor with the word botija, making the two doublets of buttis."],
+    clues: ["This everyday container comes from an ancient word for a cask, so at its root its name means simply 'a little cask.'","A narrow-necked container, unlike a wide-mouthed jar, holding water, wine or soda under a cap or cork. It partly replaced the Old English word flasce for such vessels.","Castaways toss a message in one out to sea, babies drink their milk from one, and you might pop open one of champagne to celebrate."],
   },
   {
     slug: "cabinet",
@@ -296,7 +264,7 @@ export const WORDS: WordEntry[] = [
     journey: "From a literal little chamber, the word came to describe the group of advisors who met in such a room to discuss state affairs — the meeting place lending its name to the meeting itself.",
     related: "It works much like salon, another word that started as the name of a room and came to mean the gathering that happened inside it.",
     lineage: ["French","English"],
-    clues: ["It began as a word for a tiny private chamber, not the people inside it.","The word for a government's inner circle once just meant a small room.","Like salon, it lets a room's name stand in for the group that meets there."],
+    clues: ["This name for a group of people began as the name for a small private room, and the meeting place eventually lent its name to those who met inside.","Today it means a president's or prime minister's inner circle of senior ministers who run government departments, a smaller and more powerful body than a parliament or council.","It is also a cupboard with shelves or drawers, like the one holding medicine in a bathroom. It works much like salon, a room that became a gathering."],
   },
   {
     slug: "candle",
@@ -308,7 +276,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word passed quietly from Latin into Old English, then Middle English, keeping essentially the same meaning of a wax light throughout.",
     related: "It's a doublet of candela (the unit of light intensity) and chandelle, both descending from the same Latin root, and it's related to candid, which also comes from candeō.",
     lineage: ["Latin","Old English","Middle English","English"],
-    clues: ["Its root originally described something glowing white or shining bright, long before it meant an object at all.","The word for this waxy light-source came into English by way of Latin, through Old and Middle English forms almost identical to today's.","It shares a Latin ancestor with 'candid' and is a doublet of both 'candela' and 'chandelle'."],
+    clues: ["This source of light gets its name from an ancient Latin root meaning to be white, bright, or shining.","Unlike a lamp or lantern, it is its own fuel: a stick of wax around a wick, lit for dinners, vigils, or power cuts.","You blow them out on birthday cakes, and you burn one at both ends when overworking. The word candid shares its bright Latin root."],
   },
   {
     slug: "carpet",
@@ -320,7 +288,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word passed from Armenian into Medieval Latin and Italian, then into Old French, and finally into Middle English as carpette before settling into its modern English spelling and meaning.",
     related: "The facts given don't point to any other English cognate — carpet's trail runs straight back through French, Latin, and Italian to its Armenian root, with no branching relative named along the way.",
     lineage: ["Old Armenian","Middle Armenian","Medieval Latin","Old French","Middle English","English"],
-    clues: ["Its name was carried west by 13th-century Florentine merchants trading with an Armenian kingdom.","Before it wore an English coat, it wore an Italian and French one — carpita and carpite.","Trace it back far enough and you land on Armenian կապերտ (kapert), the word's oldest known form."],
+    clues: ["This household furnishing takes its name from Armenian; Florentines brought the word into Europe in the 13th century.","A thick woven or tufted covering for a floor, often fitted wall to wall, unlike a rug, which is a loose piece covering only part of the room.","Celebrities walk the red one at premieres, Aladdin soars over Agrabah on a magic one, and being called on it means getting a scolding."],
   },
   {
     slug: "chandelier",
@@ -332,7 +300,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts don't describe a shift in meaning — the word seems to have carried the idea of a candle-holder from Latin through French into English.",
     related: "Chandelier is a doublet of candelabrum, meaning both words descend from the same Latin root, candela — the same root that gives English candle.",
     lineage: ["Latin","French","English"],
-    clues: ["Its name hides a single small flame that once lit every branch of it.","The word for this fixture came into English by way of French, tracing back to Latin for a burning wax stick.","It shares a Latin root with candelabrum — and with candle itself."],
+    clues: ["This decorative lighting fixture began as a Latin word meaning simply \"a candle,\" and its name has carried the idea of a candle-holder ever since.","It hangs from the ceiling with branching arms holding many lights, often dripping with crystals. Unlike its word-cousin candelabrum, which usually stands on a table, it is suspended overhead.","Wild partygoers are said to swing from one, and in The Phantom of the Opera a famous one comes crashing down over the audience."],
   },
   {
     slug: "closet",
@@ -344,7 +312,7 @@ export const WORDS: WordEntry[] = [
     journey: "In French, this word was used only for small open-air enclosures — a fenced-off bit of outdoor space, not a room. English took the word and moved it indoors, applying it to small private rooms and, eventually, the enclosed storage spaces we call closets today.",
     related: "It shares its root with the English word close, both tracing back to Latin clausum, meaning shut or enclosed.",
     lineage: ["Latin","Old French","Middle English","English"],
-    clues: ["Long before it held your coats, this word named a fenced-in patch of open ground, not a room at all.","Its French ancestor meant a small, private, walled-off space — but out under the sky, not inside a house.","It's built the same way as the word close plus a diminutive ending — literally, a 'little shut-off place.'"],
+    clues: ["This small household space began in French as a word only for little open-air enclosures, a fenced-off patch of outdoor ground rather than any kind of room.","Built into the wall rather than freestanding like a wardrobe, it's a small enclosed space with a door, often holding hanging clothes. English first used it for small private rooms.","Families keep skeletons in one, and people come out of one when they reveal they're gay. It shares its root with close, from Latin meaning shut or enclosed."],
   },
   {
     slug: "coffin",
@@ -356,7 +324,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began as a simple term for a woven basket, then broadened in French to mean any coffer or box, and finally narrowed to its grim modern sense of a burial case — replacing the native Old English word þrūh along the way.",
     related: "Coffin is a doublet of coffer, the two words having split off from the same Latin root cophinus to describe different kinds of containers.",
     lineage: ["Ancient Greek","Latin","Old Northern French","Middle English","English"],
-    clues: ["Long before it held the dead, this container held something you might carry home from a market stall.","Its root word simply means \"basket\" — a humble start for something so solemn.","It shares a Latin ancestor with the word \"coffer,\" both once meaning nothing more than a box for keeping things safe."],
+    clues: ["This lidded container's name traces back to an ancient Greek word for an ordinary woven basket, the kind once used for loaves of bread.","It is the wooden box a body is laid in for burial, traditionally tapered at the shoulders unlike a rectangular casket. It pushed out a native Old English word.","A setback that hastens something's end is called another nail in one. Its sibling word, coffer, split from the same Latin root meaning basket."],
   },
   {
     slug: "cork",
@@ -368,7 +336,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began by naming oak bark itself, then narrowed to the material and objects made from it, like stoppers and soles, as it passed from Spanish into Dutch and finally into English.",
     related: "Cork is a doublet of cortex, both descending from the same Latin word for bark or rind — one term stayed close to its Latin roots in science, the other wandered through Dutch and Spanish shoemaking before settling into everyday English.",
     lineage: ["Latin","Spanish","Middle Dutch","Middle English","English"],
-    clues: ["It started as a word for the rough outer layer of a tree, long before it meant anything you'd pull from a bottle.","Its ancestor once meant a shoe sole made from bark, on its journey through Spanish and Dutch.","It shares a Latin root with 'cortex' — both once simply meant bark or rind."],
+    clues: ["This natural material may take its name from an old Spanish word for a kind of shoe sole.","Not just any bark, it is the light, springy, buoyant layer stripped from a certain oak, used for bulletin boards and floats. Its name first meant oak bark.","You pull one from a wine bottle with a screwlike tool. Its Latin source, meaning bark or rind, also gave science the word cortex."],
   },
   {
     slug: "cot",
@@ -380,7 +348,7 @@ export const WORDS: WordEntry[] = [
     journey: "The bedstead sense traveled from Sanskrit through Hindi into English essentially unchanged in meaning, still describing a simple frame for sleeping. The cottage sense, from Old English, developed along its own separate path referring to small shelters rather than beds.",
     related: "The cottage-sense \"cot\" is a doublet of \"cote\" (as in dovecote) and is more distantly related to \"cottage.\"",
     lineage: ["Sanskrit","Hindi","English"],
-    clues: ["It began as a word for a simple wooden frame you'd sleep on, carried into English from a language of South Asia.","Its ancestor is the Sanskrit word khaṭvā, meaning bedstead.","It arrived in English by way of Hindi khāṭ, naming a portable bed."],
+    clues: ["This piece of furniture was borrowed into English from Hindi, and its roots reach back to an ancient Sanskrit word for a wooden bedstead.","It is a narrow, lightweight bed, often folding, set up in camps, barracks or hospitals, and simpler and more portable than an ordinary bed or bunk.","In Britain it also means a baby's barred crib, and an unrelated twin word from Old English once named a small, humble dwelling."],
   },
   {
     slug: "cupboard",
@@ -392,7 +360,7 @@ export const WORDS: WordEntry[] = [
     journey: "By the 16th century the middle /p/ sound had softened into a /b/, giving the pronunciation we use today, even though the older 'cup' spelling stuck around and became standard again from the 18th century onward.",
     related: "It's built directly from two words still very much in use on their own — cup and board — making it a small fossil of everyday furniture-naming.",
     lineage: ["Middle English","English"],
-    clues: ["Once, its two halves named a drinking vessel and a flat plank, joined into one household word.","Literally a plank meant to hold cups, before it grew doors and became something to shut.","Say 'cup' and 'board' quickly enough, and centuries of sound-shift do the rest."],
+    clues: ["This piece of household storage furniture began, centuries ago, as nothing more than a simple shelf for holding drinking vessels.","In British homes it is the everyday name for a kitchen cabinet: a shelved space behind a door for mugs, plates and tins, smaller than a walk-in pantry.","Old Mother Hubbard went to hers to fetch her poor dog a bone and found it bare. Brits also hide skeletons in one rather than a closet."],
   },
   {
     slug: "cushion",
@@ -404,7 +372,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began as a term rooted in the body part it supported — the hip — and settled into English as the padded object itself, with its bodily origin fading from view.",
     related: "Its root, Latin coxa ('hip, thigh'), traces back to the Proto-Indo-European *koḱs-, meaning 'joint, limb,' linking cushion to an ancient family of words about the body's moving parts.",
     lineage: ["Latin","Old French","Middle English","English"],
-    clues: ["Its earliest name may honor the part of your body it was built to support.","Before it meant a soft pad, its Latin ancestor named the hip or thigh.","It shares a root with coxa, the Latin word still used for the hip joint."],
+    clues: ["This household item takes its name from an old Latin word for the hip, the very body part it was once meant to support.","A soft stuffed pad you sit on or lean against on a sofa, not the pillow for your head in bed. Its ending may come from a Latin word for pillow.","As a verb, it means to soften a blow, and billiard tables have rubber ones lining their edges for the balls to bounce off."],
   },
   {
     slug: "abattoir",
@@ -416,7 +384,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts available don't show a shift in meaning — the word has named a slaughterhouse from its French coinage into English use.",
     related: "It's a cognate of English abate, since both abattoir and abate trace back to the same root verb, abattre.",
     lineage: ["French","English"],
-    clues: ["Its name literally describes what happens to the animals inside, via a French verb for bringing something down.","The word's root, abattre, means \"to slaughter,\" and -oir simply marks the place where that happens.","It shares a root with the English word abate — both come from the French verb abattre."],
+    clues: ["This kind of industrial building borrowed its name from French, where a suffix meaning \"place for\" was attached to a verb describing exactly what happens inside.","It is a facility where livestock are killed and prepared for meat; think of a more formal, French-sounding word than slaughterhouse. It has meant this ever since its coinage.","Its French parent verb, meaning \"to slaughter,\" also gave English the word abate, as in a storm that slowly abates."],
   },
   {
     slug: "abscess",
@@ -428,7 +396,7 @@ export const WORDS: WordEntry[] = [
     journey: "The Latin word already carried both senses at once — departure and swelling — the ancient idea being that bad humors withdrew from the rest of the body and collected in one place, forming the pocket we now call an abscess.",
     related: "It shares its root cēdō ('go') with English cede, so the two words are cousins built from the same core idea of going or yielding.",
     lineage: ["Latin","English"],
-    clues: ["Old medicine imagined the body sending trouble off to gather in one spot, like guests shown to a separate room.","Its Latin ancestor literally meant 'a going away.'","It's built from the same Latin root as 'cede' — the idea of departing or withdrawing."],
+    clues: ["This bodily ailment takes its name from a Latin word that meant both 'a going away' and 'a gathering of humors.'","A painful, swollen pocket of pus caused by infection. Unlike a simple cyst, it usually needs draining, since ancient doctors believed bad humors withdrew and collected there.","Dentists treat the tooth kind with antibiotics or a root canal. The word is a cousin of cede, sharing a Latin root meaning 'go.'"],
   },
   {
     slug: "acid",
@@ -440,7 +408,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word stayed close to its root meaning throughout — from the Latin verb for being sour, to the adjective describing sourness, to English's borrowing of that same quality.",
     related: "Acid is a doublet of agita, meaning both words descend from the same root through different paths.",
     lineage: ["Latin","French","English"],
-    clues: ["This quality was named for a taste — the kind that makes you wince.","Its Latin ancestor meant simply 'sour.'","It shares an ancient root with the word 'agita.'"],
+    clues: ["This adjective for a sharp quality traces back to a Latin verb that simply meant 'to be sour.'","More scientific than plain 'sour,' it describes the sharp bite of lemon juice or vinegar, and in chemistry anything with a pH below seven, the opposite of alkaline.","It also describes a biting wit or tongue, and as a noun it falls as polluted rain or names the 'test' that proves something's true worth."],
   },
   {
     slug: "acolyte",
@@ -452,7 +420,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word's core sense — someone who accompanies and attends another — has stayed remarkably intact from Greek through Latin, French, and into English.",
     related: "Its closest tie is to the Greek akólouthos itself, the 'follower' at the root of the whole chain; no other English cognate is given in the record.",
     lineage: ["Ancient Greek","Late Latin","Old French","Middle English","English"],
-    clues: ["Long before it named someone devoted, this word simply described a person who stayed close behind another, step for step.","It traces to a Greek word meaning 'follower' or 'attendant,' passed down through Latin and French before settling into English.","Its ancestor is the Greek akólouthos — 'follower' — the very root still visible at the heart of this word."],
+    clues: ["This noun for a person in a supporting role began as an Ancient Greek word for someone who simply walked behind another, a follower or attendant.","Today it means a devoted follower or helper of a leader or mentor, far more personally committed than a mere fan. Its sense of attending someone has barely changed since Greek times.","In church, it also names the robed assistant who lights the candles and carries the cross for the priest during a service."],
   },
   {
     slug: "acre",
@@ -464,7 +432,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began simply meaning \"field\" and narrowed over time into a fixed unit of land measurement, the sense it keeps today.",
     related: "Acre is a doublet of agriculture, both tracing back to the same Proto-Indo-European root for \"field.\" It's also cognate with Latin ager and Ancient Greek ἀγρός (agrós), both meaning \"field,\" as well as German Acker and Dutch akker.",
     lineage: ["Proto-Indo-European","Proto-Germanic","Proto-West Germanic","Old English","Middle English","English"],
-    clues: ["Its ancestor once meant simply the open ground where things grow, long before it meant a fixed size.","In Old English it named the field itself, not a measurement of it.","It shares a root with agriculture, and with the Latin word ager, meaning field."],
+    clues: ["This unit of measurement once had nothing to do with numbers: it simply meant a field where crops were grown.","It measures land in the US and UK, about 4,000 square metres or roughly the size of a football field, and is smaller than the metric hectare.","Winnie-the-Pooh lives in the Hundred ___ Wood, and the word shares an ancient root meaning 'field' with agriculture."],
   },
   {
     slug: "adagio",
@@ -476,7 +444,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts available don't trace a shift in meaning — English took the word as a musical direction and it has stayed largely in that role, also naming a slow-tempo piece or passage itself.",
     related: "No related or cognate word is given in the source facts, so none can be offered here.",
     lineage: ["Italian","English"],
-    clues: ["Musicians sometimes borrow a whole foreign phrase just to tell you: don't hurry.","It's a tempo marking meaning 'slowly,' lifted straight from another language.","Its Italian source shares no additional word history noted here — but you'll recognize the term itself printed above many a slow movement's staff."],
+    clues: ["This musical direction printed on sheet music was borrowed straight from Italian, and English musicians still use it exactly as Italian ones always have.","It tells performers to play slowly and at ease, a gentle, leisurely tempo that is noticeably slower than the walking pace of andante.","As a noun it names a whole slow piece or passage, like Samuel Barber's famous mournful work for strings, often heard at memorials."],
   },
   {
     slug: "admire",
@@ -488,7 +456,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word has carried its core sense of wondering at something all the way from Latin through French into English, without any recorded shift in meaning.",
     related: "The facts given don't name any English cognate sharing the Latin root mīror, so none can be stated here.",
     lineage: ["Latin","Middle French","Middle English","English"],
-    clues: ["Its Latin root literally means 'to wonder at,' with a little prefix tacked on the front.","It passed through Middle French before landing in Middle English as 'admyren.'","Strip the French spelling and you're basically staring at the Latin verb 'admīror.'"],
+    clues: ["This verb for a warm feeling directed at someone or something goes back to a Latin word meaning 'to wonder at,' with no recorded shift in meaning since.","It means to regard someone or something with respectful approval, like a mentor's courage or a painter's skill. It is felt quietly, unlike praise, which is spoken aloud.","Anonymous valentines come from a secret one who does this, and on a clear evening you might pause to do it to a sunset."],
   },
   {
     slug: "adroit",
@@ -500,7 +468,7 @@ export const WORDS: WordEntry[] = [
     journey: "The phrase à droit literally meant \"to the right\" or \"in a straight direction,\" and French folded it into a single word describing someone who moves or acts skillfully — as if naturally aimed the correct way.",
     related: "It shares its deepest root with dīrēctus, the Latin ancestor behind English \"direct,\" both tracing back to regō, \"to guide or steer.\"",
     lineage: ["Proto-Indo-European","Latin","Old French","French","English"],
-    clues: ["Its roots describe someone whose path was aimed toward the correct side, not the wrong one.","It comes from a French phrase meaning literally \"to the right.\"","It's a cousin of \"direct,\" both descending from a Latin verb meaning to guide or steer."],
+    clues: ["This adjective praising how well someone handles things comes from a French phrase literally meaning \"to the right,\" as if talent were simply being pointed the correct way.","It means cleverly skillful, especially at handling tricky people or situations, quicker and more polished than merely capable. Its Latin ancestor meant \"laid straight.\"","Reporters might praise a diplomat's ___ handling of a crisis. It shares an ancient root with \"direct,\" going back to a Latin word meaning \"to guide or steer.\""],
   },
   {
     slug: "aerodrome",
@@ -512,7 +480,7 @@ export const WORDS: WordEntry[] = [
     journey: "Samuel Langley coined 'aerodrome' in 1897 for his flying machine itself, but that sense faded; the word survived instead for the airfield where such machines take off and land, its -drome shaped by analogy with hippodrome.",
     related: "It shares its -drome ending with hippodrome, the Greek-derived word for a horse racecourse, which inspired the new coinage's structure.",
     lineage: ["Proto-Indo-European","Proto-Hellenic","Ancient Greek","English"],
-    clues: ["Its second half once described running or a course, borrowed for a track built for horses long before it meant a runway for machines.","It first named a flying machine itself, coined in 1897, before settling on the meaning of an airfield.","It shares its ending with hippodrome, both built from a Greek word for a course or race."],
+    clues: ["This old-fashioned name for a kind of transport site was first given by inventor Samuel Langley in 1897 to his flying machine itself, not to any place.","Today it means a field where aircraft take off and land, a quainter, more old-fashioned word than airport and often used for smaller, simpler airfields.","Its ending was shaped by analogy with hippodrome, the Greek-derived word for a horse racecourse, as if the racetrack had been reimagined for planes."],
   },
   {
     slug: "agent",
@@ -524,7 +492,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word entered English carrying the sense of its Latin participle — literally 'one who is doing' — and that core idea of an active doer has stayed remarkably intact.",
     related: "Because agent comes from the same verb agere that gives Latin its family of 'doing' and 'driving' words, it shares a root with other English words built on that stem, though the facts here don't name them specifically.",
     lineage: ["Proto-Indo-European","Proto-Italic","Latin","English"],
-    clues: ["Its ancestor meant simply to drive or lead something forward.","The Latin verb behind it, agere, meant to drive, lead, or perform.","It comes from agēns, the 'doing' form of the verb that also gives us words like act and action."],
+    clues: ["This noun for a person with an important job to do grew from an ancient root meaning to drive or lead.","More than a mere messenger, this person is authorized to negotiate and make deals on someone else's behalf, as for an athlete, author or home seller. It literally meant 'one who is doing.'","James Bond is the most famous secret one, and a chemist might call a substance that causes a reaction a cleaning or bleaching one."],
   },
   {
     slug: "ale",
@@ -536,7 +504,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word has stayed remarkably steady in meaning across its history, referring to a fermented malt drink from Old English straight through to today.",
     related: "It's cognate with Swedish and Icelandic öl and Danish, Norwegian, and Faroese øl, all meaning \"beer\" — a whole family of Germanic words for the same brew.",
     lineage: ["Proto-Indo-European","Proto-Germanic","Proto-West Germanic","Old English","Middle English","English"],
-    clues: ["Some linguists trace its root to a word meaning simply \"bitter.\"","In Old English it was spelled ealu, and it named a fermented malt drink.","Scandinavian languages still call beer by a close cousin of this word: öl or øl."],
+    clues: ["This alcoholic drink has a name that may trace back to an ancient root meaning simply beer, or perhaps bitter.","A kind of beer brewed from fermented malt, usually fuller and fruitier than a crisp lager. Its meaning has barely changed since Old English times.","Its Swedish cousin is öl and its Danish cousin is øl. In a British pub, a pint of the brown or hoppy bitter kind is a classic order."],
   },
   {
     slug: "alligator",
@@ -548,7 +516,7 @@ export const WORDS: WordEntry[] = [
     journey: "The Spanish article 'el' fused right onto the noun as English speakers borrowed the phrase, turning 'the lizard' into a single word. Over time its spelling settled into 'alligator,' possibly nudged by the unrelated Latin word alligator, meaning 'one who binds.'",
     related: "The facts don't support a confirmed English cognate, though the coincidental resemblance to Latin alligator ('one who binds') may have shaped its final spelling.",
     lineage: ["Latin","Spanish","English"],
-    clues: ["Its name once simply pointed at a scaly creature, no fangs implied.","In Spanish, the phrase behind it literally means 'the lizard.'","A coincidental Latin word for 'one who binds' may have nudged its final spelling."],
+    clues: ["This reptile's name began as a Spanish phrase meaning nothing scarier than 'the lizard,' with the little word for 'the' fused right onto the noun.","A big, toothy swamp dweller of the southeastern United States and China, with a broader, rounder snout than a crocodile's. Its spelling was possibly nudged by an unrelated Latin word meaning 'one who binds.'","It finishes the rhyming goodbye 'See you later...', which gets the reply 'In a while, crocodile.' Spanish speakers called the creature el lagarto."],
   },
   {
     slug: "alloy",
@@ -560,7 +528,7 @@ export const WORDS: WordEntry[] = [
     journey: "Two related strands — one through aloiier, one through allier/allayer — both trace to the same Latin root meaning \"to bind,\" converging in English as a single word for substances joined together.",
     related: "It shares its Latin root, ligare (\"to bind\"), with allier and allayer, the Old French verbs meaning \"to assemble\" or \"join\" that fed into its history.",
     lineage: ["Latin","Old French","Middle French","English"],
-    clues: ["Its ancestors all point back to the simple act of tying two things together.","The word describes a blend, but its roots are about joining, not mixing.","It's a linguistic cousin of words meaning \"to bind,\" like ligare's other descendants."],
+    clues: ["A name for a kind of material, it traces back to a Latin verb meaning 'to bind to' or 'tie to.'","It is a metal made by melting two or more elements together, as copper and tin make bronze. Unlike a pure metal, it is a deliberate blend.","Steel, brass and pewter are all examples, and car enthusiasts often upgrade to lightweight wheels made of one."],
   },
   {
     slug: "almanac",
@@ -572,7 +540,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word moved from Arabic into Medieval Latin, then into Old French, and finally into Middle English, carrying the sense of a calendar or almanac at each step.",
     related: "Its root, al-munāḵ, meant 'climate,' linking the idea of tracking the sky and seasons to the very word for a yearly calendar.",
     lineage: ["Arabic","Andalusian Arabic","Medieval Latin","Old French","Middle English","English"],
-    clues: ["Its deepest root once simply meant the weather and seasons overhead.","It passed through Arabic, Latin, and French before landing as a yearly book of dates.","Related to the Arabic al-munāḵ, the word for 'climate' itself."],
+    clues: ["This type of annual reference book has a name that traces back to an Arabic word whose older root meant 'climate.'","Published yearly, it pairs the calendar with sunrise times, moon phases, tide tables and weather forecasts, so it is far richer than a plain wall calendar.","Farmers have long consulted the Old Farmer's edition for planting dates and frost predictions, and Benjamin Franklin famously published Poor Richard's version."],
   },
   {
     slug: "almond",
@@ -584,7 +552,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word's form was reshaped along the way by association with the Latin name Amandus, and by the many European words borrowed from Arabic that begin with the article al-, even though almond itself didn't come from Arabic.",
     related: "It's a doublet of amygdala and amygdale (the brain structure, named for its almond-like shape) and of mandorla, the almond-shaped halo in religious art.",
     lineage: ["Ancient Greek","Latin","Vulgar Latin","Old French","Middle English","English"],
-    clues: ["Its shape lent its Latin name to a small structure tucked deep in the brain.","The word for this nut passed through Greek, then Latin, then Old French before reaching English.","It shares a root with amygdala and mandorla, even though it never actually came from Arabic despite looking like it did."],
+    clues: ["This tree nut picked up an extra letter by imitating the many European words borrowed from Arabic, even though it never came from Arabic itself.","Flatter and more teardrop-shaped than a hazelnut, it is ground into marzipan, sliced onto pastries, and pressed into a popular dairy-free milk.","Eyes described this way are long and gently tapered, and the brain's amygdala shares this nut's ancient name because it is shaped like one."],
   },
   {
     slug: "alto",
@@ -596,7 +564,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts at hand don't trace a shift in meaning — alto arrived from Italian carrying its sense of \"high\" straight into musical use in English.",
     related: "Alto and old are doublets, two words descended from the same root that took different paths into English.",
     lineage: ["Italian","English"],
-    clues: ["This word for a musical range shares a deep root with a word meaning aged.","Its Italian source simply means 'high.'","It's a doublet of the English word 'old.'"],
+    clues: ["This term for a singing voice comes straight from an Italian word meaning \"high,\" even though the voice it names is not the highest.","In a four-part choir, this voice sits below the soprano but above the tenor, and it is usually sung by women with deeper, richer voices.","It also names a popular saxophone, smaller than the tenor sax. Surprisingly, it shares an ancient root with the everyday English word \"old.\""],
   },
   {
     slug: "altruism",
@@ -608,7 +576,7 @@ export const WORDS: WordEntry[] = [
     journey: "Comte invented the French term as a deliberate philosophical coinage rather than a word that evolved naturally, and George Henry Lewes carried it into English in 1853 through his translation of Comte's work on the philosophy of the sciences.",
     related: "It shares its root with English alter, both descending from the Latin word alter, meaning \"other.\"",
     lineage: ["Latin","Old French","French","English"],
-    clues: ["At its core sits a very old idea: the other one, not yourself.","It comes from a French legal phrase about 'the good, the right of the other.'","A philosopher named Comte coined it in 1830 — and it shares a root with the English word 'alter.'"],
+    clues: ["This quality of character was invented on purpose by a French philosopher, Auguste Comte, rather than evolving naturally like most words.","It means unselfish concern for others' welfare as a principle, broader than charity or generosity. Comte was apparently inspired by a French legal phrase about 'the good of the other.'","Its opposite is egoism, and an 'effective' movement devoted to doing the most good bears its name. It shares a Latin root meaning 'other' with the word alter."],
   },
   {
     slug: "ambience",
@@ -620,7 +588,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts on hand don't trace a shift in meaning — just the simple act of adding -ence to ambient to name the state it describes.",
     related: "Its closest relative is ambient itself, the adjective it was built directly from.",
     lineage: ["English"],
-    clues: ["This word names a quality by tacking a noun-making ending onto a word that already described something surrounding you.","It's formed from a word meaning 'surrounding' plus a suffix that turns qualities into nouns.","Think of its adjective cousin, 'ambient' — this word is just that idea turned into a thing you can feel in a room."],
+    clues: ["This noun names something you sense on walking into a restaurant or hotel lobby, rather than anything you can see or touch. English made it by adding a noun ending to an adjective.","It means the overall feel of a place, shaped by lighting, sound and decor; a touch more refined than plain atmosphere, and a favorite word of restaurant reviewers.","It was built directly from its closest relative, ambient, the adjective behind ambient music and ambient lighting."],
   },
   {
     slug: "ambush",
@@ -632,7 +600,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word simply meant to hide oneself in a wood or thicket, and that literal act of concealment in brush became the word for a surprise attack. The shift from earlier en- to am- in English is unexplained.",
     related: "It's a cousin of bouquet, which comes from the same Vulgar Latin boscus (\"wood\"); it's also related to ambuscade, a longer word for the same kind of hidden attack.",
     lineage: ["Proto-Germanic","Frankish","Vulgar Latin","Old French","Middle English","English"],
-    clues: ["Its oldest root just means a thicket of woody stems — the same one gives us a florist's arrangement.","It once simply meant to conceal yourself among branches before it meant to strike from hiding.","It shares a source with the fancier word ambuscade, and even with bouquet."],
+    clues: ["This battlefield tactic, which is also a verb, shares its roots with a bride's bouquet: both trace back to an old word for 'wood'.","It means a surprise attack by people lying in wait out of sight, not just any raid. Fittingly, the word first meant hiding yourself in a wood or thicket.","Journalists get accused of this when they spring a gotcha question on an unprepared guest. Its longer, fancier relative is ambuscade."],
   },
   {
     slug: "ammunition",
@@ -644,7 +612,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word entered English already carrying its accidental extra syllable, and that misdivided French form became the standard English word for military supplies, distinct from its parent munition.",
     related: "It shares its Latin root mūnitiōnem with the English word munition, which kept closer to the original French and Latin form without the mistaken article attached.",
     lineage: ["Latin","Middle French","English"],
-    clues: ["Its extra syllable didn't come from meaning — it came from someone mishearing where a French article ended and a noun began.","The French phrase for 'the war supplies' got glued together the wrong way, and English kept the mistake.","It's really just munition with a stray article stuck to its front."],
+    clues: ["This military noun for a kind of supply was born from a slip of the ear, when French speakers misheard the word for 'the' as part of the word itself.","It means the bullets, shells and cartridges that guns fire, not the weapons themselves. That accidental extra syllable stuck and became the standard English word.","In a debate, a damaging fact you hand your opponent is called this. It shares a Latin root with a shorter sibling word that never picked up the mistaken article."],
   },
   {
     slug: "amnesia",
@@ -656,7 +624,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word has stayed close to its root meaning throughout — it names the state of not-remembering, passing from Greek into Latin and then into English largely intact in sense.",
     related: "The facts here don't name a specific English cognate, but the root verb mimnḗskō ('to remember') is worth noting as the word's living core, with the alpha privative simply stripping that meaning away.",
     lineage: ["Ancient Greek","Latin","English"],
-    clues: ["At its heart sits a verb meaning 'to remember' — but a tiny prefix has quietly taken that away.","In Greek, this word meant simply 'forgetfulness.'","It traveled from Greek into modified Latin before settling into English almost unchanged."],
+    clues: ["This condition of the mind takes its name from an ancient Greek verb meaning 'to remember,' with a tiny prefix attached that cancels that meaning out.","It is the loss of memory, often after injury or illness, far beyond everyday forgetfulness: a person may lose whole stretches of their past or even their identity.","A staple of soap operas and spy thrillers, it strikes Jason Bourne, who wakes with no idea who he is. Doctors speak of retrograde and anterograde types."],
   },
   {
     slug: "amok",
@@ -668,7 +636,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word kept its violent, frenzied core as it moved from Malay through Portuguese into English, where it's still used to describe someone acting in a wild, uncontrolled rush.",
     related: "Interestingly, there's a separate, unrelated word spelled the same way in Khmer — អាម៉ុក (ʼaamok) — which simply means \"to steam in banana leaves,\" a reminder that identical spellings don't always share a family tree.",
     lineage: ["Malay","Portuguese","English"],
-    clues: ["A 1516 travel account carried a description of people said to lose all restraint, and English kept the word for it.","It traces back to a Malay term meaning to go on a killing spree.","Portuguese amouco passed the word along from Malay amuk before English picked it up."],
+    clues: ["This adverb describes a way of behaving, and it reached English through accounts of the people of Malaysia and Java.","It means acting in a wild, frenzied, uncontrolled rush, far more violent than merely rowdy. Its Malay ancestor meant to go on a killing spree.","Almost always follows the verb run, as when toddlers run ___ at a party. An unrelated Khmer word spelled the same way means to steam in banana leaves."],
   },
   {
     slug: "ampere",
@@ -680,7 +648,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts available don't describe how the word's usage evolved beyond its origin as a namesake for the physicist.",
     related: "No related or cognate word is supported by the given facts.",
     lineage: ["French","English"],
-    clues: ["A unit of current quietly credits a man who studied the forces flowing through wires.","It's named for a French physicist who died in 1836.","Say his surname, André-Marie ___, and you've nearly said the word."],
+    clues: ["This scientific unit of measurement honors a French physicist who lived from 1775 to 1836, so his memory travels with every reading taken.","It measures how much electric current flows through a wire, not the electrical push behind it like a volt, nor the power used like a watt.","A typical household circuit breaker trips when the current running through it climbs past about 15 or 20 of these units."],
   },
   {
     slug: "ample",
@@ -692,7 +660,7 @@ export const WORDS: WordEntry[] = [
     journey: "Amplus itself may trace back to a fusion of ambi- ('around') and plus, related to plenus ('full') — suggesting something full on every side, before it settled into simply meaning generous or spacious in French and then English.",
     related: "The ambi- element it may contain also shows up in English words like ambient, both pointing to the idea of surrounding or encircling something.",
     lineage: ["Latin","Old French","Middle French","Middle English","English"],
-    clues: ["Its possible root fuses a word for 'around' with one for 'full' — something bursting on every side.","It traces to the Latin amplus, meaning simply 'large.'","It shares a possible ancestor with 'ambient,' both touching on the idea of surrounding fullness."],
+    clues: ["A word for having more than enough, it may hide an ancient idea of being full on every side, filled all the way around.","It describes a supply that is generous, more than merely sufficient, or a space that is roomy with room to spare. Its Latin ancestor simply meant 'large.'","It fills the blanks in '___ time to finish the test' and '___ room for everyone.' The 'around' element it may contain also shows up in ambient."],
   },
   {
     slug: "analogy",
@@ -704,7 +672,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts available don't trace a change in meaning beyond its Greek and Latin form — it entered English through this same Greek-Latin path.",
     related: "It shares its λόγος (lógos) root with other English words built on \"speech\" or \"reckoning,\" though no specific cognate is given in the source facts.",
     lineage: ["Ancient Greek","Latin","English"],
-    clues: ["Its root pieces mean roughly \"according to\" plus \"reckoning\" — a word about matching one accounting to another.","It traces back through Latin to a Greek term meaning proportion, built from a prefix meaning \"according to.\"","The second half of the word comes from lógos, the same root found in words ending in \"-logy.\""],
+    clues: ["This tool of reasoning and explanation began as a mathematical idea: matching one ratio to another, built from Greek pieces meaning 'according to' and 'reckoning.'","It explains something unfamiliar by mapping it onto something familiar, like calling the heart a pump; it's a reasoned, point-by-point likeness, more extended than a simple simile or metaphor.","Writers love to 'draw an' one between two situations, and old school tests posed them as puzzles like 'bird is to nest as bee is to hive.'"],
   },
   {
     slug: "anemia",
@@ -716,7 +684,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word has stayed close to its roots, keeping the sense of 'without blood' as a description of a blood condition.",
     related: "The -emia ending it carries links it to other English blood-condition words built the same way, all tracing back to haîma, the Greek word for blood.",
     lineage: ["Ancient Greek","English"],
-    clues: ["Its name is built from a Greek negation glued to the word for the red stuff running through you.","Strip away the 'not' and you're left with the Greek root for blood itself.","It shares its -emia ending with other blood-condition words, all descended from Greek haîma."],
+    clues: ["This common health condition has a name that has barely changed since ancient Greek, where it already described a lack of something vital to the body.","It means having too few healthy red blood cells or too little hemoglobin, a real medical shortfall rather than ordinary tiredness. Its Greek roots literally mean 'without blood.'","Iron deficiency and sickle cell are well-known types, and its adjective form describes anything feeble, like sluggish sales or a lackluster performance."],
   },
   {
     slug: "anesthesia",
@@ -728,7 +696,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word first appears in English in 1679 simply meaning 'insensibility,' a general lack of feeling. It wasn't until 1846 that it took on its now-familiar sense: the deliberate, medically induced state brought on by an agent.",
     related: "The facts given don't point to a specific English cognate, but the root aísthēsis ('sensation') is the same one buried in the idea of the 'esthetic' half of the word — both trace back to the same Greek notion of sensing or perceiving.",
     lineage: ["Ancient Greek","New Latin","English"],
-    clues: ["This state is named for what it removes, not what it adds — a total blank where perception used to be.","Its Greek root literally means 'without sensation,' built from a prefix for 'not' and a word for 'sensation.'","It shares that sensation-root with words describing the ability to perceive or feel — just with the negative stuck on front."],
+    clues: ["This state of the body once meant any general lack of feeling, and for more than a century and a half in English it had nothing to do with doctors.","Doctors bring it on deliberately with drugs or gases so a patient feels no pain during surgery, a controlled loss of sensation rather than mere numbness or ordinary sleep.","Before an operation you may be offered it in general or local form; its ancient Greek source meant simply 'without sensation.'"],
   },
   {
     slug: "aneurysm",
@@ -740,7 +708,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word stayed close to its roots: it named a widening or dilation in Greek, and it names a widening — of a blood vessel — in English today.",
     related: "Its root eurús, 'wide,' is the same idea baked into the Greek verb aneurúnō, 'to dilate up' or 'widen out,' from which the noun form was built directly.",
     lineage: ["Ancient Greek","English"],
-    clues: ["It comes from a Greek phrase meaning to spread something upward and out.","The root idea is simply 'wide' — something stretched beyond its normal size.","It's related to the Greek verb for 'to dilate,' built from 'up' plus 'wide.'"],
+    clues: ["This dangerous medical condition takes its name from an ancient Greek word that simply meant 'a widening' or 'a dilation.'","It's a weak spot where an artery wall balloons outward. It is not a clot or a blockage, and if it ruptures it can be deadly.","Doctors screen for brain and aortic types, and a furious person might joke they're about to 'have one' over a minor annoyance."],
   },
   {
     slug: "annual",
@@ -752,7 +720,7 @@ export const WORDS: WordEntry[] = [
     journey: "Long used to describe anything tied to a yearly cycle, the word picked up a more specific botanical job by 1710, when it began labeling plants that live out their whole life span in a single year.",
     related: "It shares its root with 'annālis,' the Latin word behind 'annals' — records kept year by year.",
     lineage: ["Latin","Late Latin","English"],
-    clues: ["This word grew from a root meaning the span the earth takes to circle the sun.","Its Latin root, annus, simply means 'year.'","Gardeners started using this word in 1710 for plants that live just one year — it shares a root with 'annals.'"],
+    clues: ["This adjective about how often something happens picked up a gardening job in the early 1700s, when it began labeling certain plants by how long they live.","A slightly more formal word than yearly, it describes something that comes around once every year, like a company's report, a family reunion, or a checkup.","Gardeners contrast these plants with perennials, which return season after season, and its Latin root also gives us annals, records kept year by year."],
   },
   {
     slug: "anthem",
@@ -764,7 +732,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts given don't trace a specific shift in meaning, only the chain of borrowing from Greek through Latin, Old French, and Old English into Middle English.",
     related: "It's a doublet of antiphon, meaning the two words descend from the same Latin and Greek source but arrived in English by different routes.",
     lineage: ["Ancient Greek","Latin","Old French","Old English","Middle English","English"],
-    clues: ["Its root idea is two voices calling and answering, sound set against sound.","It traces back to a Greek word built from \"over against\" plus \"voice.\"","It shares its deepest roots with the word \"antiphon,\" though they took different paths into English."],
+    clues: ["This kind of song traces back to an ancient Greek term built from words meaning 'over against' and 'voice, sound.'","Less purely religious than a hymn, it is a stirring song of pride or loyalty that unites a group. It started out meaning voices answering each other across a church.","Crowds rise for the national one before a big game, and it shares its ancient source with 'antiphon,' which reached English by a different route."],
   },
   {
     slug: "antibiotic",
@@ -776,7 +744,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts at hand don't show a shift in meaning beyond this straightforward borrowing from French into English.",
     related: "The -biotic piece links it in spirit to other -biotic words, though no specific cognate is given in the record beyond that shared ending.",
     lineage: ["French","English"],
-    clues: ["This word is stitched from two pieces: one meaning 'against,' the other meaning 'of life.'","It crossed into English from French, where it already carried the sense of 'against life.'","Break it apart and you get anti- plus -biotic — a name for something opposed to living things, in this case, the small ones that make us sick."],
+    clues: ["This class of medicine came into English from French, and its name, piece by piece, literally means 'against life'.","A drug, such as penicillin, that kills or halts bacteria inside the body. Unlike an antiseptic wiped on skin, it is swallowed or injected, and it is useless against cold viruses.","Doctors tell you to finish the whole course for strep throat, and they warn that overprescribing these drugs breeds resistant superbugs."],
   },
   {
     slug: "anxiety",
@@ -788,7 +756,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word entered English as a direct borrowing from Latin ānxietās, carrying forward the sense of distress already built into ānxius — no major shift in meaning is recorded beyond that inheritance.",
     related: "It shares roots with anxious, formed from the same Latin base plus the suffix -ety, and is also connected to anger and angst, all tracing back to that same idea of choking distress.",
     lineage: ["Ancient Greek","Latin","English"],
-    clues: ["Its deepest root describes a throat closing — the physical squeeze behind an emotional one.","The Latin ancestor meant being troubled or distressed, and gave English a familiar adjective ending in -ious.","It's kin to angst and anger, all descended from a Latin verb meaning to trouble or distress."],
+    clues: ["This uneasy emotion comes from a Latin verb meaning 'to distress,' which is linked to an Ancient Greek verb meaning 'to choke.'","It is a lingering, nervous unease about what might go wrong, vaguer and longer-lasting than a passing worry, and unlike fear, not tied to a clear present danger.","Doctors diagnose it alongside depression, as in 'social ___ disorder,' and it is related to anger and angst, all tracing back to that idea of choking distress."],
   },
   {
     slug: "aorta",
@@ -800,7 +768,7 @@ export const WORDS: WordEntry[] = [
     journey: "The Greek term was borrowed directly into English to name this specific vessel, keeping its anatomical sense intact rather than shifting meaning over time.",
     related: "Its root ἀείρω (aeírō, \"to lift, raise\") ties the word's origin to an act of raising or hoisting, though the facts here don't point to a surviving English cognate from that root.",
     lineage: ["Ancient Greek","English"],
-    clues: ["Its name traces to a verb meaning simply \"to lift or raise\" — nothing to do with blood at all, originally.","The Greek word it comes from once described the arteries branching straight out of the heart.","The lengthened Greek form aortéō, built on aeírō, gave English its word for the body's main artery."],
+    clues: ["This blood vessel's name traces back to an ancient Greek verb meaning to lift or raise, an image of hoisting rather than flowing.","It is the body's largest artery, the main trunk rather than a branch, carrying oxygen-rich blood out of the heart's left ventricle. In Greek its name covered the arteries springing from the heart.","It arches over the top of the heart, then runs down through the chest and belly, and doctors watch it closely for dangerous bulges called aneurysms."],
   },
   {
     slug: "ape",
@@ -812,7 +780,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word has stayed remarkably close to its original meaning, always pointing to monkeys or apes across centuries of Germanic languages. Its only real leap in English is modern: \"ape\" as slang for going wild is simply a clipping of \"apeshit.\"",
     related: "It shares a root with German Affe, Dutch aap, Swedish apa, and Icelandic api — all Germanic cousins pointing to the same furry origin.",
     lineage: ["Proto-Indo-European","Proto-Germanic","Proto-West Germanic","Old English","Middle English","English"],
-    clues: ["Some think this creature's name once belonged to a spirit living in rivers.","Its oldest known meaning names a monkey, and no one agrees on where the word was born.","German speakers call the same animal Affe — a close cousin of this word."],
+    clues: ["This animal name is so old that some scholars tie it to an ancient root meaning \"water,\" as if it once named a water sprite.","A large tailless primate such as a gorilla, chimpanzee or orangutan, distinct from a tailed monkey. Traditionally seen as an ancient loan from an African or Asian language.","As a verb it means to mimic someone clumsily, and to \"go\" this means to lose your cool wildly. Its Dutch cousin is aap, its German cousin Affe."],
   },
   {
     slug: "apocalypse",
@@ -824,7 +792,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word originally meant simply a revelation or uncovering of hidden things. It came to mean catastrophe or the end of the world through its association with the biblical Book of Revelation, also known as the Apocalypse of John.",
     related: "The verb form comes from the noun, and in its 'reveal' sense is a semantic loan from the same Greek verb, ἀποκαλύπτω, that gave us the noun in the first place.",
     lineage: ["Proto-Indo-European","Proto-Hellenic","Ancient Greek","Latin","Middle English","English"],
-    clues: ["Its root sense involves taking something away from a covering, letting what was hidden show.","It comes from a Greek word literally meaning 'uncovering' or 'revelation.'","It's tied to the Book of Revelation, once called by its Greek name for that very act of uncovering."],
+    clues: ["This noun for a dramatic, final kind of event once meant simply a revelation, built from ancient Greek words meaning 'away from' and 'to cover.'","Today it means the end of the world, or a catastrophe so total it feels like one, far beyond an ordinary disaster. Think survivors scavenging ruined cities in films.","It completes 'Four Horsemen of the ___' and 'zombie ___', and it is another name for the Bible's Book of Revelation, the source of its doomsday sense."],
   },
   {
     slug: "appease",
@@ -836,7 +804,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word entered English already carrying its core sense of soothing or pacifying, inherited directly from the Old French verb.",
     related: "The facts don't establish a specific related English word, but the Old French root apeser points plainly toward \"peace\" as the idea underneath it.",
     lineage: ["Old French","Middle English","English"],
-    clues: ["This word traces back to a French verb meaning to settle something into a state of calm.","Its Middle English ancestor, apesen, meant to pacify or bring to peace.","The Old French root apeser is built around the very idea of \"peace.\""],
+    clues: ["This verb for dealing with someone's anger or demands traces back to an Old French word meaning to pacify, and it arrived in English already meaning to soothe.","It means calming someone by giving them what they want, more of a concession than simply soothing them. Critics use it for leaders who yield to aggressors to avoid conflict.","Ancient people did it to angry gods with offerings, and you can do it to your hunger with a snack. At its root, it means bringing someone peace."],
   },
   {
     slug: "apple",
@@ -848,7 +816,7 @@ export const WORDS: WordEntry[] = [
     journey: "In Old English, æppel meant not just the fruit we know but 'any type of fruit' generally, and even figuratively an eyeball or sphere. The forbidden fruit in Eden isn't actually named in Genesis — it likely became linked to the apple because Latin mālum (apple) resembled malum (evil).",
     related: "It's cognate with German Apfel, Dutch appel, Swedish äpple, and Old Norse epli — all descending from the same Germanic root, showing how widely this word spread across northern Europe.",
     lineage: ["Proto-Indo-European","Proto-Germanic","Proto-West Germanic","Old English","Middle English","English"],
-    clues: ["Long ago, this word could mean almost any fruit — or even the round orb of an eye.","Its ties to sin come from a pun: a Latin word for this fruit sounded just like the Latin word for evil.","German speakers still call it Apfel, and Swedes say äpple — cousins of the very word you're guessing."],
+    clues: ["This orchard fruit has a name that, in Old English, could mean any fruit at all, and figuratively even an eyeball or a sphere.","Crisp and round with red, green or yellow skin, it lacks the pear's tapered neck and is the classic fruit for pies, cider and teachers' desks.","Genesis never names Eden's forbidden fruit; it likely became this one because Latin words for it and for evil looked alike. One a day keeps the doctor away."],
   },
   {
     slug: "arena",
@@ -860,7 +828,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word started as a plain word for sand, then narrowed in Latin to name the sand-covered floor of an amphitheater where contests were staged — and eventually the word came to stand for the whole space of contest itself.",
     related: "The facts note a possible Sabine cognate, fasēna, showing that ancient Italic languages had their own parallel word for the same gritty ground.",
     lineage: ["Etruscan","Old Latin","Latin","English"],
-    clues: ["It once simply named the loose, gritty ground people stood on, before it named the ground beneath a spectacle.","Its Latin ancestor meant \"sand\" — the very stuff scattered across the floor of ancient contests.","Compare Sabine fasēna, a cousin word for the same sandy ground that gave us this term."],
+    clues: ["This kind of venue for crowds takes its name from a Latin word that simply meant sand, the gritty ground underfoot.","An enclosed space with tiered seats around a central floor for sports, concerts or shows, usually roofed and smaller than a stadium. In Latin it named an amphitheater's sand-covered floor.","It also means any field of fierce competition, as when a newcomer steps into the political one. Hockey and basketball teams often play their home games in one downtown."],
   },
   {
     slug: "argon",
@@ -872,7 +840,7 @@ export const WORDS: WordEntry[] = [
     journey: "It began as a Greek description of laziness or inactivity, then was repurposed in the 19th century to name a newly discovered element known for refusing to react with anything else.",
     related: "Its '-on' ending links it to 'carbon,' which supplied the suffix later used for naming all the noble gases, including argon itself.",
     lineage: ["Proto-Indo-European","Proto-Hellenic","Ancient Greek","English"],
-    clues: ["Its name literally means 'without work' — a nod to a job it never does.","The Greek root means 'idle' or 'lazy,' describing a gas that reacts with nothing.","It shares its ending with 'carbon,' the word that set the pattern for naming noble gases."],
+    clues: ["This chemical element was named after an ancient Greek word for 'idle' or 'lazy,' because it refuses to react with anything else.","A colorless noble gas making up about one percent of air, far more than helium or neon. It fills old-style light bulbs and shields welding from oxygen.","Element 18, it fills many double-pane windows for insulation. Its name's ending was borrowed from carbon, like those of its noble gas siblings neon and krypton."],
   },
   {
     slug: "arid",
@@ -884,7 +852,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began as a description of the state of being dry (āreō) and, with the addition of a Latin adjective-forming suffix, hardened into āridus, a word for something parched — a form that passed through French largely unchanged into English.",
     related: "It's akin to Latin ārdeō, 'to be on fire, to burn' — so the word for dryness and the word for burning likely share a deep root, dryness and fire being close cousins in meaning.",
     lineage: ["Proto-Indo-European","Proto-Italic","Latin","French","English"],
-    clues: ["Its distant root simply named the state of lacking moisture.","It comes from a Latin verb meaning 'to be dry' or 'parched.'","It's a cousin of Latin ārdeō, the root behind words for burning — dryness and fire, linked at the source."],
+    clues: ["This adjective for a kind of landscape or climate probably shares an ancient root with a Latin verb meaning 'to burn,' since dryness and fire are close cousins.","It describes land or climate with so little rain that hardly anything grows: a lasting, harsher condition than merely dry weather. Its Latin parent meant 'parched.'","Deserts like the Sahara are the classic example, and figuratively it can describe a dull, lifeless lecture or a painfully dry piece of writing."],
   },
   {
     slug: "aristocracy",
@@ -896,7 +864,7 @@ export const WORDS: WordEntry[] = [
     journey: "The Greek term literally meant 'the rule of the best,' which in practice came to mean 'the best-born' — rule by nobility rather than by merit alone.",
     related: "It shares its second half with other -cracy words, all built on Greek krátos, meaning power or rule.",
     lineage: ["Ancient Greek","Medieval Latin","Middle French","English"],
-    clues: ["This word names a system where power was said to belong to whoever was born into the right family.","Its Greek roots literally translate to 'rule of the best.'","It ends with the same '-kratíā' root found in words like 'democracy,' both tracing back to Greek krátos, meaning power."],
+    clues: ["This noun for a privileged social group goes back to Greek words for 'best' and 'power,' so it first described government by the most excellent citizens.","It means a hereditary upper class of titled families, like dukes and countesses, set apart by birth rather than mere wealth. In practice, 'the best' came to mean the best-born.","It ends like democracy and bureaucracy, all built on a Greek word for rule. The French Revolution sent many of its powdered-wig members to the guillotine."],
   },
   {
     slug: "armada",
@@ -908,7 +876,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word simply passed from Spanish into English carrying its meaning of a fleet or navy intact, with no major shift recorded.",
     related: "It's a doublet of army — both words trace back to the same Latin root armō, meaning \"to arm,\" just filtered through different paths into English.",
     lineage: ["Latin","Medieval Latin","Spanish","English"],
-    clues: ["This word grew out of a past-tense form describing something that had been outfitted with weapons.","In Spanish, this word simply means \"fleet\" or \"navy.\"","It shares a Latin ancestor with the English word army."],
+    clues: ["This noun for a large, imposing group comes from a Latin verb meaning to equip someone with weapons.","Today it names a huge fleet of warships, far grander and more menacing than an ordinary fleet, and English took it straight from the Spanish word for a navy.","Its sibling word is army, born from the same Latin root. People also use it loosely for any vast advancing crowd, such as a whole sea of drones or fishing boats."],
   },
   {
     slug: "armistice",
@@ -920,7 +888,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts given don't trace a shift in meaning over time — the word has carried the sense of halted weapons since its Late Latin formation.",
     related: "It shares its root with French armistice, Italian armistizio, Portuguese armistício, and Spanish armisticio, all built from the same Latin components.",
     lineage: ["Latin","Late Latin","English"],
-    clues: ["It's built from a word for weapons plus a word meaning 'to stand still.'","Its Latin root sistere means 'to halt' — the arms simply stop moving.","French, Italian, Portuguese, and Spanish all have near-identical cousins of this word."],
+    clues: ["This kind of formal agreement between nations takes its name from Latin words for weapons and for making something stand still.","It is an agreement by warring sides to stop fighting, more formal than a brief ceasefire or truce but not yet a full peace treaty.","Many countries mark November 11 as the Day named for this, recalling the end of fighting in 1918. Spanish speakers call it armisticio."],
   },
   {
     slug: "armor",
@@ -932,7 +900,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began with a root about fitting things together, passed into Latin as arma ('equipment' or 'tools'), then became armātūra, and moved through French forms like armeüre before settling into English as armor.",
     related: "Armor is a doublet of armature and armure, since both descend from the same Latin word, armātūra, by different paths into English.",
     lineage: ["Proto-Indo-European","Proto-Italic","Latin","Old French","Anglo-Norman","Middle English","English"],
-    clues: ["Its deepest root points to something joined or fitted together, not to battle at all.","The Latin word behind it, arma, simply meant tools or equipment.","It shares a Latin ancestor with the English words armature and armure."],
+    clues: ["This kind of protective gear traces back to an ancient root meaning something like a fitting or joint, the kind of thing that holds a body together.","It is the full covering of metal plates or mail that knights wore into battle, far more complete than a shield. Its Latin ancestor meant equipment or tools.","Picture a knight in shining ___, or the heavy plating on a tank. The sculptor's word armature descends from the same Latin source."],
   },
   {
     slug: "arraign",
@@ -944,7 +912,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word entered English as a term for formally accusing someone in a legal setting, staying close to its Old French sense of 'to speak to, to accuse.' By the 16th century, English speakers had added a 'g' into the spelling by hypercorrection, though the word's meaning stayed rooted in law.",
     related: "It's a doublet of areason, meaning the two words trace back to the same Latin root but arrived in English by separate paths.",
     lineage: ["Latin","Old French","Anglo-Norman","Middle English","English"],
-    clues: ["At its root sits a Latin word for reckoning or reasoning, dressed up with a simple 'toward' prefix.","It once simply meant 'to speak to' or 'to accuse' in a French-derived legal sense before English got hold of it.","Its silent extra letter, added in the 1500s by mistake, makes it a spelling cousin — sort of — of its doublet, 'areason.'"],
+    clues: ["This legal verb picked up a silent letter by mistake in the 1500s, when writers 'corrected' a spelling that never needed it. Its Old French ancestor meant to speak to or accuse someone in court.","It's not the same as indict: it's the courtroom step where a defendant stands before a judge, hears the formal charges read aloud, and enters a plea.","News reports say a suspect 'will be ___ed on Monday.' Figuratively, it also means to condemn harshly, as when a columnist ___s a government's handling of a crisis."],
   },
   {
     slug: "arsenic",
@@ -956,7 +924,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began as a term for gold or golden things in Old Median and Iranian languages, then narrowed in Greek to name the yellow mineral 'yellow arsenic,' with its sound reshaped by an unrelated Greek word for potency. From Greek it passed through Latin and French into English essentially unchanged in meaning, naming the element and its poison.",
     related: "It shares its deep root with the English word 'yellow,' both descending from the same Proto-Indo-European root meaning 'yellow' or 'gold.'",
     lineage: ["Old Median","Middle Iranian","Aramaic","Ancient Greek","Latin","Middle French","Middle English","English"],
-    clues: ["Its ancient root once simply meant 'golden,' long before it named anything poisonous.","The Greek word for it was reshaped by a similar-sounding word meaning 'potent' or 'virile.'","It's a distant cousin of the English word 'yellow,' both from a root meaning 'gold' or 'yellow.'"],
+    clues: ["This deadly poison has a name that traces back to ancient Iranian words meaning 'golden.'","A chemical element and the classic poison of Victorian murder mysteries, not the almond-scented cyanide. In Greek, its name was reshaped by a similar-sounding word meaning 'potent, virile.'","It completes the title of the classic comedy '___ and Old Lace,' and it shares an ancient root with the English word 'yellow.'"],
   },
   {
     slug: "artichoke",
@@ -968,7 +936,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word passed from Arabic through Andalusian Arabic into Old Spanish, then Occitan, then Lombard, before finally settling into English — each language reshaping its sound along the way.",
     related: "The facts given don't support tracing this word to any other English cognate.",
     lineage: ["Arabic","Andalusian Arabic","Old Spanish","Occitan","Lombard","English"],
-    clues: ["This name for a spiky, edible flower bud made a five-language relay race before reaching English speakers.","Its Arabic ancestor, al-ḵuršūf, passed through Spanish and Occitan hands before an Italian dialect gave it the shape we recognize.","Lombard articioch is the direct source of this English word for a vegetable with a heart worth digging for."],
+    clues: ["This garden vegetable's name began in Arabic and was reshaped by four more languages on its way to English.","It is the cultivated flower bud of a thistle, eaten leaf by leaf by scraping the tender bases with your teeth, saving the meaty heart for last.","Its hearts are sold marinated in jars, and it joins spinach in a warm, creamy, cheesy dip at parties."],
   },
   {
     slug: "artillery",
@@ -980,7 +948,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word started out covering any gear used to arrange or equip oneself for war, especially armor, before narrowing to describe the engines and weapons of battle themselves.",
     related: "It shares a root with Latin aptō, 'to make capable' — the same idea behind English 'apt,' something suited or fitted to a purpose.",
     lineage: ["Latin","Old French","Middle English","English"],
-    clues: ["Its distant root simply meant making something fit for a job.","The French word behind it once meant any gear used to dress a soldier in armor.","It's a cousin of the word 'apt' — both trace back to that same idea of being made capable."],
+    clues: ["This military noun once covered any gear for kitting yourself out for war, especially armor, before it came to mean battle engines like crossbows and lances.","Today it means heavy guns such as howitzers and mortars that hurl shells over long distances, the whole class rather than a single cannon, or the army branch using them.","When a debater saves her strongest arguments for last, people say she is bringing out the heavy kind of this. It shares an ancient root with 'apt.'"],
   },
   {
     slug: "asparagus",
@@ -992,7 +960,7 @@ export const WORDS: WordEntry[] = [
     journey: "The borrowed Latin/Greek term eventually displaced the native Old English word for the plant, eorþnafola. In some English dialects, speakers later reshaped the unfamiliar word into 'sparrowgrass,' an eggcorn that made it sound like something more familiar.",
     related: "The facts don't point to any surviving English cognate beyond the word itself and its dialectal reshaping into 'sparrowgrass.'",
     lineage: ["Ancient Greek","Latin","English"],
-    clues: ["Its old English-born name has vanished, pushed aside by a word borrowed from far away.","In some dialects, ordinary speakers misheard it and reshaped it into something involving a small bird.","That folk version, 'sparrowgrass,' still echoes in old country speech."],
+    clues: ["This spring vegetable once had a homegrown Old English name meaning something like 'earth navel,' until a borrowed Greek word pushed it aside.","Its slender green spears with tight, scaly tips are sold in upright bundles, snapped at the woody end, then steamed or roasted; they are stalks, not pods like green beans.","Some English dialects reshaped its unfamiliar name into 'sparrowgrass,' and eating it famously gives urine a distinctive smell soon afterward."],
   },
   {
     slug: "aspirin",
@@ -1004,7 +972,7 @@ export const WORDS: WordEntry[] = [
     journey: "Once a protected German trade name, it became generic in everyday English after various German trademarks were nullified in the United States following World War I.",
     related: "Heroin followed the same path — another German trademark that lost its legal protection in the U.S. after the war and slipped into ordinary use.",
     lineage: ["German","English"],
-    clues: ["Its name once belonged to one company alone, until a postwar ruling let the word loose for everyone to use.","The name is a shortened nod to an acid found in a flowering plant, dressed up with a chemical process called acetylation.","It shares its trademark fate with heroin — both were German brand names stripped of protection after World War I."],
+    clues: ["This everyday medicine began life as a protected German trade name, and it only became an ordinary English word after World War I stripped that protection away in the United States.","A white tablet taken for headaches, fever and inflammation, and in a small daily dose to help prevent heart attacks; unlike ibuprofen or paracetamol, it thins the blood.","The classic doctor's advice: \"Take two of these and call me in the morning.\" Heroin is its sibling, another German trademark that slipped into ordinary use after the war."],
   },
   {
     slug: "assault",
@@ -1016,7 +984,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word entered English through French as assaut, without the 'l' we now use. Around 1530, English spelling was adjusted to reflect the Latin original more directly, adding the 'l' and giving us the modern form.",
     related: "It's closely related to assail, which comes from the same Old French verb assalir.",
     lineage: ["Latin","Old French","Middle English","English"],
-    clues: ["Underneath it all is the image of someone jumping toward you — not gently.","It comes from a word meaning 'to jump at' — the sense of sudden, forceful approach.","Its close cousin, meaning much the same thing, is 'assail' — both trace back to the same Old French verb."],
+    clues: ["This word for a violent act, used as both noun and verb, traces back to Latin words meaning 'toward' and 'jump,' so at heart it is a leap at someone.","It means a sudden, forceful attack on a person or a stronghold, more serious than a scuffle, and in law it names a specific crime against a person.","A close cousin of assail, it completes the legal phrase '___ and battery,' and a blaring, garish spectacle can be called an ___ on the senses."],
   },
   {
     slug: "assume",
@@ -1028,7 +996,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word has carried the sense of taking something up or onto oneself since its Latin root, whether that's a belief, a role, or a responsibility.",
     related: "The facts here don't name any other English cognates from sūmō, so no further family connections can be drawn.",
     lineage: ["Latin","English"],
-    clues: ["It's built from a piece meaning \"toward\" fused onto a piece meaning \"take up.\"","Its Latin ancestor meant simply \"to accept\" or \"to take.\"","Strip the ad- prefix and you're left with sūmō, the same root buried inside this everyday verb."],
+    clues: ["This everyday verb about thinking and taking on comes from a Latin word meaning \"accept, take,\" and at heart it still means taking something onto yourself.","It means to take something as true without proof or checking. It is less tentative than merely guessing, and people warn that doing it makes fools of everyone.","Its other sense is taking up a role or duty: a new leader does this to office, a spy to a false identity, and a manager to responsibility."],
   },
   {
     slug: "athlete",
@@ -1040,7 +1008,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word passed from Greek into Latin, then into Middle French and Middle English, keeping its core sense of a competitor throughout.",
     related: "The facts given don't name any English cognates, so none can be claimed here.",
     lineage: ["Ancient Greek","Latin","Middle French","Middle English","English"],
-    clues: ["At its root sits a prize or a contest — the thing worth striving for, not the strider.","In Greek, the word simply meant someone who competes for a prize.","It reached English by way of Latin āthlēta, after a possible detour through Middle French."],
+    clues: ["This word for a certain kind of person traces back to an ancient Greek word that simply meant 'prize'.","Today it names someone trained to excel at sports or physical exercise. It is broader than 'player', covering runners, swimmers and gymnasts alike, and once meant one who competes for a prize.","Colleges recruit 'student' ones on scholarship, and the itchy foot fungus that spreads in locker rooms is named after them."],
   },
   {
     slug: "atoll",
@@ -1052,7 +1020,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word traveled from the Maldivian islands themselves into Portuguese sailors' vocabulary, then into English, keeping its meaning as a ring-shaped coral reef throughout.",
     related: "If the Sanskrit root holds, \"atoll\" is distantly tied to tīrtha, \"ford\" — a word about crossing calm, level water, fittingly echoed in the lagoon an atoll encircles.",
     lineage: ["Sanskrit","Prakrit","Dhivehi","Portuguese","English"],
-    clues: ["Its name may hark back to an old word for a calm, level crossing over water.","The Maldives gave English this word for a ring of coral, by way of Portuguese sailors.","Some trace it to Sanskrit tīrtha, \"ford,\" though a rival theory involving Persian for \"water-hillock\" turned out to be a dead end."],
+    clues: ["This ocean landform got its English name from the people of the Maldives, whose word for it was picked up by Portuguese sailors.","It is a ring-shaped coral reef or chain of islets enclosing a calm lagoon, rather than one solid island or a straight barrier reef.","Bikini in the Pacific is a famous example, and its name may trace back to an ancient Sanskrit phrase meaning 'level ford.'"],
   },
   {
     slug: "attire",
@@ -1064,7 +1032,7 @@ export const WORDS: WordEntry[] = [
     journey: "What started as a verb meaning to equip or arrange became, over time, the noun for the clothing itself — the outcome of being put in order.",
     related: "The old sense of \"tire\" as rank is akin to German Zier (\"ornament\") and Old Norse tírr (\"glory, renown\"), suggesting a shared root idea of standing out or being adorned.",
     lineage: ["Old French","Middle English","English"],
-    clues: ["Its ancestor described putting things into proper rank or order, not just covering the body.","The word once lived only as a verb — to equip or array someone.","Its French root, tire, is a cousin of German Zier, meaning ornament."],
+    clues: ["This noun for clothing comes from an old French verb meaning \"to equip,\" built on a word for rank or order.","A formal, slightly dressy word for what someone is wearing, more polished than plain \"clothes\" or \"outfit.\" It began as a verb for arranging and became the result itself.","Invitations may request \"formal ___\" and offices expect \"business ___.\" Its old root is akin to German Zier, \"ornament,\" and Old Norse words for glory."],
   },
   {
     slug: "attitude",
@@ -1076,7 +1044,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts given don't trace a detailed shift in meaning, only the chain of borrowing from Latin through Medieval Latin, Italian, and French into English.",
     related: "Attitude is a doublet of aptitude — the two words descend from the same Medieval Latin source, aptitūdō, but arrived in English by different paths.",
     lineage: ["Latin","Medieval Latin","Italian","French","English"],
-    clues: ["It once meant nothing more than being fit or suited for something.","In Italian it was 'attitudine,' a word about fitness and aptness.","It's a doublet of 'aptitude' — same Latin ancestor, two different roads into English."],
+    clues: ["This noun about a person's inner stance began with fitness, not feelings: it comes from an Italian word meaning aptness or being well suited.","It's your settled way of thinking or feeling about something, shown in how you act. It runs deeper than a passing mood, and a coach might praise a positive one.","Sulky teenagers get accused of having one, and ballet dancers strike one as a pose. It shares its Medieval Latin source with aptitude, which reached English by another path."],
   },
   {
     slug: "audacious",
@@ -1088,7 +1056,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts don't show a shift in meaning over time — the word has stayed tied to its root sense of boldness from audeo through audax and audacia into English.",
     related: "It shares its root audeo with audax, the Latin word for \"bold\" that gave audacious its backbone.",
     lineage: ["Latin","English"],
-    clues: ["It traces back to a Latin verb meaning to dare, to risk being bold.","The Latin noun behind it, audacia, literally means \"boldness.\"","Its closest ancestor is audax, Latin for \"bold\" — the seed of this daring English word."],
+    clues: ["This adjective for a striking kind of behavior goes back to a Latin verb meaning 'to dare,' and it still carries that same daring sense today.","It describes a plan, act, or person showing shocking boldness, often with a reckless or cheeky disregard for risk or rules; more brazen and startling than merely brave.","You might use it for a daring heist pulled off in broad daylight; its backbone came from audax, the Latin word for 'bold.'"],
   },
   {
     slug: "augur",
@@ -1100,7 +1068,7 @@ export const WORDS: WordEntry[] = [
     journey: "Beyond its Latin roots, the facts here don't tell us how its use shifted over time, so we'll leave that honestly unsaid.",
     related: "It's closely tied to the Latin augurō, \"to interpret omens,\" which shares its root — but no further English cognates are confirmed here.",
     lineage: ["Latin","English"],
-    clues: ["In ancient Rome, certain officials studied the sky and the behavior of birds to sense what was coming.","This word means to predict or foreshadow, especially by reading signs.","It shares a root with a Latin verb meaning \"to interpret omens.\""],
+    clues: ["This verb about the future comes from a Latin word whose origin even scholars find uncertain, tied to ancient officials who once read the sky for signs.","It means to signal what is coming, usually said of events or signs rather than seers: less like 'predict' and more like hinting at a good or bad outcome ahead.","Its Latin relative meant 'to interpret omens,' and today we might say a strong first week can ___ well for the whole season."],
   },
   {
     slug: "autocracy",
@@ -1112,7 +1080,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word has kept its core sense intact from Greek onward: rule by a single self-holding power, rather than a shared or distributed one.",
     related: "It's closely tied to Ancient Greek αὐτοκρατής (autokratḗs), \"one who governs alone\" — the personal counterpart to this abstract noun of rule.",
     lineage: ["Ancient Greek","English"],
-    clues: ["Its root pairs a word for 'self, alone' with a word for 'power.'","It names a system where one person holds all the control.","It shares a root with autokratḗs, Greek for 'one who governs alone.'"],
+    clues: ["This form of government has kept the same core sense since ancient Greek times, built partly from an ancient root meaning 'self, alone.'","It is rule by one person holding absolute, unchecked power. It is broader than dictatorship, which suggests seized control, and unlike monarchy it needn't involve a crown.","Often set against democracy, it describes the tsars' rule in imperial Russia. A related ancient Greek word meant 'one who governs alone.'"],
   },
   {
     slug: "avatar",
@@ -1124,7 +1092,7 @@ export const WORDS: WordEntry[] = [
     journey: "Originally a term for a deity's descent into earthly form, the word later crossed into computing, describing a digital body representing a person — a sense first seen in 1980s video games like Habitat and Ultima IV, and later spread by Neal Stephenson's 1992 novel Snow Crash.",
     related: "It shares its root tṝ (\"to cross\") with Sanskrit tāra, showing the same idea of crossing over embedded in the word's Sanskrit ancestry.",
     lineage: ["Proto-Indo-European","Proto-Indo-Iranian","Sanskrit","Hindustani","English"],
-    clues: ["Its ancient root describes something crossing downward, from a realm above into ours.","In Sanskrit, it named a deity's descent from heaven to earth.","Long before you picked a profile picture, this word described gods like Vishnu taking on earthly form — related to Sanskrit tāra, from the same root meaning \"to cross.\""],
+    clues: ["A kind of stand-in or embodiment, it began in Sanskrit as the word for a god descending from heaven to take an earthly form.","Today it's the character or picture representing you in a video game or online forum, a digital body rather than just a username. Neal Stephenson's novel Snow Crash helped spread it.","James Cameron named his blockbuster about the blue-skinned Na'vi of Pandora after it, and Hindus use it for Krishna as an earthly form of Vishnu."],
   },
   {
     slug: "azure",
@@ -1136,7 +1104,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word passed from a place name for a mineral source into a word for the stone itself, then into French and English as a name for its deep blue color.",
     related: "The Old French azur lost its initial 'l' along the way, as speakers mistook it for the French article l' — a small mishearing that reshaped the word. Italian azzurro and Spanish azul are cousins that kept closer to the original sound.",
     lineage: ["Persian","Arabic","Old French","Middle English","English"],
-    clues: ["Its name once pointed to a mining region tucked into the mountains of Badakhshan.","The word for this color began as the name of a prized blue stone, lapis lazuli.","French speakers mistook its first letter for their own word 'the,' and dropped it — much like the Spanish azul or Italian azzurro."],
+    clues: ["This color word started life as the name of a mountain region in Afghanistan, where a prized stone was mined.","It names the bright, clear blue of a cloudless sky, a more poetic word than plain blue. Its Arabic ancestor meant lapis lazuli, the deep blue stone.","Its Spanish cousin is azul, and the French Riviera's name, Côte d'Azur, celebrates this same Mediterranean blue."],
   },
   {
     slug: "baboon",
@@ -1148,7 +1116,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word traces back to an imitative base *bab-, echoing the reduplicated syllable 'ba' of early infant babble and the lip movements of speech — a sound rooted in faces and mouths long before it settled on this particular grimacing animal.",
     related: "The same imitative root *bab- lies behind English babble, babe, and baby — all words born from the instinctive 'ba' sounds of infants.",
     lineage: ["Old French","Middle English","English"],
-    clues: ["Its name may echo the puckered, mouthy expression it was imagined to make.","The Old French root behind it meant 'grimace' or 'muzzle.'","It shares a babbling root with words like babe and baby."],
+    clues: ["This primate's name may come from the wrinkled, grimacing face it was thought to wear, from an old French word meaning 'grimace' or 'muzzle'.","A large African monkey with a long, doglike muzzle that lives in big troops on the savanna, lacking the vivid red and blue face of its cousin the mandrill.","People also use it as an insult for a loud, boorish person. Its name shares an ancient imitative root with babble and baby, echoing infants' 'ba' sounds."],
   },
   {
     slug: "badger",
@@ -1160,7 +1128,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word simply moved in to replace brock, the older Old English name for the animal, once the badge-based nickname caught on in Middle English.",
     related: "Its root badge ties it directly to the everyday word for an identifying emblem or pin — the animal was, in effect, nicknamed for its markings.",
     lineage: ["Old English","Middle English","English"],
-    clues: ["An old English creature was once known by a completely different name, before people started noticing what was on its face.","The word for this animal literally means something like 'marked by an emblem,' from a term for a badge.","It shares a root with the everyday word badge — think of it as the original badge-wearer."],
+    clues: ["This nocturnal woodland mammal took over from an older English name, brock, which had served the animal since Old English times.","A stocky, short-legged burrower with a black-and-white striped face, it digs underground tunnels and, unlike a skunk, is known for fierce digging rather than spraying.","As a verb it means to pester someone relentlessly, and the animal was nicknamed for a badge: the white blaze on its face."],
   },
   {
     slug: "baguette",
@@ -1172,7 +1140,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began as a general term for a small stick or rod in Latin and its descendants, and only in French did it come to name the long, slender loaf of bread we know today.",
     related: "The facts given don't point to another English cognate beyond the chain through Italian and Latin baculum.",
     lineage: ["Latin","Italian","French","English"],
-    clues: ["Its ancestors all describe something thin, straight, and rigid — long before anyone baked with it.","In French, the word simply means \"stick.\"","It passed through Italian bacchetta on its way from Latin baculum to French, and finally into English."],
+    clues: ["This bakery staple carries a name that traces back to a Latin word for a staff or walking stick, a long way from anything you would eat.","It is a long, slender loaf with a crackly golden crust and airy inside, far longer than a dinner roll. In Italian, its ancestor simply meant a small stick.","Picture a Parisian strolling home with one tucked under an arm. Jewelers also use the same name for a slim, rectangular cut of gemstone."],
   },
   {
     slug: "balcony",
@@ -1184,7 +1152,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word started as a plain structural term for a beam or support, then narrowed to describe a scaffold-like platform, before settling into the Italian sense of a floor-length window or the projecting platform we know today.",
     related: "It's akin to Old High German balco and Old English balca, both meaning 'beam' or 'ridge' — and it shares its root with the English word 'balk,' which comes from that same Germanic beam-word.",
     lineage: ["Proto-Germanic","Frankish","Medieval Latin","Italian","English"],
-    clues: ["Its deepest root simply meant a sturdy prop or beam — nothing about height or views.","In Old Italian, the word first named a kind of scaffold before it ever meant a place to stand and look out.","It's a distant cousin of the English word 'balk,' both descending from a Germanic word for 'beam.'"],
+    clues: ["This part of a building began with an ancient root meaning 'beam, pile, prop,' and in Old Italian its ancestor meant 'scaffold.'","Unlike a patio or porch at ground level, it is a railed platform jutting from an upper floor, where apartment or hotel guests step out for air.","Juliet famously speaks from one in Shakespeare's play, and theaters use the word for their upper seating level. It shares its beam root with the English word 'balk.'"],
   },
   {
     slug: "band",
@@ -1196,7 +1164,7 @@ export const WORDS: WordEntry[] = [
     journey: "One line of the word stuck close to its literal roots, meaning something physical that ties or binds — a strap, ribbon, or fetter. The other line drifted through military use, where 'banda' meant a regiment of troops bound together as a unit, a sense that eventually gave English the modern group-of-people meaning, as in a musical band.",
     related: "It's a close cousin of bond and bind, both of which trace back to the same Proto-Indo-European root *bʰendʰ- meaning 'to tie.' German Bande, Dutch band, and Swedish band all carry the same ancient thread.",
     lineage: ["Proto-Indo-European","Proto-Germanic","Old English","Middle English","Old French","English"],
-    clues: ["Its ancestors described the act of tying or fastening something tight.","One old form meant a chain, fetter, or ribbon — something that holds things together.","It shares a root with 'bond' and 'bind,' and once described a regiment of soldiers united as one."],
+    clues: ["This noun for a group of people once had a military side: one of its ancestors meant a regiment of troops bound together as a unit.","A group of musicians playing together, smaller and looser than an orchestra, like a rock or jazz group. In Old English it meant a chain or ribbon.","It also names a strip that encircles things, like the rubber kind around a bundle of pencils or a wedding ring, and it's a cousin of bond and bind."],
   },
   {
     slug: "bandage",
@@ -1208,7 +1176,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts given show only the French formation and its direct borrowing into English — no further shift in meaning is recorded.",
     related: "The \"-age\" ending traces back through Old and Middle French to Latin \"-aticum,\" the same suffix family that shaped many other English words ending in \"-age,\" though no specific cognate is given here.",
     lineage: ["French","English"],
-    clues: ["Its name literally names the strip of cloth it's made from, plus a small ending that turns 'strip' into 'the act of wrapping one.'","In French, it's built from the word for a band or strip, joined to a common suffix meaning 'the result of.'","English simply took the French word for wound-wrapping straight over, spelling and all."],
+    clues: ["This first-aid item hides a grammar lesson: French built it from a word for a strip, plus an ending that turns a thing into the act of using it.","It is a strip of gauze or cloth wound around an injury to cover or support it, longer than a small sticky plaster. English borrowed the French word whole.","A nurse winds an elastic one around a sprained ankle, and a mummy is wrapped in them from head to toe."],
   },
   {
     slug: "bandana",
@@ -1220,7 +1188,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word entered English as a borrowing from Hindi, keeping close to its root meaning of binding or tying, since a bandana is fundamentally a cloth defined by how it's tied.",
     related: "Bandana is a doublet of \"bind\" — both descend from the same Proto-Indo-European root *bʰendʰ-, meaning they're two branches of the same ancient word for tying things together.",
     lineage: ["Proto-Indo-European","Sanskrit","Hindi","English"],
-    clues: ["Its ancient root simply meant fastening two things so they hold together.","In Hindi, the source word bandhan means the act of tying a knot.","It shares a Proto-Indo-European ancestor with the English word \"bind.\""],
+    clues: ["This fashion accessory takes its name from a Hindi word meaning \"a bond\" or \"the act of binding.\"","A square of cloth, often printed with paisley, knotted around the head or neck. It is smaller and lighter than a scarf and is worn by cowboys and bikers.","It shares an ancient root with the everyday English verb \"bind,\" and movie outlaws pull one up over their nose and mouth before a robbery."],
   },
   {
     slug: "banshee",
@@ -1232,7 +1200,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts here don't describe a shift in meaning — the word seems to have carried its 'fairy woman' sense with it when it entered English in the 18th century.",
     related: "The Irish word síde, 'of the fairy mound,' points back to the same Old Irish root as bean sí — but no English cognate is given in the facts available.",
     lineage: ["Old Irish","Irish","English"],
-    clues: ["This word points to a female figure once linked to a mound said to house otherworldly folk.","It comes from Irish words meaning 'woman' and 'fairy mound.'","Its ancestor is Old Irish ben síde — a phrase almost identical in shape to the English word it produced in 1771."],
+    clues: ["This spirit of Irish folklore was named for where it was believed to live, not for what it did: its original name meant 'woman of the fairy mound.'","Not the ghost of someone who died, she is a fairy woman whose eerie nighttime wailing is said to warn a family that one of them will soon die.","When someone lets out a piercing, unearthly scream, people often say they are shrieking or howling 'like a ___.'"],
   },
   {
     slug: "batter",
@@ -1244,7 +1212,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts don't show a documented shift in meaning over time — the word seems to have carried its 'repeated beating' sense from Middle English onward.",
     related: "It's a doublet of batture, since both descend from the same Old French bateure. It also shares its root with bat, the striking implement, through two different -er endings — one for repeated action, one for the doer of an action.",
     lineage: ["Old French","Middle English","English"],
-    clues: ["Its oldest form meant simply to strike something again and again.","One version of this word names a mixture made by repeatedly beating ingredients together.","It shares a root with 'bat' and even has a doublet called 'batture.'"],
+    clues: ["This verb for rough physical treatment was built with an old ending that signals an action done over and over, not just once.","Waves do this to a sea wall: strike it hard and repeatedly until it is damaged, far more relentless than a single knock or slap.","Its spelling also names the baseball player at the plate and the runny mixture poured for pancakes, each arriving by its own route from words for striking."],
   },
   {
     slug: "bear",
@@ -1256,7 +1224,7 @@ export const WORDS: WordEntry[] = [
     journey: "On the leading theory, Germanic speakers replaced the animal's older, ancient name with a descriptive nickname — \"the brown one\" — likely out of taboo avoidance, the same instinct that gave Russian its word for bear, literally \"honey-eater\".",
     related: "The root is said to connect to \"brown\", \"bruin\", and \"beaver\" — the beaver, too, may once have simply meant \"the brown one\".",
     lineage: ["Proto-Indo-European","Proto-Germanic","Proto-West Germanic","Old English","Middle English","English"],
-    clues: ["Its common name in several old languages may not be its true name at all, but a polite substitute for something people were afraid to say aloud.","The word is thought to simply mean \"the brown one\" — a description standing in for a forbidden name.","It shares deep roots with \"brown\", \"bruin\", and even \"beaver\", all pointing to the same shining or brown-colored root."],
+    clues: ["This large forest animal's name may be a nervous nickname, likely meaning 'the brown one', used so speakers could avoid saying its older, real name out loud.","A big, shaggy mammal that may sleep through winter; the general name covering grizzlies, pandas and polar kinds. Russian, from the same instinct, calls it 'honey-eater'.","Its root is said to connect to 'bruin' and 'brown'. On Wall Street, an investor expecting falling prices is called one, the opposite of a bull."],
   },
   {
     slug: "bee",
@@ -1268,7 +1236,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word has stayed remarkably stable across centuries and dialects, passing from Middle English be, bee, beo, bey almost unchanged into modern English.",
     related: "It's cognate with German Biene, Dutch bij, and Swedish bi, all descending from the same Germanic root — a whole family of European words for the same small insect.",
     lineage: ["Proto-Indo-European","Proto-Germanic","Proto-West Germanic","Old English","Middle English","English"],
-    clues: ["Its name has barely changed in thousands of years, drifting quietly down from a single ancient root.","Germanic languages nearly all echo it: Dutch says 'bij,' Danish and Swedish say 'bi.'","German speakers call it 'Biene' — a cousin word for the same striped insect."],
+    clues: ["This small flying insect has a name that has barely changed in thousands of years, tracing back to an ancient root that already meant exactly the same creature.","It lives in a hive, visits flowers for nectar and pollen, and makes honey, which sets it apart from its stinging cousin the wasp.","People who stay very productive are called busy as one, children compete in a spelling one, and its German cousin is Biene."],
   },
   {
     slug: "beer",
@@ -1280,7 +1248,7 @@ export const WORDS: WordEntry[] = [
     journey: "Johnson's dictionary distinguished 'beer' from the older, more common word 'ale', describing beer as aged longer and weaker in strength — a distinction that no longer holds today.",
     related: "It shares its root with Dutch 'bier', German 'Bier', West Frisian 'bier', and Icelandic 'bjór', all descending from the same Germanic word for the yeasty drink.",
     lineage: ["Proto-Indo-European","Proto-Germanic","Proto-West Germanic","Old English","Middle English","English"],
-    clues: ["Its oldest traceable root may have simply meant the living stuff that makes bread rise and drinks ferment.","One old English scholar noted the word appeared 'rare, except in poetry' before it became an everyday drink.","Dutch and German speakers use a word — 'bier' and 'Bier' — that's nearly identical to this one."],
+    clues: ["This alcoholic drink has a disputed origin: one account traces its name to an ancient Germanic root meaning brewer's yeast, while others link it to a Latin verb meaning to drink.","Brewed from malted grain and hops, it is poured by the pint in pubs, and it is the broad term covering both ale and lager rather than a type of either.","Germans order a Bier and Icelanders a bjór; in English it fills steins at Oktoberfest, comes on tap or in bottles, and lends its name to a pot belly."],
   },
   {
     slug: "beetle",
@@ -1292,7 +1260,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word has stayed remarkably close to its roots: it named a biting creature in Old English and still names one today.",
     related: "It's cognate with Old High German bicco, Danish bille, Icelandic bitil (\"a bite, bit\"), and Faroese bitil (\"small piece, bittock\") — all echoes of the same biting root.",
     lineage: ["Proto-Germanic","Old English","Middle English","English"],
-    clues: ["Its name comes from what it was thought to do with its mouth.","The word literally means \"biter,\" built from an old verb plus a small suffix.","It shares a root with Danish bille and Old High German bicco, all pointing back to the act of biting."],
+    clues: ["This kind of insect has a name that literally means \"the biter,\" built from an old word for a creature that tends to bite.","More specific than just any bug, it is an insect whose front wings have hardened into a glossy shell. Ladybugs, scarabs, fireflies and weevils all belong to this huge group.","Volkswagen's classic rounded little car carries this name, and a famous Liverpool band borrowed it, with a musical twist, when naming themselves."],
   },
   {
     slug: "beetroot",
@@ -1304,7 +1272,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word has stayed close to its plain, descriptive beginnings, naming the vegetable part it literally is.",
     related: "It shares its first half with beet, the plant it comes from — no other cognates are given here.",
     lineage: ["English"],
-    clues: ["Think of the plainest possible way to name a vegetable by the part of it you actually eat.","It's formed from two ordinary English words stuck together, one of them being a plant name.","The second half of the word is simply 'root' — and the first half names the plant itself."],
+    clues: ["This vegetable has one of the plainest names in English, because it simply and literally describes which part of its plant ends up on your plate.","A round, deep crimson root vegetable with an earthy sweetness that stains your fingers, often pickled or boiled; larger and sweeter than a radish.","Embarrassed Britons blush as red as one, Americans usually call it by its plant's name alone, beet, and both simmer it into borscht."],
   },
   {
     slug: "begonia",
@@ -1316,7 +1284,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began as a personal name and was borrowed into scientific Latin as a genus label for a group of plants; English then took the genus name directly as the common name for the flower.",
     related: "The facts don't establish any cognate English words tied to this name — it stands as a direct borrowing from the botanical genus name.",
     lineage: ["Latin","Old French","Middle French","French","Translingual","English"],
-    clues: ["It's named not for what it looks like, but for who once oversaw a French colony.","The flower's genus name honors a 17th-century French governor.","Botanists borrowed the surname Bégon, honoring Michel Bégon, to name this plant."],
+    clues: ["This flowering plant, a favorite in gardens and on windowsills, was named as a tribute to a 17th-century French governor of the Caribbean colony Saint-Domingue.","Shade gardeners prize its fleshy stems, lopsided patterned leaves and waxy pink, red or white blooms; unlike impatiens, many kinds are grown more for foliage than flowers.","Look for the rex kind with painted leaves or the tuberous kind with rose-like blooms; botanists coined its name to honor Michel Bégon."],
   },
   {
     slug: "belligerent",
@@ -1328,7 +1296,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word entered English already carrying its participial sense of actively waging war, so its core meaning has stayed close to that Latin root.",
     related: "Because -ger comes from gerō, \"to carry on or wage,\" this word shares that root with any English term built on the same idea of carrying something through — though the facts here only confirm gerō's link within belliger itself.",
     lineage: ["Latin","English"],
-    clues: ["Picture two ideas fused together: one for conflict, one for carrying something forward.","At its root, this word literally means someone actively waging war.","It comes from Latin belliger, joining bellum (\"war\") with a piece of gerō, \"to carry on.\""],
+    clues: ["This adjective for a person's attitude hides a whole war inside it, built from Latin words meaning war and to wage or carry on.","It describes someone hostile and spoiling for a fight, going beyond merely grumpy or argumentative to openly aggressive, like a drunk squaring up to strangers in a bar.","In diplomacy it also describes nations actively waging war, the sense it carried straight from Latin, as opposed to the neutral countries staying out of the fight."],
   },
   {
     slug: "benign",
@@ -1340,7 +1308,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts don't detail a specific shift in meaning — the word has carried the sense of 'kind, good' from Latin through Old French and Middle English into modern English.",
     related: "Its opposite, malign, is built the same way but with the Latin prefix for 'bad' instead of 'well' — the two words are mirror images of each other.",
     lineage: ["Latin","Old French","Middle English","English"],
-    clues: ["This word is built from a root meaning 'well' fused to a root meaning 'origin' or 'kind' — a good start, essentially.","It traces back to Latin bene, 'well,' joined to genus, 'kind,' via Old French into Middle English.","Its shadow-twin, formed the same way but with 'bad' instead of 'well,' is 'malign.'"],
+    clues: ["This adjective for a gentle, kindly quality comes from a Latin word built from 'well' and 'origin,' so it literally suggests being well-born.","It describes a person, climate, or influence that is mild and favorable and poses no threat, implying quiet goodwill rather than simply being nice or harmless.","Doctors use it for a growth that is not cancerous, and its mirror image, malign, swaps in the Latin prefix for 'bad' instead of 'well.'"],
   },
   {
     slug: "besiege",
@@ -1352,7 +1320,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts don't show a shift in meaning beyond its literal formation — from the start, it described the act of surrounding a place with a siege, a sense it still carries today, now often extended to being surrounded by anything overwhelming, like requests or worries.",
     related: "Its clearest relative is siege itself, the word it was built directly on top of by adding the encircling prefix be-.",
     lineage: ["Middle English","English"],
-    clues: ["This word is built from a piece meaning 'around, about' attached to something you'd lay down against a fortress.","Strip away the prefix meaning 'around' and you're left with the word for a prolonged military blockade.","It shares its core with 'siege' — just wrapped in the idea of being encircled."],
+    clues: ["This verb of warfare was built by fastening an old prefix meaning 'around, about' onto an existing military word, so the action literally encircles its target.","It means to surround a city or fortress with an army to force surrender. That is more than simply attacking or encircling it, since supplies are cut off until defenders give in.","Beyond armies, a celebrity can be ___ by reporters or a help desk ___ with requests. Its closest relative is the noun for the military blockade itself."],
   },
   {
     slug: "bias",
@@ -1364,7 +1332,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word first described a literal slanted line in English, then around 1560 became a technical term in the game of bowls for the lopsided weighting that makes a ball curve. By about 1570, that curving tendency gave rise to the figurative sense of a mental slant or leaning we use today.",
     related: "The facts don't support tracing bias to any specific English cognate, though its root idea, of having two axes, points to a word literally built from two directions.",
     lineage: ["Latin","Occitan","French","English"],
-    clues: ["It once named the slant a weighted ball takes as it curves off a straight path.","Its journey ran from a slanted line, through a game of bowls, to a slant of the mind.","It may descend from a Vulgar Latin word meaning 'with two axes,' via Occitan and French."],
+    clues: ["A name for a tendency of the mind, it first meant a literal slanted line, then the lopsided weighting that makes a ball curve in the game of bowls.","It's an inclination that tilts judgment unfairly toward or against something, subtler and more everyday than outright prejudice, as when a referee seems to favor the home team.","Psychologists warn about the confirmation kind, news outlets are accused of a media one, and dressmakers cut fabric on it, diagonally across the grain."],
   },
   {
     slug: "bicycle",
@@ -1376,7 +1344,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word entered English soon after its French coinage, keeping its literal two-wheeled meaning intact rather than shifting over time.",
     related: "It shares its cycle half with the English word cycle itself, both tracing back through French and Late Latin cyclus to Ancient Greek kŭ́klos, meaning \"circle\" or \"wheel\".",
     lineage: ["Ancient Greek","Latin","French","English"],
-    clues: ["Its name simply counts its wheels and names their shape, in a word stitched together from two borrowed pieces.","The second half comes from a Greek word for \"circle,\" the same root behind the English word cycle.","French built it from bi- meaning \"two\" plus cycle, before English adopted it in 1868."],
+    clues: ["This everyday vehicle got its English name from French, where speakers later swapped the original word for a longer version while English kept it unchanged.","A pedal-powered vehicle with two wheels in a line and handlebars for steering; unlike a motorcycle it has no engine, and unlike a tricycle no third wheel.","A skill you never forget, people say, is just like riding one. Its name counts its wheels, and its second half traces to an ancient Greek word for circle."],
   },
   {
     slug: "bid",
@@ -1388,7 +1356,7 @@ export const WORDS: WordEntry[] = [
     journey: "Because English speakers stopped distinguishing the two verbs' forms over time, 'asking' and 'offering' merged into a single word — which is why 'bid' can mean both making a request and proposing a price, without any contradiction in its history.",
     related: "The 'asking' sense connects bid to words like German bitten and Dutch bidden ('to pray'), while the 'offering' sense links it to German bieten and Dutch bieden — and also to the English word 'bede,' a more distant relative sharing that same Proto-Germanic root.",
     lineage: ["Proto-Indo-European","Proto-Germanic","Proto-West Germanic","Old English","Middle English","English"],
-    clues: ["Two separate old verbs, one meaning to plead and the other to announce, quietly fused into a single spelling over centuries.","In some Germanic relatives, one sense survives in a word for praying, and the other in a word for proposing terms.","Its cousin 'bede,' still faintly related in English, shares the branch that once meant to offer or make known."],
+    clues: ["This short verb for offering or asking has a split personality: one of its two Old English ancestors traces to an ancient root meaning 'be awake, aware.'","At an auction, you do this to name a price, more specific than simply offering. As a noun it can mean an attempt, like a run for office.","It completes the phrase '___ someone farewell,' and its German cousins are bitten, tied to asking, and bieten, tied to offering."],
   },
   {
     slug: "bill",
@@ -1400,7 +1368,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began by referring to the sealed document itself, and that sense of an official written record carried forward into the modern uses for invoices, legislative proposals, and lists.",
     related: "Bill is a doublet of bull, as in a papal bull, and of bulla — all three descend from the same Latin word for a seal.",
     lineage: ["Latin","Old French","Anglo-Norman","Middle English","English"],
-    clues: ["It began as a wax seal pressed onto an official document, long before it meant paper you owe money on.","Its Latin ancestor, bulla, meant a seal or sealed document.","It shares that Latin root with the word for a papal bull — both came from the same sealed-document sense."],
+    clues: ["This common written document traces back to a Latin word for a seal, and it first named an official paper stamped shut with wax.","It's the statement a restaurant, shop or utility company gives you showing what you owe, unlike a receipt, which proves you've already paid.","Lawmakers vote on one before it becomes law, you can pay with a five-dollar one, and it shares its Latin seal root with a pope's decree called a bull."],
   },
   {
     slug: "bingo",
@@ -1412,7 +1380,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word seems to have stayed close to its sound-imitating roots, with no further documented shift in meaning beyond its use as the game's name.",
     related: "It's possibly linked to \"stingo,\" though the facts don't clarify how strong or direct that connection is.",
     lineage: ["English"],
-    clues: ["It may echo a small chime, the kind of noise something makes when struck just right.","Some say it's a dressed-up version of a word for that ringing sound, first written down in the 1920s.","It might share a thread with \"stingo,\" though no one's entirely sure how tightly they're tied."],
+    clues: ["This crowd-pleasing game of chance may owe its name to someone imitating the ring of a bell, a sound echoed in the triumphant shout that ends each round.","Unlike a lottery or keno, each player daubs numbers on their own grid card as a caller draws them, racing to complete a row first in church halls everywhere.","People also cry it as an exclamation meaning \"Exactly, that's it!\" when something clicks into place. It may be linked to the old word \"stingo,\" though that connection is uncertain."],
   },
   {
     slug: "biography",
@@ -1424,7 +1392,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts here trace only the path from Greek through New Latin into English, with no recorded shift in meaning along the way.",
     related: "It shares its second half, -γραφία (-graphía, writing), with any English word built from that same Greek root, though no specific cognate is named in the facts available.",
     lineage: ["Ancient Greek","New Latin","English"],
-    clues: ["It's built from two old Greek pieces — one meaning existence, one meaning the act of setting marks down.","Break it apart and you get 'life' plus 'writing,' straight from Greek.","It passed through New Latin before landing in English, keeping its Greek roots βίος and -γραφία intact."],
+    clues: ["This kind of nonfiction book has a name built partly from an ancient Greek root meaning writing, the same root behind many English words.","It tells the true story of a real person's life, usually written by someone else, unlike a memoir. Fittingly, its first ancient Greek root meant life.","An authorized one is written with its subject's cooperation, and Walter Isaacson wrote famous ones about Steve Jobs and Albert Einstein."],
   },
   {
     slug: "bird",
@@ -1436,7 +1404,7 @@ export const WORDS: WordEntry[] = [
     journey: "Old English had a separate word, fugol (the ancestor of \"fowl\"), for flying birds in general, while bridd was reserved for young or flightless ones. Starting in the 14th century, bird gradually took over as the everyday word, pushing fowl toward its narrower modern sense.",
     related: "The word fowl was once the general term for birds in Old English, while bird described only the young — the two swapped places in everyday use over time.",
     lineage: ["Old English","Middle English","English"],
-    clues: ["It once named only the wingless young, while a different old word covered anything airborne.","In Old English it meant a chick or fledgling, not a flying creature in general.","It slowly pushed aside \"fowl,\" the older general term, starting in the 1300s."],
+    clues: ["This everyday name for a large class of animals once meant only the babies of the group, while a different word covered the grown-ups.","Today it names any feathered, egg-laying creature with wings and a beak, from tiny sparrows to soaring eagles, not just the farmyard kind raised for eggs and meat.","Think of the early one that catches the worm. Its old rival, fowl, was once the general word, until the two swapped places in everyday speech."],
   },
   {
     slug: "bishop",
@@ -1448,7 +1416,7 @@ export const WORDS: WordEntry[] = [
     journey: "What started as a general word for an overseer — civil or otherwise — narrowed over centuries as it passed through Latin and Germanic tongues into English, ending up as a specific rank within the Christian church. Tellingly, the Tyndale Bible chose the plain English word 'overseer' instead, showing translators were aware of the original meaning even as 'bishop' had become the standard churchly term.",
     related: "The surname Bishop comes directly from this word, making it an eponymous source for family names rather than the other way around.",
     lineage: ["Greek","Latin","Vulgar Latin","Proto-West Germanic","Old English","Middle English","English"],
-    clues: ["Its root described someone posted to watch from a higher vantage point — nothing religious about it at first.","The word simply meant 'overseer,' a sense the Tyndale Bible preserved by translating it plainly into English.","It shares its Greek root, epískopos, with the modern word 'episcopal.'"],
+    clues: ["This church title once meant simply an overseer, built from Greek words for 'over' and 'watcher,' and in ancient times it also named civil officials.","A senior Christian clergy member who oversees a whole diocese of parishes, ranking well above an ordinary priest and often wearing a tall pointed mitre.","It is also the chess piece that moves only diagonally, and a common family name taken straight from the church title."],
   },
   {
     slug: "bladder",
@@ -1460,7 +1428,7 @@ export const WORDS: WordEntry[] = [
     journey: "The Old English form already carried both senses — 'blister' and 'bladder' — showing the word long described any thin-skinned, fluid-filled swelling rather than one specific body part.",
     related: "The facts don't name a specific surviving cognate beyond the Germanic root forms themselves, so no further connection can be drawn here.",
     lineage: ["Proto-Germanic","Proto-West Germanic","Old English","Middle English","English"],
-    clues: ["This word once named any thin-skinned pocket that swells with fluid, like a blister on skin.","Its Old English ancestor, blǣdre, could mean either 'blister' or the organ we now picture first.","Its Proto-Germanic root, *blēdrǭ, sits behind both the skin-swelling sense and the internal organ we call it today."],
+    clues: ["This internal organ has a name that, over a thousand years ago in Old English, could just as easily mean a blister on your skin.","The stretchy muscular pouch that stores urine until you need the toilet, holding rather than filtering like the kidneys. Its name long covered any thin-skinned, fluid-filled swelling.","Fish have a swim version that keeps them afloat, the gall version stores bile, and a weak one sends road trippers hunting for rest stops."],
   },
   {
     slug: "blockade",
@@ -1472,7 +1440,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts don't support a documented shift in meaning — it seems to have entered English already carrying its current sense from Dutch or German.",
     related: "It shares its root with 'block,' the base word to which -ade was added.",
     lineage: ["Dutch","German","English"],
-    clues: ["This noun was formed by adding a suffix to a common English word for a solid obstruction.","Its shape may have been borrowed from a Dutch or German word for the same barrier.","The modern Dutch spelling is 'blokkade,' close cousin to the English term."],
+    clues: ["This term for a wartime tactic sounded official from the start, likely shaped by a Dutch or German word rather than invented fresh in English.","It means sealing off a port or coast, usually with warships, so supplies cannot get through. Unlike an embargo, it is physically enforced, not just a trade ban.","Daring ships that slipped past one were called runners, and the word shares its root with the everyday verb for obstructing someone's path."],
   },
   {
     slug: "bloomers",
@@ -1484,7 +1452,7 @@ export const WORDS: WordEntry[] = [
     journey: "The name stuck to the loose, gathered trousers associated with her, so that a specific reformer's name became a generic word for the garment itself.",
     related: "No related word is given beyond the name Bloomer itself — the term is simply her surname turned common noun.",
     lineage: ["English"],
-    clues: ["Named for a 19th-century reformer who fought for women's rights, not for any fabric or fit.","This word comes directly from a person's surname, someone born in 1818.","Amelia's last name eventually became the everyday word for this loose undergarment."],
+    clues: ["This item of clothing carries the surname of a real person: Amelia, an American women's-rights activist who lived from 1818 to 1894.","Loose, puffy trousers gathered at the knee or ankle, much fuller than ordinary pants; today the word usually means roomy, old-fashioned women's underpants.","You always wear a pair of them, and the activist's surname is also the word for a 'late' person who blossoms after everyone else."],
   },
   {
     slug: "bobby",
@@ -1496,7 +1464,7 @@ export const WORDS: WordEntry[] = [
     journey: "What began as a nickname for a specific man became a generic, affectionate term for any London police officer, and then any British police officer at all.",
     related: "It shares its root with \"Robert,\" of which \"Bobby\" is simply the everyday, familiar form.",
     lineage: ["English"],
-    clues: ["It honors the man who founded a city's police force, worn as a nickname rather than a title.","The word is just a friendly short form of a common first name, given to the officers of that force.","Think of the name behind it — Robert — shortened the way friends might call someone at home."],
+    clues: ["This affectionate British nickname for a kind of uniformed public servant began as the everyday, familiar form of one particular man's first name.","A police officer, especially one walking the beat, warmer and more old-fashioned than 'cop'. It first meant only London's officers, then spread to any in Britain.","It honors Sir Robert Peel, who established London's police force, and is simply the familiar form of Robert, as in the picture of one in a tall helmet."],
   },
   {
     slug: "bobcat",
@@ -1508,7 +1476,7 @@ export const WORDS: WordEntry[] = [
     journey: "Separately, the same word became a generic term for a small skid-steer loader, after Bobcat, the trademark name of the machine, passed into everyday use.",
     related: "The 'bob' here is the same root found in words describing something short or docked, like a bobbed haircut.",
     lineage: ["English"],
-    clues: ["It's named for a body part that was, quite literally, cut short.","The first half of its name describes a docked or cropped tail.","A trademarked yellow loader shares its name with this short-tailed wildcat."],
+    clues: ["This wild animal of North America is named for a plain description of one body part, the very feature that makes its silhouette look cut short.","A spotted, tufted-eared wildcat roughly twice the size of a house cat, with a stubby tail; it is smaller and far more widespread than its northern cousin, the lynx.","Builders also use its name for a small skid-steer loader, after a trademark passed into everyday use. It shares a root with a short, cropped haircut."],
   },
   {
     slug: "bolero",
@@ -1520,7 +1488,7 @@ export const WORDS: WordEntry[] = [
     journey: "English first used bolero as a noun in 1787, and by 1834 it had also become a verb.",
     related: "The suffix -ero traces back through Latin -arius, the same ending that gives English words their '-ary' or '-er'-like agent sense, though bolero itself was borrowed directly rather than built in English.",
     lineage: ["Latin","Spanish","English"],
-    clues: ["Its root word simply means a round object you might toss or kick.","In Spanish, it's built from the word for 'ball' plus an ending that turns nouns into new ones.","It names both a short jacket and a lively Spanish dance, first written down in English in 1787."],
+    clues: ["This name for a Spanish dance traces back to the Spanish word for 'ball,' so at heart it once meant something like 'ball-related.'","It is a Spanish dance in triple time, performed with castanets and sudden poised stops, more measured than fiery flamenco. English borrowed the word whole, unchanged from Spanish.","It also names a short, open jacket ending above the waist, and Ravel's famous orchestral piece that repeats one hypnotic melody while building to a huge climax."],
   },
   {
     slug: "bombard",
@@ -1532,7 +1500,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word started as the name for a heavy medieval cannon, one whose deep boom gave it its name. Over time it shifted from naming the weapon itself to describing the act of attacking with such weapons, and eventually any relentless onslaught, of words, questions, or noise.",
     related: "Its root, Latin bombus for 'booming,' also lies behind the Middle French bombarde used for a low-voiced, bassoon-like instrument, showing how the same booming sound gave rise to both a weapon's name and a musical one.",
     lineage: ["Latin","Middle French","Middle English","English"],
-    clues: ["Its root is a Latin word for a deep, droning sound — the kind that fills a room before you see its source.","It once named a heavy medieval cannon, one whose thunderous roar gave the weapon its name.","Its French cousin also named a low, buzzing woodwind instrument — same booming root, very different battlefield."],
+    clues: ["This verb for an aggressive action began as the name of a heavy medieval cannon, named for the deep boom it made.","Today it means to attack a place relentlessly with artillery or bombs, a heavier and more sustained assault than a single raid or volley.","Reporters may ___ a celebrity with questions. Its Latin root, meaning 'booming,' also gave a name to a low-voiced, bassoon-like instrument."],
   },
   {
     slug: "bonanza",
@@ -1544,7 +1512,7 @@ export const WORDS: WordEntry[] = [
     journey: "The shift from calm sea to good fortune happened because Vulgar Latin speakers misread malacia's initial mal- as coming from Latin malus, meaning bad. Since a calm sea felt like the opposite of bad, the word was reshaped under the influence of bonus, meaning good, turning a term for stillness into one for luck and abundance.",
     related: "Bonanza's remade form was influenced by Latin bonus, meaning good — the same root that gives English words like bonus itself.",
     lineage: ["Ancient Greek","Latin","Spanish","English"],
-    clues: ["This word once described a sea so still that sailors barely noticed it moving — until people mistook its Latin roots for meaning the opposite of that stillness.","In Spanish, it could mean fair weather, dead calm, or a rich vein of ore before English borrowed it for sudden fortune.","Its transformation was nudged by the Latin word for 'good' — the same root behind English's own 'bonus.'"],
+    clues: ["This noun for a stroke of great good fortune began as something far less thrilling: its ancient Latin ancestor simply meant a calm sea.","It means a sudden, abundant source of wealth or profit, richer and longer lasting than a single windfall. In Spanish it could also mean a rich lode of ore.","Headlines hail a record weekend as a box office one. Its reshaped form was influenced by Latin bonus, meaning good, which also gives English the word bonus."],
   },
   {
     slug: "bone",
@@ -1556,7 +1524,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word has stayed remarkably close to its original sense of a hard skeletal part throughout Old and Middle English into today's usage.",
     related: "It's cognate with Dutch been and German Bein, both of which can mean either 'bone' or 'leg,' and with Old Norse beinn, meaning 'straight' or 'direct' — a sense that survives in English bain and Scots bein, meaning prompt or in good condition.",
     lineage: ["Proto-Indo-European","Proto-Germanic","Old English","Middle English","English"],
-    clues: ["Its deepest possible root may point to striking or beating, not the hard structure it later named.","In several Germanic languages, the word for this body part doubles as the word for 'leg.'","It's related to Old Norse beinn, meaning 'straight' — a sense preserved in the English word bain, meaning prompt or direct."],
+    clues: ["This part of your anatomy traces back to an ancient root meaning 'straight,' a sense that still survives in a Scots word for prompt or in good condition.","One of the hard, rigid pieces that together form your skeleton; an adult has about 206. Some trace it even further back to a root meaning 'to hit or strike.'","A dog buries one in the yard, and you might pick one with someone over a grievance. Its German cousin Bein can also mean 'leg.'"],
   },
   {
     slug: "boulevard",
@@ -1568,7 +1536,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began as a term for a defensive wall or rampart, and only later came to describe the broad street that often replaced such fortifications.",
     related: "Boulevard is a doublet of bulwark — the two English words descend from the same Germanic root but arrived by different paths.",
     lineage: ["Middle High German","Middle Dutch","Middle French","French","English"],
-    clues: ["Picture a city's old defenses — this word once named the sturdy wall built to keep enemies out.","Its ancestor meant 'rampart' in Middle French, before the word crossed into English wearing a more elegant coat.","It shares a Germanic root with 'bulwark' — same defensive stone, two different doors into English."],
+    clues: ["This name for a kind of city street began life as a word for a defensive rampart, a fortress wall built to keep enemies out.","It is a broad city thoroughfare, wider and grander than a typical avenue, often lined with trees. Many were laid out where old fortifications once stood.","Sunset in Los Angeles is a famous one, and the word shares its Germanic root with bulwark, a word that still means a protective wall."],
   },
   {
     slug: "bourbon",
@@ -1580,7 +1548,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word moved from a royal house's name, to a French town and lordship, to American place names honoring that dynasty, and finally to the whiskey distilled in one of those places.",
     related: "The town Bourbon l'Archambault was named for Borvo, a Celtic deity of hot springs, from Proto-Celtic *borvo (\"froth, foam\") — making 'bourbon' a distant linguistic cousin of that watery, frothing root.",
     lineage: ["Proto-Indo-European","Proto-Celtic","French","English"],
-    clues: ["Its ultimate root names a god of hot, foaming springs.","It's named after a French royal house, by way of a county in Kentucky.","Some also trace it to a New Orleans street named for that same dynasty."],
+    clues: ["This liquor has a name that traces back, through a French royal dynasty, to a Celtic god of bubbling hot springs.","A distinctly American whiskey, made mostly from corn and aged in new charred oak barrels, sweeter than Scotch or rye. It is named for a Kentucky county.","The classic base of a mint julep or Old Fashioned, it shares its name with New Orleans' famous French Quarter party street, which possibly helped name it."],
   },
   {
     slug: "braille",
@@ -1592,7 +1560,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word simply carried the inventor's name into English as the label for his system; the facts don't show a shift in meaning beyond that.",
     related: "English says it as /breɪl/, which looks like a spelling pronunciation, since French actually says the name with /aj/, closer to 'brye' than 'brayl'.",
     lineage: ["French","English"],
-    clues: ["A system named for its creator got a new sound when it crossed the Channel — English readers pronounced the letters as they looked, not as the Frenchman said them.","It's named after a 19th-century French educator who was himself blind.","Say his surname the French way and it rhymes with 'eye,' not with 'day' — English chose the spelling over the sound."],
+    clues: ["This system of writing carries the surname of the French educator who devised it, though English speakers pronounce his name differently from the way the French do.","It uses patterns of raised dots that blind people read with their fingertips. Unlike sign language, which is watched, this is felt.","You'll find it on elevator buttons and ATM keypads. In French, its inventor Louis's surname sounds closer to 'brye' than to the English 'brayl'."],
   },
   {
     slug: "brain",
@@ -1604,7 +1572,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word has passed down through Old and Middle English into modern English with its form gradually smoothing from bræġn to brayn to brain, without any documented shift in meaning along the way.",
     related: "It's cognate with Dutch brein and West Frisian brein, both also meaning 'brain,' as well as Ancient Greek βρεχμός (brekhmós), which referred to the top of the head or front part of the skull.",
     lineage: ["Proto-Indo-European","Proto-Germanic","Proto-West Germanic","Old English","Middle English","English"],
-    clues: ["Its ancient root once pointed to the very top of the head, not what's inside it.","In Dutch, the word for this organ is 'brein' — nearly a mirror of its English cousin.","West Frisian speakers call it 'brein,' a close echo of the English word it shares deep roots with."],
+    clues: ["This organ of the body has been passed down in Germanic languages for over a thousand years without any documented shift in its meaning.","It fills your skull and handles thinking, memory and feeling, the physical organ rather than the abstract mind. An ancient Greek relative named the top of the head.","You rack it over a hard puzzle and call a clever friend this; Dutch and West Frisian speakers say brein."],
   },
   {
     slug: "bravado",
@@ -1616,7 +1584,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts don't show a shift in meaning beyond its roots in boasting — the word has carried that sense of showy, vocal confidence from its earliest traceable form.",
     related: "It shares its root, bravo, with bravura — both words descending from the same Italian family of boldness and show.",
     lineage: ["Italian","French","English"],
-    clues: ["Long before it named a swagger, this idea lived in the sound of someone loudly talking themselves up.","At its root is a French word that simply meant boasting or bragging.","It shares an Italian ancestor with a word for a dazzling, showy display of skill — bravura."],
+    clues: ["This noun names a kind of outward display of attitude, and it traces back to an Italian verb meaning \"to brag, to boast.\"","It is a loud, swaggering show of confidence or courage, often put on to hide fear. Unlike true bravery, it is mostly performance meant to impress others.","People often call it \"false\" when it masks nerves, like a boxer's boasts before a fight. It shares its root with bravura, from the same Italian family of boldness and show."],
   },
   {
     slug: "bravery",
@@ -1628,7 +1596,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts available don't trace a documented shift in meaning — the word arrived already tied to the act of 'braving' something, and English kept that sense intact.",
     related: "It shares its root with the verb brave, meaning to face or endure something dangerous — the noun form just names the quality that verb describes.",
     lineage: ["Italian","Middle French","English"],
-    clues: ["It names a quality built from the act of facing danger head-on, dressed up with a French or Italian flourish.","The word behind it means 'to face boldly,' borrowed from French or Italian sources.","It's simply the verb 'brave' with -ery tacked on the end."],
+    clues: ["This admired quality of character came into English from either French or Italian, and the record leaves it open which language actually supplied it.","Close cousin of courage, often the word for the visible act: what firefighters, soldiers and rescuers show when they run toward danger rather than away.","Soldiers are decorated for it, and it names the quality behind the verb you use when you face down a storm or endure bitter cold."],
   },
   {
     slug: "bread",
@@ -1640,7 +1608,7 @@ export const WORDS: WordEntry[] = [
     journey: "Old English brēad originally leaned toward \"crumb\" or \"fragment\" before settling into meaning the whole loaf. It eventually pushed out the Old French borrowing payn and replaced the older English word hlāf (\"loaf\") as the everyday term for the food.",
     related: "It's cognate with German Brot, Dutch brood, Swedish bröd, and Icelandic brauð, all descending from the same Germanic root, and may be a doublet of broa.",
     lineage: ["Proto-Indo-European","Proto-Germanic","Proto-West Germanic","Old English","Middle English","English"],
-    clues: ["Its earliest recorded sense in Old English wasn't the whole thing—just a crumb or broken bit of it.","The Old English word behind it, brēad, once meant simply \"morsel,\" before it came to mean the food itself.","It shares deep roots with German Brot and Dutch brood, all tracing to the same old Germanic word."],
+    clues: ["A kitchen staple found on tables around the world, its name likely traces back to an ancient root meaning \"to boil\" or \"to brew.\"","It's baked from flour, water and usually yeast, then sliced for toast or sandwiches. Plainer than cake, it's the food itself, not just one loaf of it.","Its German cousin is Brot, and it completes the phrases \"the best thing since sliced ___\" and \"give us this day our daily ___.\""],
   },
   {
     slug: "bridge",
@@ -1652,7 +1620,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word has stayed remarkably close to its root sense of a wooden structure for crossing or paving, with the verb simply putting that noun into action. Its use for the part of a stringed instrument is a separate, later borrowing — a semantic loan from German Steg, itself from Old High German steg. Interestingly, the card game 'bridge' has no connection to any of this: it likely comes from the earlier game name biritch, possibly from Russian or Turkish.",
     related: "It's cognate with Dutch brug, German Brücke, and Swedish brygga — though in the Scandinavian languages the word drifted toward meaning 'jetty' or 'pier' rather than a span over land.",
     lineage: ["Proto-Indo-European","Proto-Germanic","Proto-West Germanic","Old English","Middle English","English"],
-    clues: ["Its oldest known ancestor once simply meant wooden flooring or decking laid down to walk on.","In Old English, the related verb meant to pave or build a causeway.","Germans call it Brücke, the Dutch call it brug — same ancient family, different accents."],
+    clues: ["This piece of built infrastructure has a name tracing back to an ancient root meaning wooden flooring or decking.","It carries a road, railway or footpath over a river, valley or other gap, crossing above the obstacle rather than burrowing under it like a tunnel.","You might burn one behind you, and it also names a card game, the top of your nose, and the raised piece holding a violin's strings."],
   },
   {
     slug: "brief",
@@ -1664,7 +1632,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word has kept a remarkably stable meaning across all these languages — short, condensed, over quickly — from its earliest reconstructed PIE form right through to modern English.",
     related: "Brief is a doublet of breve and merry, meaning all three descend from the same root through different paths.",
     lineage: ["Proto-Indo-European","Proto-Italic","Latin","Old French","Middle English","English"],
-    clues: ["Its earliest ancestor, a root meaning 'short,' also quietly shaped a word we now use for feeling cheerful.","It comes from a Latin word, brevis, meaning simply 'short.'","It's a doublet of 'breve' — two English words grown from one Latin seed."],
+    clues: ["This adjective about time and length shares an ancient root with the cheerful word merry, yet its own meaning has stayed remarkably steady all along.","It describes something lasting only a short while or using few words, like a visit, pause, or remark; unlike plain 'short,' it rarely means physically small. It comes from Latin for short.","As a noun it names a lawyer's written case summary, and in the plural it means snug men's underwear."],
   },
   {
     slug: "broker",
@@ -1676,7 +1644,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began as a description of someone who knew the customs and usages of trade — essentially a specialist in how deals were done — and settled into naming the go-between who handles a trade for others.",
     related: "It's built from the same root as brook, in the old sense of 'to use or tolerate,' since a broker was literally one who 'used' or handled trade on someone else's behalf.",
     lineage: ["Proto-Indo-European","Proto-Germanic","Proto-West Germanic","Old Dutch","Anglo-Norman","Middle English","English"],
-    clues: ["Its root sense had nothing to do with money — it meant simply the custom or use of a thing.","It first named someone who knew the usages of trade, a kind of go-between for deals.","It shares a Germanic root with the verb brook, in its old meaning 'to use or tolerate.'"],
+    clues: ["This name for a kind of business professional traces back to an ancient root meaning 'to use, enjoy,' and in medieval times simply meant a small trader.","A go-between who arranges deals in stocks, insurance or property for clients, earning a commission. Unlike a dealer, they don't buy and sell on their own account.","Behind-the-scenes political kingmakers are called 'power' ones, and diplomats are said to do this as a verb when they negotiate a truce or peace deal."],
   },
   {
     slug: "brunch",
@@ -1688,7 +1656,7 @@ export const WORDS: WordEntry[] = [
     journey: "It took decades for the idea to cross the Atlantic, only catching on in American English around 1930.",
     related: "It's built directly from breakfast and lunch, making it a splice rather than a borrowing — its whole identity comes from those two words.",
     lineage: ["English"],
-    clues: ["It's a meal born from mashing together the two on either side of it, not from any foreign tongue.","Take the start of one word for the first meal of the day and the end of the word for midday eating — glue them together.","Breakfast plus lunch, first spotted in Britain in 1895."],
+    clues: ["This meal's name was coined in Britain, and the idea took decades to cross the Atlantic before Americans embraced it.","A late-morning meal, often on weekends, that replaces two meals at once. It is later and more lavish than an ordinary breakfast, with eggs, pastries and perhaps mimosas.","Cafés and hotels advertise a bottomless Sunday buffet of it, and its name is a splice of the two meals it stands in for."],
   },
   {
     slug: "buccaneer",
@@ -1700,7 +1668,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word started with people who smoked meat over a wooden grill in the Caribbean, and by surface analysis it's simply \"boucan\" plus \"-eer,\" someone who does that grilling. From there it came to name the hunters and adventurers who used that method, and eventually the sea-raiders we now call buccaneers.",
     related: "The suffix -eer traces to the same root, via Latin -ārius, found in many English agent-noun endings like -ary; the facts here don't support a specific cognate word beyond this shared suffix history.",
     lineage: ["Proto-Tupian","Proto-Tupi-Guarani","Old Tupi","French","English"],
-    clues: ["Its story starts with a wooden grill, not a ship.","The word once simply meant someone who smoked meat over an open fire.","It comes from French boucanier, itself rooted in a Tupi word for a grill."],
+    clues: ["This noun for a kind of outlaw originally named someone who smoked meat over a wooden grill, from a Tupi word for that very grill.","It names the swashbuckling raiders who plundered Spanish ships and colonies in the Caribbean in the 1600s, a more specific, colorful term than plain pirate.","Tampa Bay's NFL team carries this name, and it also describes a daring, rule-bending business tycoon who takes big risks."],
   },
   {
     slug: "buffet",
@@ -1712,7 +1680,7 @@ export const WORDS: WordEntry[] = [
     journey: "The furniture sense shifted from naming a small stool to naming the side table where food was laid out, and eventually to the meal itself. Its modern pronunciation was reshaped to match French, giving it that borrowed, elegant sound in English.",
     related: "The 'blow' sense of buffet gave rise to the verb buffeted, meaning to be struck or knocked about, and is connected to English buffer and buffoon.",
     lineage: ["Old French","Middle French","Middle English","English"],
-    clues: ["Its origin as a piece of furniture is murky — no one is quite sure where the French word for that little table came from.","Before it meant a spread of food, this word named a humble stool, then a side table in French.","A completely different sense of this word, meaning a blow, is kin to English 'buffer' and 'buffoon.'"],
+    clues: ["This style of meal began as the name for a piece of furniture, first a small stool and later a side table where food was set out.","Unlike a banquet, nobody serves you at your seat. Diners help themselves from dishes laid out on a long table, often paying one price for all they can eat.","An unrelated twin, from an old word for a blow, gives the verb for a plane being knocked about by strong winds, and is kin to buffer and buffoon."],
   },
   {
     slug: "bug",
@@ -1724,7 +1692,7 @@ export const WORDS: WordEntry[] = [
     journey: "What began as a word for a haunting, hobgoblin-like fright narrowed into a name for a crawling insect, then leapt into the world of machines: the sense of \"technical error\" was already in use by the 19th century, well before the famous story of a moth found in an early computer.",
     related: "The insect sense may have been reinforced by a separate but similarly shaped word, Middle English budde (\"beetle\"), which is also the ancestor of \"bud\" — two words that may have grown alongside each other for ages without ever truly merging.",
     lineage: ["Proto-Indo-European","Proto-Germanic","Middle English","English"],
-    clues: ["Long before it meant anything small and crawling, this word named something that haunted people in the dark — a scarecrow or hobgoblin.","By the 1600s it had settled onto a small biting pest that shares its bed with you at night.","Its insect sense may owe something to a lookalike word, budde, which is also kin to the word \"bud.\""],
+    clues: ["This casual name for a small creature once haunted nightmares instead: centuries ago it meant a scarecrow or hobgoblin, possibly from a Celtic root for goblins.","It's a loose, everyday catch-all for any creepy-crawly, broader than 'insect', and also names a glitch in software. That machine-error sense was used well before the famous computer moth.","Spies plant one to eavesdrop, you can catch a stomach one, and a cozy child is snug as one in a rug."],
   },
   {
     slug: "bullion",
@@ -1736,7 +1704,7 @@ export const WORDS: WordEntry[] = [
     journey: "If the link to bouillon is right, a word tied to bubbling or boiling liquid shifted toward the idea of metal being melted down, eventually settling on refined precious metal in bulk.",
     related: "It may share roots with bouillon, the French word for broth, through the shared idea of something boiling or melting. A similar-looking Middle Dutch word, boelioen, meaning 'base metal,' is unrelated, coming instead from the French word billon.",
     lineage: ["French","Anglo-Norman","Middle English","English"],
-    clues: ["Its possible ancestor described a pot's contents bubbling away over heat.","One theory ties it to a French word for broth, stretched to mean 'melting.'","Don't confuse it with a similar Middle Dutch word for base metal — that one comes from billon, a different root entirely."],
+    clues: ["This term from the world of precious metals may once have described something bubbling away in a pot, before its sense perhaps stretched toward melting.","It means gold or silver in bulk, such as bars or ingots, valued by weight and purity rather than shaped into coins or jewelry.","It may share roots with bouillon, the French word for broth. Central banks guard stacks of it in their vaults."],
   },
   {
     slug: "bumblebee",
@@ -1748,7 +1716,7 @@ export const WORDS: WordEntry[] = [
     journey: "Its earliest English form, humbul-be, gave way in the 1500s to the bumble + bee combination we use now, with the buzzing sense of bombeln folded in along the way.",
     related: "Curiously, the name of the drink called a bumblebee is a semantic loan from Ukrainian джміль (džmilʹ), a separate borrowing layered onto the same word.",
     lineage: ["Middle English","English"],
-    clues: ["Its name once leaned on an old word for a low, droning sound.","Before its current form, English called it humbul-be.","The name is a mash-up: a buzzing word plus bee, and a drink borrowed the idea from Ukrainian."],
+    clues: ["This flying insect has a name that absorbed a medieval verb meaning 'to boom, buzz,' so it carries its own soundtrack.","It is a big, fuzzy, round-bodied bee, chunkier and hairier than a honeybee, often seen lumbering between flowers with a deep, lazy drone.","In Middle English it was called a humbul-be, and today it also names a drink, a sense borrowed from a Ukrainian word for this insect."],
   },
   {
     slug: "bungalow",
@@ -1760,7 +1728,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word moved from describing a house style associated with Bengal into English simply as a term for a low, detached house, with the regional name fading into the background.",
     related: "It's a doublet of bangalo and Bangla, and shares roots with Hindi baṅglā (\"Bengali\") and Bengali baṅla (\"Bengal\") — all pointing back to the same place name.",
     lineage: ["Gujarati","English"],
-    clues: ["Its name secretly points to a region on the map, not to how many floors it has.","It comes from a Gujarati word for a house built in the style of a particular eastern homeland.","It's a doublet of Bangla and bangalo — cousins all tracing back to Bengal."],
+    clues: ["This kind of house hides the name of a whole region inside it: it began as a word for a home built in the style of Bengal.","Today it names a modest detached house with all its rooms on a single floor, smaller and cozier than a sprawling ranch house, and often favored by retirees.","Picture a Craftsman-style one with a deep front porch, or a British seaside holiday rental. It shares its origin with the word Bangla."],
   },
   {
     slug: "bunker",
@@ -1772,7 +1740,7 @@ export const WORDS: WordEntry[] = [
     journey: "From a humble seat-chest and coal bin, the word passed into German as Bunker (\"large bin or container for storing coal\") and was borrowed back into English during World War II to mean a hardened shelter against bombs and attack.",
     related: "Bunk, the sleeping berth on a ship or train, likely comes from the same Old Norse root bunki, meaning both words descend from an old idea of a stacked or heaped-up thing.",
     lineage: ["Proto-Indo-European","Proto-Germanic","Old Norse","Scots","German","English"],
-    clues: ["Its oldest sense was just a box with a lid you could sit on.","In Scots it also meant a sand pit — the kind golfers still dread today.","German borrowed the coal-storage sense and gave it back to English as a bombproof shelter."],
+    clues: ["This kind of protective structure began life as a humble chest whose lid doubled as a seat, with storage tucked underneath.","A hardened shelter, often underground, built to withstand bombs and attack; more heavily fortified than a cellar or foxhole. English borrowed this sense back from German during World War II.","Golfers dread landing in one, since it is also the name for a sand trap. A ship's sleeping bunk likely comes from the same old root."],
   },
   {
     slug: "bureaucracy",
@@ -1784,7 +1752,7 @@ export const WORDS: WordEntry[] = [
     journey: "The reddish cloth (burra/burrus) gave its name to the coarse fabric used to cover writing desks, and from there \"bureau\" came to mean the desk itself, then the office, and eventually the officials who staffed it. Vincent de Gournay fused that word with \"-cratie\" to name rule by desks and offices rather than by people.",
     related: "Bureaucracy shares its second half with words like \"democracy\" and \"autocracy,\" all built on Greek kratos, \"power\" or \"rule.\"",
     lineage: ["Proto-Indo-European","Proto-Hellenic","Ancient Greek","Latin","Old French","French","English"],
-    clues: ["Its first half began as the word for a reddish, fire-colored hue, which somehow ended up naming a desk covering.","One half means \"office,\" and it started life as the name of a coarse red cloth.","Like \"democracy\" and \"autocracy,\" its second half comes from the Greek word for rule, kratos."],
+    clues: ["This noun for a way of running large organizations traces back to a coarse reddish cloth that once covered writing desks.","More than mere paperwork, it is the whole system of officials and rigid rules running governments and big institutions, coined in French to mean rule by desks.","It shares its ending with democracy and autocracy, and people grumble about its red tape whenever a simple request takes six forms and three departments."],
   },
   {
     slug: "burgeon",
@@ -1796,7 +1764,7 @@ export const WORDS: WordEntry[] = [
     journey: "The verb form, Middle English burjounen, developed from Old French borjoner ('to bud'), showing that the word moved from naming a bud itself to describing the act of budding or sprouting forth.",
     related: "The Proto-Germanic root *burjaną ('to raise up') connects burgeon to the word 'bear,' both ultimately springing from the same Proto-Indo-European root *bʰer-.",
     lineage: ["Proto-Indo-European","Proto-Germanic","Old Frankish","Old French","Anglo-Norman","Middle English","English"],
-    clues: ["Its distant root simply meant 'to raise up' — the same lifting motion behind a very common English verb.","It once named nothing more than a small bud or shoot, before it came to mean growing rapidly.","One theory ties it to Latin burra, 'wool' or 'fluff,' perhaps for the fuzzy coat on certain young buds."],
+    clues: ["This verb describing a kind of increase began life as a noun that simply named a small bud or shoot on a plant.","It means more than just growing: to expand quickly and vigorously, flourishing the way a city's population or a young industry suddenly booms.","You often see it describing something that is thriving, as in \"a ____ art scene,\" and it shares an ancient root meaning \"to raise up\" with the word \"bear.\""],
   },
   {
     slug: "buzzard",
@@ -1808,7 +1776,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word's form shifted as it passed from Latin into Old French, then through Anglo-Norman spellings like buisart into the Middle English bosart, before settling into the modern English spelling buzzard.",
     related: "The modern French word buse, meaning a bird of prey, descends from the same Old French root buison/buson that gave English its buzzard.",
     lineage: ["Latin","Old French","Anglo-Norman","Middle English","English"],
-    clues: ["Its name may trace back to a Latin word simply meaning 'hawk.'","An Old French word for a bird of prey picked up the suffix -ard to name this scavenger.","French speakers today still call a related bird of prey 'buse' — a cousin of this English word."],
+    clues: ["This bird of prey has a name that may trace back to an ancient Latin word meaning simply 'hawk', with a French ending added on.","Bulkier and slower than a falcon, it soars in lazy circles hunting voles; in America, people often use its name for the vultures that circle over roadkill.","Calling a cranky old man an old one of these birds is a mild insult, and modern French still calls the bird a buse, from the same root."],
   },
   {
     slug: "cabaret",
@@ -1820,7 +1788,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began as a term for a simple chamber or vaulted space, then narrowed over its journey through French into meaning a small tavern or drinking room, before English adopted it for the entertainment venue sense we know today.",
     related: "Cabaret shares its deep root with camera — both descend from the Latin word for a vaulted room, though camera went on to mean a chamber in a very different, image-capturing sense.",
     lineage: ["Ancient Greek","Latin","Old French","Middle French","French","English"],
-    clues: ["Its ancestor simply meant a vaulted little room, nothing showy at all.","Before it meant a night of song and spectacle, this French word named a modest tavern.","It shares a Latin root with 'camera' — both once just meant a small chamber."],
+    clues: ["This kind of nightlife venue gets its name from an ancient Greek word for a vaulted room, long before it meant anything lively.","A restaurant or club where guests sit at small tables watching singers, dancers or comedians, cozier than a theater. In French it once meant a small tavern.","Liza Minnelli famously sang that life is one of these, old chum. It shares its deep root with camera, both from the Latin for a vaulted room."],
   },
   {
     slug: "cadence",
@@ -1832,7 +1800,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began as a way to describe a musical phrase falling to its close, and that sense of a falling rhythm carried into English as the general word for rhythmic flow.",
     related: "Cadence is a doublet of cadenza, the musical flourish, and of chance — both tracing back to that same Latin idea of falling.",
     lineage: ["Proto-Indo-European","Proto-Italic","Latin","Old Italian","Middle French","English"],
-    clues: ["At its root is an ancient word for simply losing your footing and dropping.","It once named the moment a musical phrase falls silent at its close.","It's a hidden twin of both 'cadenza' and 'chance,' all born from the same Latin word for falling."],
+    clues: ["This noun for a pattern in sound or motion comes from a Latin verb meaning to fall. It first described a musical phrase falling to its close.","It is the rise and fall of a speaking voice, or the steady beat of marching feet: more of a lilting, patterned flow than plain rhythm.","Cyclists track their pedaling one. It shares its old falling root with the word chance and with cadenza, a soloist's showy flourish."],
   },
   {
     slug: "cadre",
@@ -1844,7 +1812,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began by describing a literal frame or square shape, the kind that borders a painting. From there it came to mean a structural outline or framework, and eventually the core group of people who form the 'frame' or backbone of an organization.",
     related: "It shares its deepest root, Latin quattuor ('four'), with English words like 'quadrant' and 'quart' — a nod to the four-sided square hiding inside the idea of a frame.",
     lineage: ["Latin","Italian","French","English"],
-    clues: ["Its distant root is a number word meaning four, tied to the four sides of a shape.","Before it meant a group of people, it meant a square or a picture's border.","It's related to 'quadrant' through their shared ancestor, Latin quattuor."],
+    clues: ["A word for a kind of group of people, it began by naming a literal frame or square, the kind that borders a painting.","Today it means a small core of trained people who form the backbone of a larger organization, like key officers or party activists. It is more select than a mere team.","News stories describe a loyal ___ of volunteers or party officials. Its deepest root, the Latin word for four, also gave English quadrant and quart."],
   },
   {
     slug: "cafeteria",
@@ -1856,7 +1824,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word entered English tied to its Mexican Spanish sense of a coffeehouse, but in English it broadened to describe any self-service dining space, not just one centered on coffee.",
     related: "It's a doublet of cafetière, the French word for a coffee pot — both descend from the same Arabic root for coffee.",
     lineage: ["Arabic","Ottoman Turkish","French","Mexican Spanish","English"],
-    clues: ["Its name once pointed only to a drink brewed from a bean, not the buffet of food you'd find there today.","In Mexican Spanish, the word this comes from simply meant 'coffeehouse.'","It shares a root with cafetière, the French word for a coffee pot."],
+    clues: ["This kind of place to eat began in Mexican Spanish as a word for a coffeehouse, built from the name for a coffee maker.","A self-service dining room where you carry a tray along a counter and pick your own food, unlike a restaurant with waiters. In English, coffee stopped being the point.","Students line up here at lunchtime with trays. Its French cousin, the cafetière, is a coffee pot descended from the same Arabic root for coffee."],
   },
   {
     slug: "calculate",
@@ -1868,7 +1836,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word's core sense has stayed remarkably steady: calculō originally meant reckoning by means of pebbles, and calculate still means to work out a figure or answer — just without the stones.",
     related: "Calculate shares its root with calculus, the \"pebble\" word that later became the name of a whole branch of mathematics.",
     lineage: ["Latin","English"],
-    clues: ["Long before symbols and equations, people worked out sums by moving small stones around.","The Latin word behind this one, calculō, literally meant reckoning with pebbles.","It's a cousin of \"calculus\" — both trace back to calx, the Latin word for limestone."],
+    clues: ["This verb for a kind of careful mental work traces back to a Latin word for a little pebble, built from the word for limestone.","To work out an amount or answer using math, more precise than estimating and more involved than simply counting. Its Latin ancestor meant reckoning by means of pebbles.","You might do this to figure out the tip at dinner. It shares its pebble root with calculus, which became the name of a whole branch of mathematics."],
   },
   {
     slug: "camaraderie",
@@ -1880,7 +1848,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts don't point to a shift in meaning — what's changed instead is pronunciation, with some American speakers saying it in ways shaped by the related word comrade.",
     related: "It shares a root with comrade, and that connection actually shapes how some Americans pronounce it today.",
     lineage: ["French","English"],
-    clues: ["This word slipped into English from another tongue without changing its clothes at all.","In French, this word describes the warm bond among close companions.","Listen closely and you might hear an echo of 'comrade' hiding in how some Americans say it."],
+    clues: ["This warm social feeling came into English straight from French, borrowed whole and left essentially unchanged.","It's the easy trust and goodwill among people who share work, sport or hardship, a bond spread across a whole group rather than a friendship between two.","Soldiers, teammates and castmates often feel it. It shares a root with comrade, and that word shapes how some Americans pronounce it."],
   },
   {
     slug: "camel",
@@ -1892,7 +1860,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word passed from a Semitic root through Greek and Latin into French and then English, keeping roughly the same sound and meaning the whole way. A separate technical sense, a floating device used to lift ships, entered English later from Dutch.",
     related: "It shares its Semitic root with Arabic jamal, Hebrew gamál, Aramaic gamlā, and Coptic čamoul — all names for the same animal, worn down through different tongues.",
     lineage: ["Proto-Semitic","Ancient Greek","Latin","Old Northern French","Old English","Middle English","English"],
-    clues: ["Its name may trace back to a single ancient Semitic root that named this animal thousands of years before English existed.","The English word for this desert animal passed through Greek and Latin before landing in French and then English.","It's a cousin of Arabic jamal and Hebrew gamál — same root, different alphabets."],
+    clues: ["This large domesticated animal has a name that barely changed in sound or meaning as it traveled from an ancient Semitic root into Greek, Latin, French and English.","A humped beast that carries riders and cargo across desert sands, going long stretches without water. It is far bigger than its South American cousin, the llama.","Arabic calls it jamal and Hebrew calls it gamál, and English has a famous saying about the final straw that breaks its back."],
   },
   {
     slug: "campaign",
@@ -1904,7 +1872,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word traveled from a plain, open field to the battlefield operations conducted on such fields, and from there settled into English as a name for any organized, sustained effort.",
     related: "It's a doublet of campania, campagna, and champagne — all tracing back to that same open field, Latin campus.",
     lineage: ["Latin","Late Latin","Italian","French","English"],
-    clues: ["It began as a word for wide, open ground, long before it meant marching orders or ballot boxes.","Its ancestor meant a military operation carried out across open country.","It shares its root with champagne — both trace back to a flat, open field."],
+    clues: ["This noun for a kind of organized undertaking traces back to a simple Latin word meaning a plain, open field.","It names a sustained, planned series of actions toward one goal, like winning votes or selling a product, not a one-off push. Armies once used it for battlefield operations.","Candidates hit the trail for one before election day, and it shares its ancient field root with champagne, the sparkling wine."],
   },
   {
     slug: "canal",
@@ -1916,7 +1884,7 @@ export const WORDS: WordEntry[] = [
     journey: "The sense moved from the plant itself to the tube-like shape of the reed, then to any hollow channel or passage, and finally settled on the dug waterways we call canals today.",
     related: "It's a doublet of channel, meaning the two words descend from the same Latin root but arrived in English by different paths. It's also related to cane, which comes from the same reed word.",
     lineage: ["Akkadian","Ancient Greek","Latin","Old French","Middle French","English"],
-    clues: ["Its story starts with a hollow plant stem that gave its shape to something long and narrow.","In Latin, the word for this waterway also meant \"pipe\" or \"tube\" — borrowed from a word for reed.","It shares a Latin ancestor with the word channel, and with cane, the plant it was named after."],
+    clues: ["This kind of waterway began as an ancient Akkadian word for a reed, the hollow plant stem, before passing through Greek and Latin.","It is a waterway dug by people for boats or irrigation, unlike a naturally formed river and far larger than a ditch. Venice is famous for its many.","Ships cross between oceans through the famous one at Panama or Suez. It shares its reed root with cane and is a sibling of the word channel."],
   },
   {
     slug: "candy",
@@ -1928,7 +1896,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began as a description of sugar broken or shaped into hard pieces, and that sense of a solid, crystallized sweet has stayed remarkably intact as it moved from Sanskrit or Dravidian roots through Persian, Arabic, French, and finally into English.",
     related: "The Sanskrit root khaṇḍ, \"to divide, break into pieces,\" also underlies khaṇḍana, which passed through Marathi khaṇḍī into English as a separate word for a unit of weight — a distant cousin bound to candy by the same idea of breaking things apart.",
     lineage: ["Sanskrit","Persian","Arabic","Old French","Middle English","English"],
-    clues: ["Its earliest ancestor simply meant to split something into pieces — a fitting fate for anything you snap or crunch.","Before it was sweet in English, it was sukkar qandī in Arabic, literally \"sugar of the rock-hard kind.\"","It shares a root with khaṇḍī, a old unit of weight in Marathi — both come from the Sanskrit idea of breaking things into fragments."],
+    clues: ["This sweet treat's name may trace back to an ancient Sanskrit word meaning 'piece' or 'fragment,' first describing sugar broken into hard bits.","Lollipops, gummies and chocolate bars all count: it's a sugary confection eaten as a snack, not a baked dessert, and children collect bags of it on Halloween.","It completes 'cotton ___' at the fair, '___ cane' on the Christmas tree, and the phrase for an easy win: 'like taking ___ from a baby.'"],
   },
   {
     slug: "canoe",
@@ -1940,7 +1908,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word passed from an Arawakan language of the Caribbean into Spanish as colonizers encountered these boats, then crossed into English largely unchanged in meaning, still naming a narrow, paddled boat.",
     related: "It shares its Proto-Arawak root *kanawa with Lokono kanoa and Wayuu anuwa/anua, both also meaning \"boat\" or \"canoe\" — cousins scattered across related Arawakan languages rather than English ones.",
     lineage: ["Proto-Arawak","Taíno","Spanish","English"],
-    clues: ["Its root once named a hollowed-out vessel carved for water travel in the Caribbean.","The word for it entered Spanish as \"canoa\" before crossing into English in the 1500s.","Its Proto-Arawak ancestor *kanawa also gave rise to Wayuu \"anuwa\" and Lokono \"kanoa.\""],
+    clues: ["This kind of small boat takes its name from Taíno, a language of the Caribbean, and the word spread into nearly every language that met it.","A narrow, open boat pointed at both ends and moved with single-bladed paddles, unlike a kayak with its covered deck. The Taíno original named a boat hollowed from a single log.","Someone fiercely self-reliant is said to paddle their own one of these, and a related word in the Arawakan language Lokono is kanoa, also meaning boat."],
   },
   {
     slug: "canon",
@@ -1952,7 +1920,7 @@ export const WORDS: WordEntry[] = [
     journey: "A word for a straight, measurable reed became the word for the standard or rule used to judge things, and later the accepted body of texts or works taken as authoritative.",
     related: "It's a doublet of qanun, and shares roots with cane, cannon, canyon, and canal, all descending from that same reed-and-measuring-rod family.",
     lineage: ["Semitic","Ancient Greek","Latin","Old French","Old English","Middle English","English"],
-    clues: ["It began as the name for a straight, hollow plant stem used to check whether things measured up.","Its Greek ancestor meant 'measuring rod' before it ever meant 'rule' or 'standard.'","It shares a root with cane, cannon, canyon, and canal — all cousins sprung from the same reed."],
+    clues: ["This noun for a recognized standard began as an ancient word for a reed, because a straight reed once served as a measuring rod.","Today it often names the official body of works accepted as authentic, such as a religion's approved scriptures or the stories that truly count in a franchise, unlike fan fiction.","Fans argue over whether a surprise plot twist belongs in it. It shares a reed-and-measuring-rod family with cane, canal, canyon, and its sound-alike, the big gun cannon."],
   },
   {
     slug: "capacious",
@@ -1964,7 +1932,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts given don't trace a meaning shift beyond its Latin root — it entered English already carrying the sense of being wide or able to hold a lot, and simply replaced the older English term for that idea.",
     related: "It shares its Latin root, capāx, with the idea of capability itself — both point back to something able to hold or contain much.",
     lineage: ["Latin","English"],
-    clues: ["Long ago, English had its own homegrown word for this idea, but it lost ground to a newcomer.","The word that replaced it traces to a Latin root meaning wide, spacious, or able to hold a lot.","That Latin root, capāx, is a cousin of the word capable — both about having room or ability to hold."],
+    clues: ["This adjective about size and room pushed out a native Old English word, numol, which had once covered much the same ground.","It describes something roomy enough to hold a great deal, like a deep handbag or a vast closet, and sounds more formal than plain roomy.","Admirers might use it to praise a scholar's huge memory, and it shares its Latin root with capable: both point to being able to hold much."],
   },
   {
     slug: "cape",
@@ -1976,7 +1944,7 @@ export const WORDS: WordEntry[] = [
     journey: "The superhero sense grew naturally out of the garment sense, since so many caped figures in fiction wear one — and from there, even the verb 'to cape' (to defend or praise someone) picked up the image of a hero swooping in, cloak and all.",
     related: "The headland sense is a doublet of capo, caput, chef, and chief, and distantly related to head and the place name Howth — all tracing back to that same Latin word for 'head.' The garment sense is a doublet of capa and cappa.",
     lineage: ["Latin","Old French","Middle English","English"],
-    clues: ["One meaning traces back to a Latin word for 'head' — the same root hiding inside 'chief' and 'captain.'","A rocky point jutting into the sea once shared this very name, borrowed through Old French from that Latin word for head.","The other sense comes through Old Occitan and Late Latin 'cappa' — think of the cloth draped over a superhero's shoulders."],
+    clues: ["This garment has a spelling twin naming a point of land, which traces back to an ancient root meaning \"head,\" the same root behind chief and chef.","A sleeveless outer garment fastened at the neck and hanging loose over the shoulders and back, usually shorter than a cloak; Superman and Batman famously wear one.","On a map it means a headland jutting into the sea, as in ___ Cod or ___ Town, and slang uses it as a verb for defending someone."],
   },
   {
     slug: "caper",
@@ -1988,7 +1956,7 @@ export const WORDS: WordEntry[] = [
     journey: "What began as a specific kind of jump — capriole — got shortened over time into caper, and the word came to stand for the whole spirited, mischievous act rather than just the leap.",
     related: "It shares its root with capriole, the fuller word it was trimmed from.",
     lineage: ["English"],
-    clues: ["This word started life as a longer term for a single athletic jump, before someone snipped off its ending.","Its full-length ancestor describes a leap — think of a dancer or a horse springing upward.","It's a clipped form of capriole, the same way 'gym' is clipped from 'gymnasium.'"],
+    clues: ["This noun for a kind of spirited adventure began as the name for one specific type of leap, before being trimmed down into a shorter word.","It names a lighthearted, often illicit escapade or scheme, more elaborate than a simple prank and more playful than a real crime.","Comedies about bumbling crooks pulling off a jewel theft are often described with this word, which was clipped from capriole, a term for a leap."],
   },
   {
     slug: "capillary",
@@ -2000,7 +1968,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began as a description of hair itself, then narrowed into a technical term for anything hair-thin, like the tiny vessels that carry blood through the body.",
     related: "It shares its root with capillus, the Latin word for hair, and further back with caput, the word for head — the same head the hair grows from.",
     lineage: ["Latin","English"],
-    clues: ["It's named after something that grows from the very top of you.","Its Latin root literally means 'pertaining to the hair.'","Trace it back far enough and you land on caput — the word for 'head.'"],
+    clues: ["This adjective describes something extremely narrow. Surprisingly, its Latin ancestor meant pertaining to hair, and that word traces back even further to the word for head.","Scientists use it for tubes, cracks or vessels as fine as a single strand of hair, a narrowness far beyond merely thin or slender.","It names the body's tiniest blood vessels, linking arteries to veins, and the action that lets a paper towel wick up spilled water."],
   },
   {
     slug: "caraway",
@@ -2012,7 +1980,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts here point mostly to a long relay of borrowing — Greek to Aramaic to Arabic to Latin to English — rather than a shift in meaning; at every stage it seems to have named the same seed.",
     related: "The facts given don't point to any surviving English cognate beyond the word itself — just this single chain of borrowed names.",
     lineage: ["Ancient Greek","Aramaic","Arabic","Medieval Latin","Middle English","English"],
-    clues: ["This spice's name rode a relay of tongues — Greek to Aramaic to Arabic to Latin — before settling into English.","Its Arabic form, karāwiyā, named the same curled little seed used to flavor rye bread.","Medieval Latin called it carui, close cousin to the Greek káron it borrowed from."],
+    clues: ["This kitchen spice gets its name from a long relay of borrowing that began in ancient Greek, yet at every stage it seems to have named the same seed.","These small, curved, ridged brown seeds have a warm, faintly licorice-like bite. They resemble cumin but taste sweeter, and they are the specks in a classic deli rye bread.","It flavors Irish seed cake, sauerkraut and Scandinavian aquavit. In Arabic, one stop on its long relay of borrowing, it was called karawiya."],
   },
   {
     slug: "carbon",
@@ -2024,7 +1992,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word began as a plain name for charcoal or burnt wood, then was deliberately repurposed by Lavoisier as the name of a chemical element — moving from a substance you'd find in a hearth to a fundamental building block of matter.",
     related: "No other cognate is given in the facts, but the Latin root carbō itself is the direct ancestor here, carrying its old sense of charcoal into the modern chemical term.",
     lineage: ["Proto-Indo-European","Latin","French","English"],
-    clues: ["It started as a word for the black, burnt remains left in a fire pit.","A French scientist took an old Latin word for charcoal and turned it into a new element's name.","Trace it back far enough and you may hit a root meaning simply 'to burn.'"],
+    clues: ["This chemical element got its name from a word Romans used for charcoal and burnt wood, borrowed on purpose by the French chemist Antoine Lavoisier.","Not coal itself but the element in it, present in every living thing and found pure as diamond and graphite. Its name may come from an ancient root meaning to burn.","Climate talk is full of it: we breathe out its dioxide, and people try to shrink their ___ footprint by flying less."],
   },
   {
     slug: "cardigan",
@@ -2036,7 +2004,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts given don't describe how the garment came to bear his name or how its meaning shifted over time.",
     related: "The name traces back to Cardigan, the place the earldom's title refers to, but no other related English word is given in the facts.",
     lineage: ["English"],
-    clues: ["It honors a 19th-century British officer, not a fabric or shape.","The garment's name is literally someone's title — an earl's.","That earl was James Brudenell, 7th Earl of a Welsh town's name."],
+    clues: ["This piece of knitwear is named after a man, not a pattern or a place: a British earl who served as a military commander in the 1800s.","It is a knitted top that opens all the way down the front and usually fastens with buttons, unlike a pullover sweater you tug on over your head.","You might throw one over a blouse on a chilly office day, and Mister Rogers famously changed into one at the start of every episode."],
   },
   {
     slug: "caribou",
@@ -2048,7 +2016,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word moved from an Algonquian description of an action — shoveling snow — into a Mi'kmaq noun naming the animal that does it, then was picked up by French speakers in Canada before entering English essentially unchanged.",
     related: "Mi'kmaq \"qalipi\", meaning \"to shovel snow\", shares the same root and hints at the literal image behind the animal's name.",
     lineage: ["Proto-Algonquian","Mi'kmaq","French","English"],
-    clues: ["Its name once described an action performed by hooves clearing a path through drifts.","The word behind it literally means 'it shovels snow.'","A related Mi'kmaq word, 'qalipi', means 'to shovel snow.'"],
+    clues: ["This hoofed mammal of the far north has a name tracing back to an ancient Algonquian root that literally meant 'it shovels snow'.","A wild deer of North America's tundra, it is the same species as the reindeer but roams untamed in vast migrating herds, and both sexes grow antlers.","It appears on Canada's quarter, and in the Mi'kmaq language of eastern Canada its name is qalipu."],
   },
   {
     slug: "carol",
@@ -2060,7 +2028,7 @@ export const WORDS: WordEntry[] = [
     journey: "The Middle English word covered a lot of ground — a circling dance, the song sung during it, a religious poem, even a writing desk or small enclosed stall. Over time the dancing fell away and the singing remained, narrowing carol into the festive song we know now.",
     related: "It's often compared to chorus and terpsichorean, words that share its possible roots in Greek khorós, the circling dance of a choir.",
     lineage: ["Ancient Greek","Latin","Old French","Middle English","English"],
-    clues: ["Long before it named a song, this word could mean people moving in a circle, voices rising together as they turned.","Its Middle English ancestor named a round dance with singing — and, oddly, also a small writing desk or study stall.","It shares distant roots with 'chorus,' both possibly tracing back to a Greek word for a circling dance of singers."],
+    clues: ["This kind of song once named a round dance, in which a circle of people moved together while singing.","Today it names a joyful Christmas song, often sung by groups going door to door, and usually lighter and more festive than a solemn hymn.","Dickens titled his tale of Scrooge 'A Christmas ___.' In medieval English the word could even mean a writing desk or a small enclosed stall."],
   },
   {
     slug: "carousel",
@@ -2072,7 +2040,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts given don't describe how the word's meaning shifted over time, only its uncertain path through French and Italian dialect forms into English.",
     related: "It is not believed to be related to the similar-looking word carousal, despite the resemblance.",
     lineage: ["Sicilian","Neapolitan","Italian","French","English"],
-    clues: ["Its trail runs through two southern Italian dialects before settling into French, and even scholars aren't sure exactly where in that trail it began.","One old theory ties it to a word for 'cart,' but that idea doesn't survive close inspection.","Don't confuse it with 'carousal' — despite the near-twin spelling, the two aren't kin."],
+    clues: ["This amusement park ride has a name traced to Sicilian or Neapolitan dialect, though its exact root is uncertain. An old guess linking it to a word for \"cart\" doesn't hold up.","It's a revolving platform of painted horses that bob up and down to organ music, the name many Americans use instead of merry-go-round.","At the airport, you wait by the baggage one for your suitcase. Despite the resemblance, it is not believed to be related to \"carousal,\" a rowdy drinking party."],
   },
   {
     slug: "cartel",
@@ -2084,7 +2052,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word started as a small written paper — a card or note — and in its political sense became a formal written agreement between rivals. That same political sense was later borrowed into German as Kartell, where it was repurposed as a metaphor for coordinated business interests, and English then borrowed that new meaning back.",
     related: "It shares its root with 'chart' and 'card,' both tracing back to Latin charta, the written page that started it all.",
     lineage: ["Latin","Italian","French","German","English"],
-    clues: ["It began as a small written page passed between two sides before a formal challenge.","In French and Italian it once meant a written note or card — only later did it come to mean secretive business teamwork.","A 19th-century German politician's use of 'Kartell' in parliament helped give this word its modern, corporate edge."],
+    clues: ["This noun for a kind of alliance once named a formal note passed between rivals before a duel.","It means a group of independent companies that secretly agree to fix prices or limit supply, shadier than an ordinary partnership or merger. A German politician was the first to use it in the business sense.","Headlines speak of Mexican drug ones, and OPEC is often called an oil one. It shares an ancient root with 'card' and 'chart.'"],
   },
   {
     slug: "cartilage",
@@ -2096,7 +2064,7 @@ export const WORDS: WordEntry[] = [
     journey: "It arrived through French and largely displaced the native English word gristle, from Old English gristel, though gristle survives too.",
     related: "It's connected to gristle, the older native English word it partly replaced, from Old English gristel.",
     lineage: ["Latin","French","English"],
-    clues: ["This flexible body tissue once went by a homegrown English name before a French import muscled in.","Its ancestor is a Latin word, cartilāgō, borrowed into English by way of French.","The word it nudged aside, gristle, still shows up on your dinner plate."],
+    clues: ["This kind of body tissue arrived from French and largely pushed aside an older native English word for the same stuff, though that older word still survives.","It is the firm but bendy tissue that shapes your outer ears and nose tip and cushions your joints, softer and more flexible than bone.","Sharks have whole skeletons made of it, and the older English word it partly replaced, gristle, now mostly names the chewy bits in meat."],
   },
   {
     slug: "cascade",
@@ -2108,7 +2076,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word moved from Italian into French and then English, carrying its core sense of falling with it at each step, eventually settling into English as a noun for water falling in stages.",
     related: "Because it descends from Latin cadere, \"to fall,\" cascade shares deep roots with other English words built on that same falling sense, though the facts here trace only its direct path through Italian and French.",
     lineage: ["Latin","Italian","French","English"],
-    clues: ["At its root sits an ancient idea of coming down, nothing more.","In Italian, the verb it grew from simply means 'to fall.'","French borrowed an Italian word for a fall, and English borrowed it right back."],
+    clues: ["This noun for a feature of moving water has a gentle ancestry: its Italian source was a verb meaning simply \"to fall.\"","It names water tumbling down rocks in a series of small stages, rather than one sheer plunge like a waterfall. Every language it passed through kept that sense of falling.","It is also used for a chain of events where each one triggers the next, like a run of failures, or for long hair tumbling over the shoulders."],
   },
   {
     slug: "cash",
@@ -2120,7 +2088,7 @@ export const WORDS: WordEntry[] = [
     journey: "The French-Latin line shifted from naming the container that held money to naming the money itself. Meanwhile the Tamil-Sanskrit line was extended by English speakers to describe similar small coins used throughout Southeast and East Asia, following Portuguese forms like caixa.",
     related: "Cash is a doublet of case, chase, and chasse, all descending from the same Latin capsa. It's also worth knowing the word cashier traces back to this same family.",
     lineage: ["Proto-Indo-European","Latin","Occitan","Middle French","English"],
-    clues: ["Its oldest ancestor simply meant the act of grasping or taking hold.","One root meant a box — the container money was kept in, not the money itself.","It shares a Latin root, capsa, with the English words case and chase."],
+    clues: ["This everyday form of payment once named nothing more than the box it was kept in, coming from a Latin word for a box rooted in 'take, seize.'","It means banknotes and coins in hand, narrower than money in general and the opposite of paying by card. English speakers also used it for small coins across South and East Asia.","Shoppers pay in cold, hard ___, and the person at the register who takes it has a job title from the same word family."],
   },
   {
     slug: "casino",
@@ -2144,7 +2112,7 @@ export const WORDS: WordEntry[] = [
     journey: "It originally named any chance occurrence, good or bad, but over time narrowed to mean specifically an unfortunate event — especially the loss of a person.",
     related: "It shares its root with case, both descending from Latin cāsus, 'event' or 'that which falls.'",
     lineage: ["Latin","Late Latin","Medieval Latin","Middle French","English"],
-    clues: ["Its ancestor simply meant something falling into place — by accident, not design.","The root word meant 'a chance event,' before it took on a darker sense of loss.","It's a cousin of 'case,' both falling from the Latin cāsus."],
+    clues: ["This somber noun for a kind of loss once meant any chance occurrence at all, whether lucky or unlucky.","It names a person killed or injured in a war, disaster or accident, so it is broader than a fatality, since the wounded count too. Its root is a Latin verb meaning 'to fall.'","The saying goes that truth is the first one of war, and in Britain the hospital emergency room is named for it. It shares its Latin root with 'case.'"],
   },
   {
     slug: "cat",
@@ -2156,7 +2124,7 @@ export const WORDS: WordEntry[] = [
     journey: "Genetic evidence suggests domestic cats spread out of the Near East and became especially popular in Egypt around 4000 years ago, reaching Greece and Italy some 2500 years ago — a spread that a word moving from Afroasiatic into European languages would roughly match, though no single proposed source word has held up without problems.",
     related: "The word is a doublet of Spanish and Portuguese gato, both descending from the same Latin root; it's also cognate with French chat, German Katze, Welsh cath, and Russian кот, among many others across Europe and beyond.",
     lineage: ["Proto-Germanic","Proto-West Germanic","Old English","Middle English","English"],
-    clues: ["Its spread across languages seems to trace the same route this animal took out of the Near East, especially after it found fame in Egypt some 4,000 years ago.","Scholars suspect the English word ultimately comes from an Afroasiatic source, though every candidate word proposed so far runs into trouble.","It shares a root with Spanish and Portuguese 'gato,' and with words like French 'chat' and German 'Katze.'"],
+    clues: ["This household pet's name possibly began in an Afroasiatic language, and the animal itself was especially popular in Egypt around 4000 years ago.","Not a kitten but the grown animal: a whiskered, purring pet that hunts mice and grooms itself. Old English had separate forms for the male and the female.","Its relatives include Spanish gato, French chat and German Katze, and it is the animal said to have nine lives or to have gotten your tongue."],
   },
   {
     slug: "catalogue",
@@ -2168,7 +2136,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word has stayed close to its roots throughout — from a Greek term for listing things aloud, to a Latin and French word for a register, to the English noun for an ordered list of items.",
     related: "It shares its second half with words like dialogue and epilogue, all built on Greek légō, 'to speak' — so a catalogue and a dialogue are, at root, both acts of speaking things out.",
     lineage: ["Greek","Latin","Old French","Middle English","English"],
-    clues: ["Its final piece traces back to a Greek verb meaning simply 'to speak.'","The whole word once meant 'enrollment' or 'register' in Greek.","It's cousin to dialogue — both end in the Greek root for speaking."],
+    clues: ["This noun for a kind of organized record goes back to an ancient Greek verb meaning to recount or list things out, built on a root meaning to speak.","A complete, systematically arranged list of items, such as a library's holdings or a store's products, often printed as a booklet you browse. It is fuller and more formal than a brochure.","Shoppers once leafed through thick mail-order ones before ordering by post, and the word shares its speaking root with dialogue and epilogue."],
   },
   {
     slug: "catamaran",
@@ -2180,7 +2148,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word simply carried its literal meaning — tied logs — from Tamil into English as the name for this style of multi-hulled boat.",
     related: "It shares its second half, மரம் (maram, \"wood\"), with the very material the original vessels were made from, though no English cognate is given in the facts.",
     lineage: ["Tamil","English"],
-    clues: ["Its name once described the simple act of binding pieces of timber together.","In Tamil, it means something like 'tied wood.'","The maram half of its Tamil root literally means 'tree' or 'wood.'"],
+    clues: ["This kind of boat takes its name from a Tamil compound meaning, quite literally, tied wood, describing how the earliest versions were lashed together from logs.","Today it names a sailing or motor vessel with two parallel hulls joined side by side, prized for stability and speed, and one hull short of a trimaran.","Island resorts offer sunset cruises aboard one, and it is a familiar sight as a fast ferry or a twin-hulled racing yacht."],
   },
   {
     slug: "cataract",
@@ -2192,7 +2160,7 @@ export const WORDS: WordEntry[] = [
     journey: "What began as a word for rushing, downward water — a waterfall or the floodgates of heaven — was borrowed into medicine for the eye condition, on the logic that a clouded lens acts like a portcullis shutting out light. The two meanings, torrent and obstruction, have ridden the same word ever since.",
     related: "One proposed root behind the 'strike, dash' sense, rhā́ssō, may ultimately trace to Proto-Indo-European *wreh₂ǵʰ- ('to pound, strike'), tying cataract distantly to other words built on the idea of forceful impact.",
     lineage: ["Proto-Indo-European","Ancient Greek","Latin","Old French","Middle English","English"],
-    clues: ["It once named the gates thought to hold back the waters of the sky.","A portcullis-like blockage lent its name to a clouding of the eye's lens.","Greek katar(rh)áktēs, meaning both 'waterfall' and 'portcullis,' underlies both of this word's modern meanings."],
+    clues: ["This medical term first meant the floodgates of heaven, coming from an ancient Greek word for water rushing downwards.","It is a clouding of the eye's lens that blurs vision, common with age and fixed by lens-replacement surgery, unlike glaucoma, which involves pressure on the optic nerve.","The same word names a mighty, thundering waterfall, and medicine borrowed it for the eye because a clouded lens was likened to a portcullis shutting out light."],
   },
   {
     slug: "catfish",
@@ -2204,7 +2172,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word stayed a straightforward name for the whiskered fish until 2010, when the documentary Catfish borrowed it for online deception — supposedly inspired by fishermen keeping cod active during transport by storing them with these nipping fish.",
     related: "Its cousins abroad, West Frisian katfisk and Dutch katvis, show the same cat-plus-fish logic, while German's Seekatze (\"sea-cat\") lands on the same feline comparison from a different angle.",
     lineage: ["English"],
-    clues: ["A river creature earned its name from whiskers that recall a household pet, and later lent that name to a very different kind of disguise online.","In Dutch it's katvis and in West Frisian katfisk — literally 'cat' plus 'fish,' after its whisker-like barbels.","Think of German's Seekatze, or 'sea-cat' — the same whiskered logic behind the fish that gave a 2010 documentary its title, and a new verb its meaning."],
+    clues: ["This river fish got its name from a comparison to a familiar animal, one that Dutch and West Frisian speakers made in exactly the same way.","Scaleless and bottom-feeding, it is no carp: the long feelers around its mouth likely reminded people of a household pet's whiskers.","Since a 2010 documentary, it also means luring someone online with a fake identity, supposedly inspired by fishermen storing cod with nipping fish to keep them lively."],
   },
   {
     slug: "catholic",
@@ -2216,7 +2184,7 @@ export const WORDS: WordEntry[] = [
     journey: "The Greek root simply meant 'according to the whole,' or universal — a sense the word carried through Latin and Old French into English.",
     related: "The Greek piece hólos ('whole') is the same root visible in the word 'holistic,' both pointing back to the idea of completeness.",
     lineage: ["Ancient Greek","Latin","Old French","English"],
-    clues: ["It traces back to a phrase meaning 'according to the whole' — nothing left out.","Its Greek ancestor, katholikós, simply meant 'universal.'","It shares a root with 'holistic,' both built on the Greek word for 'whole.'"],
+    clues: ["This adjective for breadth of interest or sympathy traces back to an ancient Greek word meaning 'according to the whole.'","Someone with tastes like this enjoys nearly everything, from opera to punk; it suggests a fuller, more all-embracing range than merely eclectic. Its Greek ancestor meant 'universal.'","Capitalized, it names the church headed by the Pope in Rome, and its Greek piece meaning 'whole' also lives on in 'holistic.'"],
   },
   {
     slug: "causeway",
@@ -2228,7 +2196,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word joined a term for a paved route with 'way,' fusing two ideas of passage into one — a road built up to cross ground that couldn't otherwise be walked.",
     related: "It shares its French descendant with chaussée, the modern French word for a paved road or highway, both coming from the same Old French root cauchie.",
     lineage: ["Latin","Old French","Anglo-Norman","Middle English","English"],
-    clues: ["Its middle may trace to a Latin word for either limestone or the heel that stamps it flat.","The second half of this word is simply 'way' — the first once meant a paved route in Old French.","It shares ancestry with French chaussée, a paved road built to survive wet or wild ground."],
+    clues: ["This kind of route takes its name from an ancient root linked either to limestone, the stuff it was paved with, or to stamping with the heels.","Unlike a bridge resting on spans, it is a road or path raised on a solid embankment across water or marsh, often linking a tidal island to the mainland.","Think of Northern Ireland's famous Giant's ___ of basalt columns; its French cousin, chaussée, still means a paved road or highway."],
   },
   {
     slug: "caustic",
@@ -2240,7 +2208,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts here don't trace a shift in meaning — the word has meant \"burning\" from Greek through Latin into English, whether applied to a chemical or a remark.",
     related: "Given only the facts above, no specific English cognate can be named — but the root sense of burning is baked into every layer of its history, from Greek to Latin to English.",
     lineage: ["Ancient Greek","Latin","English"],
-    clues: ["This quality once described something with the power to scorch, long before it described a stinging remark.","Its root simply means \"burning\" — first in Greek, then carried into Latin unchanged in spirit.","Trace it back far enough and you land on kaustós, Greek for \"burnt.\""],
+    clues: ["This adjective for a harsh quality, found in both remarks and chemicals, has meant 'burning' without a break since ancient Greek times.","It describes wit so bitter and scathing it seems to sear, harsher than merely sarcastic, as in a critic's withering review. Its Greek ancestor grew from a word meaning 'burnt.'","Chemists use it for substances that can burn or eat away skin, and paired with 'soda' it names lye."],
   },
   {
     slug: "celery",
@@ -2252,7 +2220,7 @@ export const WORDS: WordEntry[] = [
     journey: "As the word passed from Greek to Latin to Lombard to French and finally into English, it also pushed out two older English names for the plant, march and smallage, which it eventually displaced.",
     related: "The Greek root sélīnon lies at the base of the whole chain — Latin selīnum, Lombard selleri, and French céleri are all steps of the same word rather than separate relatives.",
     lineage: ["Ancient Greek","Latin","Lombard","French","English"],
-    clues: ["An old English name for this plant, 'smallage,' quietly lost the naming contest to a foreign newcomer.","Its name traveled from a Greek word through Latin and a Lombard plural before landing in French.","The French called it céleri, echoing the Greek sélīnon that started it all."],
+    clues: ["This garden vegetable had to fight for its place in English, eventually pushing out two older names for the very same plant, march and smallage.","Its pale green, ribbed stalks are crunchy and watery, a staple of soups and stock alongside onion and carrot. Unlike rhubarb, it is eaten savory rather than tart.","Fill its stalk with peanut butter and dot it with raisins for the snack called ants on a log, or stand one upright in a Bloody Mary."],
   },
   {
     slug: "census",
@@ -2264,7 +2232,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts here don't trace a shift in meaning beyond the borrowing itself, so the honest story is simple: Latin cēnsus passed into English largely intact.",
     related: "It shares its root with censor, since both come from the same Latin verb cēnseō, meaning to judge or assess.",
     lineage: ["Latin","English"],
-    clues: ["This word's root verb meant to judge or assess, not merely to tally.","In Latin, it named the act of assessing a population, a duty tied to weighing worth as much as counting heads.","It's kin to 'censor,' another word built on the Latin verb cēnseō."],
+    clues: ["This official government undertaking began as an act of judgment, not just arithmetic: its Latin source was tied to a verb meaning to assess or judge.","It is an official count of everyone living in a country, recording details about each household, and far more complete than a poll or survey that samples only some people.","It shares its Latin root with censor, and in the United States its forms arrive every ten years to help divide seats in Congress."],
   },
   {
     slug: "chapter",
@@ -2276,7 +2244,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word carried a double life in Medieval Latin, naming both a section of writing and a gathering of church officials — a sense still faintly visible in phrases like 'chapter meeting' for a religious or organizational body.",
     related: "It shares its root with capital and capitulum, and is a doublet of chapiter — all tracing back to Latin caput, 'head.'",
     lineage: ["Latin","Old French","Middle English","English"],
-    clues: ["Its ancestor word literally meant 'a little head' in Latin — a small top piece standing in for a whole section.","It once named both a book division and a formal council of officials in Medieval Latin.","It's a linguistic cousin of 'capital' and 'capitulum,' both rooted in the Latin word for head."],
+    clues: ["This noun for a division of a larger whole traces back to a Latin word meaning 'little head.'","It is one of the main numbered divisions of a book, bigger than a paragraph and often given its own title. In Medieval Latin, the word also named a church council.","Starting a new one means beginning a fresh phase of life, a club's local branch is called one, and citing something precisely is giving '___ and verse.'"],
   },
   {
     slug: "charisma",
@@ -2288,7 +2256,7 @@ export const WORDS: WordEntry[] = [
     journey: "Originally a theological term, charisma took on a new life around 1930 when English borrowed the sense used by German sociologist Max Weber to describe a leader's special power to inspire devotion. By the 1940s and 50s, the word loosened further to mean simple personal charm.",
     related: "Charisma is a doublet of charism, both descending from the same Greek word for grace or gift.",
     lineage: ["Ancient Greek","German","English"],
-    clues: ["It traces back to a Greek root meaning 'to be happy,' by way of a word for showing favor.","Its oldest sense was a theological one: a gift or grace freely given.","A German sociologist's use of the word for magnetic leadership got borrowed straight into English — it shares an ancestor with 'charism.'"],
+    clues: ["This personal quality began as a theological term for a gift of grace freely given, from an ancient Greek word linked to one meaning 'to be happy.'","It is the magnetic presence that draws people in and makes them want to follow, something rarer and more compelling than simple charm or likability.","Sociologist Max Weber used it for a leader's special power to inspire devotion; today we say a magnetic politician or rock star simply oozes it."],
   },
   {
     slug: "charm",
@@ -2300,7 +2268,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word entered English carrying its magical, incantation-like sense from Old French and Latin, and in doing so replaced the older native term lybb that had covered similar ground.",
     related: "Charm is a near-doublet of chirm: both may descend from Old English words for a cry or calling sound (ċearm and its feminine counterpart), tracing back to Proto-Germanic *karmiz, *karm(j)az.",
     lineage: ["Latin","Old French","Middle English","English"],
-    clues: ["Its earliest known rival was a native word that meant both poison and enchantment — and lost.","Trace it back far enough and it's just a song, or an incantation sung aloud.","It shares old Germanic roots with 'chirm,' a word for a cry or calling sound."],
+    clues: ["This personal quality traces back to a Latin word meaning song or incantation, because it first named a magic spell that was chanted aloud.","It is the delightful power to win people over through warmth and manner, gentler than commanding charisma and less about looks than beauty. It pushed out an older English word, lybb.","It also names a small trinket dangling from a bracelet, and a lucky one is carried for good fortune. When something works perfectly, it works like one."],
   },
   {
     slug: "chauvinist",
@@ -2312,7 +2280,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts given don't trace a shift in meaning over time, so the honest story here is simply the name-based origin itself, split into two different words that grew apart in use.",
     related: "It's a doublet of \"Calvinist\" — the two words come from different forms of the same original name, making them unexpected linguistic siblings.",
     lineage: ["English"],
-    clues: ["This word and a term for a strict follower of a 16th-century theologian both grew from the same personal name, just shaped differently.","It comes from a word for excessive loyalty to one's own group, itself built on someone's name.","It's a doublet of \"Calvinist\" — same name, different path into English."],
+    clues: ["This insult for a certain kind of biased person was formed from a personal name, and it secretly shares a family tree with a word for a strict religious follower.","It describes someone with a blind, aggressive belief in their own group's superiority, going far beyond ordinary patriotism, and today it is most often aimed at men who belittle women.","Often paired with \"male,\" as in a famously rude phrase ending in \"pig,\" it grew from a different form of the same name that gave us \"Calvinist.\""],
   },
   {
     slug: "cheddar",
@@ -2552,7 +2520,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts here don't trace a change in meaning, just the word's path from Latin through French and Anglo-Norman into Middle English.",
     related: "Client shares a root with clinare, the Latin verb for \"to lean\" — the same idea of leaning that sits behind its Latin ancestor cliēns.",
     lineage: ["Latin","Old French","Anglo-Norman","Middle English","English"],
-    clues: ["At its root sits a Latin word for leaning on something, or someone.","The person who depends on you for service traces back to that same idea of leaning.","It shares an ancestor with the Latin verb clinare — to lean."],
+    clues: ["This noun names a kind of person in a working relationship, and it traces back to a Latin word akin to a verb meaning \"to lean.\"","It is someone who pays a professional such as a lawyer, accountant or therapist for services, a more personal and ongoing tie than a shopper who is simply a customer.","In computing, it is the program or device that asks a server for data, like the email app on your phone."],
   },
   {
     slug: "climate",
@@ -2996,7 +2964,7 @@ export const WORDS: WordEntry[] = [
     journey: "The Greek root kósmos meant simply 'order' or 'arrangement' — the same idea behind our word 'cosmos.' From there it grew into kosméō, 'to arrange or adorn,' and eventually into a word specifically about the art of dressing and ornamenting oneself.",
     related: "Cosmetic shares its deepest root with 'cosmos' — both trace back to Greek kósmos, 'order,' whether that order is the arrangement of the stars or the arrangement of a face.",
     lineage: ["Ancient Greek","French","English"],
-    clues: ["Its ancient root simply meant 'order' — the same order that gives the universe its name.","It traces to a Greek word meaning to arrange, adorn, or equip.","It's a linguistic sibling of 'cosmos,' both born from the idea of putting things in order."],
+    clues: ["This adjective describes a certain kind of change or improvement. It grew from an ancient Greek word meaning simply 'order,' the same root behind a word for the whole universe.","It describes changes that improve only how something looks, not how it works, and often hints they are merely skin-deep. Its Greek ancestor named the art of dress and ornament.","Plastic surgeons offer this kind of surgery, and as a plural noun it names lipstick, mascara and foundation. It shares its deepest root with 'cosmos.'"],
   },
   {
     slug: "cost",
@@ -3656,7 +3624,7 @@ export const WORDS: WordEntry[] = [
     journey: "διάβολος came from διαβάλλω (diabállō), literally 'to throw across' (from διά, 'through, across,' plus βάλλω, 'throw'), used for someone hurling slander. In Jewish and Christian usage the Greek word came to translate the Hebrew śātān, and by the time it reached Old English as dēofol, it named Satan himself rather than just a slanderer.",
     related: "Devil is a doublet of diable, diablo, and diabolus — all descending from the same Latin/Greek root, just borrowed into different languages at different times.",
     lineage: ["Ancient Greek","Latin","Proto-West Germanic","Old English","Middle English","English"],
-    clues: ["Its ancestor described someone who hurls something across a space — in this case, an accusation.","The Greek original literally meant 'to throw across,' and came to mean 'slanderer.'","It shares a Latin root with diablo and diabolus, words for the same fallen figure."],
+    clues: ["This supernatural figure started out as a courtroom insult: its ancient Greek source meant a false accuser or slanderer, someone throwing accusations at you.","The chief spirit of evil, often pictured with horns, tail and pitchfork. It's the common noun, not the name Satan, though translators used it for that Hebrew title.","People say 'speak of the ___' when someone arrives right on cue, and a mischievous child is a little one. Spanish has the cousin word diablo."],
   },
   {
     slug: "diadem",
@@ -4076,7 +4044,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word started as an action tied directly to the physical work of harvesting, and over time came to mean gaining or deserving something more generally, whether money, respect, or rest.",
     related: "It shares deep roots with the idea of a harvest itself, since the verb was formed directly from a Proto-Germanic noun meaning that very thing — so to 'earn' something was, at root, to bring in a crop.",
     lineage: ["Proto-Germanic","Proto-West Germanic","Old English","Middle English","English"],
-    clues: ["Its oldest ancestor wasn't about effort or wages at all — it was a noun for the season's yield from the fields.","In Old English, this verb described the act of gathering in a harvest, long before it meant deserving a reward.","The Proto-Germanic root *azaniz literally meant 'harvest' — the seed from which this everyday verb grew."],
+    clues: ["This verb for gaining something was built from an ancient noun meaning harvest, so at first it meant bringing in the crops.","It means gaining money, respect or rest through your own effort or merit, unlike winning by luck or simply being handed something.","You do this with a wage, a living, or someone's trust, and a break after hard work is called a well-______ rest."],
   },
   {
     slug: "earring",
@@ -4628,7 +4596,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word started as a farm tool for creating wind to clean grain, and its meaning of 'moving air' carried forward into the handheld and mechanical fans we know today. Separately, in US baseball slang, 'fan' also came to mean an enthusiast, as a clipping of 'fanatic,' possibly shaped by 'fancy' in the sense of a group of hobby enthusiasts.",
     related: "It's a cousin of the Latin word ventus, meaning 'wind,' and of Dutch wan and German Wanne, both meaning 'winnowing basket' — all rooted in that same ancient idea of blowing air.",
     lineage: ["Proto-Indo-European","Latin","Old English","Middle English","English"],
-    clues: ["It began as a farmer's tool for tossing grain into a breeze so the husks would blow away.","Its ancestor root simply meant 'to blow.'","It shares that root with Latin ventus — 'wind' — and with Dutch and German words for a winnowing basket."],
+    clues: ["This everyday comfort item began as a farmer's basket for tossing grain into the wind, so the light husks blew away and left the clean wheat behind.","Today it names anything with blades or a folding sheet that pushes air to cool you, from a handheld paper one to a spinning ceiling one, much simpler than an air conditioner.","In US baseball slang it took on a second meaning, an enthusiast, so a devoted follower of a team or a pop star shares this name."],
   },
   {
     slug: "fate",
@@ -6116,7 +6084,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts here don't trace a change in meaning — the sense of looking closely into something has carried through from the Latin source.",
     related: "It shares its root specere with the -spect element seen in words built the same way, joined here with in- to mean looking directly into something.",
     lineage: ["Latin","English"],
-    clues: ["This act involves sending your eyes into something, piece by piece, until nothing's hidden.","It comes from a Latin verb meaning \"to look into.\"","The Latin root specere, \"to look at,\" paired with in-, gives this word its inward gaze."],
+    clues: ["This verb for a careful kind of looking comes from a Latin verb meaning simply 'to look into,' as if your gaze travels right inside the thing.","It means to look over something closely and officially for flaws or problems, the way a health officer checks a restaurant kitchen. It is more formal and thorough than simply checking.","A general does this to troops lined up on parade, and the bumbling detective Clouseau's police rank is named for the person who does it."],
   },
   {
     slug: "instant",
@@ -7268,7 +7236,7 @@ export const WORDS: WordEntry[] = [
     journey: "Pie alone once meant magpie, but adding the personal nickname Mag turned it into the fuller, more familiar name we use today, replacing the older native English words agu and aguster (which survives as haggister).",
     related: "It's a distant cousin of other pie-derived words, since pie itself came from Latin pīca, the root that gave English its old term for the bird before Mag was added to it.",
     lineage: ["Proto-Indo-European","Latin","Old French","Middle English","English"],
-    clues: ["Its name pairs a common girl's nickname with an old word for a noisy bird, as if calling out a talkative woman.","The second half once stood alone as the word for this bird, borrowed through French from a Latin term for it.","It edged out older English words like agu and aguster, though a trace of the latter survives in 'haggister.'"],
+    clues: ["This bird's name is basically an old joke about a gossipy woman: a personal nickname once used to mean a chatterer was added to an older word for the bird.","A noisy, long-tailed relative of the crow with bold black-and-white plumage, unlike the all-black crow or jackdaw, and famous in folklore for stealing shiny objects.","Someone who compulsively collects bright trinkets gets called one of these. Its name replaced older native English words for the bird, one of which survives as haggister."],
   },
   {
     slug: "maharaja",
@@ -7436,7 +7404,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word seems to have traveled from a distant port city's name, through the idea of a spice container, before settling into Italian and German as a term for the almond confection we know today.",
     related: "Its shape was likely influenced by Italian pane, meaning 'bread,' though marzipan itself isn't bread-related at all.",
     lineage: ["Arabic","Italian","German","English"],
-    clues: ["Its name may trace back to a Burmese port once known for shipping spices across the sea.","Before it meant a sweet paste, the word may have simply meant 'spice box' in Arabic.","Italian speakers shaped the word further, possibly under the influence of pane, their word for bread."],
+    clues: ["This sweet confection's name is believed to trace back to an Arabic word for a spice box, itself named after a Burmese port famous for exporting spices.","A pliable paste of ground almonds and sugar, unlike all-sugar fondant, often molded into tiny fruits and animals. Its final form was likely shaped by an Italian word for bread.","Bakers roll it over a traditional British Christmas cake beneath the white icing, and it hides as a sweet seam in the center of German stollen."],
   },
   {
     slug: "mascot",
@@ -7568,7 +7536,7 @@ export const WORDS: WordEntry[] = [
     journey: "Housekeeping once included the care of domestic animals, so a word for managing a household came to describe a place where animals were kept and shown.",
     related: "It shares its root with ménager, the French word for keeping house, showing how domestic care of animals grew into a word for animal collections.",
     lineage: ["French","English"],
-    clues: ["Its root once meant simply looking after a home — animals included.","The French word behind it, ménager, means \"to keep house.\"","Related to ménager, this word now names a collection of wild animals on display."],
+    clues: ["This noun for a kind of collection began with housework: it comes from a French verb meaning \"to keep house.\"","Because housekeeping once included tending domestic animals, it came to mean a collection of exotic animals kept for display, often grander or more private than a zoo.","Figuratively, it describes a lively, mixed assortment of odd characters, and Tennessee Williams named a famous play The Glass ___ after a collection of tiny animal figurines."],
   },
   {
     slug: "menstrual",
@@ -7700,7 +7668,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word carried a double sense of diminishing from the start — one strand about making things smaller in size or degree, the other specifically about chopping things into small pieces — and English fused these into a single word covering both literal cutting and figurative softening.",
     related: "It's cognate with Swedish minska, 'to reduce or lessen,' and with the English word min, which shares the same deep root meaning 'small.'",
     lineage: ["Proto-Indo-European","Proto-Germanic","Old English","Old French","Middle English","English"],
-    clues: ["Two old words for 'making smaller' — one Germanic, one French — ended up fused into a single English verb.","It can mean chopping food into tiny pieces, but also softening your words so they land less harshly.","It shares a root with the Swedish word minska, 'to reduce,' and with the tiny English word min."],
+    clues: ["This verb used in kitchens comes partly from an Old English word meaning 'to make less or smaller,' and partly from a French word for 'slender, slight.'","It means to cut food, especially meat, onions or garlic, into very tiny pieces, much finer than a rough chop or neat dice.","Someone blunt doesn't do this to their words, and it also describes walking with short, dainty, affected steps."],
   },
   {
     slug: "mint",
@@ -10136,7 +10104,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word started out attached to counting or portioning things, as \"quota\" once did. Only later did it settle into naming a repeated piece of someone else's words, a sense that took over and pushed the older meaning into obsolescence.",
     related: "It shares its root with \"quote\" itself, since the modern meaning may simply be quote plus the suffix -ation.",
     lineage: ["Latin","Medieval Latin","English"],
-    clues: ["It once described a share or portion of something, a sense now long forgotten.","By the 1600s it had shifted to naming a borrowed fragment of speech or text.","It's built on the same root as the verb \"quote,\" with -ation tacked on."],
+    clues: ["This noun for a bit of language once had nothing to do with words at all: it named a mere share or portion, tied to counting things out.","Today it names a passage of someone else's exact words repeated in your writing or speech; a citation merely points to the source, while this reproduces the words.","A plumber gives you one as a price estimate before starting a job, and whole books are filled with famous ones, each framed by inverted commas."],
   },
   {
     slug: "rabbi",
@@ -10448,7 +10416,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts don't show a shift in meaning beyond its formation — it was made in English from re- plus place, combining \"again\" with \"place\" straightforwardly.",
     related: "It shares its re- prefix with countless other English words built the same way, though no specific cognate is given in the facts here.",
     lineage: ["Proto-Italic","Latin","Old French","Middle English","English"],
-    clues: ["A little piece meaning 'again' has traveled from an ancient Italic root through Latin and French before landing quietly in English.","Attach 'again' to the front of a word meaning 'spot' or 'position,' and you'll find this verb.","Its cousin prefix re- shows up in words like return and reuse — here it's fused right onto 'place.'"],
+    clues: ["This everyday verb about what fills a spot wasn't borrowed whole from another language; English built it by joining a prefix meaning \"again\" or \"back\" to a common word.","It means taking away something worn out or broken and putting a new one in its spot, like a dead battery. Unlike repairing, the old item doesn't stay.","A beloved legend is someone nobody can ever do this to, and a library sign asks you to do it with books, setting each back on its shelf."],
   },
   {
     slug: "reprisal",
@@ -10496,7 +10464,7 @@ export const WORDS: WordEntry[] = [
     journey: "The facts given show only the word's borrowing path from Latin through Old French into Middle English, with no further recorded shift in meaning.",
     related: "It shares its pugn- root with pugnacious, both tracing back to Latin pugnare, 'to fight.'",
     lineage: ["Latin","Old French","Middle English","English"],
-    clues: ["It describes something that feels like it's pushing back against you, rooted in the idea of fighting.","It comes from a Latin verb meaning 'to oppose or fight against.'","It shares a fighting root with the word pugnacious."],
+    clues: ["This adjective for a strong negative reaction traces back to a Latin verb meaning to oppose or fight against, as if the thing itself were pushing back at you.","It describes something so distasteful or morally offensive that it provokes real disgust, far stronger than merely unpleasant or off-putting.","People often call cruel or bigoted views morally this; it shares its ancient fighting root with pugnacious, the word for someone always itching for a quarrel."],
   },
   {
     slug: "resistor",
@@ -10916,7 +10884,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word entered English as salva in 1591 to describe a simultaneous discharge of guns, then was altered to its current spelling, salvo, by 1719.",
     related: "It shares a root with salvere, 'to be in good health' — the same idea behind the Roman greeting salve, which still surfaces in English as a form of hello in some contexts.",
     lineage: ["Latin","Italian","French","English"],
-    clues: ["It may echo an ancient greeting wishing someone good health.","It once meant a simultaneous discharge of guns, first spelled with an 'a' instead of an 'o.'","Its root, salve, is the very word Romans used to say hello."],
+    clues: ["This noun from the world of cannons and warships likely traces back to a Latin word for a salute, born from the everyday Roman greeting meaning 'hail.'","It names guns fired together in one coordinated burst, a single crash rather than a long continuous barrage, like a warship discharging its cannons at once.","Figuratively, a debater fires an 'opening' one: a first sharp burst of arguments or criticism aimed at an opponent."],
   },
   {
     slug: "sampan",
@@ -11900,7 +11868,7 @@ export const WORDS: WordEntry[] = [
     journey: "Latin speciō, \"to look at,\" was joined with the suffix -trum to form spectrum, an \"appearance\" or even \"apparition\" — something seen. English borrowed the word directly from Latin with that same sense of a visible image.",
     related: "Spectrum is a doublet of specter, meaning both words descend from the same Latin spectrum but reached English by different paths. Speciō, the root verb meaning \"to look at,\" is also related to the English word scope.",
     lineage: ["Proto-Indo-European","Proto-Italic","Latin","English"],
-    clues: ["Its distant root simply meant \"to look\" or \"to watch.\"","In Latin, this word once meant a ghostly \"appearance\" or \"apparition.\"","It shares its Latin ancestor with the English word specter."],
+    clues: ["This noun, at home in both physics class and political debate, began as a Latin word for an appearance or even a ghostly apparition, something simply seen.","It names the band of colors a prism spreads light into, and, more broadly than any rainbow, a continuous range between two extremes, like opinions from left to right.","It shares a Latin ancestor with specter, and you hear it in phrases like 'across the political ___' or 'at the opposite end of the ___'."],
   },
   {
     slug: "spell",
@@ -12332,7 +12300,7 @@ export const WORDS: WordEntry[] = [
     journey: "The Greek word traces back to sumpíptō, 'I befall,' built from sun- ('together') and píptō ('to fall') — so a symptom was originally something that 'falls together' with, or accompanies, a condition.",
     related: "It shares its Greek root píptō ('to fall') with other words built on that stem, and the sun- prefix links it to the family of 'syn-' words meaning 'together.'",
     lineage: ["Ancient Greek","Late Latin","Medieval Latin","Middle English","English"],
-    clues: ["Its Greek ancestors described something that simply 'falls together' alongside something else.","At its root are two Greek pieces meaning 'together' and 'to fall.'","It's a cousin of every English word built on the Greek prefix 'syn-,' meaning 'together.'"],
+    clues: ["This noun for a kind of telltale sign comes from an ancient Greek word for something that falls together with, or accompanies, something else.","A change a patient feels and reports, like nausea or a headache, that points to an illness without being the illness itself. Its Greek ancestor also meant an accident.","Cold medicines promise to relieve these, doctors ask you to describe yours, and rising crime is often called one of a deeper social problem."],
   },
   {
     slug: "synagogue",
@@ -12776,7 +12744,7 @@ export const WORDS: WordEntry[] = [
     journey: "The bird sense stayed remarkably stable across centuries, always naming the same family of songbirds. The illness sense simply developed alongside it, unconnected in meaning, and its trail goes cold rather than tracing a clear shift.",
     related: "The bird's ancient root also gave German Drossel, Latin turdus, Russian дрозд, and even Welsh drudwy, meaning starling — a whole flock of cognates across Europe. The illness sense has no confirmed relatives among these; the facts simply don't connect it.",
     lineage: ["Proto-Indo-European","Proto-Germanic","Old English","Middle English","English"],
-    clues: ["One small word once quietly split in two — one path flew, the other stayed grounded in mystery.","It names a speckle-breasted songbird, but also, oddly, a sore mouth.","Its ancestor is echoed in German Drossel and Latin turdus — same bird, different tongues."],
+    clues: ["This songbird's name has a whole flock of European cousins, sharing an ancient root with German Drossel and Latin turdus, the scientific name for its family.","A brown woodland songbird with a boldly speckled breast, kin to the blackbird and American robin, prized for rich, repeated phrases far sweeter than a sparrow's chirp.","The same name also means a yeast infection that leaves white patches in the mouth or throat, a separate sense whose origin remains murky."],
   },
   {
     slug: "thunder",
@@ -13148,7 +13116,7 @@ export const WORDS: WordEntry[] = [
     journey: "The word started out naming a piece of cloth wound into headwear, but by the time it reached French and then English, it had shifted entirely to name the flower, likely because the bloom's shape recalled a wrapped turban.",
     related: "Tulip is a doublet of turban — both trace back to the same Persian word for headwear, just arriving in English by different routes.",
     lineage: ["Persian","Ottoman Turkish","Middle French","English"],
-    clues: ["Its name began as a word for wound cloth worn on the head, long before it meant anything with petals.","The flower was named for a resemblance — its shape reminded people of a wrapped headpiece.","It shares an ancestor with the English word 'turban,' just took a different path through French to get here."],
+    clues: ["This spring flower takes its name from an old Persian word for a turban, the length of cloth people once wound around their heads.","Grown from a bulb, it holds one cup-shaped bloom on a tall stem, unlike a daffodil's trumpet. The name likely stuck because that bloom recalled a wrapped turban.","Holland is famous for vast, striped fields of these in red, yellow and pink each spring, and an old song invites you to tiptoe through them."],
   },
   {
     slug: "turbine",
