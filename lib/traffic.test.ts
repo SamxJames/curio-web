@@ -3,6 +3,7 @@ import {
   classifySource,
   eventField,
   isLikelyBot,
+  isSignupPlacement,
   isTrafficSource,
   parseTrafficEvent,
   summarizeTraffic,
@@ -152,6 +153,34 @@ describe("summarizeTraffic", () => {
       rows: [],
       totals: { visits: 0, requests: 0, signups: 0 },
       shares: { story: 0, puzzle: 0 },
+      placements: [],
     });
+  });
+});
+
+describe("signup placements", () => {
+  it("isSignupPlacement accepts only known placements", () => {
+    expect(isSignupPlacement("story")).toBe(true);
+    expect(isSignupPlacement("homepage")).toBe(false);
+    expect(isSignupPlacement(3)).toBe(false);
+  });
+  it("eventField names placement fields", () => {
+    expect(eventField({ kind: "request-at", placement: "today" })).toBe("request-at:today");
+    expect(eventField({ kind: "signup-at", placement: "account" })).toBe("signup-at:account");
+  });
+  it("parseTrafficEvent rejects placement kinds from the browser", () => {
+    expect(parseTrafficEvent({ kind: "signup-at", placement: "story" })).toBeNull();
+    expect(parseTrafficEvent({ kind: "request-at", placement: "story" })).toBeNull();
+  });
+  it("summarizeTraffic folds placements across days, in placement order, skipping empty ones", () => {
+    const s = summarizeTraffic({
+      "2026-10-18": { "request-at:story": 2, "signup-at:story": 1, "signup-at:arrival": 1, "visit:direct": 5 },
+      "2026-10-19": { "request-at:story": 1, "request-at:bogus": 9 },
+    });
+    expect(s.placements).toEqual([
+      { placement: "arrival", requests: 0, signups: 1 },
+      { placement: "story", requests: 3, signups: 1 },
+    ]);
+    expect(s.totals.visits).toBe(5);
   });
 });
