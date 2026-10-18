@@ -1,5 +1,5 @@
 import { resolve } from "node:path";
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 
 export default defineConfig({
   // Mirrors tsconfig.json's "@/*" -> "./*" path mapping. Vitest doesn't read
@@ -17,5 +17,8 @@ export default defineConfig({
   },
   test: {
     environment: "node",
+    // Worktrees live under .claude/worktrees/ and carry their own copy of the
+    // suite; sweeping them from the main checkout reports bogus failures.
+    exclude: [...configDefaults.exclude, ".claude/**"],
   },
 });
