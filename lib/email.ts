@@ -4,7 +4,7 @@ import { dayKey, formatDay } from "./day";
 import { absoluteUrl, siteUrl } from "./siteUrl";
 import { signUnsubscribeToken } from "./unsubscribeToken";
 import { signConfirmToken } from "./confirmToken";
-import type { TrafficSource } from "./traffic";
+import type { SignupPlacement, TrafficSource } from "./traffic";
 import { sendInBatches, type BatchResult, type SendOutcome } from "./digestSend";
 
 const resendApiKey = process.env.RESEND_API_KEY;
@@ -120,9 +120,15 @@ export function unsubscribeUrl(email: string, secret: string): string {
  * which changes nothing until its button is pressed (scanners prefetch
  * links — see app/subscribe/confirm/page.tsx). Tagged utm_source=email so
  * the visit counts as email, not direct. */
-export function confirmUrl(email: string, source: TrafficSource, secret: string, now: Date = new Date()): string {
+export function confirmUrl(
+  email: string,
+  source: TrafficSource,
+  secret: string,
+  now: Date = new Date(),
+  placement?: SignupPlacement
+): string {
   const url = new URL(absoluteUrl("/subscribe/confirm"));
-  url.searchParams.set("token", signConfirmToken(email, source, secret, now));
+  url.searchParams.set("token", signConfirmToken(email, source, secret, now, placement));
   url.searchParams.set("utm_source", "email");
   return url.toString();
 }

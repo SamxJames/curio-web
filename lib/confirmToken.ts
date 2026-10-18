@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { normaliseEmail } from "./unsubscribeToken";
-import { isTrafficSource, type TrafficSource } from "./traffic";
+import { isSignupPlacement, isTrafficSource, type SignupPlacement, type TrafficSource } from "./traffic";
 
 /** A distinct HMAC context from unsubscribe's, so neither kind of token can
  * ever pass as the other even though both use UNSUBSCRIBE_SECRET. Bump the
@@ -15,7 +15,7 @@ export const CONFIRM_TTL_SECONDS = 7 * 24 * 60 * 60;
 /** Tolerated clock skew for a token "issued in the future". */
 const MAX_SKEW_SECONDS = 300;
 
-export type ConfirmClaim = { email: string; source: TrafficSource };
+export type ConfirmClaim = { email: string; source: TrafficSource; placement?: SignupPlacement };
 
 function mac(payload: string, secret: string): Buffer {
   return createHmac("sha256", secret).update(CONTEXT + payload).digest();
@@ -23,17 +23,25 @@ function mac(payload: string, secret: string): Buffer {
 
 const unixSeconds = (d: Date) => Math.floor(d.getTime() / 1000);
 
-/** `base64url(JSON{e,s,t}).base64url(hmac)`. `s` is the arrival source the
+/** `base64url(JSON{e,s,t,p?}).base64url(hmac)`. `s` is the arrival source the
  * signup came from (lib/traffic.ts), carried so the confirmed signup is
- * credited to it; `t` is when the link was issued. */
-export function signConfirmToken(email: string, source: TrafficSource, secret: string, now: Date = new Date()): string {
+ * credited to it; `t` is when the link was issued; `p` is the page spot the
+ * signup came from (SignupPlacement), absent on links sent before 2026-10-18
+ * and on requests that didn't name one. */
+export function signConfirmToken(
+  email: string,
+  source: TrafficSource,
+  secret: string,
+  now: Date = new Date(),
+  placement?: SignupPlacement
+): string {
   const payload = Buffer.from(
-    JSON.stringify({ e: normaliseEmail(email), s: source, t: unixSeconds(now) })
+    JSON.stringify({ e: normaliseEmail(email), s: source, t: unixSeconds(now), ...(placement ? { p: placement } : {}) })
   ).toString("base64url");
   return `${payload}.${mac(payload, secret).toString("base64url")}`;
 }
 
-/** The address and source a token was signed for, or null if it's forged,
+/** The address, source and (if any) placement a token was signed for, or null if it's forged,
  * tampered with, signed under another secret, expired, from the future, or
  * malformed in any way. Never throws. */
 export function verifyConfirmToken(token: string, secret: string, now: Date = new Date()): ConfirmClaim | null {
@@ -52,12 +60,13 @@ export function verifyConfirmToken(token: string, secret: string, now: Date = ne
     return null;
   }
   if (typeof data !== "object" || data === null) return null;
-  const { e, s, t } = data as Record<string, unknown>;
+  const { e, s, t, p } = data as Record<string, unknown>;
   if (typeof e !== "string" || !e.includes("@") || e !== normaliseEmail(e)) return null;
   if (!isTrafficSource(s)) return null;
   if (typeof t !== "number" || !Number.isFinite(t)) return null;
 
   const age = unixSeconds(now) - t;
   if (age > CONFIRM_TTL_SECONDS || age < -MAX_SKEW_SECONDS) return null;
-  return { email: e, source: s };
+  // An unrecognised placement is dropped, not a reason to refuse the link.
+  return isSignupPlacement(p) ? { email: e, source: s, placement: p } : { email: e, source: s };
 }

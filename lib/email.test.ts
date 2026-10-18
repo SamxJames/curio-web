@@ -118,6 +118,15 @@ describe("confirmation email", () => {
     });
   });
 
+  it("confirmUrl signs an optional placement into the token", () => {
+    const url = new URL(confirmUrl("sam@example.com", "share", SECRET, NOW, "account"));
+    expect(verifyConfirmToken(url.searchParams.get("token")!, SECRET, NOW)).toEqual({
+      email: "sam@example.com",
+      source: "share",
+      placement: "account",
+    });
+  });
+
   it("buildConfirmMessage has the exact subject, the link in both parts, and the ignore-it line", () => {
     const link = "https://curioword.com/subscribe/confirm?token=abc&utm_source=email";
     const msg = buildConfirmMessage("sam@example.com", link);

@@ -8,6 +8,24 @@ const NOW = new Date("2026-10-03T12:00:00Z");
 const later = (seconds: number) => new Date(NOW.getTime() + seconds * 1000);
 
 describe("confirm tokens", () => {
+  it("carries an optional placement", () => {
+    const t = signConfirmToken("a@b.com", "search", SECRET, NOW, "story");
+    expect(verifyConfirmToken(t, SECRET, NOW)).toEqual({ email: "a@b.com", source: "search", placement: "story" });
+  });
+
+  it("old tokens without a placement still verify, with no placement key", () => {
+    const t = signConfirmToken("a@b.com", "search", SECRET, NOW);
+    expect(verifyConfirmToken(t, SECRET, NOW)).toEqual({ email: "a@b.com", source: "search" });
+  });
+
+  it("drops an unknown placement instead of rejecting the token", () => {
+    const payload = Buffer.from(
+      JSON.stringify({ e: "a@b.com", s: "search", t: Math.floor(NOW.getTime() / 1000), p: "nope" })
+    ).toString("base64url");
+    const sig = createHmac("sha256", SECRET).update("curio:confirm:v1:" + payload).digest("base64url");
+    expect(verifyConfirmToken(`${payload}.${sig}`, SECRET, NOW)).toEqual({ email: "a@b.com", source: "search" });
+  });
+
   it("round-trips the normalised email and the source", () => {
     const token = signConfirmToken("  Sam@Example.com ", "search", SECRET, NOW);
     expect(verifyConfirmToken(token, SECRET, NOW)).toEqual({ email: "sam@example.com", source: "search" });
