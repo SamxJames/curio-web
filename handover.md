@@ -1,6 +1,6 @@
 # Curio: Handover
 
-Last updated: 2026-10-14. Read this first; it's deliberately short. Open a file in `docs/handover/` only when the
+Last updated: 2026-10-18. Read this first; it's deliberately short. Open a file in `docs/handover/` only when the
 task touches that area. **Keep this file under ~200 lines:** current state, gotchas and pointers only. Put session
 detail in `docs/handover/history.md` and depth in the topic files.
 
@@ -23,7 +23,12 @@ every feature against it.
 - **Crons (UTC, Hobby fires anywhere in the hour):** 09:00 digest + Bluesky (`/api/cron/send-daily`), 10:00 Threads/IG
   (`/api/cron/social`). Mondays 06:00: demand report (GitHub Action → private `SamxJames/curio-reports`).
 
-## Current state (2026-10-14)
+## Current state (2026-10-18)
+- **Shipped 2026-10-18 (merge 3438c64 + eb742d0):** puzzle clue rewrite. 202 of 1,147 words have new clues (clue 1 = what
+  the word is + a history fact, clue 2 = modern meaning, clue 3 = nearly a giveaway); the other 945 still have the old
+  history-only clues. Pipeline: `npm run clues:rewrite` then `npm run clues:apply -- --keep-today` (plan:
+  `docs/superpowers/plans/2026-10-13-clue-rewrite.md`, task 5 "full run" not done). Guesses accept UK/US spellings.
+  Also 2026-10-14 (a63d9a0): sharing is the primary action on the finished-puzzle screen (experiment: puzzle share taps).
 - **Shipped 2026-10-13/14 (merge 4a0e473, deployed, 7/7 live checks pass):** `/feed.xml` RSS (last 30 days, also a 2nd
   sitemap in robots.txt, `utm_source=rss` traffic source); story meta descriptions "Etymology of <word>: ..." (og stays the
   teaser); canonicals on /play, /history, /attribution; footer Languages link; hand-set sitemap lastmod (`PAGES_UPDATED` in
@@ -40,8 +45,6 @@ every feature against it.
 - Vercel: the MCP connector sees the team but not its projects; the **Vercel CLI** (logged in) works, including Web
   Analytics: `vercel api "/v1/query/web-analytics/visits/count?projectId=etymology-app&teamId=<team>&since=..&until=.."`.
 - Stale branch `brand-assets` (local + origin) has no commits beyond master; safe to delete.
-- Worktree `polish-oct13` (branch `worktree-polish-oct13`) has 1 unmerged commit, 070f591 (clue rewrite pipeline, first
-  202 reviewed clue sets, UK spellings accepted); its own suite is 868/868 green.
 
 ## Gotchas (each one has bitten before)
 - `vercel link --project <name>` **silently creates a new empty project** if the name is wrong. Run `vercel project ls` first.
@@ -62,7 +65,7 @@ every feature against it.
 - Cloudflare DNS records for Vercel/Resend must be **grey-cloud (DNS only)**.
 - Meta logging: never log raw fetch errors or Upstash error messages (they can contain tokens). See `architecture.md` → `lib/metaGraph.ts`.
 - Clean up after verifying: stop dev servers, `rm -rf .next`, remove merged worktrees (they confuse lint/vitest).
-- Running vitest/lint from the main repo sweeps `.claude/worktrees/*` and reports bogus failures; run from each worktree's own root.
+- vitest and eslint skip `.claude/**` (worktrees), so the main checkout's suite no longer sweeps them.
 - No Python on this machine; write scripts in Node/tsx.
 
 ## Decisions in force (full reasoning: `docs/handover/decisions.md`)
@@ -77,8 +80,10 @@ every feature against it.
 
 ## Open threads
 - **2026-10-15:** verify the first IndexNow run in Vercel logs: look for `[curio:indexnow] 2026-10-15: submitted ~1214 URLs (HTTP 200|202)`.
-- Merge the `polish-oct13` worktree (070f591) next.
-- Consider a vitest/lint exclude for `.claude/**` (see gotcha).
+- `/play` ships the whole word bank to the browser (answers + clues, since 2026-09-13): `components/PuzzleGame.tsx` imports
+  value helpers from `lib/puzzle.ts`, which imports `WORDS`. Fix: move the pure helpers to a words-free module.
+- Clue rewrite for the remaining 945 words (`clues:rewrite`, review sample + `tooHard`, `clues:apply -- --keep-today`).
+  Revisit the clue rules if synced plays show most solves on clue 1 or failures above ~20%.
 - Watch GSC for the feed and language pages. Next language-sheet batch: `languages:facts -- --limit 30`, draft, review,
   approve (Proto-West Germanic still has no usable source).
 - Submit remaining launch-kit entries; "root word" phrasing in titles.
