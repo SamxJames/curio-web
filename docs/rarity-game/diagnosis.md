@@ -176,6 +176,17 @@ The route name, such as `/dive` or `/depths`, gets decided in Phase 2, once the 
 - **"1,147 entries carry theme signal."** None do in the data. The only categories are broad ones in a planning
   file (see §2).
 
+## Gate answers (Sam, 2026-10-19)
+
+- **Brand:** the **new brand is the target**, and the repo lags behind it. That brand is a lowercase Libre Caslon Bold
+  "curio" wordmark, Ink `#1C1A17`, Red `#C23B22` and Paper `#F5F1E8`, chosen earlier in October. The mockups use it,
+  keep the repo's body font (Work Sans) and layout components unless they clash, and report any gaps between the two.
+  The repo's Vercel-default favicon is still meant to be replaced. **Red has one role only.** It is the brand and
+  action colour, so the "deep" or rarity signal must be shown another way, through ink weight, depth position or
+  pattern, so the colour doesn't carry two meanings.
+- **frontend-design:** installed from `claude-plugins-official` (user scope).
+- **Admin numbers:** Sam will read them off `/admin`, or sign in in the browser pane themselves. Not blocking.
+
 ## Questions for the gate
 
 - **Q1. Brand.** Is the repo right (Newsreader, green-black ink, ochre accent, "Curio" in title case), or are the
