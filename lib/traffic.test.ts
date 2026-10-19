@@ -38,6 +38,10 @@ describe("classifySource", () => {
     }
   });
 
+  it("the /sample-email story link is not a tagged arrival: from our own sample page it counts nothing", () => {
+    expect(classifySource("?utm_source=sample", "https://curioword.com/sample-email", HOST)).toBeNull();
+  });
+
   it("anchors Google to its search hosts, not mail, docs or look-alikes", () => {
     expect(classifySource("", "https://mail.google.com/", HOST)).toBe("other");
     expect(classifySource("", "https://docs.google.com/", HOST)).toBe("other");
