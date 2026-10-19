@@ -29,6 +29,11 @@ export type WordEntry = {
    * scripts/rewriteClues.ts + lib/clues.ts — see
    * docs/superpowers/plans/2026-10-13-clue-rewrite.md. */
   clues: [string, string, string];
+  /** Optional hand-written <title>/og:title for the story page, used instead of
+   * the generated one (lib/storyTitle.ts) when present. For the weekly SEO
+   * review, where Search Console shows a page needs different phrasing.
+   * Keep it under 60 characters, in Curio's plain voice. */
+  seoTitle?: string;
 };
 
 // Seed content. Each entry is written from general etymological knowledge
