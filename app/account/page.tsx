@@ -22,9 +22,14 @@ export default async function AccountPage() {
       return;
     }
     await upsertSubscriber(email);
+    // Both counters, like every other signup path, so per-placement signups
+    // never exceed the per-source total. Fail-soft: the subscribe stands.
     try {
+      await recordTrafficEvent({ kind: "signup", source: "direct" });
       await recordTrafficEvent({ kind: "signup-at", placement: "account" });
-    } catch {}
+    } catch (err) {
+      console.error("traffic: account record failed", err instanceof Error ? err.name : "unknown");
+    }
     revalidatePath("/account");
   }
 
