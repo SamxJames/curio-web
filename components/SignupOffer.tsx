@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
+import clsx from "clsx";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import EmailSignupInline from "./EmailSignupInline";
@@ -20,9 +21,10 @@ type OneTapStatus = "idle" | "pending" | "success" | "error";
  * picks what to show: the email form for signed-out readers, a one-tap
  * button for signed-in readers who aren't subscribed (GET
  * /api/subscribe/me), or nothing at all, with no wrapper, border or pitch,
- * for anyone this browser knows already gets the email. Nothing shows while
- * the session or subscription status is still loading, so a signed-in
- * subscriber never sees the offer flash in. */
+ * for anyone this browser knows already gets the email. While the session
+ * loads, the form renders (so it is in the server HTML) but the whole offer,
+ * pitch included, carries `signed-in:hidden`, which the pre-paint session
+ * hint applies, so a signed-in reader never sees it flash in. */
 export default function SignupOffer({
   placement,
   pitch,
@@ -114,12 +116,14 @@ export default function SignupOffer({
       </div>
     );
   } else {
-    // "form", or pinned after a form signup (EmailSignupInline keeps showing
-    // its own "check your inbox" message).
+    // "form" / "form-unless-signed-in", or pinned after a form signup
+    // (EmailSignupInline keeps showing its own "check your inbox" message).
     action = (
       <EmailSignupInline placement={placement} onSubscribed={() => flushSync(() => setPinned(true))} />
     );
   }
+
+  const wrapperClass = clsx(className, mode === "form-unless-signed-in" && "signed-in:hidden") || undefined;
 
   const content = (
     <>
@@ -129,10 +133,10 @@ export default function SignupOffer({
   );
 
   return ariaLabel ? (
-    <section aria-label={ariaLabel} className={className}>
+    <section aria-label={ariaLabel} className={wrapperClass}>
       {content}
     </section>
   ) : (
-    <div className={className}>{content}</div>
+    <div className={wrapperClass}>{content}</div>
   );
 }

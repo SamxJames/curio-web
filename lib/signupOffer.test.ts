@@ -9,7 +9,12 @@ describe("offerMode", () => {
     expect(offerMode({ ...base, subscribedHere: true })).toBe("none");
     expect(offerMode({ ...base, arrivedFromEmail: true })).toBe("none");
   });
-  it("session loading: nothing, so nothing flashes", () => expect(offerMode({ ...base, session: "loading" })).toBe("none"));
+  it("session loading: the form, hidden pre-paint for signed-in readers", () => {
+    const l = { ...base, session: "loading" } as const;
+    expect(offerMode(l)).toBe("form-unless-signed-in");
+    expect(offerMode({ ...l, subscribedHere: true })).toBe("none");
+    expect(offerMode({ ...l, arrivedFromEmail: true })).toBe("none");
+  });
   it("signed in: one tap only once we know they're not subscribed", () => {
     const s = { ...base, session: "authenticated" } as const;
     expect(offerMode({ ...s, me: "unknown" })).toBe("none");
