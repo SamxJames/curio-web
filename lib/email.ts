@@ -60,7 +60,8 @@ function buildShell(bodyHtml: string): string {
 </html>`;
 }
 
-function buildDigestHtml(word: WordEntry, dateStr: string, unsubscribeUrl: string) {
+/** The daily digest body. Also served by /sample-email (with a dead unsubscribe link). */
+export function buildDigestHtml(word: WordEntry, dateStr: string, unsubscribeUrl: string) {
   const storyUrl = digestStoryUrl(word.slug);
   // Absolute URL: email clients can't resolve relative paths. Alt text
   // matters because many clients block images by default.
