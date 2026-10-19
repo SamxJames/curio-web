@@ -13,10 +13,10 @@ const { GET, POST } = await import("./route");
 const { getSubscriberByEmail, upsertSubscriber } = await import("@/lib/db");
 const { recordTrafficEvent } = await import("@/lib/trafficStats");
 
-const post = (body: unknown) =>
+const post = (body: unknown, headers: Record<string, string> = {}) =>
   new NextRequest("http://localhost/api/subscribe/me", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", ...headers },
     body: JSON.stringify(body),
   });
 
@@ -89,7 +89,38 @@ describe("POST /api/subscribe/me (one tap)", () => {
   });
   it("tolerates an empty/invalid body", async () => {
     session.current = { user: { email: "a@b.com" } };
-    const req = new NextRequest("http://localhost/api/subscribe/me", { method: "POST", body: "not json" });
+    const req = new NextRequest("http://localhost/api/subscribe/me", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: "not json",
+    });
     expect((await POST(req)).status).toBe(200);
+  });
+  it("same-origin browser requests go through", async () => {
+    session.current = { user: { email: "a@b.com" } };
+    expect((await POST(post({}, { "sec-fetch-site": "same-origin" }))).status).toBe(200);
+    expect(upsertSubscriber).toHaveBeenCalledWith("a@b.com");
+  });
+  it("403 no-store for a cross-site request, and nothing written", async () => {
+    session.current = { user: { email: "a@b.com" } };
+    const res = await POST(post({ placement: "story" }, { "sec-fetch-site": "cross-site" }));
+    expect(res.status).toBe(403);
+    expect(res.headers.get("cache-control")).toBe("no-store");
+    expect(await res.json()).toHaveProperty("error");
+    expect(upsertSubscriber).not.toHaveBeenCalled();
+    expect(recordTrafficEvent).not.toHaveBeenCalled();
+  });
+  it("415 no-store for a non-JSON body (a CORS-simple form post), and nothing written", async () => {
+    session.current = { user: { email: "a@b.com" } };
+    const req = new NextRequest("http://localhost/api/subscribe/me", {
+      method: "POST",
+      headers: { "content-type": "text/plain" },
+      body: "{}",
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(415);
+    expect(res.headers.get("cache-control")).toBe("no-store");
+    expect(upsertSubscriber).not.toHaveBeenCalled();
+    expect(recordTrafficEvent).not.toHaveBeenCalled();
   });
 });

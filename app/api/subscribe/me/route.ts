@@ -30,8 +30,19 @@ export async function GET() {
 
 /** One-tap subscribe for a signed-in reader (approved 2026-10-18): their
  * magic-link sign-in already proved the address, so no confirmation email.
- * Only ever the session's own address; the body carries attribution only. */
+ * Only ever the session's own address; the body carries attribution only.
+ * It acts on the session cookie, so it carries app/api/traffic's CSRF guard:
+ * a text/plain body would let any third-party page POST without a CORS
+ * preflight, so require JSON; and refuse browsers that say the request is
+ * cross-site. A missing Sec-Fetch-Site (older browsers, curl) is fine. */
 export async function POST(req: NextRequest) {
+  if (!req.headers.get("content-type")?.startsWith("application/json")) {
+    return NextResponse.json({ error: "Unsupported content type." }, { status: 415, headers: NO_STORE });
+  }
+  const site = req.headers.get("sec-fetch-site");
+  if (site && site !== "same-origin") {
+    return NextResponse.json({ error: "Forbidden." }, { status: 403, headers: NO_STORE });
+  }
   const email = await sessionEmail();
   if (!email) return SIGNED_OUT();
   const body = (await req.json().catch(() => ({}))) as { placement?: unknown; source?: unknown } | null;
