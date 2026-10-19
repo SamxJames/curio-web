@@ -40,9 +40,23 @@ describe("storyPageTitle", () => {
     expect(storyPageTitle(word("blurb", ["English"]))).toBe("blurb: the origin of the word — Curio");
   });
 
+  it("uses a word's seoTitle when it has one", () => {
+    const w = { ...word("jungle", ["Hindustani", "English"]), seoTitle: "Jungle: which language it comes from — Curio" };
+    expect(storyPageTitle(w)).toBe("Jungle: which language it comes from — Curio");
+  });
+
+  it("ignores an empty seoTitle", () => {
+    const w = { ...word("argon", ["Ancient Greek", "English"]), seoTitle: "" };
+    expect(storyPageTitle(w)).toBe("argon word origin: from Ancient Greek — Curio");
+  });
+
   it("keeps every real title short enough for search results (≤ 65 characters)", () => {
     const long = WORDS.map(storyPageTitle).filter((t) => t.length > 65);
     expect(long).toEqual([]);
+  });
+
+  it("keeps every hand-written seoTitle under 60 characters", () => {
+    for (const w of WORDS) if (w.seoTitle) expect(w.seoTitle.length).toBeLessThan(60);
   });
 });
 

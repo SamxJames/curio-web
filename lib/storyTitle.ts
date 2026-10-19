@@ -18,8 +18,10 @@ export function sourceLanguage(word: WordEntry): string | null {
 /** The story page's <title>/og:title. Shared with the Bluesky link card
  * (lib/bluesky.ts) so the card and the page it opens can't drift apart.
  * Search Console shows people asking which language a word comes from
- * ("jungle which language", "argon greek"), so the title names it. */
+ * ("jungle which language", "argon greek"), so the title names it.
+ * A word's own `seoTitle`, when set, replaces the generated title. */
 export function storyPageTitle(word: WordEntry): string {
+  if (word.seoTitle) return word.seoTitle;
   const source = sourceLanguage(word);
   return source
     ? `${word.word} word origin: from ${source} — Curio`
