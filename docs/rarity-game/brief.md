@@ -1,7 +1,6 @@
 # Rarity game: Phase 1 brief
 
-Status: **draft, 2026-10-19**. Research is done, and the hook choices below are recommendations until Sam answers the
-open questions, one at a time. Decisions already made in the 19 Oct grilling session are not reopened here; see the
+Status: **final for Phase 1, 2026-10-19**. Sam answered the open questions on 19 Oct (see the end of this file); the hook table below is the chosen set. Decisions already made in the 19 Oct grilling session are not reopened here; see the
 kick-off brief. Brand: the new identity is the target (see `diagnosis.md`, "Gate answers").
 
 ## 1. Krillion teardown (played dive #96 on 2026-10-19, read the FAQ)
@@ -70,10 +69,10 @@ Curio's editorial layer, its 1,147 story pages, and a free archive (Krillion cha
 | Hook | Verdict | Why |
 |---|---|---|
 | Rarity tier revealed per answer | **Keep** | A variable reward tied to skill and free, with no money, gambling or loot box. Use **4–5 tiers named in Curio's own voice** rather than Krillion's sea creatures. Show rarity with the depth position and ink weight, **never red** (red has one role: brand and action). |
-| One hidden gem per prompt | **Keep, made Curio's own** | Krillion attaches a one-line fact to each gem. **Our gem should always be a word with a Curio story page**, revealed with its teaser and a link. That makes every game a guaranteed doorway to at least seven stories. (Open question 2.) |
+| One hidden gem per prompt | **Keep, made Curio's own** | Krillion attaches a one-line fact to each gem. Ours prefers a Curio story word (revealed with its teaser and a link) and falls back to the rarest fun answer. Story links appear on every answer that has a page. (Decided, Q2.) |
 | "Too clever" label | **Keep, softened** | Distinctiveness theory: people want to be original *and* belong. Krillion's line "the school thought of it too" is wry, not shaming. Use a gentle Curio label such as "Everyone's secret pick" on the go-to obscure answer, worth slightly more than the obvious tier. No mockery. |
 | Depth metaphor | **Keep the axis, choose the skin in Phase 2** | Depth gives a goal gradient and makes the share card readable. Show **depth reached only**, never "N metres to the next zone", which would be manufactured progress pressure. A Curio-native alternative is **roots and strata**: rarer answers dig deeper into older layers of the language. Phase 2 mocks it up next to the ocean. |
-| Time pressure, about 25 s | **Keep, with an accessibility setting** | It makes the prompts feel live and stops people looking answers up. WCAG 2.2.1 (Level A) requires the limit to be adjustable or extendable; a solo daily game isn't an "essential" exception. Copy Krillion's 3 s grace and player-paced "next" button. Add a **"More time"** setting (open question 3). Always show time as a number **and** a bar, plus a screen-reader announcement at 10 s and 5 s. |
+| Time pressure, about 25 s | **Keep, with an accessibility setting** | It makes the prompts feel live and stops people looking answers up. WCAG 2.2.1 (Level A) requires the limit to be adjustable or extendable; a solo daily game isn't an "essential" exception. Copy Krillion's 3 s grace and player-paced "next" button. Add a **"No timer"** setting whose games count equally (decided, Q3). Always show time as a number **and** a bar, plus a screen-reader announcement at 10 s and 5 s. |
 | Post-game reveal of missed answers | **Keep: the core Curio hook** | Loewenstein's information-gap theory: having just tried the prompt, the player now knows enough to be curious. Frame it as **"Words worth knowing"**, never "you missed". Gems and Curio words first, each linked to its story page, then the full list behind a toggle. |
 | Social comparison ("deeper than 72%") | **Keep, cheaply** | Krillion shows it on a live bell curve. It costs us **about 2 Redis commands per finished game**: one HINCRBY into a daily score-bucket hash, and one HGETALL for the end screen that the edge caches for 60 s, so in practice it's mostly free. See §4. Show it as a **band** ("deeper than most of today's players") when the sample is small (under 50 finishers), and as a percentage after that. Skip per-answer crowd counts for now: 7 writes per game is too many at 10k players. |
 | Streaks / "played N" logbook | **Reject streaks.** Keep a **personal best per day** in the archive only | This is already decided. Krillion's logbook shows a streak; ours won't. A plain "played N" count is borderline, so leave it out too. |
@@ -111,10 +110,20 @@ roughly the 10k mark. The full table belongs in Phase 4.
 - Krillion's archive is paywalled. **Ours is free and indexed**, a differentiator that's both an SEO win and on
   principle.
 
-## Open questions (asked one at a time)
+## Open questions (all answered)
 
-1. **Prompt types at launch:** themes only, or themes plus **origin prompts** ("a word English borrowed from
-   Arabic"), which draw on Curio's lineage data and language pages?
-2. Should every prompt's gem be a word with a **Curio story page**?
-3. "More time" setting: should those scores count equally on the share card and in the percentile?
-4. The depth skin (ocean vs roots/strata) is settled by mockups in Phase 2. Not a question for now.
+1. ~~Prompt types at launch~~ **Decided (Sam, 19 Oct): about 5 theme prompts and 2 origin prompts a day.** Origin
+   prompts ("a word English borrowed from Arabic") draw on Wiktextract's borrowing categories and Curio's `lineage`,
+   which gives the two independent sources the safeguard needs, and they link to the language pages.
+2. ~~Gem~~ **Decided (Sam, 19 Oct):** the gem is a **Curio story word whenever one sits in the Rare tier or
+   deeper**. Otherwise it's the rarest "fun" answer from the data. **Every answer that has a story page gets a story
+   link** in the reveal, whatever its tier, and those answers are listed first. Phase 3 reports how often a Curio
+   gem is available.
+3. ~~Timer setting~~ **Decided (Sam, 19 Oct):** a **"No timer"** setting (WCAG 2.2.1 "turn off"). No-timer games **count equally**, with no marker on the share card and no exclusion from the percentile.
+
+## Carried into Phase 2
+
+- The depth skin (ocean vs roots/strata) is chosen by looking at mockups, not here.
+- Tier names in Curio's voice (4–5 tiers plus the gem), and the softened "too clever" label.
+- Rarity and depth must never be shown in red, which has one role: brand and action.
+- Every mockup shows the "No timer" setting, a timer shown as both a number and a bar, a 3 s grace period, player-paced "next", the near-miss confirm step ("corrects to X, press again"), and a "Words worth knowing" reveal with story links listed first.
