@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth, signOut } from "@/lib/auth";
 import { getSubscriberByEmail, removeSubscriber, upsertSubscriber } from "@/lib/db";
+import { recordTrafficEvent } from "@/lib/trafficStats";
 import Button from "@/components/ui/Button";
 
 export const metadata = { title: "Account — Curio" };
@@ -16,7 +17,14 @@ export default async function AccountPage() {
   async function subscribe() {
     "use server";
     if (!email) return;
+    if (await getSubscriberByEmail(email)) {
+      revalidatePath("/account");
+      return;
+    }
     await upsertSubscriber(email);
+    try {
+      await recordTrafficEvent({ kind: "signup-at", placement: "account" });
+    } catch {}
     revalidatePath("/account");
   }
 
