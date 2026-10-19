@@ -1,5 +1,6 @@
 import Link from "next/link";
 import EtymologyLineage from "@/components/EtymologyLineage";
+import SignupOffer from "@/components/SignupOffer";
 import type { WordEntry } from "@/lib/words";
 
 export default function TodayHero({
@@ -49,6 +50,12 @@ export default function TodayHero({
           Past words &rarr;
         </Link>
       </p>
+
+      <SignupOffer
+        placement="today"
+        className="mt-12 w-full max-w-form border-t border-line pt-6"
+        pitch={<p className="font-sans text-sm text-ink-soft">Get tomorrow&apos;s word by email.</p>}
+      />
     </section>
   );
 }

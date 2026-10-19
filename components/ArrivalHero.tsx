@@ -6,7 +6,7 @@ import type { WordEntry } from "@/lib/words";
 import { markOnboarded } from "@/lib/storage";
 import { track } from "@/lib/analytics";
 import ThemeToggle from "./ThemeToggle";
-import EmailSignupInline from "./EmailSignupInline";
+import SignupOffer from "./SignupOffer";
 import Eyebrow from "@/components/ui/Eyebrow";
 
 /** The merged first-look hero for anonymous, first-time visitors — replaces
@@ -79,9 +79,7 @@ export default function ArrivalHero({ word, date }: { word: WordEntry; date: str
             No feed. No backlog to catch up on.
           </p>
 
-          <div className="mt-5">
-            <EmailSignupInline />
-          </div>
+          <SignupOffer placement="arrival" className="mt-5" />
 
           <Link
             href="/history"

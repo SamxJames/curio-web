@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import clsx from "clsx";
 import { Share } from "lucide-react";
 import type { WordEntry } from "@/lib/words";
 import { isCorrectGuess, buildPuzzleShareText, buildLetterHint } from "@/lib/puzzleGuess";
@@ -16,7 +15,7 @@ import {
   type PlayState,
 } from "@/lib/storage";
 import { useSession } from "next-auth/react";
-import EmailSignupInline from "./EmailSignupInline";
+import SignupOffer from "./SignupOffer";
 import Button from "@/components/ui/Button";
 import TextField from "@/components/ui/TextField";
 
@@ -191,24 +190,17 @@ export default function PuzzleGame({
             </Link>
           </div>
 
-          {/* Signed-in readers manage the email from /account — don't pitch
-           * it at them. signed-in:hidden covers useSession()'s loading state
-           * (see StoryFrontDoor for the same pattern). */}
-          {sessionStatus !== "authenticated" && (
-            <div
-              className={clsx(
-                "mt-10 border-t border-line pt-6",
-                sessionStatus === "loading" && "signed-in:hidden"
-              )}
-            >
+          {/* Form for signed-out readers, one tap for signed-in readers who
+           * aren't subscribed, nothing for subscribers (see SignupOffer). */}
+          <SignupOffer
+            placement="play"
+            className="mt-10 border-t border-line pt-6"
+            pitch={
               <p className="font-sans text-sm text-ink-soft">
-                One word, one story, every day — get tomorrow&apos;s in your inbox.
+                One word, one story, every day: get tomorrow&apos;s in your inbox.
               </p>
-              <div className="mt-4">
-                <EmailSignupInline />
-              </div>
-            </div>
-          )}
+            }
+          />
 
           <div className="mt-10 border-t border-line pt-6">
             <h2 className="font-sans text-xs tracking-wide text-ink-faint">Your stats</h2>
