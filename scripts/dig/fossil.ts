@@ -62,8 +62,6 @@ export type FossilCtx = {
   exclude: Set<string>;
 };
 
-/** pipeline-design §7: a Curio story word if any candidate is one (its teaser is the fact),
- * else the most-viewed candidate that has a sourced fact. Ties go to the alphabetical first. */
 /** Trims a fact to 140 characters or fewer: at the last space in the first 140, plus an ellipsis. */
 function clampFact(text: string): string {
   const t = text.trim();
@@ -73,6 +71,8 @@ function clampFact(text: string): string {
   return `${(space > 0 ? head.slice(0, space) : head.slice(0, MAX_FACT - 1)).trimEnd()}…`;
 }
 
+/** pipeline-design §7: a Curio story word if any candidate is one (its teaser is the fact),
+ * else the most-viewed candidate that has a sourced fact. Ties go to the alphabetical first. */
 export function chooseFossil(_c: Candidate, ctx: FossilCtx): DigFossil | null {
   // Only Rare words are fossil material. That already excludes Popular picks.
   const pool = ctx.candidates
