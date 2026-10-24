@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import { formatDay } from "@/lib/day";
 import { dayNumber, digLaunchDate, isPastDay } from "@/lib/dig/clock";
 import { decodeDay } from "@/lib/dig/payload";
@@ -11,12 +12,13 @@ import { TIERS } from "@/lib/dig/types";
 // Today and future dates 404; revalidating means a cached 404 heals once the day passes.
 export const revalidate = 3600;
 
-async function load(date: string) {
+// cache(): generateMetadata and the page share one Redis read per render.
+const load = cache(async (date: string) => {
   const launch = digLaunchDate();
   if (!launch || !isPastDay(date, new Date(), launch)) return null;
   const day = await readDay(date);
   return day ? { plain: decodeDay(day), number: dayNumber(date, launch) } : null;
-}
+});
 
 export async function generateMetadata({ params }: PageProps<"/dig/[date]">): Promise<Metadata> {
   const { date } = await params;

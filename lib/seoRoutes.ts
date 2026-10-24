@@ -32,7 +32,7 @@ export type SitemapEntry = {
   url: string;
   changeFrequency: "daily" | "weekly" | "monthly";
   priority: number;
-  /** ISO date (YYYY-MM-DD). Only ever set from PAGES_UPDATED. */
+  /** ISO date (YYYY-MM-DD). Set from PAGES_UPDATED, or a dig archive page's own date. */
   lastModified?: string;
 };
 
@@ -98,7 +98,7 @@ export function digSitemapEntries(pastDates: string[]): SitemapEntry[] {
   return [
     { url: absoluteUrl("/dig"), changeFrequency: "daily", priority: 0.9 },
     { url: absoluteUrl("/dig/past"), changeFrequency: "daily", priority: 0.6 },
-    ...pastDates.map((d): SitemapEntry => ({ url: absoluteUrl(`/dig/${d}`), changeFrequency: "monthly", priority: 0.5 })),
+    ...pastDates.map((d): SitemapEntry => ({ url: absoluteUrl(`/dig/${d}`), lastModified: d, changeFrequency: "monthly", priority: 0.5 })),
   ];
 }
 

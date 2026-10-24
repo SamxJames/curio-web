@@ -15,6 +15,13 @@ import { pastDates } from "@/lib/dig/server";
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const dig = isDigOpen() ? digSitemapEntries(await pastDates().catch(() => [])) : [];
+  const dates = isDigOpen()
+    ? await pastDates().catch((err: unknown) => {
+        // Counts-only logging: the error message, never a key or token.
+        console.error("sitemap: dig past dates unavailable:", err instanceof Error ? err.message : "unknown");
+        return [] as string[];
+      })
+    : null;
+  const dig = dates ? digSitemapEntries(dates) : [];
   return [...buildSitemapEntries(), ...dig];
 }
