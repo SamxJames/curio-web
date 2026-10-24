@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rarity game mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F5F1E8;--ink:#1C1A17;--red:#C23B22;--soft:#5E5850;--rule:#D8CFBE}
+*{box-sizing:border-box}
+body{margin:0;background:#E7E1D4;color:var(--ink);font:400 1rem/1.55 "Work Sans",system-ui,sans-serif}
+header{max-width:84rem;margin:0 auto;padding:28px 20px 8px}
+h1{font:700 2rem/1.1 "Libre Caslon Text",Georgia,serif;margin:0}
+h1 span{font-weight:400;font-style:italic;color:var(--soft)}
+header p{max-width:46rem;margin:10px 0 0;color:var(--soft)}
+.grid{max-width:84rem;margin:0 auto;padding:20px 16px;display:grid;gap:22px;grid-template-columns:repeat(auto-fit,minmax(392px,1fr))}
+.opt h2{font:400 1.4rem/1.2 "Libre Caslon Text",Georgia,serif;margin:0}
+.opt p{margin:6px 0 12px;font-size:.92rem;color:var(--soft);min-height:4.6em}
+.phone{width:100%;max-width:392px;height:844px;border:1px solid var(--ink);border-radius:28px;overflow:hidden;background:var(--paper)}
+.phone iframe{width:390px;height:844px;border:0;display:block}
+.links{display:flex;gap:16px;margin-top:10px;font-size:.92rem}
+a{color:var(--ink);text-underline-offset:3px}
+table{border-collapse:collapse;width:100%;font-size:.92rem;background:var(--paper)}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--rule)}
+th{font-weight:600}
+td:first-child{font-weight:500;white-space:nowrap}
+.compare{max-width:84rem;margin:0 auto;padding:8px 20px 60px;overflow-x:auto}
+.compare h2{font:400 1.4rem "Libre Caslon Text",Georgia,serif;margin:12px 0}
+.rec{background:var(--ink);color:var(--paper)}
+</style>
+</head>
+<body>
+<header>
+  <h1>curio <span>rarity game mockups</span></h1>
+  <p>Three directions, each playable end to end. Every phone frame runs its own game. Use the "Mockup: jump to a screen" button inside each frame to reach the share cards, past days or signup without playing. Sample day: sailing, from Arabic, kitchen, weather, from Persian, instruments, colours. Try typos like <em>flotila</em> or <em>keal</em>.</p>
+</header>
+<div class="grid">
+  <section class="opt">
+    <h2>1. Quiet: curio rarities</h2>
+    <p>Paper puzzle page. Rarity is a mark on a fine scale and the weight of the type. No depth image, almost no motion.</p>
+    <div class="phone"><iframe src="option-1-quiet.html" title="Option 1, Quiet"></iframe></div>
+    <div class="links"><a href="option-1-quiet.html">Open full screen</a></div>
+  </section>
+  <section class="opt">
+    <h2>2. Curio with depth: curio dig</h2>
+    <p>Rare words dig down through strata: topsoil, loam, clay, stone, bedrock. Each prompt hides one fossil. The end screen is a section drawing of your seven finds.</p>
+    <div class="phone"><iframe src="option-2-dig.html" title="Option 2, Curio with depth"></iframe></div>
+    <div class="links"><a href="option-2-dig.html">Open full screen</a></div>
+  </section>
+  <section class="opt">
+    <h2>3. Full dive: curio depths</h2>
+    <p>The whole screen is the water column, sinking from paper light to brand ink. Depth in fathoms, an air gauge for the timer, a pearl for the gem, bold sinking words.</p>
+    <div class="phone"><iframe src="option-3-dive.html" title="Option 3, Full dive"></iframe></div>
+    <div class="links"><a href="option-3-dive.html">Open full screen</a></div>
+  </section>
+</div>
+<div class="compare">
+  <h2>Side by side</h2>
+  <table>
+    <thead><tr><th></th><th>1. Quiet</th><th>2. Curio with depth (recommended)</th><th>3. Full dive</th></tr></thead>
+    <tbody>
+      <tr><td>Optimises for</td><td>Calm, brand purity, lowest build cost</td><td>A metaphor that belongs to Curio (words have roots) and a share card nobody else has</td><td>Thrill and energy, the closest feel to Krillion</td></tr>
+      <tr><td>Playable in 5 s?</td><td>Yes: the headline is the rules</td><td>Yes: headline plus a strata picture</td><td>Mostly: the headline is a question, the next line explains</td></tr>
+      <tr><td>Would strangers post the card?</td><td>Less likely: bars and a number look like any score</td><td>Likely: a section drawing with seven finds is distinctive</td><td>Likely: moody gradient and dive line, but it reads as "a Krillion-like"</td></tr>
+      <tr><td>Extra build effort vs Quiet</td><td>Baseline</td><td>About +6 to 8 hours (SVG strata, depth gauge, OG drawing)</td><td>About +10 to 14 hours (moving water, bubbles, dark-theme contrast checks, motion fallbacks)</td></tr>
+      <tr><td>Drift from Curio</td><td>None</td><td>Small: adds one illustrative device in brand colours</td><td>Large: dark, immersive, "air running out" tension. Close to a competitor that already has copycats</td></tr>
+      <tr><td>Red used for</td><td colspan="3">Actions only, in all three. Rarity is shown by position, depth and ink weight.</td></tr>
+    </tbody>
+  </table>
+  <p style="margin-top:16px">Rationale, costs and the brand-versus-repo gaps are in <code>NOTES.md</code> in this folder.</p>
+</div>
+</body>
+</html>

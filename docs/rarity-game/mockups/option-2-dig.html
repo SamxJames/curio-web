@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Option 2: Curio with depth (curio dig)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F1E8; --ink:#1C1A17; --red:#C23B22; --soft:#5E5850; --rule:#D8CFBE; --rule-strong:#8C8272;
+  /* strata: paper fading to ink. Deeper = darker; never red. */
+  --s0:#E9E1CF; --s1:#D6C4A3; --s2:#B99A72; --s3:#7E6A52; --s4:#3A322A;
+  --serif:"Libre Caslon Text",Georgia,"Times New Roman",serif; --sans:"Work Sans",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{background:var(--paper)}
+body{margin:0;color:var(--ink);background:var(--paper);font:400 1rem/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+.shell{display:grid;grid-template-columns:30px 1fr;min-height:100vh}
+.gauge{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;border-right:1px solid var(--ink)}
+.gauge i{flex:1;display:block}
+.gauge i:nth-child(1){background:var(--s0)} .gauge i:nth-child(2){background:var(--s1)} .gauge i:nth-child(3){background:var(--s2)} .gauge i:nth-child(4){background:var(--s3)} .gauge i:nth-child(5){background:var(--s4)}
+.gauge .marker{position:absolute;left:0;right:-7px;height:0;border-top:2px solid var(--ink);transition:top .9s cubic-bezier(.3,.7,.2,1)}
+.gauge .marker::after{content:"";position:absolute;right:-1px;top:-7px;border:6px solid transparent;border-left:8px solid var(--ink)}
+.gauge .marker.light{border-color:var(--paper)}
+.page{max-width:36rem;width:100%;min-width:0;padding:18px 20px 96px 18px}
+.mast{display:flex;align-items:baseline;gap:10px;margin-bottom:26px}
+.wordmark{font:700 1.6rem/1 var(--serif);text-transform:lowercase;color:var(--ink);text-decoration:none;letter-spacing:-.01em}
+.mast .game{font:italic 400 1.15rem/1 var(--serif);color:var(--soft)}
+.mast .depth{margin-left:auto;font:500 .9rem/1 var(--sans);font-variant-numeric:tabular-nums}
+h1,h2{font-family:var(--serif);font-weight:400;letter-spacing:-.01em;margin:0}
+h1{font-size:2.15rem;line-height:1.12}
+h2{font-size:1.45rem;line-height:1.25}
+p{margin:0}
+.soft{color:var(--soft)}
+a{color:var(--ink);text-underline-offset:3px}
+:focus-visible{outline-style:solid;outline-width:2px;outline-color:var(--ink);outline-offset:3px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 22px;border-radius:4px;border:1px solid transparent;font:500 1rem/1 var(--sans);cursor:pointer;text-decoration:none}
+.btn-primary{background:var(--red);color:#fff} .btn-primary:hover{background:#A93119}
+.btn-quiet{background:transparent;color:var(--ink);border-color:var(--rule-strong)} .btn-quiet:hover{background:#EDE7DA}
+.btn-link{background:none;border:0;padding:0;min-height:44px;color:var(--ink);text-decoration:underline;text-underline-offset:3px;font:500 1rem/1 var(--sans);cursor:pointer}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Start: a small section drawing as the hero */
+.hero-section{margin:24px 0 20px;height:150px;position:relative;border-radius:4px;overflow:hidden;border:1px solid var(--ink)}
+.hero-section svg{display:block;width:100%;height:100%}
+.hero-section .lab{position:absolute;left:12px;font:italic 400 .95rem var(--serif)}
+.lede{font:400 1.2rem/1.5 var(--serif);margin-top:12px}
+.setting{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:22px;padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.setting small{display:block;color:var(--soft);font-size:.85rem}
+.switch{position:relative;width:52px;height:30px;border-radius:999px;border:1px solid var(--rule-strong);background:#EDE7DA;cursor:pointer;flex:none}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--ink);transition:transform .15s}
+.switch[aria-checked="true"]{background:var(--ink)} .switch[aria-checked="true"]::after{background:var(--paper);transform:translateX(22px)}
+.legend{margin-top:18px;display:grid;grid-template-columns:auto 1fr auto;gap:6px 12px;font-size:.9rem;align-items:center}
+.legend span:nth-child(3n+1){width:14px;height:14px;border:1px solid var(--ink)}
+.legend em{font-style:normal;color:var(--soft);font-variant-numeric:tabular-nums}
+
+/* Prompt */
+.kind{font-size:.875rem;color:var(--soft);margin-bottom:6px}
+.prompt-text{font:400 2rem/1.2 var(--serif)}
+.timer{margin-top:24px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.timer .track{height:2px;background:var(--rule);position:relative}
+.timer .track i{position:absolute;inset:0;background:var(--ink);transform-origin:left;transition:transform 1s linear,height .2s}
+.timer.low .track{height:6px}
+.timer.low .num{animation:tick 1s steps(2) infinite}
+@keyframes tick{50%{opacity:.35}}
+.timer .num{font:600 1.1rem/1 var(--sans);font-variant-numeric:tabular-nums;min-width:3.4em;text-align:right}
+.timer.off .track{visibility:hidden}
+.answer{margin-top:20px;display:flex;gap:8px}
+.answer input{flex:1;min-width:0;min-height:52px;padding:0 14px;border:1px solid var(--ink);border-radius:4px;background:#FBF8F1;color:var(--ink);font:400 1.25rem/1 var(--serif)}
+.hint{min-height:3.2em;margin-top:12px;font-size:.95rem}
+.hint b{font-family:var(--serif);font-weight:700}
+
+/* Feedback: the word drops into its layer */
+.drop{position:relative;height:250px;margin:18px 0 14px;border:1px solid var(--ink);border-radius:4px;overflow:hidden}
+.drop .band{position:absolute;left:0;right:0;display:flex;align-items:flex-start;padding:6px 10px;font:italic 400 .85rem var(--serif)}
+.drop .word{position:absolute;left:50%;transform:translate(-50%,-50%);font:700 1.7rem/1 var(--serif);padding:6px 12px;background:var(--paper);border:1px solid var(--ink);border-radius:3px;white-space:nowrap;transition:top .85s cubic-bezier(.5,0,.3,1.25)}
+.drop .word.deep{background:var(--ink);color:var(--paper);border-color:var(--paper)}
+.verdict{font-size:1.1rem}
+.verdict b{font:700 1.25rem var(--serif)}
+.gemcard{margin-top:16px;padding:16px;background:var(--ink);color:var(--paper);border-radius:4px;font:400 1.05rem/1.5 var(--serif)}
+.gemcard a{color:var(--paper)}
+.gemcard .fossil{font:italic 400 .95rem var(--serif);opacity:.85;display:block;margin-bottom:4px}
+.storynote{margin-top:14px;font:400 1rem var(--serif)}
+
+/* End: the section drawing */
+.total{display:flex;align-items:baseline;gap:12px;margin-top:6px;flex-wrap:wrap}
+.total b{font:700 3.6rem/1 var(--serif);letter-spacing:-.03em}
+.section-drawing{position:relative;margin-top:20px;border:1px solid var(--ink);border-radius:4px;overflow:hidden}
+.section-drawing svg{display:block;width:100%;height:auto}
+.find{position:absolute;transform:translate(-50%,-50%);font:400 1rem/1 var(--serif);padding:4px 8px;border-radius:3px;background:rgba(245,241,232,.92);border:1px solid var(--ink);white-space:nowrap}
+.find.dark{background:var(--ink);color:var(--paper);border-color:var(--paper)}
+.find.gem{font-weight:700}
+.find small{display:block;font:500 .7rem/1.2 var(--sans);opacity:.75;margin-top:2px}
+.layerlabel{position:absolute;right:8px;font:italic 400 .85rem var(--serif)}
+.compare{margin-top:12px;font:italic 400 1.1rem var(--serif)}
+.section{margin-top:40px;padding-top:22px;border-top:1px solid var(--ink)}
+.wwk{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:14px}
+.wwk li{display:grid;grid-template-columns:14px 1fr;gap:12px;align-items:start}
+.wwk .sw{width:14px;height:14px;border:1px solid var(--ink);margin-top:6px}
+.wwk a{font:700 1.15rem var(--serif)}
+.wwk p{font-size:.95rem;color:var(--soft)}
+.signup{margin-top:40px;padding:22px;background:var(--s0);border-radius:4px;border:1px solid var(--rule-strong)}
+.signup form{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.signup input{flex:1 1 14rem;min-height:48px;padding:0 12px;border:1px solid var(--rule-strong);border-radius:4px;background:#FBF8F1;font:400 1rem var(--sans)}
+.done-note{font:italic 400 1.05rem var(--serif);margin-top:12px}
+
+/* Share cards */
+.cards{display:grid;gap:22px;margin-top:22px}
+.cards>*{min-width:0}
+.frame{width:100%;overflow:hidden;border:1px solid var(--rule)}
+.frame-label{font-size:.85rem;color:var(--soft);margin-bottom:6px}
+.card{transform-origin:top left;background:var(--paper);color:var(--ink);position:relative;overflow:hidden}
+.og{width:1200px;height:630px;display:grid;grid-template-columns:520px 1fr}
+.og .txt{padding:64px;display:flex;flex-direction:column;justify-content:space-between}
+.sq{width:1080px;height:1080px;display:grid;grid-template-rows:auto 1fr}
+.sq .txt{padding:70px 80px 40px;display:flex;justify-content:space-between;align-items:flex-end}
+.card .wm{font:700 56px/1 var(--serif);text-transform:lowercase}
+.card .wm i{font-weight:400;color:var(--soft);margin-left:14px}
+.card .big{font:700 140px/.85 var(--serif);letter-spacing:-.04em;white-space:nowrap}
+.card .sub{font:400 38px/1.2 var(--sans);color:var(--soft);margin-top:16px}
+.card .dom{font:500 32px/1 var(--sans);color:var(--soft)}
+.card svg{display:block;width:100%;height:100%}
+.sharetext{margin-top:18px;white-space:pre;font:400 1.05rem/1.5 var(--sans);background:#FBF8F1;border:1px solid var(--rule);padding:14px;border-radius:4px}
+
+/* Words + archive */
+.prompt-block{padding:18px 0;border-bottom:1px solid var(--rule)}
+.prompt-block h3{font:400 1.2rem/1.3 var(--serif);margin:0 0 4px}
+.yours{font-size:.9rem;color:var(--soft)}
+.gemline{margin-top:12px;padding:12px;background:var(--ink);color:var(--paper);border-radius:4px}
+.gemline a{color:var(--paper);font:700 1.2rem var(--serif)}
+.gemline span{display:block;font-size:.9rem;opacity:.85;margin-top:2px}
+.storylist{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px 16px}
+.storylist a{font-family:var(--serif);font-size:1.05rem}
+details.all{margin-top:8px;font-size:.9rem}
+details.all summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--soft)}
+details.all p{font-family:var(--serif);font-size:1rem}
+.archive{list-style:none;margin:20px 0 0;padding:0}
+.archive li{display:grid;grid-template-columns:58px 1fr auto;gap:4px 14px;padding:12px 0;border-bottom:1px solid var(--rule);align-items:center}
+.archive .mini{grid-row:1/3;height:52px;border:1px solid var(--ink);border-radius:3px;overflow:hidden;position:relative}
+.archive .mini svg{width:100%;height:100%;display:block}
+.archive .d{font:400 1.1rem var(--serif)}
+.archive .th{grid-column:2;font-size:.85rem;color:var(--soft)}
+.archive .s{grid-row:1/3;grid-column:3;text-align:right}
+.archive .s b{font:700 1.2rem var(--serif);display:block}
+.gauge .lbl{display:none;position:absolute;left:16px;font:italic 400 1.05rem var(--serif)}
+.gauge .lbl.dark{color:var(--paper)}
+@media (min-width:900px){
+  .shell{grid-template-columns:340px 1fr}
+  .gauge{border-right:1px solid var(--ink)}
+  .gauge .lbl{display:block}
+  .page{max-width:42rem;padding:32px 48px 96px}
+  .prompt-text{font-size:2.5rem}
+  .cards{grid-template-columns:1.6fr 1fr;align-items:start}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.mock-jump{position:fixed;right:12px;bottom:12px;z-index:50;font:13px/1.3 system-ui,sans-serif;color:#1C1A17;max-width:calc(100vw - 24px)}
+.mock-jump summary{cursor:pointer;list-style:none;background:#fff;border:1px dashed #1C1A17;border-radius:999px;padding:8px 14px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.mock-jump summary::-webkit-details-marker{display:none}
+.mock-jump[open] summary{border-radius:12px 12px 0 0}
+.mock-jump div{display:grid;gap:2px;background:#fff;border:1px dashed #1C1A17;border-top:0;padding:8px;border-radius:0 0 12px 12px}
+.mock-jump button,.mock-jump a{all:unset;cursor:pointer;padding:6px 8px;border-radius:6px;color:#1C1A17}
+.mock-jump button:hover,.mock-jump a:hover{background:#eee}
+.mock-jump button:focus-visible,.mock-jump a:focus-visible,.mock-jump summary:focus-visible{outline:2px solid #1C1A17;outline-offset:2px}
+
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="gauge" aria-hidden="true" data-gauge>
+    <i></i><i></i><i></i><i></i><i></i>
+    <span class="marker" data-marker style="top:0"></span>
+  </aside>
+  <div class="page">
+    <header class="mast">
+      <a class="wordmark" href="#" data-action="home">curio</a><span class="game">dig</span>
+      <span class="depth" data-depth>0.0 m</span>
+    </header>
+    <p class="sr" aria-live="polite" data-live></p>
+    <main>
+      <!-- START -->
+      <section data-screen="start">
+        <h1>Dig for rare words.</h1>
+        <p class="lede">Seven prompts. Name one word for each. The rarer it is, the deeper you go.</p>
+        <div class="hero-section" aria-hidden="true" data-hero></div>
+        <div class="row">
+          <button class="btn btn-primary" data-action="start" data-autofocus>Start digging</button>
+          <button class="btn-link" data-action="archive">Past days</button>
+        </div>
+        <div class="setting">
+          <div id="nt-label">No timer<small>Take as long as you like. Scores count the same.</small></div>
+          <button class="switch" role="switch" aria-checked="false" aria-labelledby="nt-label" data-action="toggle-timer"></button>
+        </div>
+        <div class="legend" data-legend></div>
+        <p class="soft" style="margin-top:14px;font-size:.9rem">25 seconds a prompt after a short pause to read it. Typos are caught and you confirm the fix.</p>
+      </section>
+
+      <!-- PROMPT -->
+      <section data-screen="prompt" hidden>
+        <p class="kind" data-kind></p>
+        <h2 class="prompt-text" data-prompt-text></h2>
+        <div class="timer" data-timer><div class="track" aria-hidden="true"><i data-bar></i></div><span class="num" data-num></span></div>
+        <form class="answer" data-answer-form autocomplete="off">
+          <label class="sr" for="ans">Your answer</label>
+          <input id="ans" data-input placeholder="Type one word" autocapitalize="off" spellcheck="false">
+          <button class="btn btn-primary" type="submit">Dig</button>
+        </form>
+        <p class="hint" data-hint aria-hidden="true"></p>
+      </section>
+
+      <!-- FEEDBACK -->
+      <section data-screen="feedback" hidden>
+        <p class="kind" data-fb-prompt></p>
+        <div class="drop" aria-hidden="true" data-drop></div>
+        <p class="verdict" data-verdict></p>
+        <div data-extra></div>
+        <div class="row" style="margin-top:22px"><button class="btn btn-primary" data-action="next" data-next data-autofocus>Keep digging</button></div>
+      </section>
+
+      <!-- END -->
+      <section data-screen="end" hidden>
+        <h2>Your dig</h2>
+        <div class="total"><b data-total></b><span class="soft" data-total-sub></span></div>
+        <p class="compare" data-compare></p>
+        <div class="section-drawing" data-drawing></div>
+        <div class="row" style="margin-top:22px">
+          <button class="btn btn-primary" data-action="share">Share your dig</button>
+          <button class="btn btn-quiet" data-action="words">See what was down there</button>
+        </div>
+        <div class="section">
+          <h2>Words worth knowing</h2>
+          <p class="soft" style="margin-top:6px">Finds from today's prompts, each with a story on Curio.</p>
+          <ul class="wwk" data-wwk></ul>
+          <button class="btn-link" style="margin-top:8px" data-action="words">Every answer for every prompt</button>
+        </div>
+        <div class="signup" data-signup>
+          <h2>One word, one story, every day</h2>
+          <p style="margin-top:8px">Curio's daily word, by email. Free, and one tap to stop.</p>
+          <form data-signup-form>
+            <label class="sr" for="em">Email address</label>
+            <input id="em" type="email" placeholder="you@example.com" required>
+            <button class="btn btn-primary" type="submit">Send me the daily word</button>
+          </form>
+        </div>
+        <p style="margin-top:28px"><button class="btn-link" data-action="archive">Past days</button></p>
+      </section>
+
+      <!-- SHARE -->
+      <section data-screen="share" hidden>
+        <h2>Share your dig</h2>
+        <p class="soft" style="margin-top:6px">It shows how deep you got, never which words you found.</p>
+        <div class="sharetext" data-sharetext></div>
+        <div class="row" style="margin-top:12px"><button class="btn btn-primary" data-action="copy">Copy result</button><button class="btn-link" data-action="end">Back to your dig</button></div>
+        <div class="cards">
+          <div><p class="frame-label">Link preview, 1200 × 630</p><div class="frame" data-frame-og></div></div>
+          <div><p class="frame-label">Square, for Instagram</p><div class="frame" data-frame-sq></div></div>
+        </div>
+      </section>
+
+      <!-- WORDS -->
+      <section data-screen="words" hidden>
+        <h2>What was down there</h2>
+        <p class="soft" style="margin-top:6px">Every prompt's fossil first, then words with a story on Curio.</p>
+        <div data-words></div>
+        <p style="margin-top:20px"><button class="btn-link" data-action="end">Back to your dig</button></p>
+      </section>
+
+      <!-- ARCHIVE -->
+      <section data-screen="archive" hidden>
+        <h2>Past days</h2>
+        <p class="soft" style="margin-top:6px">Every day stays open. Dig any of them, in any order.</p>
+        <ol class="archive" data-archive></ol>
+        <p style="margin-top:20px"><button class="btn-link" data-action="home">Back to today</button></p>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+/* Shared sample data + game engine for the rarity-game mockups.
+ * Inlined into each option by build.mjs so every mockup opens from disk
+ * with no network and no build step for the reader. Edit here, then run
+ * `node docs/rarity-game/mockups/build.mjs`. */
+
+/* ---------- Sample data (hand-made, plausible; real Curio story slugs) ---------- */
+
+const STORY = "https://curioword.com/story/";
+
+const TIER_POINTS = { common: 10, clever: 15, familiar: 30, uncommon: 60, rare: 85, gem: 100 };
+const TIER_ORDER = ["common", "clever", "familiar", "uncommon", "rare", "gem"];
+
+/* a = answer, t = tier, s = Curio story slug (only where a story page exists),
+ * al = aliases / alternative spellings, f = one-line fact (gems only). */
+const DAY = {
+  number: 1,
+  date: "2026-11-16",
+  dateLabel: "Monday 16 November",
+  prompts: [
+    {
+      kind: "theme",
+      text: "Name a word from sailing",
+      short: "Sailing",
+      answers: [
+        { a: "sail", t: "common", s: "sail" }, { a: "boat", t: "common" }, { a: "anchor", t: "common" },
+        { a: "ship", t: "common" }, { a: "starboard", t: "clever" }, { a: "mast", t: "familiar" },
+        { a: "keel", t: "familiar", s: "keel" }, { a: "rudder", t: "familiar", s: "rudder" },
+        { a: "port", t: "familiar", s: "port" }, { a: "harbour", t: "familiar", al: ["harbor"] },
+        { a: "skipper", t: "uncommon", s: "skipper" }, { a: "dinghy", t: "uncommon", s: "dinghy" },
+        { a: "ballast", t: "uncommon" }, { a: "bilge", t: "uncommon" }, { a: "halyard", t: "rare" },
+        { a: "gunwale", t: "rare", al: ["gunnel"] }, { a: "bowsprit", t: "rare" }, { a: "binnacle", t: "rare" },
+        { a: "flotilla", t: "gem", s: "flotilla", f: "Spanish for 'a little fleet': a nickname that makes a fleet sound friendlier than it is." },
+      ],
+    },
+    {
+      kind: "origin",
+      text: "Name a word English borrowed from Arabic",
+      short: "From Arabic",
+      answers: [
+        { a: "coffee", t: "common", s: "coffee" }, { a: "sugar", t: "common" }, { a: "algebra", t: "common" },
+        { a: "alcohol", t: "common" }, { a: "algorithm", t: "clever" }, { a: "candy", t: "familiar", s: "candy" },
+        { a: "lemon", t: "familiar" }, { a: "sofa", t: "familiar" }, { a: "magazine", t: "familiar" },
+        { a: "saffron", t: "uncommon", s: "saffron" }, { a: "monsoon", t: "uncommon", s: "monsoon" },
+        { a: "mattress", t: "uncommon", s: "mattress" }, { a: "chemistry", t: "uncommon", s: "chemistry" },
+        { a: "nadir", t: "rare", s: "nadir" }, { a: "gauze", t: "rare", s: "gauze" },
+        { a: "caraway", t: "rare", s: "caraway" }, { a: "almanac", t: "rare", s: "almanac" },
+        { a: "tabby", t: "gem", s: "tabby", f: "Named after al-'Attabiyya, a Baghdad quarter famous for striped silk." },
+      ],
+    },
+    {
+      kind: "theme",
+      text: "Name something you'd find in a kitchen",
+      short: "Kitchen",
+      answers: [
+        { a: "pan", t: "common" }, { a: "fork", t: "common" }, { a: "oven", t: "common" }, { a: "knife", t: "common" },
+        { a: "colander", t: "clever" }, { a: "whisk", t: "familiar" }, { a: "ladle", t: "familiar" },
+        { a: "kettle", t: "familiar" }, { a: "spatula", t: "uncommon" }, { a: "skillet", t: "uncommon" },
+        { a: "ramekin", t: "uncommon" }, { a: "mandoline", t: "rare" }, { a: "bain-marie", t: "rare", al: ["bain marie"] },
+        { a: "chinois", t: "gem", f: "A cone-shaped sieve whose name is simply French for 'Chinese', after its hat-like shape." },
+      ],
+    },
+    {
+      kind: "theme",
+      text: "Name a word for weather",
+      short: "Weather",
+      answers: [
+        { a: "rain", t: "common" }, { a: "snow", t: "common" }, { a: "wind", t: "common" }, { a: "fog", t: "common" },
+        { a: "petrichor", t: "clever" }, { a: "drizzle", t: "familiar" }, { a: "sleet", t: "familiar" },
+        { a: "hail", t: "familiar" }, { a: "typhoon", t: "familiar", s: "typhoon" },
+        { a: "monsoon", t: "uncommon", s: "monsoon" }, { a: "squall", t: "uncommon" }, { a: "mizzle", t: "uncommon" },
+        { a: "graupel", t: "rare" }, { a: "virga", t: "rare" },
+        { a: "haar", t: "gem", f: "A cold sea fog that rolls onto the east coasts of Scotland and England." },
+      ],
+    },
+    {
+      kind: "origin",
+      text: "Name a word that came to English from Persian",
+      short: "From Persian",
+      answers: [
+        { a: "pyjamas", t: "common", al: ["pajamas"] }, { a: "caravan", t: "common" }, { a: "bazaar", t: "common" },
+        { a: "paradise", t: "clever" }, { a: "chess", t: "familiar", s: "chess" }, { a: "lilac", t: "familiar", s: "lilac" },
+        { a: "azure", t: "uncommon", s: "azure" }, { a: "shawl", t: "uncommon" }, { a: "kiosk", t: "uncommon" },
+        { a: "taffeta", t: "rare" }, { a: "seersucker", t: "rare" },
+        { a: "mummy", t: "gem", s: "mummy", f: "From a Persian word for wax: embalmed bodies were thought to be coated in bitumen." },
+      ],
+    },
+    {
+      kind: "theme",
+      text: "Name a musical instrument",
+      short: "Instruments",
+      answers: [
+        { a: "guitar", t: "common" }, { a: "piano", t: "common" }, { a: "drum", t: "common", al: ["drums"] },
+        { a: "violin", t: "common" }, { a: "theremin", t: "clever" }, { a: "lute", t: "familiar", s: "lute" },
+        { a: "tambourine", t: "familiar", s: "tambourine" }, { a: "harp", t: "familiar" }, { a: "oboe", t: "uncommon" },
+        { a: "timpani", t: "uncommon" }, { a: "theorbo", t: "rare" }, { a: "hurdy-gurdy", t: "rare", al: ["hurdy gurdy"] },
+        { a: "sackbut", t: "gem", f: "The Renaissance trombone. Its name meant 'pull-push', from Old French." },
+      ],
+    },
+    {
+      kind: "theme",
+      text: "Name a colour",
+      short: "Colours",
+      answers: [
+        { a: "red", t: "common" }, { a: "blue", t: "common" }, { a: "green", t: "common" }, { a: "yellow", t: "common" },
+        { a: "cerulean", t: "clever" }, { a: "azure", t: "familiar", s: "azure" }, { a: "lilac", t: "familiar", s: "lilac" },
+        { a: "turquoise", t: "familiar" }, { a: "saffron", t: "uncommon", s: "saffron" }, { a: "ochre", t: "uncommon", al: ["ocher"] },
+        { a: "vermilion", t: "uncommon" }, { a: "smalt", t: "rare" }, { a: "fulvous", t: "rare" },
+        { a: "gamboge", t: "gem", f: "A mustard-yellow pigment named after Cambodia, where the resin came from." },
+      ],
+    },
+  ],
+};
+
+/* Past days for the archive screen. score: null = not played on this device.
+ * Copy must never say "missed": an unplayed day is simply open to play. */
+const ARCHIVE = [
+  { number: 1, dateLabel: "Mon 16 Nov", themes: "Sailing, from Arabic, kitchen, weather, from Persian, instruments, colours", score: null, today: true },
+  { number: 0, dateLabel: "Sun 15 Nov", themes: "Birds, from Norse, cheese, the law, from Hindi, fabrics, games", score: 410 },
+  { number: -1, dateLabel: "Sat 14 Nov", themes: "Trees, from French, medicine, money, from Dutch, dances, tools", score: null },
+  { number: -2, dateLabel: "Fri 13 Nov", themes: "Horses, from Greek, bread, the sea, from Italian, hats, insects", score: 275 },
+  { number: -3, dateLabel: "Thu 12 Nov", themes: "Gardening, from Spanish, war, the body, from Japanese, cards, spices", score: null },
+  { number: -4, dateLabel: "Wed 11 Nov", themes: "Rivers, from Latin, sweets, school, from Malay, shoes, the night sky", score: 520 },
+];
+
+/* A plausible finished run so the jump menu can show later screens without playing. */
+const SAMPLE_RUN = ["skipper", "tabby", "colander", "drizzle", null, "theorbo", "ochre"];
+
+/* Pretend aggregate: share of today's finishers with a lower score. */
+const PERCENTILE_TABLE = [[0, 3], [100, 18], [200, 41], [300, 62], [350, 70], [400, 79], [500, 91], [600, 98], [700, 100]];
+
+/* ---------- Matching ---------- */
+
+function norm(s) {
+  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z ]+/g, " ").replace(/\s+/g, " ").trim();
+}
+function variants(s) {
+  const n = norm(s);
+  const out = new Set([n, n.replace(/ /g, "")]);
+  if (n.endsWith("ies")) out.add(n.slice(0, -3) + "y");
+  if (n.endsWith("es")) out.add(n.slice(0, -2));
+  if (n.endsWith("s")) out.add(n.slice(0, -1));
+  out.add(n.replace(/our\b/g, "or")).add(n.replace(/or\b/g, "our")).add(n.replace(/re\b/g, "er"));
+  return out;
+}
+function lev(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++)
+    for (let j = 1; j <= b.length; j++)
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+/* hit: exact after generous normalising. near: one edit away (two for long words)
+ * and must be confirmed by the player, so freak fuzzy matches never score silently. */
+function matchAnswer(prompt, raw) {
+  const vs = variants(raw);
+  for (const ans of prompt.answers) {
+    const keys = [ans.a, ...(ans.al || [])].map(norm);
+    if (keys.some((k) => vs.has(k) || vs.has(k.replace(/ /g, "")))) return { kind: "hit", answer: ans };
+  }
+  const n = norm(raw);
+  if (n.length >= 4) {
+    let best = null;
+    for (const ans of prompt.answers) {
+      for (const k of [ans.a, ...(ans.al || [])].map(norm)) {
+        const dist = lev(n, k);
+        const allowed = k.length >= 8 ? 2 : 1;
+        if (dist <= allowed && (!best || dist < best.dist)) best = { dist, answer: ans };
+      }
+    }
+    if (best) return { kind: "near", answer: best.answer };
+  }
+  return { kind: "miss" };
+}
+
+function percentileFor(score) {
+  let p = 0;
+  for (const [s, pct] of PERCENTILE_TABLE) if (score >= s) p = pct;
+  return p;
+}
+
+function summarise(results) {
+  const score = results.reduce((t, r) => t + r.points, 0);
+  return {
+    score, max: 700, results, percentile: percentileFor(score),
+    gems: results.filter((r) => r.answer && r.answer.t === "gem").length,
+  };
+}
+
+/* "Words worth knowing" per prompt: the gem first, then answers with Curio stories
+ * (rarest first), then everything else. Never framed as "missed". */
+function wordsWorthKnowing(prompt) {
+  const byRarity = [...prompt.answers].sort((x, y) => TIER_ORDER.indexOf(y.t) - TIER_ORDER.indexOf(x.t));
+  const gem = byRarity.find((a) => a.t === "gem");
+  const stories = byRarity.filter((a) => a.s && a !== gem);
+  const rest = byRarity.filter((a) => !a.s && a !== gem);
+  return { gem, stories, rest };
+}
+
+/* ---------- Controller ----------
+ * Each option supplies `ui` with render hooks and marks up screens with
+ * data-screen="start|prompt|feedback|end|share|words|archive". Buttons use
+ * data-action. The controller owns timing, matching and state. */
+
+const PROMPT_SECONDS = 25;
+const GRACE_SECONDS = 3;
+
+function startMock(ui) {
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const state = { i: 0, results: [], noTimer: false, pendingNear: null, timer: null, left: PROMPT_SECONDS, grace: 0 };
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  function show(name) {
+    document.querySelectorAll("main [data-screen]").forEach((el) => { el.hidden = el.dataset.screen !== name; });
+    document.documentElement.dataset.current = name;
+    window.scrollTo(0, 0);
+    const focusTarget = $(`[data-screen="${name}"] [data-autofocus]`) || $(`[data-screen="${name}"] h1, [data-screen="${name}"] h2`);
+    if (focusTarget) { focusTarget.setAttribute("tabindex", focusTarget.matches("input,button,a") ? "0" : "-1"); focusTarget.focus({ preventScroll: true }); }
+    ui.onShow && ui.onShow(name, state);
+  }
+
+  function announce(msg) { const live = $("[data-live]"); if (live) { live.textContent = ""; setTimeout(() => (live.textContent = msg), 30); } }
+
+  function stopTimer() { clearInterval(state.timer); state.timer = null; }
+
+  function startPrompt() {
+    stopTimer();
+    state.pendingNear = null;
+    state.left = PROMPT_SECONDS;
+    state.grace = state.noTimer ? 0 : GRACE_SECONDS;
+    const prompt = DAY.prompts[state.i];
+    show("prompt");
+    ui.renderPrompt(prompt, state.i, DAY.prompts.length, state);
+    ui.renderTimer(state);
+    const input = $("[data-input]");
+    if (input) { input.value = ""; input.focus(); }
+    if (state.noTimer) return;
+    state.timer = setInterval(() => {
+      if (document.hidden) return; // pause while the tab is hidden
+      if (state.grace > 0) state.grace -= 1;
+      else state.left -= 1;
+      ui.renderTimer(state);
+      if (state.grace === 0 && (state.left === 10 || state.left === 5)) announce(`${state.left} seconds left`);
+      if (state.left <= 0) record(null, true);
+    }, 1000);
+  }
+
+  function record(answer, timedOut, raw = "") {
+    stopTimer();
+    const result = { prompt: DAY.prompts[state.i], raw, answer, timedOut, points: answer ? TIER_POINTS[answer.t] : 0 };
+    state.results[state.i] = result;
+    show("feedback");
+    ui.renderFeedback(result, state.i, summarise(state.results.filter(Boolean)), state);
+    announce(answer ? `${answer.a}: ${ui.tierName(answer.t)}, ${result.points} points` : "Time's up, no answer this round");
+  }
+
+  function submit(raw) {
+    const prompt = DAY.prompts[state.i];
+    if (!raw.trim()) return;
+    if (state.pendingNear && norm(raw) === norm(state.pendingNear.raw)) return record(state.pendingNear.answer, false, raw);
+    const m = matchAnswer(prompt, raw);
+    if (m.kind === "hit") return record(m.answer, false, raw);
+    if (m.kind === "near") { state.pendingNear = { raw, answer: m.answer }; ui.renderNear(raw, m.answer); announce(`Did you mean ${m.answer.a}? Press enter again to confirm, or edit.`); return; }
+    state.pendingNear = null;
+    ui.renderMiss(raw);
+    announce(`${raw} isn't on the list. Try another.`);
+  }
+
+  function next() {
+    state.i += 1;
+    if (state.i >= DAY.prompts.length) return finish();
+    startPrompt();
+  }
+
+  function finish() {
+    const s = summarise(state.results);
+    show("end");
+    ui.renderEnd(s, state);
+  }
+
+  function fillSampleRun() {
+    state.results = DAY.prompts.map((p, i) => {
+      const w = SAMPLE_RUN[i];
+      const ans = w ? p.answers.find((a) => a.a === w) : null;
+      return { prompt: p, raw: w || "", answer: ans, timedOut: !ans, points: ans ? TIER_POINTS[ans.t] : 0 };
+    });
+  }
+
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-action]");
+    if (!btn) return;
+    const a = btn.dataset.action;
+    if (a === "start") { state.i = 0; state.results = []; startPrompt(); }
+    else if (a === "next") next();
+    else if (a === "toggle-timer") { state.noTimer = !state.noTimer; ui.renderTimerSetting && ui.renderTimerSetting(state); }
+    else if (a === "share") { show("share"); ui.renderShare(summarise(state.results.length === 7 ? state.results : (fillSampleRun(), state.results)), state); }
+    else if (a === "copy") {
+      const text = ui.shareText(summarise(state.results));
+      (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(
+        () => { btn.textContent = "Copied"; announce("Result copied"); },
+        () => { btn.textContent = "Select the text above to copy"; });
+    }
+    else if (a === "words") { show("words"); ui.renderWords(state.results.length === 7 ? state.results : (fillSampleRun(), state.results), state); }
+    else if (a === "archive") { show("archive"); ui.renderArchive(ARCHIVE, state); }
+    else if (a === "end") { if (state.results.length < 7) fillSampleRun(); finish(); }
+    else if (a === "home") { stopTimer(); show("start"); }
+    else if (a === "signup") { e.preventDefault(); ui.renderSignupDone && ui.renderSignupDone(btn); }
+  });
+
+  document.addEventListener("submit", (e) => {
+    const form = e.target;
+    if (form.matches("[data-answer-form]")) { e.preventDefault(); submit($("[data-input]").value); }
+    if (form.matches("[data-signup-form]")) { e.preventDefault(); ui.renderSignupDone && ui.renderSignupDone(form); }
+  });
+
+  /* Mockup-only jump menu: lets the reviewer reach any screen without playing. */
+  const jump = document.createElement("details");
+  jump.className = "mock-jump";
+  jump.innerHTML = `<summary>Mockup: jump to a screen</summary><div>
+    <button type="button" data-jump="start">Start</button>
+    <button type="button" data-jump="prompt">Prompt + timer</button>
+    <button type="button" data-jump="near">Near-miss confirm</button>
+    <button type="button" data-jump="feedback">Answer reveal</button>
+    <button type="button" data-jump="end">End screen</button>
+    <button type="button" data-jump="share">Share cards</button>
+    <button type="button" data-jump="words">Words worth knowing</button>
+    <button type="button" data-jump="archive">Past days</button>
+    <button type="button" data-jump="signup">Daily-word signup</button>
+    <a href="index.html">All options</a></div>`;
+  document.body.appendChild(jump);
+  jump.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-jump]");
+    if (!b) return;
+    const to = b.dataset.jump;
+    stopTimer();
+    if (to === "start") show("start");
+    if (to === "prompt") { state.i = 0; state.results = []; startPrompt(); }
+    if (to === "near") { state.i = 0; state.results = []; state.noTimer = true; startPrompt(); $("[data-input]").value = "flotila"; submit("flotila"); state.noTimer = false; }
+    if (to === "feedback") { state.i = 1; state.results = []; record(DAY.prompts[1].answers.find((a) => a.a === "tabby"), false, "tabby"); }
+    if (to === "end") { fillSampleRun(); finish(); }
+    if (to === "share") { fillSampleRun(); show("share"); ui.renderShare(summarise(state.results), state); }
+    if (to === "words") { fillSampleRun(); show("words"); ui.renderWords(state.results, state); }
+    if (to === "archive") { show("archive"); ui.renderArchive(ARCHIVE, state); }
+    if (to === "signup") { fillSampleRun(); finish(); const el = $("[data-signup]"); if (el) el.scrollIntoView({ block: "center" }); }
+    jump.open = false;
+  });
+
+  ui.init && ui.init(state);
+  ui.renderTimerSetting && ui.renderTimerSetting(state);
+  show("start");
+  return { state, reduceMotion };
+}
+
+
+const TIER_NAMES = { common: "Common", clever: "Popular pick", familiar: "Familiar", uncommon: "Uncommon", rare: "Rare", gem: "Fossil" };
+const LAYERS = [
+  { name: "topsoil", from: 0, c: "var(--s0)", hex: "#E9E1CF", dark: false },
+  { name: "loam", from: 100, c: "var(--s1)", hex: "#D6C4A3", dark: false },
+  { name: "clay", from: 250, c: "var(--s2)", hex: "#B99A72", dark: false },
+  { name: "stone", from: 400, c: "var(--s3)", hex: "#7E6A52", dark: true },
+  { name: "bedrock", from: 550, c: "var(--s4)", hex: "#3A322A", dark: true },
+];
+const TIER_LAYER = { common: 0, clever: 0, familiar: 1, uncommon: 2, rare: 3, gem: 4 };
+const EMOJI = { common: "🌱", clever: "🌱", familiar: "🟫", uncommon: "🟧", rare: "🪨", gem: "🦴" };
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const metres = (score) => (score / 100).toFixed(1) + " m";
+const layerFor = (score) => [...LAYERS].reverse().find((l) => score >= l.from);
+
+/* Wavy strata as SVG: five bands with gently uneven boundaries. */
+function strataSvg(w, h, seed = 1) {
+  let r = seed;
+  const rnd = () => ((r = (r * 9301 + 49297) % 233280) / 233280);
+  const bandH = h / LAYERS.length;
+  let paths = "";
+  for (let k = 0; k < LAYERS.length; k++) {
+    const y0 = k * bandH;
+    let d = `M0 ${h} L0 ${y0}`;
+    const steps = 6;
+    for (let s = 1; s <= steps; s++) d += ` Q ${(s - .5) * w / steps} ${y0 + (k ? (rnd() - .5) * bandH * .35 : 0)} ${s * w / steps} ${y0 + (k ? (rnd() - .5) * bandH * .2 : 0)}`;
+    d += ` L${w} ${h} Z`;
+    paths += `<path d="${d}" fill="${LAYERS[k].hex}" stroke="#1C1A17" stroke-width="${k ? 1 : 0}"/>`;
+  }
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">${paths}</svg>`;
+}
+function scoreToFrac(score) { return Math.min(score, 700) / 700; }
+
+function setGauge(score) {
+  const frac = scoreToFrac(score);
+  const marker = $("[data-marker]");
+  marker.style.top = `calc(${frac * 100}% - ${frac === 1 ? 2 : 0}px)`;
+  marker.classList.toggle("light", layerFor(score).dark);
+  $("[data-depth]").textContent = metres(score);
+}
+
+const ui = {
+  tierName: (t) => TIER_NAMES[t],
+  init() {
+    $("[data-hero]").innerHTML = strataSvg(600, 150, 3) + LAYERS.map((l, k) => `<span class="lab" style="top:${k * 30 + 5}px;color:${l.dark ? "var(--paper)" : "var(--ink)"}">${l.name}</span>`).join("");
+    $("[data-legend]").innerHTML = [["common", "Common words stay in the topsoil", 10], ["familiar", "Familiar ones reach the loam", 30], ["uncommon", "Uncommon, the clay", 60], ["rare", "Rare words hit stone", 85], ["gem", "Each prompt hides one fossil", 100]]
+      .map(([t, label, pts]) => `<span style="background:${LAYERS[TIER_LAYER[t]].hex}"></span><span>${label}</span><em>${pts}</em>`).join("");
+    const g = $("[data-gauge]");
+    LAYERS.forEach((l, k) => g.insertAdjacentHTML("beforeend", `<span class="lbl ${l.dark ? "dark" : ""}" style="top:calc(${k * 20}% + 10px)">${l.name}</span>`));
+  },
+  onShow(name, state) {
+    const done = state.results.filter(Boolean);
+    setGauge(name === "start" || name === "archive" ? 0 : done.reduce((t, r) => t + r.points, 0));
+  },
+  renderTimerSetting(state) { $(".switch").setAttribute("aria-checked", String(state.noTimer)); },
+  renderPrompt(p, i, total) {
+    $("[data-kind]").textContent = `Prompt ${i + 1} of ${total}${p.kind === "origin" ? ", a word's origin" : ""}`;
+    $("[data-prompt-text]").textContent = p.text;
+    $("[data-hint]").textContent = "";
+  },
+  renderTimer(state) {
+    const t = $("[data-timer]");
+    t.classList.toggle("off", state.noTimer);
+    t.classList.remove("low");
+    if (state.noTimer) { $("[data-num]").textContent = "No timer"; return; }
+    if (state.grace > 0) { $("[data-num]").textContent = "Read…"; $("[data-bar]").style.transform = "scaleX(1)"; return; }
+    $("[data-num]").textContent = `${state.left}s`;
+    $("[data-bar]").style.transform = `scaleX(${state.left / PROMPT_SECONDS})`;
+    t.classList.toggle("low", state.left <= 5);
+  },
+  renderNear(raw, ans) { $("[data-hint]").innerHTML = `Did you mean <b>${esc(ans.a)}</b>? Press Dig again to use it, or edit your word.`; },
+  renderMiss(raw) { $("[data-hint]").innerHTML = `<b>${esc(raw)}</b> isn't on today's list for this prompt. Try another word.`; $("[data-input]").select(); },
+  renderFeedback(r, i, sum) {
+    $("[data-fb-prompt]").textContent = r.prompt.text;
+    const drop = $("[data-drop]");
+    const h = 250, bandH = h / LAYERS.length;
+    drop.innerHTML = LAYERS.map((l, k) => `<div class="band" style="top:${k * bandH}px;height:${bandH}px;background:${l.hex};color:${l.dark ? "var(--paper)" : "var(--ink)"};${k ? "border-top:1px solid #1C1A17" : ""}">${l.name}</div>`).join("");
+    if (r.answer) {
+      const k = TIER_LAYER[r.answer.t];
+      drop.insertAdjacentHTML("beforeend", `<span class="word ${LAYERS[k].dark ? "deep" : ""}" style="top:-30px">${esc(r.answer.a)}</span>`);
+      requestAnimationFrame(() => requestAnimationFrame(() => { drop.querySelector(".word").style.top = `${k * bandH + bandH / 2 + 6}px`; }));
+      $("[data-verdict]").innerHTML = r.answer.t === "gem"
+        ? `<b>A fossil.</b> 100 points, the deepest find for this prompt.`
+        : `<b>${TIER_NAMES[r.answer.t]}</b>, ${r.points} points. Found in the ${LAYERS[TIER_LAYER[r.answer.t]].name}.`;
+    } else {
+      $("[data-verdict]").innerHTML = `<b>Nothing dug up this time.</b> <span class="soft">You'll see what was down there at the end.</span>`;
+    }
+    $("[data-extra]").innerHTML = r.answer && r.answer.t === "gem"
+      ? `<div class="gemcard"><span class="fossil">The fossil for this prompt</span>${esc(r.answer.f)}${r.answer.s ? ` <a href="${STORY + r.answer.s}">Read the story of ${esc(r.answer.a)}</a>` : ""}</div>`
+      : r.answer && r.answer.s ? `<p class="storynote"><a href="${STORY + r.answer.s}">${esc(r.answer.a)}</a> has a story on Curio. It'll be waiting at the end.</p>` : "";
+    $("[data-next]").textContent = i === DAY.prompts.length - 1 ? "See your dig" : "Keep digging";
+  },
+  renderEnd(s) {
+    const L = layerFor(s.score);
+    $("[data-total]").textContent = metres(s.score);
+    $("[data-total-sub]").textContent = `down, into the ${L.name}. ${s.score} points.`;
+    $("[data-compare]").textContent = `Deeper than ${s.percentile}% of today's players.`;
+    const W = 600, H = 420, bandH = H / LAYERS.length;
+    const box = $("[data-drawing]");
+    box.innerHTML = strataSvg(W, H, 7) + LAYERS.map((l, k) => `<span class="layerlabel" style="top:${(k * bandH + 6) / H * 100}%;color:${l.dark ? "var(--paper)" : "var(--ink)"}">${l.name}</span>`).join("");
+    const xs = [18, 46, 74, 30, 58, 82, 40];
+    s.results.forEach((r, i) => {
+      if (!r.answer) return;
+      const k = TIER_LAYER[r.answer.t];
+      const y = (k * bandH + bandH * (0.35 + (i % 3) * 0.2)) / H * 100;
+      box.insertAdjacentHTML("beforeend", `<span class="find ${LAYERS[k].dark ? "dark" : ""} ${r.answer.t === "gem" ? "gem" : ""}" style="left:${xs[i]}%;top:${y}%">${esc(r.answer.a)}<small>${esc(r.prompt.short)}</small></span>`);
+    });
+    const picks = DAY.prompts.map((p) => wordsWorthKnowing(p)).map((w) => w.gem && w.gem.s ? w.gem : w.stories[0]).filter(Boolean).slice(0, 4);
+    $("[data-wwk]").innerHTML = picks.map((a) => `<li><span class="sw" style="background:${LAYERS[TIER_LAYER[a.t]].hex}"></span><div><a href="${STORY + a.s}">${esc(a.a)}</a><p>${a.t === "gem" ? "Today's fossil" : TIER_NAMES[a.t] + " today"}. Read where it comes from.</p></div></li>`).join("");
+    const sb = $("[data-signup]"); sb.querySelector("form").hidden = false; sb.querySelector(".done-note") && sb.querySelector(".done-note").remove();
+  },
+  shareText(s) {
+    return `curio dig, day ${DAY.number}\n${metres(s.score)} down\n${s.results.map((r) => r.answer ? EMOJI[r.answer.t] : "▫️").join("")}\ncurioword.com/dig`;
+  },
+  renderShare(s) {
+    ui._last = s;
+    $("[data-sharetext]").textContent = ui.shareText(s);
+    const L = layerFor(s.score);
+    const marks = (W, H) => {
+      const bandH = H / LAYERS.length;
+      return s.results.map((r, i) => {
+        if (!r.answer) return "";
+        const k = TIER_LAYER[r.answer.t];
+        const x = (i + 1) * W / 8, y = k * bandH + bandH * .55;
+        return `<line x1="${x}" y1="0" x2="${x}" y2="${y}" stroke="#1C1A17" stroke-width="3" stroke-dasharray="2 8"/><circle cx="${x}" cy="${y}" r="${r.answer.t === "gem" ? 20 : 13}" fill="${LAYERS[k].dark ? "#F5F1E8" : "#1C1A17"}"/>`;
+      }).join("");
+    };
+    const drawing = (W, H) => strataSvg(W, H, 7).replace("</svg>", marks(W, H) + "</svg>");
+    const og = `<div class="card og"><div class="txt"><div class="wm">curio<i>dig</i></div><div><div class="big">${metres(s.score)}</div><div class="sub">down into the ${L.name} on day ${DAY.number}</div></div><div class="dom">curioword.com</div></div><div>${drawing(680, 630)}</div></div>`;
+    const sq = `<div class="card sq"><div class="txt"><div><div class="wm">curio<i>dig</i></div><div class="sub">Day ${DAY.number}, into the ${L.name}</div></div><div style="text-align:right"><div class="big" style="font-size:130px">${metres(s.score)}</div><div class="dom" style="margin-top:14px">curioword.com</div></div></div><div>${drawing(1080, 820)}</div></div>`;
+    const fo = $("[data-frame-og]"), fs = $("[data-frame-sq]");
+    fo.innerHTML = og; fs.innerHTML = sq;
+    fit(fo, 1200, 630); fit(fs, 1080, 1080);
+  },
+  renderWords(results) {
+    $("[data-words]").innerHTML = DAY.prompts.map((p, i) => {
+      const w = wordsWorthKnowing(p), r = results[i];
+      const link = (a) => a.s ? `<a href="${STORY + a.s}">${esc(a.a)}</a>` : esc(a.a);
+      return `<div class="prompt-block"><h3>${esc(p.text)}</h3>
+        <p class="yours">You found ${r && r.answer ? `<b>${esc(r.answer.a)}</b> in the ${LAYERS[TIER_LAYER[r.answer.t]].name}` : "nothing this time"}</p>
+        <div class="gemline">${link(w.gem)}<span>${esc(w.gem.f)}</span></div>
+        ${w.stories.length ? `<ul class="storylist">${w.stories.map((a) => `<li>${link(a)}</li>`).join("")}</ul>` : ""}
+        <details class="all"><summary>All ${p.answers.length} answers, deepest first</summary><p>${[w.gem, ...w.stories, ...w.rest].sort((x, y) => TIER_ORDER.indexOf(y.t) - TIER_ORDER.indexOf(x.t)).map((a) => `${esc(a.a)} <span class="soft">(${LAYERS[TIER_LAYER[a.t]].name})</span>`).join(", ")}</p></details></div>`;
+    }).join("");
+  },
+  renderArchive(list) {
+    $("[data-archive]").innerHTML = list.map((d, k) => {
+      const mini = d.score != null ? strataSvg(58, 52, k + 2).replace("</svg>", `<line x1="0" x2="58" y1="${scoreToFrac(d.score) * 52}" y2="${scoreToFrac(d.score) * 52}" stroke="#1C1A17" stroke-width="2"/></svg>`) : strataSvg(58, 52, k + 2);
+      return `<li><span class="mini">${mini}</span><span class="d">${d.today ? "Today, " : ""}${d.dateLabel}</span><span class="th">${esc(d.themes)}</span>
+        <span class="s">${d.score != null ? `<b>${metres(d.score)}</b><button class="btn-link" data-action="words">See finds</button>` : `<button class="btn btn-quiet" data-action="start">Dig</button>`}</span></li>`;
+    }).join("");
+  },
+  renderSignupDone() {
+    const box = $("[data-signup]");
+    box.querySelector("form").hidden = true;
+    box.insertAdjacentHTML("beforeend", `<p class="done-note">Check your inbox for a link to confirm. (Mockup: nothing was sent.)</p>`);
+  },
+};
+function fit(frame, w, h) { const sc = frame.clientWidth / w; frame.firstElementChild.style.transform = `scale(${sc})`; frame.style.height = h * sc + "px"; }
+startMock(ui);
+window.addEventListener("resize", () => { if (document.documentElement.dataset.current === "share" && ui._last) ui.renderShare(ui._last); });
+</script>
+</body>
+</html>

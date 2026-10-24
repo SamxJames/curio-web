@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Option 3: Full dive (curio depths)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F1E8; --ink:#1C1A17; --red:#C23B22;
+  --water:#F5F1E8; --fg:#1C1A17; --fg-soft:rgba(28,26,23,.72); --line:rgba(28,26,23,.25);
+  --serif:"Libre Caslon Text",Georgia,"Times New Roman",serif; --sans:"Work Sans",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;background:var(--water);color:var(--fg);font:400 1rem/1.55 var(--sans);-webkit-font-smoothing:antialiased;transition:background-color 1.4s ease,color .6s}
+body.deep{--fg:#F5F1E8;--fg-soft:rgba(245,241,232,.78);--line:rgba(245,241,232,.28)}
+.scale{position:fixed;top:0;right:0;bottom:0;width:54px;pointer-events:none;overflow:hidden;border-left:1px solid var(--line)}
+.scale .ticks{position:absolute;left:0;right:0;top:0;height:100%;transition:transform 1.4s cubic-bezier(.3,.7,.2,1)}
+.scale .t{position:absolute;right:8px;font:italic 400 .8rem var(--serif);color:var(--fg-soft);white-space:nowrap}
+.scale .t::after{content:"";display:inline-block;width:10px;border-top:1px solid var(--fg-soft);margin-left:6px;vertical-align:middle}
+.scale .you{position:absolute;right:0;left:0;top:45%;border-top:2px solid var(--fg)}
+.bubbles{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.bubbles i{position:absolute;bottom:-20px;border:1.5px solid var(--fg-soft);border-radius:50%;animation:rise linear forwards}
+@keyframes rise{to{transform:translateY(-110vh) translateX(var(--dx));opacity:0}}
+.page{max-width:38rem;margin:0 auto;padding:18px 74px 110px 20px;position:relative}
+.mast{display:flex;align-items:baseline;gap:10px;margin-bottom:30px}
+.wordmark{font:700 1.6rem/1 var(--serif);text-transform:lowercase;color:var(--fg);text-decoration:none;letter-spacing:-.01em}
+.mast .game{font:italic 400 1.15rem/1 var(--serif);color:var(--fg-soft)}
+.mast .depth{margin-left:auto;font:600 .95rem/1 var(--sans);font-variant-numeric:tabular-nums}
+h1,h2{font-family:var(--serif);font-weight:400;margin:0;letter-spacing:-.015em}
+h1{font-size:3rem;line-height:1.02}
+h2{font-size:1.6rem;line-height:1.2}
+p{margin:0}
+.soft{color:var(--fg-soft)}
+a{color:var(--fg);text-underline-offset:3px}
+:focus-visible{outline-style:solid;outline-width:2px;outline-color:var(--fg);outline-offset:3px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 24px;border-radius:999px;border:1px solid transparent;font:600 1.02rem/1 var(--sans);cursor:pointer;text-decoration:none}
+.btn-primary{background:var(--red);color:#fff;box-shadow:0 0 0 1px rgba(245,241,232,.35)}
+.btn-primary:hover{background:#A93119}
+.btn-quiet{background:transparent;color:var(--fg);border-color:var(--fg-soft)}
+.btn-link{background:none;border:0;padding:0;min-height:44px;color:var(--fg);text-decoration:underline;text-underline-offset:3px;font:500 1rem/1 var(--sans);cursor:pointer}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Start */
+.lede{font:400 1.25rem/1.45 var(--serif);margin-top:16px;max-width:26rem}
+.zones{list-style:none;padding:0;margin:30px 0 0;display:grid;gap:0}
+.zones li{display:grid;grid-template-columns:1fr auto;padding:9px 12px;font-size:.92rem}
+.zones li b{font:400 1.05rem var(--serif)}
+.setting{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:22px;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.setting small{display:block;color:var(--fg-soft);font-size:.85rem}
+.switch{position:relative;width:52px;height:30px;border-radius:999px;border:1px solid var(--fg-soft);background:transparent;cursor:pointer;flex:none}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--fg);transition:transform .15s}
+.switch[aria-checked="true"]{background:var(--fg)} .switch[aria-checked="true"]::after{background:var(--water);transform:translateX(22px)}
+
+/* Prompt with an air gauge */
+.kind{font-size:.875rem;color:var(--fg-soft);margin-bottom:8px}
+.prompt-text{font:400 2.2rem/1.15 var(--serif)}
+.air{margin-top:26px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
+.air .lbl{font-size:.875rem;color:var(--fg-soft)}
+.air .tank{height:14px;border:1.5px solid var(--fg);border-radius:999px;padding:2px;overflow:hidden}
+.air .tank i{display:block;height:100%;border-radius:999px;background:var(--fg);transform-origin:left;transition:transform 1s linear}
+.air .num{font:700 1.5rem/1 var(--serif);font-variant-numeric:tabular-nums;min-width:2.2em;text-align:right}
+.air.low .tank i{animation:gasp .5s ease-in-out infinite alternate}
+@keyframes gasp{to{opacity:.45}}
+.air.off{grid-template-columns:auto 1fr}.air.off .tank{display:none}
+.answer{margin-top:22px;display:flex;gap:8px}
+.answer input{flex:1;min-width:0;min-height:56px;padding:0 18px;border:1.5px solid var(--fg);border-radius:999px;background:transparent;color:var(--fg);font:400 1.35rem/1 var(--serif)}
+.answer input::placeholder{color:var(--fg-soft)}
+.hint{min-height:3.2em;margin-top:12px;font-size:.98rem}
+.hint b{font-family:var(--serif);font-weight:700}
+
+/* Feedback: bold, sinking word */
+.sinker{position:relative;height:300px;margin-top:6px}
+.sinker .word{position:absolute;left:0;right:0;text-align:center;font:700 3.6rem/1 var(--serif);letter-spacing:-.03em;transition:top 1.3s cubic-bezier(.45,0,.2,1)}
+.sinker .zone{position:absolute;left:0;right:0;bottom:0;text-align:center;font:italic 400 1.15rem var(--serif);color:var(--fg-soft)}
+.verdict{text-align:center}
+.verdict .zname{font:700 1.9rem/1.1 var(--serif);display:block}
+.verdict .pts{font:600 1.05rem var(--sans);display:block;margin-top:6px}
+.pearl{margin:20px auto 0;max-width:30rem;padding:18px 20px;border:1.5px solid var(--fg);border-radius:18px;font:400 1.05rem/1.5 var(--serif);text-align:center}
+.pearl .o{display:block;width:26px;height:26px;margin:0 auto 10px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#E9E2D2 45%,#B9AE98)}
+.storynote{text-align:center;margin-top:16px;font:400 1.05rem var(--serif)}
+
+/* End */
+.total b{font:700 4.6rem/1 var(--serif);letter-spacing:-.03em;display:block}
+.total span{font:italic 400 1.25rem var(--serif)}
+.compare{margin-top:10px;font-size:1.05rem}
+.profile{margin-top:24px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);position:relative}
+.profile svg{display:block;width:100%;height:auto;overflow:visible}
+.section{margin-top:44px;padding-top:22px;border-top:1.5px solid var(--fg)}
+.wwk{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:14px}
+.wwk a{font:700 1.2rem var(--serif)}
+.wwk p{font-size:.95rem;color:var(--fg-soft)}
+.signup{margin-top:40px;padding:24px;border:1.5px solid var(--fg);border-radius:22px}
+.signup form{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.signup input{flex:1 1 14rem;min-height:52px;padding:0 18px;border:1.5px solid var(--fg);border-radius:999px;background:transparent;color:var(--fg);font:400 1rem var(--sans)}
+.signup input::placeholder{color:var(--fg-soft)}
+.done-note{font:italic 400 1.05rem var(--serif);margin-top:12px}
+
+/* Share cards */
+.cards{display:grid;gap:22px;margin-top:22px}
+.cards>*{min-width:0}
+.frame{width:100%;overflow:hidden;border-radius:6px}
+.frame-label{font-size:.85rem;color:var(--fg-soft);margin-bottom:6px}
+.card{transform-origin:top left;position:relative;overflow:hidden;color:#F5F1E8;background:linear-gradient(180deg,#E9E3D6 0%,#6E7F80 22%,#2B3A3D 55%,#1C1A17 100%)}
+.og{width:1200px;height:630px}
+.sq{width:1080px;height:1080px}
+.card .wm{position:absolute;left:64px;top:56px;font:700 56px/1 var(--serif);text-transform:lowercase;color:#1C1A17}
+.card .wm i{font-weight:400;margin-left:14px;opacity:.7}
+.card .big{position:absolute;left:64px;bottom:120px;font:700 170px/.85 var(--serif);letter-spacing:-.04em}
+.card .sub{position:absolute;left:68px;bottom:66px;font:italic 400 40px var(--serif);opacity:.85}
+.card .dom{position:absolute;right:64px;bottom:66px;font:500 32px/1 var(--sans);opacity:.85}
+.card svg{position:absolute;inset:0;width:100%;height:100%}
+.sharetext{margin-top:18px;white-space:pre;font:400 1.05rem/1.5 var(--sans);border:1px solid var(--line);padding:14px;border-radius:14px}
+
+/* Words + archive */
+.prompt-block{padding:18px 0;border-bottom:1px solid var(--line)}
+.prompt-block h3{font:400 1.25rem/1.3 var(--serif);margin:0 0 4px}
+.yours{font-size:.9rem;color:var(--fg-soft)}
+.gemline{margin-top:12px;display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start}
+.gemline .o{width:20px;height:20px;border-radius:50%;margin-top:4px;background:radial-gradient(circle at 35% 35%,#fff,#E9E2D2 45%,#B9AE98)}
+.gemline a,.gemline b{font:700 1.2rem var(--serif)}
+.gemline span{display:block;font-size:.92rem;color:var(--fg-soft)}
+.storylist{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px 16px}
+.storylist a{font-family:var(--serif);font-size:1.05rem}
+details.all{margin-top:8px;font-size:.9rem}
+details.all summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--fg-soft)}
+details.all p{font-family:var(--serif);font-size:1rem}
+.archive{list-style:none;margin:20px 0 0;padding:0}
+.archive li{display:grid;grid-template-columns:1fr auto;gap:2px 14px;padding:14px 0;border-bottom:1px solid var(--line);align-items:center}
+.archive .d{font:400 1.15rem var(--serif)}
+.archive .th{font-size:.85rem;color:var(--fg-soft)}
+.archive .s{grid-row:1/3;grid-column:2;text-align:right}
+.archive .s b{font:700 1.25rem var(--serif);display:block}
+@media (min-width:900px){
+  .page{max-width:46rem;padding-top:34px}
+  h1{font-size:4rem}
+  .prompt-text{font-size:2.8rem}
+  .sinker .word{font-size:5rem}
+  .cards{grid-template-columns:1.6fr 1fr;align-items:start}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.bubbles{display:none}}
+/*@MOCKCSS*/
+</style>
+</head>
+<body>
+<div class="scale" aria-hidden="true"><div class="ticks" data-ticks></div><span class="you"></span></div>
+<div class="bubbles" aria-hidden="true" data-bubbles></div>
+<div class="page">
+  <header class="mast">
+    <a class="wordmark" href="#" data-action="home">curio</a><span class="game">depths</span>
+    <span class="depth" data-depth>Surface</span>
+  </header>
+  <p class="sr" aria-live="polite" data-live></p>
+  <main>
+    <!-- START -->
+    <section data-screen="start">
+      <h1>How deep do your words go?</h1>
+      <p class="lede">Seven prompts, one word each. Rare words sink you deeper.</p>
+      <div class="row" style="margin-top:26px">
+        <button class="btn btn-primary" data-action="start" data-autofocus>Dive in</button>
+        <button class="btn-link" data-action="archive">Past days</button>
+      </div>
+      <div class="setting">
+        <div id="nt-label">No timer<small>Unlimited air. Scores count the same.</small></div>
+        <button class="switch" role="switch" aria-checked="false" aria-labelledby="nt-label" data-action="toggle-timer"></button>
+      </div>
+      <ul class="zones" data-zones></ul>
+    </section>
+
+    <!-- PROMPT -->
+    <section data-screen="prompt" hidden>
+      <p class="kind" data-kind></p>
+      <h2 class="prompt-text" data-prompt-text></h2>
+      <div class="air" data-air><span class="lbl">Air</span><div class="tank" aria-hidden="true"><i data-bar></i></div><span class="num" data-num></span></div>
+      <form class="answer" data-answer-form autocomplete="off">
+        <label class="sr" for="ans">Your answer</label>
+        <input id="ans" data-input placeholder="One word" autocapitalize="off" spellcheck="false">
+        <button class="btn btn-primary" type="submit">Sink it</button>
+      </form>
+      <p class="hint" data-hint aria-hidden="true"></p>
+    </section>
+
+    <!-- FEEDBACK -->
+    <section data-screen="feedback" hidden>
+      <p class="kind" data-fb-prompt></p>
+      <div class="sinker" aria-hidden="true" data-sinker></div>
+      <p class="verdict" data-verdict></p>
+      <div data-extra></div>
+      <div class="row" style="margin-top:26px;justify-content:center"><button class="btn btn-primary" data-action="next" data-next data-autofocus>Dive deeper</button></div>
+    </section>
+
+    <!-- END -->
+    <section data-screen="end" hidden>
+      <div class="total"><b data-total></b><span data-total-sub></span></div>
+      <p class="compare" data-compare></p>
+      <div class="profile" data-profile></div>
+      <div class="row" style="margin-top:22px">
+        <button class="btn btn-primary" data-action="share">Share your dive</button>
+        <button class="btn btn-quiet" data-action="words">See what was down there</button>
+      </div>
+      <div class="section">
+        <h2>Words worth knowing</h2>
+        <p class="soft" style="margin-top:6px">Brought up from today's prompts, each with a story on Curio.</p>
+        <ul class="wwk" data-wwk></ul>
+        <button class="btn-link" style="margin-top:8px" data-action="words">Every answer for every prompt</button>
+      </div>
+      <div class="signup" data-signup>
+        <h2>One word, one story, every day</h2>
+        <p style="margin-top:8px">Curio's daily word, by email. Free, and one tap to stop.</p>
+        <form data-signup-form>
+          <label class="sr" for="em">Email address</label>
+          <input id="em" type="email" placeholder="you@example.com" required>
+          <button class="btn btn-primary" type="submit">Send me the daily word</button>
+        </form>
+      </div>
+      <p style="margin-top:28px"><button class="btn-link" data-action="archive">Past days</button></p>
+    </section>
+
+    <!-- SHARE -->
+    <section data-screen="share" hidden>
+      <h2>Share your dive</h2>
+      <p class="soft" style="margin-top:6px">Depth only. Nobody's game is spoilt.</p>
+      <div class="sharetext" data-sharetext></div>
+      <div class="row" style="margin-top:12px"><button class="btn btn-primary" data-action="copy">Copy result</button><button class="btn-link" data-action="end">Back to your dive</button></div>
+      <div class="cards">
+        <div><p class="frame-label">Link preview, 1200 × 630</p><div class="frame" data-frame-og></div></div>
+        <div><p class="frame-label">Square, for Instagram</p><div class="frame" data-frame-sq></div></div>
+      </div>
+    </section>
+
+    <!-- WORDS -->
+    <section data-screen="words" hidden>
+      <h2>What was down there</h2>
+      <p class="soft" style="margin-top:6px">Each prompt's pearl first, then words with a story on Curio.</p>
+      <div data-words></div>
+      <p style="margin-top:20px"><button class="btn-link" data-action="end">Back to your dive</button></p>
+    </section>
+
+    <!-- ARCHIVE -->
+    <section data-screen="archive" hidden>
+      <h2>Past dives</h2>
+      <p class="soft" style="margin-top:6px">Every day stays open. Dive any of them, in any order.</p>
+      <ol class="archive" data-archive></ol>
+      <p style="margin-top:20px"><button class="btn-link" data-action="home">Back to today</button></p>
+    </section>
+  </main>
+</div>
+
+<script>
+/*@SHARED*/
+
+const ZONES = {
+  common: { name: "Surface", line: "Everyone's first thought." },
+  clever: { name: "Popular dive", line: "It feels deep, but it's a well-known spot." },
+  familiar: { name: "The shelf", line: "A solid dive." },
+  uncommon: { name: "The slope", line: "Not many get this far down." },
+  rare: { name: "The abyss", line: "Almost nobody reaches this." },
+  gem: { name: "A pearl", line: "The one find hidden in this prompt." },
+};
+const EMOJI = { common: "🌊", clever: "🌊", familiar: "🐚", uncommon: "🪸", rare: "🌑", gem: "🦪" };
+const WATER = [[0, [245, 241, 232]], [120, [176, 184, 178]], [260, [110, 127, 128]], [420, [43, 58, 61]], [700, [28, 26, 23]]];
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function waterAt(score) {
+  for (let k = 1; k < WATER.length; k++) {
+    const [s1, c1] = WATER[k], [s0, c0] = WATER[k - 1];
+    if (score <= s1) { const f = (score - s0) / (s1 - s0); return c0.map((v, j) => Math.round(v + (c1[j] - v) * f)); }
+  }
+  return WATER[WATER.length - 1][1];
+}
+function setDepth(score) {
+  const [r, g, b] = waterAt(score);
+  document.body.style.backgroundColor = `rgb(${r},${g},${b})`;
+  document.body.classList.toggle("deep", (0.2126 * r + 0.7152 * g + 0.0722 * b) < 140);
+  $("[data-depth]").textContent = score ? `${score} fathoms` : "Surface";
+  $("[data-ticks]").style.transform = `translateY(${-score * 0.9}px)`;
+}
+function bubbles(n) {
+  if (reduce) return;
+  const box = $("[data-bubbles]");
+  for (let k = 0; k < n; k++) {
+    const s = 4 + Math.random() * 10;
+    box.insertAdjacentHTML("beforeend", `<i style="left:${10 + Math.random() * 80}%;width:${s}px;height:${s}px;--dx:${(Math.random() - .5) * 60}px;animation-duration:${2.5 + Math.random() * 2.5}s;animation-delay:${Math.random() * .6}s"></i>`);
+  }
+  setTimeout(() => (box.innerHTML = ""), 6000);
+}
+const total = (state) => state.results.filter(Boolean).reduce((t, r) => t + r.points, 0);
+
+function profileSvg(results, W, H, opts = {}) {
+  const pad = opts.pad ?? 30, step = (W - pad * 2) / 7;
+  let y = 0, d = `M ${pad} ${pad}`;
+  const pts = results.map((r, i) => {
+    y += r.points;
+    const px = pad + step * (i + 1), py = pad + (y / 700) * (H - pad * 2);
+    d += ` L ${px} ${py}`;
+    return { px, py, r };
+  });
+  const col = opts.color || "currentColor";
+  let out = `<path d="${d}" fill="none" stroke="${col}" stroke-width="${opts.sw || 2}" stroke-linejoin="round"/>`;
+  pts.forEach(({ px, py, r }) => {
+    const gem = r.answer && r.answer.t === "gem";
+    out += gem ? `<circle cx="${px}" cy="${py}" r="${opts.big ? 22 : 8}" fill="#F5F1E8" stroke="${col}" stroke-width="2"/>` : `<circle cx="${px}" cy="${py}" r="${opts.big ? 12 : 4.5}" fill="${col}"/>`;
+    if (opts.labels && r.answer) out += `<text x="${px}" y="${py - 14}" text-anchor="middle" font-family="Libre Caslon Text, Georgia, serif" font-size="15" fill="currentColor" ${gem ? 'font-weight="700"' : ""}>${esc(r.answer.a)}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${out}</svg>`;
+}
+
+const ui = {
+  tierName: (t) => ZONES[t].name,
+  init() {
+    const ticks = $("[data-ticks]");
+    for (let f = 0; f <= 700; f += 50) ticks.insertAdjacentHTML("beforeend", `<span class="t" style="top:calc(45% + ${f * 0.9}px - .5em)">${f}</span>`);
+    $("[data-zones]").innerHTML = ["common", "familiar", "uncommon", "rare", "gem"].map((t, k) => {
+      const [r, g, b] = waterAt([0, 160, 320, 520, 700][k]);
+      const dark = (0.2126 * r + 0.7152 * g + 0.0722 * b) < 140;
+      return `<li style="background:rgb(${r},${g},${b});color:${dark ? "#F5F1E8" : "#1C1A17"}"><b>${ZONES[t].name}</b><span>${TIER_POINTS[t]} fathoms</span></li>`;
+    }).join("");
+  },
+  onShow(name, state) { setDepth(["start", "archive"].includes(name) ? 0 : total(state)); },
+  renderTimerSetting(state) { $(".switch").setAttribute("aria-checked", String(state.noTimer)); },
+  renderPrompt(p, i, n) {
+    $("[data-kind]").textContent = `Prompt ${i + 1} of ${n}${p.kind === "origin" ? ", a word's origin" : ""}`;
+    $("[data-prompt-text]").textContent = p.text;
+    $("[data-hint]").textContent = "";
+  },
+  renderTimer(state) {
+    const a = $("[data-air]");
+    a.classList.toggle("off", state.noTimer);
+    a.classList.remove("low");
+    if (state.noTimer) { $("[data-num]").textContent = "∞"; return; }
+    if (state.grace > 0) { $("[data-num]").textContent = state.left; $("[data-bar]").style.transform = "scaleX(1)"; return; }
+    $("[data-num]").textContent = state.left;
+    $("[data-bar]").style.transform = `scaleX(${state.left / PROMPT_SECONDS})`;
+    a.classList.toggle("low", state.left <= 5);
+  },
+  renderNear(raw, ans) { $("[data-hint]").innerHTML = `Did you mean <b>${esc(ans.a)}</b>? Press Sink it again to use it, or edit your word.`; },
+  renderMiss(raw) { $("[data-hint]").innerHTML = `<b>${esc(raw)}</b> isn't on today's list for this prompt. Try another word.`; $("[data-input]").select(); },
+  renderFeedback(r, i, sum, state) {
+    $("[data-fb-prompt]").textContent = r.prompt.text;
+    const sink = $("[data-sinker]");
+    if (r.answer) {
+      const k = TIER_ORDER.indexOf(r.answer.t);
+      sink.innerHTML = `<span class="word" style="top:0">${esc(r.answer.a)}</span>`;
+      requestAnimationFrame(() => requestAnimationFrame(() => { sink.querySelector(".word").style.top = `${30 + k * 34}px`; }));
+      bubbles(6 + k * 4);
+      $("[data-verdict]").innerHTML = `<span class="zname">${ZONES[r.answer.t].name}</span><span class="pts">+${r.points} fathoms</span><span class="soft">${ZONES[r.answer.t].line}</span>`;
+    } else {
+      sink.innerHTML = `<span class="word" style="top:60px;font-weight:400;font-style:italic;font-size:2.2rem">Out of air</span>`;
+      $("[data-verdict]").innerHTML = `<span class="soft">No word this round. You'll see what was down there at the end.</span>`;
+    }
+    $("[data-extra]").innerHTML = r.answer && r.answer.t === "gem"
+      ? `<div class="pearl"><span class="o"></span>${esc(r.answer.f)}${r.answer.s ? `<br><a href="${STORY + r.answer.s}">Read the story of ${esc(r.answer.a)}</a>` : ""}</div>`
+      : r.answer && r.answer.s ? `<p class="storynote"><a href="${STORY + r.answer.s}">${esc(r.answer.a)}</a> has a story on Curio. It'll be waiting at the surface.</p>` : "";
+    $("[data-next]").textContent = i === DAY.prompts.length - 1 ? "Surface" : "Dive deeper";
+  },
+  renderEnd(s) {
+    const deepest = [...s.results].filter((r) => r.answer).sort((a, b) => TIER_ORDER.indexOf(b.answer.t) - TIER_ORDER.indexOf(a.answer.t))[0];
+    $("[data-total]").textContent = `${s.score}`;
+    $("[data-total-sub]").textContent = `fathoms down. Deepest find: ${deepest ? deepest.answer.a : "none"}.`;
+    $("[data-compare]").textContent = `Deeper than ${s.percentile}% of today's divers.`;
+    $("[data-profile]").innerHTML = profileSvg(s.results, 380, 230, { labels: true, pad: 26 });
+    const picks = DAY.prompts.map((p) => wordsWorthKnowing(p)).map((w) => w.gem && w.gem.s ? w.gem : w.stories[0]).filter(Boolean).slice(0, 4);
+    $("[data-wwk]").innerHTML = picks.map((a) => `<li><a href="${STORY + a.s}">${esc(a.a)}</a><p>${ZONES[a.t].name} today. Read where it comes from.</p></li>`).join("");
+    const sb = $("[data-signup]"); sb.querySelector("form").hidden = false; sb.querySelector(".done-note") && sb.querySelector(".done-note").remove();
+  },
+  shareText(s) {
+    return `curio depths, day ${DAY.number}\n${s.score} fathoms\n${s.results.map((r) => r.answer ? EMOJI[r.answer.t] : "▫️").join("")}\ncurioword.com/depths`;
+  },
+  renderShare(s) {
+    ui._last = s;
+    $("[data-sharetext]").textContent = ui.shareText(s);
+    const og = `<div class="card og">${profileSvg(s.results, 1200, 630, { pad: 140, color: "#F5F1E8", sw: 5, big: true }).replace("<svg", '<svg style="left:380px;width:820px"')}<div class="wm">curio<i>depths</i></div><div class="big">${s.score}</div><div class="sub">fathoms down, day ${DAY.number}</div><div class="dom">curioword.com</div></div>`;
+    const sq = `<div class="card sq">${profileSvg(s.results, 1080, 1080, { pad: 160, color: "#F5F1E8", sw: 6, big: true })}<div class="wm">curio<i>depths</i></div><div class="big">${s.score}</div><div class="sub">fathoms down, day ${DAY.number}</div><div class="dom">curioword.com</div></div>`;
+    const fo = $("[data-frame-og]"), fs = $("[data-frame-sq]");
+    fo.innerHTML = og; fs.innerHTML = sq;
+    fit(fo, 1200, 630); fit(fs, 1080, 1080);
+  },
+  renderWords(results) {
+    $("[data-words]").innerHTML = DAY.prompts.map((p, i) => {
+      const w = wordsWorthKnowing(p), r = results[i];
+      const link = (a) => a.s ? `<a href="${STORY + a.s}">${esc(a.a)}</a>` : `<b>${esc(a.a)}</b>`;
+      return `<div class="prompt-block"><h3>${esc(p.text)}</h3>
+        <p class="yours">You reached ${r && r.answer ? `<b>${ZONES[r.answer.t].name.toLowerCase()}</b> with ${esc(r.answer.a)}` : "no depth this time"}</p>
+        <div class="gemline"><span class="o"></span><div>${link(w.gem)}<span>${esc(w.gem.f)}</span></div></div>
+        ${w.stories.length ? `<ul class="storylist">${w.stories.map((a) => `<li>${link(a)}</li>`).join("")}</ul>` : ""}
+        <details class="all"><summary>All ${p.answers.length} answers, deepest first</summary><p>${[w.gem, ...w.stories, ...w.rest].sort((x, y) => TIER_ORDER.indexOf(y.t) - TIER_ORDER.indexOf(x.t)).map((a) => `${esc(a.a)} <span class="soft">(${TIER_POINTS[a.t]})</span>`).join(", ")}</p></details></div>`;
+    }).join("");
+  },
+  renderArchive(list) {
+    $("[data-archive]").innerHTML = list.map((d) => `<li><span class="d">${d.today ? "Today, " : ""}${d.dateLabel}</span><span class="th">${esc(d.themes)}</span>
+      <span class="s">${d.score != null ? `<b>${d.score} fathoms</b><button class="btn-link" data-action="words">See finds</button>` : `<button class="btn btn-quiet" data-action="start">Dive</button>`}</span></li>`).join("");
+  },
+  renderSignupDone() {
+    const box = $("[data-signup]");
+    box.querySelector("form").hidden = true;
+    box.insertAdjacentHTML("beforeend", `<p class="done-note">Check your inbox for a link to confirm. (Mockup: nothing was sent.)</p>`);
+  },
+};
+function fit(frame, w, h) { const sc = frame.clientWidth / w; frame.firstElementChild.style.transform = `scale(${sc})`; frame.style.height = h * sc + "px"; }
+startMock(ui);
+window.addEventListener("resize", () => { if (document.documentElement.dataset.current === "share" && ui._last) ui.renderShare(ui._last); });
+</script>
+</body>
+</html>

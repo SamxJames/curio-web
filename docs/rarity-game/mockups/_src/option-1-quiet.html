@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Option 1: Quiet (curio rarities)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F1E8; --ink:#1C1A17; --red:#C23B22; --soft:#5E5850; --rule:#D8CFBE; --rule-strong:#8C8272;
+  --serif:"Libre Caslon Text",Georgia,"Times New Roman",serif; --sans:"Work Sans",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{background:var(--paper)}
+body{margin:0;color:var(--ink);background:var(--paper);font:400 1rem/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+.page{max-width:36rem;margin:0 auto;padding:20px 20px 96px}
+.mast{display:flex;align-items:baseline;gap:10px;padding-bottom:14px;border-bottom:1px solid var(--rule);margin-bottom:28px}
+.wordmark{font:700 1.6rem/1 var(--serif);letter-spacing:-.01em;text-transform:lowercase;color:var(--ink);text-decoration:none}
+.mast .game{font:italic 400 1.15rem/1 var(--serif);color:var(--soft)}
+.mast .day{margin-left:auto;font-size:.875rem;color:var(--soft)}
+h1,h2{font-family:var(--serif);font-weight:400;letter-spacing:-.01em;margin:0}
+h1{font-size:2.1rem;line-height:1.15}
+h2{font-size:1.45rem;line-height:1.25}
+p{margin:0}
+.lede{font:400 1.2rem/1.5 var(--serif);margin-top:14px;max-width:30rem}
+.soft{color:var(--soft)}
+.stack>*+*{margin-top:16px}
+a{color:var(--ink);text-underline-offset:3px}
+a:hover{text-decoration-thickness:2px}
+:focus-visible{outline-style:solid;outline-width:2px;outline-color:var(--ink);outline-offset:3px}
+
+/* Buttons: red is the action colour and nothing else */
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 22px;border-radius:4px;border:1px solid transparent;font:500 1rem/1 var(--sans);cursor:pointer;text-decoration:none}
+.btn-primary{background:var(--red);color:#fff}
+.btn-primary:hover{background:#A93119}
+.btn-quiet{background:transparent;color:var(--ink);border-color:var(--rule-strong)}
+.btn-quiet:hover{background:#EDE7DA}
+.btn-link{background:none;border:0;padding:0;min-height:44px;color:var(--ink);text-decoration:underline;text-underline-offset:3px;font:500 1rem/1 var(--sans);cursor:pointer}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+
+/* Start */
+.howto{margin-top:18px;display:grid;gap:10px;font-size:.95rem}
+.howto p{display:grid;grid-template-columns:5.5rem 1fr;gap:12px}
+.howto b{font-weight:500}
+.setting{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:22px;padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.setting small{display:block;color:var(--soft);font-size:.85rem}
+.switch{position:relative;width:52px;height:30px;border-radius:999px;border:1px solid var(--rule-strong);background:#EDE7DA;cursor:pointer;flex:none}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--ink);transition:transform .15s}
+.switch[aria-checked="true"]{background:var(--ink)}
+.switch[aria-checked="true"]::after{background:var(--paper);transform:translateX(22px)}
+
+/* Prompt */
+.progress{display:flex;gap:6px;margin-bottom:22px}
+.progress i{flex:1;height:3px;background:var(--rule)}
+.progress i.done{background:var(--ink)}
+.progress i.now{background:var(--rule-strong)}
+.kind{font-size:.875rem;color:var(--soft);margin-bottom:6px}
+.prompt-text{font:400 2rem/1.2 var(--serif);letter-spacing:-.01em}
+.timer{margin-top:22px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.timer .bar{height:4px;background:var(--rule);overflow:hidden}
+.timer .bar i{display:block;height:100%;background:var(--ink);transform-origin:left;transition:transform 1s linear}
+.timer .num{font:500 1rem/1 var(--sans);font-variant-numeric:tabular-nums;min-width:3.2em;text-align:right}
+.timer.low .bar i{background:repeating-linear-gradient(90deg,var(--ink) 0 6px,transparent 6px 9px)}
+.timer.off .bar{display:none}
+.answer{margin-top:22px;display:flex;gap:8px}
+.answer input{flex:1;min-width:0;min-height:52px;padding:0 14px;border:1px solid var(--rule-strong);border-radius:4px;background:#FBF8F1;color:var(--ink);font:400 1.25rem/1 var(--serif)}
+.answer input::placeholder{color:#8C8272}
+.answer input:focus-visible{outline-offset:1px}
+.hint{min-height:3.2em;margin-top:12px;font-size:.95rem}
+.hint b{font-family:var(--serif);font-weight:700;font-size:1.05rem}
+
+/* Feedback */
+.found{font:700 3rem/1.05 var(--serif);letter-spacing:-.02em;margin-top:4px;word-break:break-word}
+.found.timeout{font-weight:400;font-style:italic;color:var(--soft);font-size:2rem}
+.tierline{margin-top:10px;font-size:1.05rem}
+.scale{position:relative;margin:34px 0 8px;height:44px}
+.scale::before{content:"";position:absolute;left:0;right:0;top:14px;border-top:1px solid var(--rule-strong)}
+.scale .notch{position:absolute;top:8px;width:1px;height:12px;background:var(--rule-strong)}
+.scale .mark{position:absolute;top:4px;width:2px;height:22px;background:var(--ink);transform:translateX(-1px);transition:left .5s cubic-bezier(.2,.7,.2,1)}
+.scale .ends{position:absolute;top:28px;left:0;right:0;display:flex;justify-content:space-between;font-size:.8rem;color:var(--soft)}
+.gemnote{margin-top:20px;padding:16px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);font:400 1.05rem/1.5 var(--serif)}
+.score-small{font-size:.95rem;color:var(--soft);margin-top:18px}
+
+/* End */
+.total{display:flex;align-items:baseline;gap:12px;margin-top:6px}
+.total b{font:700 4rem/1 var(--serif);letter-spacing:-.03em}
+.contents{list-style:none;margin:26px 0 0;padding:0;border-top:1px solid var(--rule)}
+.contents li{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--rule)}
+.contents .w{font-family:var(--serif);font-size:1.2rem}
+.contents .w.t-common{font-style:italic}
+.contents .w.t-rare,.contents .w.t-gem{font-weight:700}
+.contents .lead{border-bottom:1px dotted var(--rule-strong);transform:translateY(-4px)}
+.contents .t{font-size:.875rem;color:var(--soft);white-space:nowrap}
+.contents .t em{font-style:normal;color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums;margin-left:6px}
+.contents .q{grid-column:1/-1;font-size:.8rem;color:var(--soft);margin-top:-2px}
+.compare{margin-top:18px;font:italic 400 1.1rem/1.4 var(--serif)}
+.section{margin-top:40px;padding-top:22px;border-top:1px solid var(--ink)}
+.wwk{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:14px}
+.wwk li a{font:700 1.15rem/1.3 var(--serif)}
+.wwk li p{font-size:.95rem;color:var(--soft);margin-top:2px}
+.signup{margin-top:40px;padding:22px;background:#EDE7DA;border-radius:4px}
+.signup form{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.signup input{flex:1 1 14rem;min-height:48px;padding:0 12px;border:1px solid var(--rule-strong);border-radius:4px;background:#FBF8F1;font:400 1rem var(--sans)}
+.done-note{font:italic 400 1.05rem var(--serif);margin-top:12px}
+
+/* Share */
+.cards{display:grid;gap:22px;margin-top:22px}
+.cards>*{min-width:0}
+.frame{width:100%;overflow:hidden;border:1px solid var(--rule);background:#fff}
+.frame-label{font-size:.85rem;color:var(--soft);margin-bottom:6px}
+.card{transform-origin:top left;background:var(--paper);color:var(--ink);font-family:var(--serif);position:relative}
+.og{width:1200px;height:630px;padding:64px 72px;display:grid;grid-template-columns:1fr 1fr;align-items:end}
+.sq{width:1080px;height:1080px;padding:84px;display:flex;flex-direction:column;justify-content:space-between}
+.card .wm{font:700 56px/1 var(--serif);text-transform:lowercase}
+.card .wm i{font-weight:400;color:var(--soft);margin-left:14px}
+.card .big{font:700 220px/.85 var(--serif);letter-spacing:-.04em}
+.card .of{font:400 40px/1 var(--sans);color:var(--soft);margin-top:18px}
+.card .spark{display:flex;align-items:flex-end;gap:18px;height:260px}
+.card .spark i{flex:1;background:var(--ink)}
+.card .spark i.none{background:none;border-bottom:6px solid var(--rule-strong)}
+.card .foot{font:500 34px/1 var(--sans);color:var(--soft);display:flex;justify-content:space-between;gap:24px;white-space:nowrap}
+.sharetext{margin-top:18px;white-space:pre;font:400 1.05rem/1.5 var(--sans);background:#FBF8F1;border:1px solid var(--rule);padding:14px;border-radius:4px}
+
+/* Words + archive */
+.prompt-block{padding:18px 0;border-bottom:1px solid var(--rule)}
+.prompt-block h3{font:400 1.2rem/1.3 var(--serif);margin:0 0 4px}
+.yours{font-size:.9rem;color:var(--soft)}
+.gem{margin-top:12px}
+.gem a{font:700 1.3rem var(--serif)}
+.storylist{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px 16px}
+.storylist a{font-family:var(--serif);font-size:1.05rem}
+details.all{margin-top:10px;font-size:.9rem}
+details.all summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--soft)}
+details.all p{font-family:var(--serif);font-size:1rem;color:var(--ink)}
+.archive{list-style:none;margin:20px 0 0;padding:0;border-top:1px solid var(--rule)}
+.archive li{display:grid;grid-template-columns:1fr auto;gap:4px 16px;padding:14px 0;border-bottom:1px solid var(--rule);align-items:center}
+.archive .d{font:400 1.15rem var(--serif)}
+.archive .th{grid-column:1;font-size:.875rem;color:var(--soft)}
+.archive .s{grid-row:1/3;grid-column:2;text-align:right;font-variant-numeric:tabular-nums}
+.archive .s b{font:700 1.3rem var(--serif);display:block}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (min-width:900px){
+  .page{max-width:44rem;padding-top:36px}
+  h1{font-size:2.6rem}
+  .prompt-text{font-size:2.5rem}
+  .cards{grid-template-columns:1.6fr 1fr;align-items:start}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/*@MOCKCSS*/
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="mast">
+    <a class="wordmark" href="#" data-action="home">curio</a><span class="game">rarities</span>
+    <span class="day">Day 1</span>
+  </header>
+  <p class="sr" aria-live="polite" data-live></p>
+
+  <main>
+    <!-- START -->
+    <section data-screen="start" class="stack">
+      <h1>Name a rare word for each of seven prompts.</h1>
+      <p class="lede">Any right answer counts. The less obvious it is, the more it scores.</p>
+      <div class="row" style="margin-top:22px">
+        <button class="btn btn-primary" data-action="start" data-autofocus>Start today's seven</button>
+        <button class="btn-link" data-action="archive">Past days</button>
+      </div>
+      <div class="setting">
+        <div id="nt-label">No timer<small>Take as long as you like. Scores count the same.</small></div>
+        <button class="switch" role="switch" aria-checked="false" aria-labelledby="nt-label" data-action="toggle-timer"></button>
+      </div>
+      <div class="howto">
+        <p><b>Time</b><span class="soft">25 seconds a prompt, after a three-second pause to read it.</span></p>
+        <p><b>Answers</b><span class="soft">Plurals, UK and US spellings and small typos are fine. You'll be asked to confirm a correction.</span></p>
+        <p><b>Afterwards</b><span class="soft">See the rarest words for every prompt, with the stories behind them.</span></p>
+      </div>
+    </section>
+
+    <!-- PROMPT -->
+    <section data-screen="prompt" hidden>
+      <div class="progress" data-progress></div>
+      <p class="kind" data-kind></p>
+      <h2 class="prompt-text" data-prompt-text></h2>
+      <div class="timer" data-timer>
+        <div class="bar" aria-hidden="true"><i data-bar></i></div>
+        <span class="num" data-num></span>
+      </div>
+      <form class="answer" data-answer-form autocomplete="off">
+        <label class="sr" for="ans">Your answer</label>
+        <input id="ans" data-input placeholder="Type one word" autocapitalize="off" spellcheck="false">
+        <button class="btn btn-primary" type="submit">Enter</button>
+      </form>
+      <p class="hint" data-hint aria-hidden="true"></p>
+    </section>
+
+    <!-- FEEDBACK -->
+    <section data-screen="feedback" hidden>
+      <div class="progress" data-progress2></div>
+      <p class="kind" data-fb-prompt></p>
+      <h2 class="found" data-found></h2>
+      <p class="tierline" data-tierline></p>
+      <div class="scale" aria-hidden="true" data-scale>
+        <span class="ends"><span>common</span><span>rare</span></span>
+      </div>
+      <div data-gemnote></div>
+      <p class="score-small" data-running></p>
+      <div class="row" style="margin-top:26px"><button class="btn btn-primary" data-action="next" data-next data-autofocus>Next prompt</button></div>
+    </section>
+
+    <!-- END -->
+    <section data-screen="end" hidden>
+      <h2>Your seven</h2>
+      <div class="total"><b data-total></b><span class="soft">out of 700</span></div>
+      <p class="compare" data-compare></p>
+      <ol class="contents" data-contents></ol>
+      <div class="row" style="margin-top:24px">
+        <button class="btn btn-primary" data-action="share">Share your result</button>
+        <button class="btn btn-quiet" data-action="words">See the rarest words</button>
+      </div>
+      <div class="section">
+        <h2>Words worth knowing</h2>
+        <p class="soft" style="margin-top:6px">From today's prompts, each with a story on Curio.</p>
+        <ul class="wwk" data-wwk></ul>
+        <button class="btn-link" style="margin-top:8px" data-action="words">Every answer for every prompt</button>
+      </div>
+      <div class="signup" data-signup>
+        <h2>One word, one story, every day</h2>
+        <p style="margin-top:8px">Curio's daily word, by email. Free, and one tap to stop.</p>
+        <form data-signup-form>
+          <label class="sr" for="em">Email address</label>
+          <input id="em" type="email" placeholder="you@example.com" required>
+          <button class="btn btn-primary" type="submit">Send me the daily word</button>
+        </form>
+      </div>
+      <p style="margin-top:28px" class="row"><button class="btn-link" data-action="archive">Past days</button></p>
+    </section>
+
+    <!-- SHARE -->
+    <section data-screen="share" hidden>
+      <h2>Share your result</h2>
+      <p class="soft" style="margin-top:6px">No answers in it, so nobody's game is spoilt.</p>
+      <div class="sharetext" data-sharetext></div>
+      <div class="row" style="margin-top:12px"><button class="btn btn-primary" data-action="copy">Copy result</button><button class="btn-link" data-action="end">Back to your seven</button></div>
+      <div class="cards">
+        <div><p class="frame-label">Link preview, 1200 × 630</p><div class="frame" data-frame-og></div></div>
+        <div><p class="frame-label">Square, for Instagram</p><div class="frame" data-frame-sq></div></div>
+      </div>
+    </section>
+
+    <!-- WORDS -->
+    <section data-screen="words" hidden>
+      <h2>Today's answers</h2>
+      <p class="soft" style="margin-top:6px">The rarest first. Underlined words have a story on Curio.</p>
+      <div data-words></div>
+      <p style="margin-top:20px"><button class="btn-link" data-action="end">Back to your seven</button></p>
+    </section>
+
+    <!-- ARCHIVE -->
+    <section data-screen="archive" hidden>
+      <h2>Past days</h2>
+      <p class="soft" style="margin-top:6px">Every day stays open. Play any of them, in any order.</p>
+      <ol class="archive" data-archive></ol>
+      <p style="margin-top:20px"><button class="btn-link" data-action="home">Back to today</button></p>
+    </section>
+  </main>
+</div>
+
+<script>
+/*@SHARED*/
+
+const TIER_NAMES = { common: "Common", clever: "Popular pick", familiar: "Familiar", uncommon: "Uncommon", rare: "Rare", gem: "Today's gem" };
+const TIER_NOTES = {
+  common: "The word most people reach for first.",
+  clever: "It feels obscure, but plenty of people think of it.",
+  familiar: "A good, solid answer.",
+  uncommon: "Not many people get that one.",
+  rare: "Very few people will have that.",
+  gem: "The word we hoped someone would find.",
+};
+const SPARK = { common: "▁", clever: "▂", familiar: "▃", uncommon: "▅", rare: "▆", gem: "▇" };
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function progress(el, i, doneUpTo) {
+  el.innerHTML = DAY.prompts.map((_, k) => `<i class="${k < doneUpTo ? "done" : k === i ? "now" : ""}"></i>`).join("");
+}
+function scaleLeft(t) { return (TIER_ORDER.indexOf(t) / (TIER_ORDER.length - 1)) * 100; }
+
+function sparkHtml(results) {
+  const h = { common: 12, clever: 22, familiar: 38, uncommon: 62, rare: 82, gem: 100 };
+  return results.map((r) => r.answer ? `<i style="height:${h[r.answer.t]}%"></i>` : `<i class="none" style="height:0"></i>`).join("");
+}
+
+function fitFrame(frame, card, w) {
+  const scale = frame.clientWidth / w;
+  card.style.transform = `scale(${scale})`;
+  frame.style.height = card.offsetHeight * scale + "px";
+}
+
+const ui = {
+  tierName: (t) => TIER_NAMES[t],
+  renderTimerSetting(state) {
+    $(".switch").setAttribute("aria-checked", String(state.noTimer));
+  },
+  renderPrompt(p, i, total) {
+    progress($("[data-progress]"), i, i);
+    $("[data-kind]").textContent = `Prompt ${i + 1} of ${total}${p.kind === "origin" ? ", a word's origin" : ""}`;
+    $("[data-prompt-text]").textContent = p.text;
+    $("[data-hint]").textContent = "";
+  },
+  renderTimer(state) {
+    const t = $("[data-timer]");
+    t.classList.toggle("off", state.noTimer);
+    if (state.noTimer) { $("[data-num]").textContent = "No timer"; return; }
+    if (state.grace > 0) { $("[data-num]").textContent = "Read…"; $("[data-bar]").style.transform = "scaleX(1)"; t.classList.remove("low"); return; }
+    $("[data-num]").textContent = `${state.left}s`;
+    $("[data-bar]").style.transform = `scaleX(${state.left / PROMPT_SECONDS})`;
+    t.classList.toggle("low", state.left <= 5);
+  },
+  renderNear(raw, ans) {
+    $("[data-hint]").innerHTML = `Did you mean <b>${esc(ans.a)}</b>? Press Enter again to use it, or edit your word.`;
+    $("[data-input]").value = raw;
+  },
+  renderMiss(raw) {
+    $("[data-hint]").innerHTML = `<b>${esc(raw)}</b> isn't on today's list for this prompt. Try another word.`;
+    $("[data-input]").select();
+  },
+  renderFeedback(r, i, sum) {
+    progress($("[data-progress2]"), i, i + 1);
+    $("[data-fb-prompt]").textContent = r.prompt.text;
+    const found = $("[data-found]");
+    found.className = "found" + (r.answer ? "" : " timeout");
+    found.textContent = r.answer ? r.answer.a : "No word this time";
+    $("[data-tierline]").innerHTML = r.answer
+      ? `<b>${TIER_NAMES[r.answer.t]}</b>, ${r.points} points. <span class="soft">${TIER_NOTES[r.answer.t]}</span>`
+      : `<span class="soft">The clock ran out. That's fine: you'll see the answers at the end.</span>`;
+    const scale = $("[data-scale]");
+    scale.querySelectorAll(".notch,.mark").forEach((n) => n.remove());
+    TIER_ORDER.forEach((t) => scale.insertAdjacentHTML("beforeend", `<span class="notch" style="left:${scaleLeft(t)}%"></span>`));
+    if (r.answer) {
+      scale.insertAdjacentHTML("beforeend", `<span class="mark" style="left:0%"></span>`);
+      requestAnimationFrame(() => requestAnimationFrame(() => { scale.querySelector(".mark").style.left = scaleLeft(r.answer.t) + "%"; }));
+    }
+    $("[data-gemnote]").innerHTML = r.answer && r.answer.t === "gem"
+      ? `<p class="gemnote">${esc(r.answer.f)}${r.answer.s ? ` <a href="${STORY + r.answer.s}">Read the story of ${esc(r.answer.a)}</a>` : ""}</p>`
+      : r.answer && r.answer.s ? `<p class="gemnote"><a href="${STORY + r.answer.s}">${esc(r.answer.a)} has a story on Curio</a>. It'll be waiting at the end.</p>` : "";
+    $("[data-running]").textContent = `${sum.score} points so far`;
+    $("[data-next]").textContent = i === DAY.prompts.length - 1 ? "See your seven" : "Next prompt";
+  },
+  renderEnd(s) {
+    $("[data-total]").textContent = s.score;
+    $("[data-compare]").textContent = `Rarer than ${s.percentile}% of today's players.`;
+    $("[data-contents]").innerHTML = s.results.map((r) => `<li>
+        <span class="w ${r.answer ? "t-" + r.answer.t : ""}">${r.answer ? esc(r.answer.a) : "<span class='soft'>no word</span>"}</span>
+        <span class="lead"></span>
+        <span class="t">${r.answer ? TIER_NAMES[r.answer.t] : "Time ran out"}<em>${r.points}</em></span>
+        <span class="q">${esc(r.prompt.short)}</span></li>`).join("");
+    const picks = DAY.prompts.map((p) => wordsWorthKnowing(p)).map((w) => w.gem && w.gem.s ? w.gem : w.stories[0]).filter(Boolean).slice(0, 4);
+    $("[data-wwk]").innerHTML = picks.map((a) => `<li><a href="${STORY + a.s}">${esc(a.a)}</a><p>${esc(TIER_NAMES[a.t])} today. Read where it comes from.</p></li>`).join("");
+    const box = $("[data-signup]");
+    box.querySelector("form").hidden = false;
+    box.querySelector(".done-note") && box.querySelector(".done-note").remove();
+  },
+  shareText(s) {
+    return `curio rarities, day ${DAY.number}\n${s.score} / 700\n${s.results.map((r) => r.answer ? SPARK[r.answer.t] : "·").join("")}\ncurioword.com/rarities`;
+  },
+  renderShare(s) {
+    ui._last = s;
+    $("[data-sharetext]").textContent = ui.shareText(s);
+    const og = `<div class="card og"><div><div class="wm">curio<i>rarities</i></div><div class="big" style="margin-top:70px">${s.score}</div><div class="of">out of 700 on day ${DAY.number}</div></div>
+      <div style="display:flex;flex-direction:column;gap:28px"><div class="spark">${sparkHtml(s.results)}</div><div class="foot"><span>Rarer words score more</span><span>curioword.com</span></div></div></div>`;
+    const sq = `<div class="card sq"><div class="wm">curio<i>rarities</i></div><div><div class="big">${s.score}</div><div class="of">out of 700 on day ${DAY.number}</div></div><div class="spark">${sparkHtml(s.results)}</div><div class="foot"><span>Day ${DAY.number}</span><span>curioword.com</span></div></div>`;
+    const fo = $("[data-frame-og]"), fs = $("[data-frame-sq]");
+    fo.innerHTML = og; fs.innerHTML = sq;
+    fitFrame(fo, fo.firstElementChild, 1200); fitFrame(fs, fs.firstElementChild, 1080);
+  },
+  renderWords(results) {
+    $("[data-words]").innerHTML = DAY.prompts.map((p, i) => {
+      const w = wordsWorthKnowing(p), r = results[i];
+      const link = (a) => a.s ? `<a href="${STORY + a.s}">${esc(a.a)}</a>` : esc(a.a);
+      return `<div class="prompt-block"><h3>${esc(p.text)}</h3>
+        <p class="yours">You said ${r && r.answer ? `<b>${esc(r.answer.a)}</b> (${TIER_NAMES[r.answer.t].toLowerCase()})` : "nothing this time"}</p>
+        <p class="gem">Today's gem: ${link(w.gem)}<br><span class="soft">${esc(w.gem.f)}</span></p>
+        ${w.stories.length ? `<ul class="storylist">${w.stories.map((a) => `<li>${link(a)}</li>`).join("")}</ul>` : ""}
+        <details class="all"><summary>All ${p.answers.length} answers, rarest first</summary><p>${[w.gem, ...w.stories, ...w.rest].sort((x, y) => TIER_ORDER.indexOf(y.t) - TIER_ORDER.indexOf(x.t)).map((a) => `${esc(a.a)} <span class="soft">(${TIER_POINTS[a.t]})</span>`).join(", ")}</p></details></div>`;
+    }).join("");
+  },
+  renderArchive(list) {
+    $("[data-archive]").innerHTML = list.map((d) => `<li><span class="d">${d.today ? "Today, " : ""}${d.dateLabel}</span><span class="th">${esc(d.themes)}</span>
+      <span class="s">${d.score != null ? `<b>${d.score}</b><button class="btn-link" data-action="words">See answers</button>` : `<button class="btn btn-quiet" data-action="start">Play</button>`}</span></li>`).join("");
+  },
+  renderSignupDone(form) {
+    const box = $("[data-signup]");
+    box.querySelector("form").hidden = true;
+    box.insertAdjacentHTML("beforeend", `<p class="done-note">Check your inbox for a link to confirm. (Mockup: nothing was sent.)</p>`);
+  },
+};
+startMock(ui);
+window.addEventListener("resize", () => { if (document.documentElement.dataset.current === "share" && ui._last) ui.renderShare(ui._last); });
+</script>
+</body>
+</html>
