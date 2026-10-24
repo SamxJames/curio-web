@@ -1,0 +1,47 @@
+# curio dig content pipeline: builds, validates and stores days in production Upstash
+# (docs/rarity-game/pipeline-design.md). Public repo, public logs: the scripts print counts only.
+# No artifacts are ever uploaded (they would expose future answers).
+# Failure → GitHub's own failure email to Sam (watchdog 1 of 3).
+name: Dig pipeline
+
+on:
+  schedule:
+    - cron: "0 4 * * 1,4" # Mon + Thu 04:00 UTC: twice weekly keeps the Actions cache warm
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dig-pipeline
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Restore datasets
+        uses: actions/cache@v4
+        with:
+          path: dig-data
+          key: dig-data-${{ github.run_id }}
+          restore-keys: dig-data-
+
+      - name: Fetch datasets
+        run: npm run dig:fetch -- --data dig-data
+
+      - name: Build and publish days
+        run: npm run dig:build -- --data dig-data --publish
+        env:
+          DIG_REDIS_REST_URL: ${{ secrets.DIG_REDIS_REST_URL }}
+          DIG_REDIS_REST_TOKEN: ${{ secrets.DIG_REDIS_REST_TOKEN }}

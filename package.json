@@ -21,7 +21,9 @@
     "bluesky:preview": "tsx scripts/previewBlueskyPosts.ts",
     "social:preview": "tsx scripts/previewSocialPosts.ts",
     "demand:report": "tsx --env-file-if-exists=.env.local scripts/demandReport.ts",
-    "traffic:report": "tsx --env-file=.env.local scripts/trafficReport.ts"
+    "traffic:report": "tsx --env-file=.env.local scripts/trafficReport.ts",
+    "dig:fetch": "tsx scripts/dig/fetchData.ts",
+    "dig:build": "tsx --max-old-space-size=8192 scripts/dig/build.ts"
   },
   "dependencies": {
     "@atproto/api": "^0.20.44",
