@@ -51,6 +51,62 @@
   }
 }
 
+/* curio dig only (docs/rarity-game/architecture.md §11): the target brand, scoped to
+ * app/dig/layout.tsx's data-brand="next" wrapper until the full-site rebrand. Red is
+ * reserved for actions (accent-button); links and accents stay ink. */
+[data-brand="next"] {
+  --paper: #f5f1e8;
+  --paper-raised: #ede7da;
+  --ink: #1c1a17;
+  --ink-soft: #5e5850;
+  --ink-faint: #5e5850;
+  --accent: #1c1a17;
+  --accent-deep: #1c1a17;
+  --accent-button: #c23b22;
+  --line: #d8cfbe;
+  --line-strong: #8c8272;
+  /* Fixed drawing ink and paper: the same in both themes, so the strata never invert. */
+  --stratum-ink: #1c1a17;
+  --stratum-paper: #f5f1e8;
+}
+[data-theme="dark"] [data-brand="next"] {
+  --paper: #1c1a17;
+  --paper-raised: #26231f;
+  --ink: #f5f1e8;
+  --ink-soft: #b8b0a2;
+  --ink-faint: #b8b0a2;
+  --accent: #f5f1e8;
+  --accent-deep: #f5f1e8;
+  --accent-button: #e0705a;
+  --line: #3a352e;
+  --line-strong: #7a7266;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) [data-brand="next"] {
+    --paper: #1c1a17;
+    --paper-raised: #26231f;
+    --ink: #f5f1e8;
+    --ink-soft: #b8b0a2;
+    --ink-faint: #b8b0a2;
+    --accent: #f5f1e8;
+    --accent-deep: #f5f1e8;
+    --accent-button: #e0705a;
+    --line: #3a352e;
+    --line-strong: #7a7266;
+  }
+}
+
+/* The dig's five strata (lib/dig/strata.ts mirrors these for canvas and OG). The same
+ * earth tones in both themes: they are the drawing, not the page. */
+:root {
+  --stratum-1: #e9e1cf;
+  --stratum-2: #d6c4a3;
+  --stratum-3: #b99a72;
+  --stratum-4: #7e6a52;
+  --stratum-5: #3a322a;
+  --font-libre-caslon: "Libre Caslon Text", var(--font-newsreader);
+}
+
 :root {
   --font-newsreader: "Newsreader", ui-serif, Georgia, serif;
   --font-work-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif;
@@ -75,8 +131,16 @@
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-danger: var(--danger);
+  --color-stratum-ink: var(--stratum-ink);
+  --color-stratum-paper: var(--stratum-paper);
+  --color-stratum-1: var(--stratum-1);
+  --color-stratum-2: var(--stratum-2);
+  --color-stratum-3: var(--stratum-3);
+  --color-stratum-4: var(--stratum-4);
+  --color-stratum-5: var(--stratum-5);
   --font-serif: var(--font-newsreader);
   --font-sans: var(--font-work-sans);
+  --font-display: var(--font-libre-caslon);
 
   /* Type size: every arbitrary text-[Npx] in the app collapses onto either
    * an existing Tailwind default (text-sm/base/lg/2xl/4xl — no token needed
