@@ -51,18 +51,28 @@ export async function shareImage(input: { number: number; score: number; tiers: 
     ctx.font = '700 96px "Libre Caslon Text", Georgia, serif';
     ctx.fillText(`${formatDepth(input.score)} down`, 80, 330);
     const top = 400, h = 600, w = SIZE - 160;
-    const { bands, markers } = strataLayout(input.tiers, w, h);
+    // Like components/dig/Strata: names in a left gutter, unanswered prompts as open rings.
+    const gutter = 150;
+    const { bands, markers } = strataLayout(input.tiers, w - gutter, h);
     bands.forEach((b, i) => {
       ctx.fillStyle = STRATUM_HEX[i];
       ctx.fillRect(80, top + b.y, w, b.h);
       ctx.fillStyle = STRATUM_DARK[i] ? PAPER : INK;
       ctx.font = '400 26px "Work Sans", system-ui, sans-serif';
-      ctx.fillText(STRATA[i], 96, top + b.y + 36);
+      ctx.fillText(STRATA[i], 100, top + b.y + 40);
     });
     markers.forEach((m, i) => {
-      ctx.fillStyle = m.band !== null && STRATUM_DARK[m.band] ? PAPER : INK;
+      const x = 80 + gutter + m.x;
       ctx.beginPath();
-      ctx.arc(80 + m.x, top + Math.max(m.y, 14), input.tiers[i] === "fossil" ? 26 : 16, 0, Math.PI * 2);
+      if (m.band === null) {
+        ctx.strokeStyle = INK;
+        ctx.lineWidth = 4;
+        ctx.arc(x, top + 22, 10, 0, Math.PI * 2);
+        ctx.stroke();
+        return;
+      }
+      ctx.fillStyle = STRATUM_DARK[m.band] ? PAPER : INK;
+      ctx.arc(x, top + m.y, input.tiers[i] === "fossil" ? 26 : 16, 0, Math.PI * 2);
       ctx.fill();
     });
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
