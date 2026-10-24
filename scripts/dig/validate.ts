@@ -1,7 +1,7 @@
-import { buildLookup, checkGuess, oneEditVariants } from "../../lib/dig/match";
+import { buildLookup, checkGuess, oneEditVariants, type Lookup } from "../../lib/dig/match";
 import { normalizeKey } from "../../lib/dig/normalize";
 import { encodeDay } from "../../lib/dig/payload";
-import type { DigDayPlain } from "../../lib/dig/types";
+import type { DigDayPlain, PromptSecret } from "../../lib/dig/types";
 import { daysBetween, overlapRatio, type HistoryDay } from "./assemble";
 
 export const MAX_DAY_CHARS = 400_000;
@@ -63,14 +63,7 @@ export function validateDay(day: DigDayPlain, ctx: ValidateCtx): string[] {
       if (r.kind !== "match" || r.index !== i) problems.push(`${p.id}: alias ${i} does not match`);
     }
     if (fossilIndex >= 0) {
-      const fk = normalizeKey(p.fossil.word);
-      for (const v of oneEditVariants(fk)) {
-        const r = checkGuess(lookup, v);
-        if ((r.kind === "near" || r.kind === "match") && r.index >= 0 && r.index < p.answers.length && p.answers[r.index][0] !== p.fossil.word && normalizeKey(p.answers[r.index][0]) !== v) {
-          problems.push(`${p.id}: a fossil typo resolves to another answer`);
-          break;
-        }
-      }
+      if (fossilTypoCollides(p, p.fossil.word, lookup)) problems.push(`${p.id}: a fossil typo resolves to another answer`);
     }
   }
 
@@ -90,4 +83,14 @@ export function validateDay(day: DigDayPlain, ctx: ValidateCtx): string[] {
   }
   if (JSON.stringify(encodeDay(day)).length > MAX_DAY_CHARS) problems.push(`day is larger than ${MAX_DAY_CHARS} characters`);
   return problems;
+}
+
+/** True if a one-edit typo of `fossil` would match, or be offered as a near miss of, a different answer.
+ * Exported so the build can skip such fossils instead of failing the whole day. */
+export function fossilTypoCollides(secret: Pick<PromptSecret, "answers" | "aliases" | "guard">, fossil: string, lookup: Lookup = buildLookup(secret)): boolean {
+  for (const v of oneEditVariants(normalizeKey(fossil))) {
+    const r = checkGuess(lookup, v);
+    if ((r.kind === "near" || r.kind === "match") && r.index >= 0 && r.index < secret.answers.length && secret.answers[r.index][0] !== fossil && normalizeKey(secret.answers[r.index][0]) !== v) return true;
+  }
+  return false;
 }

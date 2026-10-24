@@ -49,6 +49,9 @@ describe("chooseFossil", () => {
   it("otherwise takes the most-viewed candidate with an etymology fact", () => {
     expect(chooseFossil(c, { ...base, curio: new Map() })).toEqual({ word: "bowsprit", fact: "From Middle Low German bōchsprēt" });
   });
+  it("skips words the build rejects (a typo would land on another answer)", () => {
+    expect(chooseFossil(c, { ...base, curio: new Map(), reject: (w) => w === "bowsprit" })?.word).not.toBe("bowsprit");
+  });
   it("skips excluded words and returns null when nothing is left", () => {
     expect(chooseFossil(c, { ...base, curio: new Map(), exclude: new Set(["halyard", "gunwale", "bowsprit"]) })).toBeNull();
   });

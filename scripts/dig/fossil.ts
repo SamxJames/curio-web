@@ -60,6 +60,8 @@ export type FossilCtx = {
   /** Today's/tomorrow's daily word and /play answer, fossils already used today, and this
    * prompt's previous fossils. */
   exclude: Set<string>;
+  /** Words the validator would refuse as this prompt's fossil (validate.ts fossilTypoCollides). */
+  reject?: (w: string) => boolean;
 };
 
 /** Trims a fact to 140 characters or fewer: at the last space in the first 140, plus an ellipsis. */
@@ -76,7 +78,7 @@ function clampFact(text: string): string {
 export function chooseFossil(_c: Candidate, ctx: FossilCtx): DigFossil | null {
   // Only Rare words are fossil material. That already excludes Popular picks.
   const pool = ctx.candidates
-    .filter((w) => !ctx.exclude.has(w) && ctx.tiers.get(w) === "rare")
+    .filter((w) => !ctx.exclude.has(w) && ctx.tiers.get(w) === "rare" && !ctx.reject?.(w))
     .sort((a, b) => (ctx.views.get(b) ?? 0) - (ctx.views.get(a) ?? 0) || a.localeCompare(b));
   const curioPick = pool.find((w) => (ctx.curio.get(w)?.teaser.trim() ?? "") !== "");
   if (curioPick) {

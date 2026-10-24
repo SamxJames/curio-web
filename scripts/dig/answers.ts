@@ -7,7 +7,21 @@ import type { WiktionaryIndex } from "./wiktionary";
 export type Counts = { core: number; easy: number; rare: number; common: number };
 type Ctx = { wn: Wordnet; index: WiktionaryIndex; zipf: Map<string, number> };
 
-export const isLetterVariant = (c: Candidate) => c.id.split(":").length === 3 && c.kind === "theme";
+/** One spelling per normalised key ("ice rink" / "ice-rink" would otherwise be two answers sharing a key, possibly
+ * at different tiers, which the validator rejects). A core spelling beats a non-core one; otherwise the first wins. */
+export function dedupeByKey(c: Candidate): Candidate {
+  const core = new Set(c.core);
+  const pick = new Map<string, string>();
+  for (const w of c.accepted) {
+    const k = normalizeKey(w), prev = pick.get(k);
+    if (prev === undefined || (!core.has(prev) && core.has(w))) pick.set(k, w);
+  }
+  const kept = new Set(pick.values());
+  const accepted = [...pick.values()];
+  return { ...c, accepted, core: [...new Set(c.core.filter((w) => kept.has(w)))] };
+}
+
+export const isLetterVariant =(c: Candidate) => c.id.split(":").length === 3 && c.kind === "theme";
 
 export function counts(c: Candidate, zipf: Map<string, number>): Counts {
   let easy = 0, rare = 0, common = 0;

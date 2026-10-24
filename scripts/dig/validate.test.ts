@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateDay } from "./validate";
+import { fossilTypoCollides, validateDay } from "./validate";
 import type { DigDayPlain, DigPromptPlain, Tier } from "../../lib/dig/types";
 
 function prompt(id: string, kind: "theme" | "origin", prefix: string): DigPromptPlain {
@@ -63,6 +63,11 @@ describe("validateDay", () => {
     d.prompts[0].answers[30] = ["boxey", "fossil", 1];
     d.prompts[0].fossil.word = "boxey";
     expect(validateDay(d, ctx)).toContain("theme:a: a fossil typo resolves to another answer");
+  });
+  it("fossilTypoCollides: the same test, usable before a fossil is chosen", () => {
+    const answers: [string, Tier, 0 | 1][] = [["box", "common", 1], ["boxey", "rare", 1], ["gunwale", "rare", 1]];
+    expect(fossilTypoCollides({ answers, aliases: {}, guard: [] }, "boxey")).toBe(true);
+    expect(fossilTypoCollides({ answers, aliases: {}, guard: [] }, "gunwale")).toBe(false);
   });
   it("counts casing differences as overlap", () => {
     const d = good();

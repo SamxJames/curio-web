@@ -10,7 +10,8 @@ import { getPuzzleForDate } from "../../lib/puzzle";
 import { WORDS, getWordForDate } from "../../lib/words";
 import { encodeDay } from "../../lib/dig/payload";
 import { historyFromManifest, type DigManifest } from "../../lib/dig/keys";
-import type { DigDayPlain } from "../../lib/dig/types";
+import type { DigDayPlain, Tier } from "../../lib/dig/types";
+import { buildLookup } from "../../lib/dig/match";
 import { createFetcher } from "../demand/http";
 import { loadWordfreq } from "./sources/wordfreq";
 import { loadOewn } from "./sources/oewn";
@@ -21,11 +22,11 @@ import { buildLexicon } from "./lexicon";
 import { loadCatalogue } from "./catalogue";
 import { letterVariants, wikidataThemeCandidates, wordnetThemes, type Candidate } from "./themes";
 import { originCandidates } from "./origins";
-import { buildAliases, buildGuard, floorProblems, fossilCandidates } from "./answers";
+import { buildAliases, buildGuard, dedupeByKey, floorProblems, fossilCandidates } from "./answers";
 import { yearlyViews } from "./pageviews";
 import { assignTiers, chooseFossil, toPlainPrompt, viewWordsFor } from "./fossil";
 import { daysBetween, isEligible, pickDay, type HistoryDay } from "./assemble";
-import { validateDay } from "./validate";
+import { fossilTypoCollides, validateDay } from "./validate";
 import { adjudicate } from "./adjudicate";
 import { FileSink, RedisSink, type DigSink } from "./sink";
 
@@ -36,6 +37,7 @@ export type BuildStats = {
   adjudication: { judged: number; accepted: number; amendedDays: number } | "failed";
 };
 
+const GUARD_MIN_ZIPF = 2;
 const BUFFER_FLOOR = 30, MIN_POOL_THEMES = 20, MIN_POOL_ORIGINS = 6, HEARTBEAT_STALE_DAYS = 3, MAX_SALTS = 5;
 const addDays = (d: string, n: number) => dayKey(new Date(dayStart(d).getTime() + n * DAY_MS));
 
@@ -127,6 +129,10 @@ async function main() {
   const blocked = new Set(readFileSync(path.join(data, "ldnoobw", "en.txt"), "utf8").split(/\r?\n/).map((l) => l.trim().toLowerCase()).filter(Boolean));
   const index = await indexWiktionary(readCompact(path.join(data, "derived", "en-compact.jsonl")), blocked);
   const lexicon = buildLexicon(zipf, index.info.keys());
+  // The guard uses wordfreq words with Zipf ≥ 2 only: rarer entries (and Wiktionary-only headwords) are
+  // rarely typed on purpose, many are misspellings of the very answers a near miss should offer, and
+  // they pushed every day past MAX_DAY_CHARS.
+  const guardLexicon = buildLexicon(new Map([...zipf].filter(([, z]) => z >= GUARD_MIN_ZIPF)), []);
   const cat = loadCatalogue();
   const usable = (w: string) => usableWord(index, zipf, w);
   const curio = new Map(WORDS.map((w) => [w.word.toLowerCase(), { slug: w.slug, teaser: w.teaser }]));
@@ -144,7 +150,8 @@ async function main() {
     if (r.labels) wdThemes.push({ theme, labels: r.labels });
   }
   let extras = await sink.readExtras();
-  const withExtras = (c: Candidate): Candidate => ({ ...c, accepted: [...new Set([...c.accepted, ...(extras[c.id] ?? [])])] });
+  // Every candidate passes through here, so this is also where spellings that share a key are collapsed.
+  const withExtras = (c: Candidate): Candidate => dedupeByKey({ ...c, accepted: [...new Set([...c.accepted, ...(extras[c.id] ?? [])])] });
   const fctx = { wn, index, zipf };
   const baseThemes = [...wordnetThemes(wn, index, zipf, cat), ...wikidataThemeCandidates(wdThemes, index, zipf)].map(withExtras);
   const letters = baseThemes.flatMap((t) => letterVariants(t, zipf)).map(withExtras);
@@ -154,7 +161,7 @@ async function main() {
   const all = new Map([...themes, ...origins].map((c) => [c.id, c]));
 
   const failures: string[] = [];
-  const judged = await guardedAdjudication(() => adjudicate(sink, all, { today, lexicon, usable, blocked, zipf }));
+  const judged = await guardedAdjudication(() => adjudicate(sink, all, { today, lexicon, guardLexicon, usable, blocked, zipf }));
   if (!judged.ok) {
     // Counts only: the job still builds days, then exits 1 at the end.
     console.error(`dig:build: adjudication failed (${judged.message})`);
@@ -197,20 +204,35 @@ async function main() {
       for (const c of picks) {
         const previous = new Set(history.flatMap((h) => h.prompts.filter((p) => p.id === c.id).map((p) => p.fossil)));
         const tiers = assignTiers(c, zipf, views);
+        // Aliases and the guard don't depend on the fossil, so they're built first and the fossil
+        // choice can skip words the validator would refuse (a typo landing on another answer).
+        const aliases = buildAliases(c.accepted, index, wn);
+        const guard = buildGuard(c.accepted, aliases, guardLexicon);
+        const secret = { answers: c.accepted.map((w): [string, Tier, 0 | 1] => [w, "common", 1]), aliases, guard };
+        const lookup = buildLookup(secret);
         const fossil = chooseFossil(c, {
           candidates: fossilCandidates(c, fctx), tiers, views, curio, definitions,
           etymology: (w) => index.info.get(w)?.etymology ?? "",
           exclude: new Set([...daily, ...usedToday, ...previous]),
+          reject: (w) => fossilTypoCollides(secret, w, lookup),
         });
         if (!fossil) break;
         usedToday.add(fossil.word);
-        const aliases = buildAliases(c.accepted, index, wn);
-        prompts.push(toPlainPrompt(c, tiers, fossil, aliases, buildGuard(c.accepted, aliases, lexicon), curio));
+        prompts.push(toPlainPrompt(c, tiers, fossil, aliases, guard, curio));
       }
       if (prompts.length !== 7) continue;
       const day: DigDayPlain = { v: 1, date, rejSample: 1, prompts };
       const problems = validateDay(day, { history, storySlugs, dailyWords: daily, blocked });
-      if (problems.length) { console.log(`Date ${date} salt ${salt}: ${problems.length} validation problems`); continue; }
+      if (problems.length) {
+        console.log(`Date ${date} salt ${salt}: ${problems.length} validation problems`);
+        // Local runs only: prompt ids name future prompts, so they never reach the public Actions log.
+        if (!publish) {
+          for (const p of problems) console.log(`  ${p}`);
+          const size = (v: unknown) => JSON.stringify(v).length;
+          for (const p of day.prompts) console.log(`  size ${p.id}: answers ${p.answers.length}/${size(p.answers)} aliases ${size(p.aliases)} guard ${p.guard.length}/${size(p.guard)}`);
+        }
+        continue;
+      }
       await sink.writeDay(encodeDay(day));
       const entry = picks.map((c, i) => ({ id: c.id, base: c.base, fossil: prompts[i].fossil.word, ...(c.languages.length ? { languages: c.languages } : {}) }));
       manifest.days[date] = entry;

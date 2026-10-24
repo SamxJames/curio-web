@@ -13,7 +13,7 @@ const theme: Candidate = {
   id: "theme:sailing", base: "theme:sailing", kind: "theme", text: "Name a word from sailing", core: ["keel"], accepted: ["keel"],
   sources: [new Set(["keel", "jib", "cleat"]), new Set(["keel"])], anchor: "x", senseIds: null, ancestors: new Set(), languages: [],
 };
-const ctx = { lexicon: new Set(["jib", "cleat", "banana", "keel"]), usable: (w: string) => w !== "cleat", blocked: new Set<string>() };
+const ctx = { lexicon: new Set(["jib", "cleat", "banana", "keel"]), guardLexicon: new Set(["jib", "cleat", "banana", "keel"]), usable: (w: string) => w !== "cleat", blocked: new Set<string>() };
 
 describe("judge", () => {
   it("accepts a real word that any one source places in the prompt", () => {
@@ -55,7 +55,7 @@ describe("adjudicate", () => {
     const filler = Array.from({ length: ACCEPTED_CAP - 2 }, (_, i) => `filler${i}`);
     // Core keel plus filler leaves room for exactly one more answer.
     const nearCap: Candidate = { ...theme, accepted: ["keel", ...filler], sources: [new Set(["keel", "sail", "jib"])] };
-    const open = { lexicon: new Set(["keel", "sail", "jib"]), usable: () => true, blocked: new Set<string>() };
+    const open = { lexicon: new Set(["keel", "sail", "jib"]), guardLexicon: new Set(["keel", "sail", "jib"]), usable: () => true, blocked: new Set<string>() };
     const r = await adjudicate(sink, new Map([["theme:sailing", nearCap]]), { ...open, today: "2026-12-03", zipf: new Map() });
     expect(r).toEqual({ judged: 1, accepted: 1, amendedDays: 0, skippedOversize: 0 });
     expect(await sink.readExtras()).toEqual({ "theme:sailing": ["sail"] });
@@ -74,7 +74,7 @@ describe("adjudicate", () => {
     expect(nearCap.accepted).toHaveLength(ACCEPTED_CAP - 1);
     nearCap.accepted.pop();
     expect(nearCap.accepted).toHaveLength(ACCEPTED_CAP - 2);
-    const open = { lexicon: new Set(["keel", "sail", "jib", "mast"]), usable: () => true, blocked: new Set<string>() };
+    const open = { lexicon: new Set(["keel", "sail", "jib", "mast"]), guardLexicon: new Set(["keel", "sail", "jib", "mast"]), usable: () => true, blocked: new Set<string>() };
     const r = await adjudicate(sink, new Map([["theme:sailing", nearCap]]), { ...open, today: "2026-12-03", zipf: new Map() });
     expect(r.accepted).toBe(2);
     expect(await sink.readExtras()).toEqual({ "theme:sailing": ["e1", "e2", "jib", "sail"] });
@@ -88,7 +88,7 @@ describe("adjudicate", () => {
     writeFileSync(path.join(dir, "logs", "rej-2026-12-01-0.json"), JSON.stringify({ jib: 2 }));
     const filler = Array.from({ length: ACCEPTED_CAP - 1 }, (_, i) => `filler${i}`);
     const full: Candidate = { ...theme, accepted: ["keel", ...filler], sources: [new Set(["keel", "jib"])] };
-    const open = { lexicon: new Set(["keel", "jib"]), usable: () => true, blocked: new Set<string>() };
+    const open = { lexicon: new Set(["keel", "jib"]), guardLexicon: new Set(["keel", "jib"]), usable: () => true, blocked: new Set<string>() };
     const r = await adjudicate(sink, new Map([["theme:sailing", full]]), { ...open, today: "2026-12-03", zipf: new Map() });
     expect(r).toEqual({ judged: 0, accepted: 0, amendedDays: 0, skippedOversize: 0 });
     expect(await sink.readExtras()).toEqual({});
@@ -126,7 +126,7 @@ function fixture(logs: Record<string, object>) {
 }
 
 const run = (sink: FileSink, cand: Candidate, lexicon: string[], zipf = new Map<string, number>()) =>
-  adjudicate(sink, new Map([["theme:sailing", cand]]), { lexicon: new Set(lexicon), usable: () => true, blocked: new Set<string>(), today: "2026-12-03", zipf });
+  adjudicate(sink, new Map([["theme:sailing", cand]]), { lexicon: new Set(lexicon), guardLexicon: new Set(lexicon), usable: () => true, blocked: new Set<string>(), today: "2026-12-03", zipf });
 
 describe("adjudicate bounds its work and its state", () => {
   it("judges at most JUDGE_PER_PROMPT guesses per prompt per run, top-ranked first, then the rest on the next run", async () => {

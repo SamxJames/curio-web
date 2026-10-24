@@ -3,7 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { parseOewn } from "./sources/oewn";
 import { indexWiktionary } from "./wiktionary";
-import { buildAliases, buildGuard, counts, floorProblems, fossilCandidates } from "./answers";
+import { buildAliases, buildGuard, counts, dedupeByKey, floorProblems, fossilCandidates } from "./answers";
 import type { Candidate } from "./themes";
 
 const wn = parseOewn(readFileSync(path.join(__dirname, "fixtures/oewn-mini.xml"), "utf8"));
@@ -47,5 +47,20 @@ describe("aliases and guard", () => {
   it("guards real words one edit from any key, excluding the prompt's own keys", () => {
     const lexicon = new Set(["keel", "heel", "peel", "kneel", "zebra", "keels"]);
     expect(buildGuard(["keel"], { keels: 0 }, lexicon).sort()).toEqual(["heel", "kneel", "peel"]);
+  });
+});
+
+describe("dedupeByKey", () => {
+  it("keeps the first spelling of each normalised key, in core and accepted alike", () => {
+    const c = cand(["ice rink", "court"], { accepted: ["ice rink", "court", "ice-rink", "the court", "pitch"] });
+    const d = dedupeByKey(c);
+    expect(d.accepted).toEqual(["ice rink", "court", "pitch"]);
+    expect(d.core).toEqual(["ice rink", "court"]);
+  });
+
+  it("prefers the core spelling when a non-core spelling comes first", () => {
+    const d = dedupeByKey(cand(["icerink"], { accepted: ["ice rink", "icerink", "pitch"] }));
+    expect(d.accepted).toEqual(["icerink", "pitch"]);
+    expect(d.core).toEqual(["icerink"]);
   });
 });

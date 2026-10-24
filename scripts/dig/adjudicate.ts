@@ -43,7 +43,7 @@ async function readPlainDay(sink: DigSink, date: string): Promise<DigDayPlain | 
 export async function adjudicate(
   sink: DigSink,
   candidates: Map<string, Candidate>,
-  ctx: JudgeCtx & { today: string; zipf: Map<string, number> }
+  ctx: JudgeCtx & { today: string; zipf: Map<string, number>; guardLexicon: Set<string> }
 ): Promise<{ judged: number; accepted: number; amendedDays: number; skippedOversize: number }> {
   const history = historyFromManifest(await sink.readManifest());
   const done = await sink.readAdjudicated(ctx.today);
@@ -114,7 +114,7 @@ export async function adjudicate(
         added = true;
       }
       if (added) {
-        p.guard = buildGuard(p.answers.map((a) => a[0]), p.aliases, ctx.lexicon);
+        p.guard = buildGuard(p.answers.map((a) => a[0]), p.aliases, ctx.guardLexicon);
         changed = true;
       }
     }
