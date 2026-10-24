@@ -40,6 +40,8 @@ describe("wording and ids", () => {
     expect(themeText("Buildings and structures", "kind-of", {})).toBe("Name a building or structure");
     expect(themeText("Arts and crafts", "kind-of", {})).toBe("Name an art or craft");
     expect(themeText("Nautical", "domain", { Nautical: "Name a word from sailing" })).toBe("Name a word from sailing");
+    expect(themeText("Geese", "kind-of", {})).toBe("Name a goose");
+    expect(themeText("Cacti", "kind-of", {})).toBe("Name a cactus");
     expect(slugify("Citrus fruits")).toBe("citrus-fruits");
   });
 });
@@ -56,6 +58,18 @@ describe("wordnetThemes", () => {
     const citrusTheme = themes.find((t) => t.id === "theme:citrus-fruits")!;
     expect(citrusTheme.anchor).toBe("oewn-citrus-n-1");
     expect(citrusTheme.ancestors.has("oewn-fruit-n-1")).toBe(true);
+  });
+  it("keeps a category anchored only by its last word as its own theme, with only its own words", async () => {
+    const fruits = ["apple", "fig", "pear", "plum", "date"].map((w) => entry(w, ["Fruits"]));
+    const citrus = ["lemon"].map((w) => entry(w, ["Citrus fruits"]));
+    const dried = ["fig", "date", "apple"].map((w) => entry(w, ["Dried fruits"]));
+    const idx = await indexWiktionary([...fruits, ...citrus, ...dried], new Set());
+    const themes = wordnetThemes(wn, idx, new Map(), cat, { minOwnWords: 1, minAnchor: 1 });
+    const driedTheme = themes.find((t) => t.id === "theme:dried-fruits")!;
+    expect(driedTheme.anchor).toBe("oewn-fruit-n-1");
+    expect(driedTheme.core).toEqual(["apple"]); // not lemon, which only the parent rolls up
+    expect(driedTheme.accepted).not.toContain("lemon"); // nor every fruit WordNet knows
+    expect(themes.find((t) => t.id === "theme:fruits")!.core.sort()).toEqual(["apple", "lemon"]);
   });
 });
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { indexWiktionary } from "./wiktionary";
-import { originCandidates } from "./origins";
+import { ORIGIN_CORE_CAP, originCandidates } from "./origins";
 import type { Catalogue } from "./catalogue";
 import type { CompactEntry } from "./sources/compact";
 
@@ -46,11 +46,11 @@ describe("originCandidates", () => {
     expect(norse.accepted).not.toContain("and");
   });
 
-  it("drops an origin too broad to play (more than 1,200 core words)", async () => {
+  it("keeps a big language (the spec counts Japanese at 1,576) and drops one too broad to play (more than ORIGIN_CORE_CAP)", async () => {
     const letters = (i: number) => [i % 26, Math.floor(i / 26) % 26, Math.floor(i / 676)].map((n) => String.fromCharCode(97 + n)).join("");
     const words = (n: number) => Array.from({ length: n }, (_, i) => e(`qu${letters(i)}`, "Arabic", "ar"));
     const ids = async (n: number) => originCandidates(await indexWiktionary(words(n), new Set()), new Map(), cat, new Map()).map((c) => c.id);
-    expect(await ids(1200)).toContain("origin:arabic");
-    expect(await ids(1201)).not.toContain("origin:arabic");
+    expect(await ids(ORIGIN_CORE_CAP)).toContain("origin:arabic");
+    expect(await ids(ORIGIN_CORE_CAP + 1)).not.toContain("origin:arabic");
   });
 });

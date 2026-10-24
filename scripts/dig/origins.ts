@@ -3,7 +3,9 @@ import { ACCEPTED_CAP, slugify, type Candidate } from "./themes";
 import { usableWord, type WiktionaryIndex } from "./wiktionary";
 import { etymologySentence, fold } from "./fossil";
 
-type LangSets = { core: Set<string>; accepted: Set<string>; category: Set<string>; template: Set<string> };
+export const ORIGIN_CORE_CAP = 2000;
+
+type LangSets ={ core: Set<string>; accepted: Set<string>; category: Set<string>; template: Set<string> };
 
 /** Origin prompts (pipeline-design §4): core needs both Wiktionary's "derived from" category
  * and a structured etymology template naming the language. Grouped origins union their
@@ -41,14 +43,15 @@ export function originCandidates(
     const members = languages.map((l) => sets.get(l)).filter((s): s is LangSets => !!s);
     if (!members.length) return null;
     const core = [...new Set(members.flatMap((m) => [...m.core]))].filter((w) => lineageAgrees(w, languages)).sort();
-    // Too broad to play, and too big for a day file (pipeline-design §10's size cap).
-    if (core.length > ACCEPTED_CAP) return null;
+    // Too broad to play, and too big for a day file (pipeline-design §10's size cap). The spec's
+    // big languages (Japanese 1,576, Spanish 1,523) fit under it; French and Greek don't.
+    if (core.length > ORIGIN_CORE_CAP) return null;
     const coreSet = new Set(core);
     const rest = [...new Set(members.flatMap((m) => [...m.accepted]))].filter((w) => !coreSet.has(w))
       .sort((a, b) => (zipf.get(b) ?? 0) - (zipf.get(a) ?? 0));
     return {
       id, base: id, kind: "origin", text, core,
-      accepted: [...core, ...rest].slice(0, ACCEPTED_CAP),
+      accepted: [...core, ...rest].slice(0, Math.max(ACCEPTED_CAP, core.length)),
       sources: members.flatMap((m) => [m.category, m.template]),
       anchor: id, senseIds: null, ancestors: new Set(), languages,
     };

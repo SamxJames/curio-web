@@ -14,7 +14,20 @@
     "Exercise equipment": ["exercise device"],
     "String instruments": ["stringed instrument"],
     "Sports areas": ["playing field", "athletic field"],
-    "Shapes": ["plane figure", "solid figure"]
+    "Shapes": ["plane figure", "solid figure"],
+    "Landforms": ["geological formation"],
+    "Family members": ["relative"],
+    "Female family members": ["relative"],
+    "Male family members": ["relative"],
+    "Snacks": ["snack food", "dish"],
+    "Cookware and bakeware": ["cooking utensil", "kitchen utensil"],
+    "Places of worship": ["place of worship"],
+    "Birds of prey": ["bird of prey"],
+    "Skeleton": ["bone"],
+    "Grasses": ["grass", "gramineous plant"],
+    "Eyewear": ["spectacles", "optical instrument"],
+    "Bicycle types": ["bicycle"],
+    "Motorcycles": ["motorcycle"]
   },
   "renames": {
     "Nautical": "Name a word from sailing",

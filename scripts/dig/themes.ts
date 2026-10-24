@@ -23,7 +23,11 @@ export const ACCEPTED_CAP = 1200;
 const OVER_BROAD = 800;
 
 export const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-const singular = (s: string) => s.replace(/ies$/, "y").replace(/(ch|sh|x|ss)es$/, "$1").replace(/s$/, "");
+const IRREGULAR: Record<string, string> = {
+  teeth: "tooth", geese: "goose", mice: "mouse", lice: "louse", feet: "foot", men: "man", women: "woman",
+  children: "child", cacti: "cactus", fungi: "fungus", knives: "knife", wolves: "wolf", leaves: "leaf", loaves: "loaf",
+};
+const singular = (s: string) => IRREGULAR[s] ?? s.replace(/ies$/, "y").replace(/(ch|sh|x|ss)es$/, "$1").replace(/s$/, "");
 const singularPhrase = (s: string) => {
   const parts = s.split(" ");
   parts[parts.length - 1] = singular(parts[parts.length - 1]);
@@ -42,20 +46,23 @@ export function themeText(name: string, via: "kind-of" | "domain", renames: Reco
   }
   // A mass noun ("Clothing", "Glass") has no singular to name: "a type of clothing".
   const last = lower.split(" ").at(-1)!;
-  if (!/s$/.test(last) || /(ss|us|is)$/.test(last)) return `Name a type of ${lower}`;
+  if (!IRREGULAR[last] && (!/s$/.test(last) || /(ss|us|is)$/.test(last))) return `Name a type of ${lower}`;
   const s = singularPhrase(lower);
   return `Name ${article(s)} ${s}`;
 }
 
-type Anchor = { id: string; via: "kind-of" | "domain"; size: number };
+type Anchor = { id: string; via: "kind-of" | "domain"; size: number; broad: boolean };
 
 /** Own-sense anchoring (pipeline-design §3a fix 1): the most specific head form that
  * anchors at least `minAnchor` words wins, so "Citrus fruits" anchors at citrus fruit,
  * not at fruit. */
-function anchorCategory(wn: Wordnet, name: string, words: Set<string>, overrides: Record<string, string[]>, minAnchor: number): Anchor | null {
+export function anchorCategory(wn: Wordnet, name: string, words: Set<string>, overrides: Record<string, string[]>, minAnchor: number): Anchor | null {
   const lower = name.toLowerCase();
   const heads = overrides[name] ?? [singularPhrase(lower), lower, singular(lower.split(" ").slice(-1)[0])];
   let fallback: Anchor | null = null;
+  // A multi-word name anchored only by its last word ("Baby animals" at animal) is "broad".
+  // "Buildings and structures" names two kinds, not a subset: its last word is its own head.
+  const broadHead = !overrides[name] && lower.includes(" ") && !lower.includes(" and ") ?singular(lower.split(" ").slice(-1)[0]) : null;
   for (const head of [...new Set(heads)]) {
     let best: Anchor | null = null;
     for (const id of wn.synsetsOf.get(head) ?? []) {
@@ -63,7 +70,7 @@ function anchorCategory(wn: Wordnet, name: string, words: Set<string>, overrides
       for (const [via, set] of [["kind-of", hyponymLemmas(wn, [id])], ["domain", domainLemmas(wn, [id])]] as const) {
         let size = 0;
         for (const w of words) if (set.has(w)) size++;
-        if (!best || size > best.size) best = { id, via, size };
+        if (!best || size > best.size) best = { id, via, size, broad: head === broadHead };
       }
     }
     if (best && best.size >= minAnchor) return best;
@@ -100,7 +107,8 @@ export function wordnetThemes(
     const own = index.categories.get(name)!;
     if (own.size < minOwn || isBlocked(cat, name)) continue;
     const wiktionary = new Set(own);
-    if (a.via === "kind-of") {
+    // A broad anchor's subtree is the parent theme, not this one: keep the category's own words.
+    if (a.via === "kind-of" && !a.broad) {
       const below = hyponymSynsets(wn, [a.id]);
       for (const [other, a2] of anchors) if (a2.via === "kind-of" && below.has(a2.id)) index.categories.get(other)!.forEach((w) => wiktionary.add(w));
     }
@@ -108,14 +116,18 @@ export function wordnetThemes(
     const wnSet = a.via === "kind-of" ? hyponymLemmas(wn, [a.id]) : domainLemmas(wn, [a.id]);
     const core = [...wiktionary].filter((w) => wnSet.has(w) && usable(w)).sort();
     if (core.length > OVER_BROAD) continue;
-    const others = [...wiktionary, ...[...wnSet].filter((w) => index.info.has(w))].filter(usable);
+    // Every animal is not a baby animal: a broad theme accepts only its category's words.
+    const others = [...wiktionary, ...(a.broad ? [] : [...wnSet].filter((w) => index.info.has(w)))].filter(usable);
     const c: Candidate = {
       id: `theme:${slugify(name)}`, base: `theme:${slugify(name)}`, kind: "theme",
       text: themeText(name, a.via, cat.renames), core, accepted: capAccepted(core, others, zipf),
       sources: [wiktionary, wnSet], anchor: a.id, senseIds, ancestors: ancestors(wn, a.id), languages: [],
     };
-    const prev = byAnchor.get(a.id);
-    if (!prev || prev.id.length > c.id.length) byAnchor.set(a.id, c);
+    // Two names for one sense ("Fish" and "Fishes") keep the shorter; a broad-anchored subset
+    // is its own theme, and assignFamilies keeps it apart from its parent.
+    const key = a.broad ? c.id : a.id;
+    const prev = byAnchor.get(key);
+    if (!prev || prev.id.length > c.id.length) byAnchor.set(key, c);
   }
   out.push(...byAnchor.values());
   return out.sort((x, y) => x.id.localeCompare(y.id));
