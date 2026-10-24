@@ -1,5 +1,5 @@
 import { ancestors, domainLemmas, domainSynsets, hyponymLemmas, hyponymSynsets, type Wordnet } from "./sources/oewn";
-import { isBlocked, type Catalogue } from "./catalogue";
+import { isBlocked, type Catalogue, type WikidataTheme } from "./catalogue";
 import { usableWord, type WiktionaryIndex } from "./wiktionary";
 
 export type Candidate = {
@@ -132,4 +132,25 @@ export function letterVariants(theme: Candidate, zipf: Map<string, number>, opts
     });
   }
   return out;
+}
+
+/** Wikidata themes (pipeline-design §3a fix 2): core = Wikidata labels that are usable
+ * Wiktionary nouns (which also strips proper names); accepted adds the Wiktionary
+ * categories named in the catalogue. No WordNet sense, so no first-sense check. */
+export function wikidataThemeCandidates(
+  themes: { theme: WikidataTheme; labels: Set<string> }[],
+  index: WiktionaryIndex,
+  zipf: Map<string, number>
+): Candidate[] {
+  const usable = (w: string) => usableWord(index, zipf, w);
+  return themes.map(({ theme, labels }) => {
+    const wiktionary = new Set<string>();
+    for (const name of theme.wiktionary) index.categories.get(name)?.forEach((w) => wiktionary.add(w));
+    const core = [...labels].filter((w) => usable(w) && index.info.get(w)!.noun).sort();
+    return {
+      id: theme.id, base: theme.id, kind: "theme" as const, text: theme.text, core,
+      accepted: capAccepted(core, [...wiktionary].filter(usable), zipf),
+      sources: [labels, wiktionary], anchor: `wikidata:${theme.qid}`, senseIds: null, ancestors: new Set<string>(), languages: [],
+    };
+  });
 }
