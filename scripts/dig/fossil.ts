@@ -28,6 +28,7 @@ export function assignTiers(c: Candidate, zipf: Map<string, number>, views: Map<
   for (const w of c.accepted) tiers.set(w, tierFromZipf(zipf.get(w)));
   const rareViews = c.core.filter((w) => tiers.get(w) === "rare" && views.has(w)).map((w) => views.get(w)!);
   const m = median(rareViews);
+  // Popular picks are off when the median is 0, since 4 × 0 would promote any word with views.
   if (m > 0) {
     c.core
       .filter((w) => (tiers.get(w) === "rare" || tiers.get(w) === "uncommon") && (views.get(w) ?? 0) >= 4 * m)
@@ -63,14 +64,24 @@ export type FossilCtx = {
 
 /** pipeline-design §7: a Curio story word if any candidate is one (its teaser is the fact),
  * else the most-viewed candidate that has a sourced fact. Ties go to the alphabetical first. */
+/** Trims a fact to 140 characters or fewer: at the last space in the first 140, plus an ellipsis. */
+function clampFact(text: string): string {
+  const t = text.trim();
+  if (t.length <= MAX_FACT) return t;
+  const head = t.slice(0, MAX_FACT);
+  const space = head.lastIndexOf(" ");
+  return `${(space > 0 ? head.slice(0, space) : head.slice(0, MAX_FACT - 1)).trimEnd()}…`;
+}
+
 export function chooseFossil(_c: Candidate, ctx: FossilCtx): DigFossil | null {
+  // Only Rare words are fossil material. That already excludes Popular picks.
   const pool = ctx.candidates
-    .filter((w) => !ctx.exclude.has(w) && ctx.tiers.get(w) !== "popular")
+    .filter((w) => !ctx.exclude.has(w) && ctx.tiers.get(w) === "rare")
     .sort((a, b) => (ctx.views.get(b) ?? 0) - (ctx.views.get(a) ?? 0) || a.localeCompare(b));
-  const curioPick = pool.find((w) => ctx.curio.has(w));
+  const curioPick = pool.find((w) => (ctx.curio.get(w)?.teaser.trim() ?? "") !== "");
   if (curioPick) {
     const entry = ctx.curio.get(curioPick)!;
-    return { word: curioPick, fact: entry.teaser.slice(0, MAX_FACT), story: entry.slug };
+    return { word: curioPick, fact: clampFact(entry.teaser), story: entry.slug };
   }
   for (const w of pool) {
     const fact = etymologyFact(ctx.etymology(w)) ?? (ctx.definitions.get(w) ? etymologyFact(ctx.definitions.get(w)!) : null);

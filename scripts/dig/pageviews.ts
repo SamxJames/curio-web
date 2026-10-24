@@ -25,20 +25,37 @@ function readCache(file: string): Cache {
   }
 }
 
+/** The failure without the word: the HTTP status when there is one, otherwise "network error". */
+function failureReason(err: unknown): string {
+  const message = err instanceof Error ? err.message : "";
+  const status = /HTTP (\d{3})/.exec(message);
+  return status ? `HTTP ${status[1]}` : "network error";
+}
+
 export async function yearlyViews(words: string[], opts: { fetcher: FetchLike; cachePath: string; now: Date }): Promise<Map<string, number>> {
   const cache = readCache(opts.cachePath);
   const months = lastCompleteMonths(opts.now, 12);
   const out = new Map<string, number>();
   let fetched = 0;
-  for (const w of [...new Set(words)]) {
-    const hit = cache[w];
-    if (hit && opts.now.getTime() - Date.parse(hit.at) < STALE_MS) { out.set(w, hit.views); continue; }
-    const views = (await fetchMonthlyViews(w, months, opts.fetcher)).reduce((a, b) => a + b, 0);
-    cache[w] = { views, at: opts.now.toISOString() };
-    out.set(w, views);
-    if (++fetched % 500 === 0) writeFileSync(opts.cachePath, JSON.stringify(cache));
-  }
   mkdirSync(path.dirname(opts.cachePath), { recursive: true });
-  writeFileSync(opts.cachePath, JSON.stringify(cache));
+  try {
+    for (const w of [...new Set(words)]) {
+      const hit = Object.hasOwn(cache, w) ? cache[w] : undefined;
+      if (hit && opts.now.getTime() - Date.parse(hit.at) < STALE_MS) { out.set(w, hit.views); continue; }
+      let views: number;
+      try {
+        views = (await fetchMonthlyViews(w, months, opts.fetcher)).reduce((a, b) => a + b, 0);
+      } catch (err) {
+        // The word and the original error are left out on purpose: Actions logs are public.
+        throw new Error(`pageviews failed after ${fetched} fetched: ${failureReason(err)}`);
+      }
+      cache[w] = { views, at: opts.now.toISOString() };
+      out.set(w, views);
+      if (++fetched % 500 === 0) writeFileSync(opts.cachePath, JSON.stringify(cache));
+    }
+  } finally {
+    // Runs on failure too, so the words fetched before a thrown error survive.
+    writeFileSync(opts.cachePath, JSON.stringify(cache));
+  }
   return out;
 }

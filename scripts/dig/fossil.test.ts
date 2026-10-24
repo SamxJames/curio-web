@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { assignTiers, chooseFossil, etymologyFact, toPlainPrompt } from "./fossil";
@@ -51,6 +51,24 @@ describe("chooseFossil", () => {
   });
   it("skips excluded words and returns null when nothing is left", () => {
     expect(chooseFossil(c, { ...base, curio: new Map(), exclude: new Set(["halyard", "gunwale", "bowsprit"]) })).toBeNull();
+  });
+  it("never chooses a Common word, even one with a story", () => {
+    const curio = new Map([["sail", { slug: "sail", teaser: "Once a sheet of cloth." }]]);
+    const tiers = new Map([["sail", "common" as const], ["halyard", "rare" as const]]);
+    const etymology = (w: string) => (w === "halyard" ? "From Middle English halier." : "");
+    expect(chooseFossil(c, { ...base, candidates: ["sail", "halyard"], tiers, curio, etymology })).toEqual({ word: "halyard", fact: "From Middle English halier" });
+  });
+  it("skips a story word with an empty teaser and falls through", () => {
+    const curio = new Map([["gunwale", { slug: "gunwale", teaser: "   " }]]);
+    const views = new Map([["halyard", 1300], ["gunwale", 2500], ["bowsprit", 2000]]);
+    expect(chooseFossil(c, { ...base, curio, views })).toEqual({ word: "bowsprit", fact: "From Middle Low German bōchsprēt" });
+  });
+  it("trims a long story teaser to 140 characters or fewer, ending in an ellipsis", () => {
+    const curio = new Map([["gunwale", { slug: "gunwale", teaser: "word ".repeat(60).trim() }]]);
+    const pick = chooseFossil(c, { ...base, curio })!;
+    expect(pick.word).toBe("gunwale");
+    expect(pick.fact.length).toBeLessThanOrEqual(140);
+    expect(pick.fact.endsWith("…")).toBe(true);
   });
 });
 
@@ -141,5 +159,27 @@ describe("yearlyViews", () => {
     const out = await yearlyViews(["halyard"], { fetcher, cachePath, now });
     expect(out.get("halyard")).toBe(120);
     expect(calls).toHaveLength(1);
+  });
+
+  it("creates a missing nested cache folder before the first periodic flush", async () => {
+    const nested = path.join(dir, "missing", "deeper", "pageviews.json");
+    const words = Array.from({ length: 501 }, (_, i) => `word${i}`);
+    const out = await yearlyViews(words, { fetcher: fakeFetcher().fetcher, cachePath: nested, now });
+    expect(out.size).toBe(501);
+    expect(existsSync(nested)).toBe(true);
+  });
+
+  it("rejects a failed fetch without printing the word, and keeps the earlier fetches", async () => {
+    const fetcher = async (url: string) =>
+      url.includes("secretword")
+        ? new Response("", { status: 500 })
+        : new Response(JSON.stringify({ items: monthlyItems(10) }), { status: 200 });
+    const err = await yearlyViews(["alpha", "beta", "secretword", "gamma"], { fetcher, cachePath, now }).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(Error);
+    expect((err as Error).message).toContain("after 2 fetched");
+    expect((err as Error).message).toContain("HTTP 500");
+    expect((err as Error).message).not.toContain("secretword");
+    const cached = JSON.parse(readFileSync(cachePath, "utf8"));
+    expect(Object.keys(cached).sort()).toEqual(["alpha", "beta"]);
   });
 });
