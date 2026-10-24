@@ -2,9 +2,10 @@
 
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { createReducer, initialGame, prepareDay, resultTiers, type DigDayResponse, type PreparedDay } from "@/lib/dig/game";
-import { scoreOf, formatDepth } from "@/lib/dig/score";
+import { scoreOf } from "@/lib/dig/score";
 import { markReported, saveGame, setNoTimer, useDigStore } from "@/lib/dig/storage";
 import { buildFinishEvent, sendDigEvent, sendFinish, sendLandOnce } from "@/lib/dig/client";
+import EndScreen, { announceDone } from "./EndScreen";
 import Intro from "./Intro";
 import PromptScreen from "./PromptScreen";
 import Reveal, { announceReveal } from "./Reveal";
@@ -67,11 +68,7 @@ function DigRun({ day, isToday }: { day: PreparedDay; isToday: boolean }) {
     });
   }, [state, day, isToday, store.games]);
 
-  if (finished && state.phase === "intro") {
-    // Already played: show their own result, never a countdown.
-    return <p className="mt-8 font-display text-4xl">{`${formatDepth(finished.score)} down`}</p>;
-  }
-  if (state.phase === "intro") {
+  if (state.phase === "intro" && !finished) {
     return (
       <Intro
         noTimer={store.settings.noTimer}
@@ -84,8 +81,14 @@ function DigRun({ day, isToday }: { day: PreparedDay; isToday: boolean }) {
     );
   }
   let screen: React.ReactNode;
-  if (state.phase === "done") {
-    screen = <p className="mt-8 font-display text-4xl">{`${formatDepth(scoreOf(resultTiers(state)))} down`}</p>;
+  if (finished && (state.phase === "intro" || state.phase === "done")) {
+    // Already played, or just finished: their own result, never a countdown. Only a dig finished in
+    // this session takes focus (a page load of a played day must not jump it).
+    screen = <EndScreen day={day} game={finished} isToday={isToday} autoFocus={state.phase === "done"} />;
+  } else if (state.phase === "done") {
+    // The save is a render away: show nothing in the meantime. The live region below must still
+    // render, so it persists from the last reveal through to the end screen.
+    screen = null;
   } else if (state.phase === "reveal") {
     screen = (
       <Reveal
@@ -125,7 +128,9 @@ function DigRun({ day, isToday }: { day: PreparedDay; isToday: boolean }) {
   // One live region that outlives every screen change. Reveal mounts fresh when a prompt locks,
   // and a region that mounts with its text is not reliably announced, so the outcome is set
   // here, where the element persists.
-  const outcome = state.phase === "reveal" ? announceReveal(state.results[state.current], day.secrets[state.current], passed.has(state.current)) : "";
+  const outcome = state.phase === "reveal"
+    ? announceReveal(state.results[state.current], day.secrets[state.current], passed.has(state.current))
+    : state.phase === "done" ? announceDone(scoreOf(resultTiers(state))) : "";
   return (
     <>
       {screen}
