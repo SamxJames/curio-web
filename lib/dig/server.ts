@@ -32,7 +32,9 @@ function digRedis(): Promise<Redis | null> {
   return client;
 }
 
-const localDir = () => path.resolve(process.cwd(), process.env.DIG_LOCAL_DIR ?? ".dig-out");
+// Local and CI only (readsRedis() is false there). The ignore comment stops the bundler
+// tracing the whole project into the server output because of this dynamic path.
+const localDir = () => path.resolve(/*turbopackIgnore: true*/ process.cwd(), process.env.DIG_LOCAL_DIR ?? ".dig-out");
 const toCounts = (h: Record<string, unknown> | null | undefined) =>
   Object.fromEntries(Object.entries(h ?? {}).map(([k, v]) => [k, Number(v) || 0]));
 

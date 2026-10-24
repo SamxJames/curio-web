@@ -11,6 +11,11 @@ import { TIERS } from "@/lib/dig/types";
 
 // Today and future dates 404; revalidating means a cached 404 heals once the day passes.
 export const revalidate = 3600;
+// No dates at build time; each is rendered on its first visit and then cached (ISR).
+// Without this the route renders, and reads Redis, on every request.
+export async function generateStaticParams() {
+  return [];
+}
 
 // cache(): generateMetadata and the page share one Redis read per render.
 const load = cache(async (date: string) => {

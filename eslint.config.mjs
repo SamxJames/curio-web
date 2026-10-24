@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Worktrees (each lints itself from its own root).
     ".claude/**",
+    // One-off research scripts kept as a record (docs/rarity-game/research), not app code.
+    "docs/**",
   ]),
 ]);
 
