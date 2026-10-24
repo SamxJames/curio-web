@@ -127,3 +127,25 @@ roughly the 10k mark. The full table belongs in Phase 4.
 - Tier names in Curio's voice (4–5 tiers plus the gem), and the softened "too clever" label.
 - Rarity and depth must never be shown in red, which has one role: brand and action.
 - Every mockup shows the "No timer" setting, a timer shown as both a number and a bar, a 3 s grace period, player-paced "next", the near-miss confirm step ("corrects to X, press again"), and a "Words worth knowing" reveal with story links listed first.
+
+## Phase 2 decision (Sam, 24 Oct 2026)
+
+**Direction: option 2, Curio with depth, "curio dig".** Mockup: `docs/rarity-game/mockups/option-2-dig.html`. Sam
+picked it on the first round, with no mix.
+
+- **Metaphor.** Rarer words dig deeper through five strata: topsoil, loam, clay, stone, bedrock. Each prompt hides
+  one **fossil**, the gem. The strata use geology names, not language eras, so nobody reads the score as "how old is
+  the word".
+- **Tiers.** Common 10, Popular pick 15, Familiar 30, Uncommon 60, Rare 85, Fossil 100. Depth in metres is
+  score ÷ 100, so a perfect dig is 7.0 m.
+- **Screens**
+  - A side depth gauge that fills as you score.
+  - Each answer drops into its layer.
+  - The end screen is a section drawing with your seven words embedded.
+  - The share card is the same drawing with no words, so it's spoiler-free.
+  - Share text: `curio dig, day N / X.X m down / 🟧🦴🌱🟫▫️🪨🟧 / curioword.com/dig`.
+- **Route and name.** `/dig`, "curio dig". `/play` stays as the clue puzzle.
+- **Brand.** Target brand: Libre Caslon wordmark, Ink, Paper, and Red for actions only. Body text in Work Sans.
+  Strata run from paper to ink and are never red.
+- **Phase 4 must cover:** the share images loading the Libre Caslon TTF in next/og, and the repo rebrand gap (see
+  `mockups/NOTES.md`).
