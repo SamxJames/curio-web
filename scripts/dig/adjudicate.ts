@@ -1,8 +1,11 @@
 import { normalizeKey } from "../../lib/dig/normalize";
+import { buildLookup, checkGuess } from "../../lib/dig/match";
 import { decodeDay, encodeDay } from "../../lib/dig/payload";
 import { tierFromZipf } from "../../lib/dig/score";
 import { historyFromManifest } from "../../lib/dig/keys";
+import type { DigDayPlain } from "../../lib/dig/types";
 import { daysBetween } from "./assemble";
+import { buildGuard } from "./answers";
 import type { DigSink } from "./sink";
 import { ACCEPTED_CAP, type Candidate } from "./themes";
 import { MAX_DAY_CHARS } from "./validate";
@@ -21,6 +24,17 @@ export function judge(guess: string, c: Candidate, ctx: JudgeCtx): string | null
 }
 
 const LOG_DAYS = 35;
+
+/** Reads and decodes one stored day. A corrupt day is a hard failure. The message names the
+ * date only, because JSON parse errors can quote the file's content. */
+async function readPlainDay(sink: DigSink, date: string): Promise<DigDayPlain | null> {
+  try {
+    const stored = await sink.readDay(date);
+    return stored ? decodeDay(stored) : null;
+  } catch {
+    throw new Error(`adjudicate: day ${date} unreadable`);
+  }
+}
 
 export async function adjudicate(
   sink: DigSink,
@@ -52,8 +66,10 @@ export async function adjudicate(
   for (const [promptId, byGuess] of tallies) {
     const c = candidates.get(promptId);
     if (!c) continue;
+    // Claims on words the prompt already has never reach the cap or the judge (claims are unauthenticated).
+    const acceptedKeys = new Set(c.accepted.map(normalizeKey));
     // Most-guessed first, then alphabetical, so the cap always keeps the same words.
-    const ranked = [...byGuess].sort(
+    const ranked = [...byGuess].filter(([guess]) => !acceptedKeys.has(normalizeKey(guess))).sort(
       ([ga, a], [gb, b]) => (b.rej + b.claim) - (a.rej + a.claim) || (ga < gb ? -1 : ga > gb ? 1 : 0)
     );
     for (const [guess, t] of ranked) {
@@ -76,14 +92,22 @@ export async function adjudicate(
     if (h.date === ctx.today) continue; // today's file is CDN-cached until rollover
     const ids = h.prompts.map((p) => p.id).filter((id) => newlyAccepted.has(id));
     if (!ids.length) continue;
-    const stored = await sink.readDay(h.date);
-    if (!stored) continue;
-    const plain = decodeDay(stored);
+    const plain = await readPlainDay(sink, h.date);
+    if (!plain) continue;
     let changed = false;
-    for (const p of plain.prompts) for (const w of newlyAccepted.get(p.id) ?? []) {
-      if (p.answers.some((a) => normalizeKey(a[0]) === normalizeKey(w))) continue;
-      p.answers.push([w, tierFromZipf(ctx.zipf.get(w)), 0]);
-      changed = true;
+    for (const p of plain.prompts) {
+      let added = false;
+      for (const w of newlyAccepted.get(p.id) ?? []) {
+        // Never shadow: a word that already matches this prompt's answer, alias or plural key is not added.
+        // The lookup is rebuilt per word, so two new words in one run cannot shadow each other.
+        if (checkGuess(buildLookup(p), w).kind === "match") continue;
+        p.answers.push([w, tierFromZipf(ctx.zipf.get(w)), 0]);
+        added = true;
+      }
+      if (added) {
+        p.guard = buildGuard(p.answers.map((a) => a[0]), p.aliases, ctx.lexicon);
+        changed = true;
+      }
     }
     if (!changed) continue;
     const encoded = encodeDay(plain);
