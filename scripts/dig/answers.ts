@@ -57,7 +57,7 @@ export function buildAliases(accepted: string[], index: WiktionaryIndex, wn: Wor
     const forms = [...(index.info.get(w)?.aliases ?? []), ...(wn.spellingVariants.get(w) ?? [])];
     for (const f of forms) {
       const k = normalizeKey(f);
-      if (k && !own.has(k) && !(k in aliases)) aliases[k] = i;
+      if (k && !own.has(k) && !Object.hasOwn(aliases, k)) aliases[k] = i;
     }
   });
   return aliases;
