@@ -19,4 +19,10 @@ describe("Strata", () => {
     expect(html).toContain("fill-stratum-paper");
     expect(html).toContain("stroke-stratum-ink");
   });
+
+  it("switches the drop line and label to paper inside the dark strata", () => {
+    const html = renderToStaticMarkup(<Strata tiers={["fossil"]} words={["trilobite"]} label="Your dig" />);
+    expect(html).toContain("stroke-stratum-paper");
+    expect(html).toMatch(/class="fill-stratum-paper"[^>]*>trilobite</);
+  });
 });
