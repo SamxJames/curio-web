@@ -7,10 +7,12 @@ import type { Tier } from "@/lib/dig/types";
 const SIZE = 1080;
 const INK = "#1C1A17", PAPER = "#F5F1E8";
 
+const isAbort = (e: unknown) => (e as { name?: string } | null)?.name === "AbortError";
+
 /** "Copy result" does what it says: the text goes to the clipboard. Only if that write throws
  * (blocked, or no clipboard API) does the share sheet stand in, where the browser has one. A
- * dismissed sheet rejects, and that is "failed": no share happened, so none is recorded. */
-export async function copyResult(text: string): Promise<"copied" | "shared" | "failed"> {
+ * dismissed sheet is "dismissed": the player chose not to share, so nothing is recorded or said. */
+export async function copyResult(text: string): Promise<"copied" | "shared" | "dismissed" | "failed"> {
   try {
     await navigator.clipboard.writeText(text);
     return "copied";
@@ -19,17 +21,21 @@ export async function copyResult(text: string): Promise<"copied" | "shared" | "f
       if (!navigator.share) return "failed";
       await navigator.share({ text });
       return "shared";
-    } catch {
-      return "failed";
+    } catch (e) {
+      return isAbort(e) ? "dismissed" : "failed";
     }
   }
 }
 
 /** The player's share card, drawn in the browser (architecture §10): zero server time.
  * Spoiler-free, like the share text: depths only, no words. */
-export async function shareImage(input: { number: number; score: number; tiers: (Tier | null)[]; text: string }): Promise<"shared" | "downloaded" | "failed"> {
+export async function shareImage(input: { number: number; score: number; tiers: (Tier | null)[]; text: string }): Promise<"shared" | "downloaded" | "dismissed" | "failed"> {
   try {
-    await document.fonts.load('700 72px "Libre Caslon Text"');
+    // Fonts are a nicety: if they can't load (or the API is absent) the font stacks' fallbacks draw.
+    await Promise.all([
+      document.fonts?.load('700 72px "Libre Caslon Text"'),
+      document.fonts?.load('400 40px "Work Sans"'),
+    ]).catch(() => {});
     const canvas = document.createElement("canvas");
     canvas.width = SIZE;
     canvas.height = SIZE;
@@ -61,20 +67,29 @@ export async function shareImage(input: { number: number; score: number; tiers: 
     });
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
     if (!blob) return "failed";
-    const file = new File([blob], `curio-dig-day-${input.number}.png`, { type: "image/png" });
-    if (navigator.canShare?.({ files: [file] })) {
-      await navigator.share({ files: [file], text: input.text });
-      return "shared";
+    const name = `curio-dig-day-${input.number}.png`;
+    if (typeof navigator.canShare === "function" && typeof File === "function") {
+      const file = new File([blob], name, { type: "image/png" });
+      if (navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], text: input.text });
+          return "shared";
+        } catch (e) {
+          // Dismissed: the player chose not to share. Any other share error falls through to a download.
+          if (isAbort(e)) return "dismissed";
+        }
+      }
     }
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = file.name;
+    a.download = name;
+    document.body.appendChild(a);
     a.click();
+    a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 10_000);
     return "downloaded";
   } catch {
-    // Includes a dismissed share sheet (AbortError): nothing was shared, nothing is recorded.
     return "failed";
   }
 }

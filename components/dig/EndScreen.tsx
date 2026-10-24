@@ -20,8 +20,13 @@ export function wordsWorthKnowing(day: PreparedDay, answers: (string | null)[]) 
     return a && story ? [{ word: a, note: `Your answer to “${day.prompts[i].text}”`, story }] : [];
   });
   const fossils = day.secrets.map((s) => ({ word: s.fossil.word, note: s.fossil.fact, ...(s.fossil.story ? { story: s.fossil.story } : {}) }));
-  return [...mine, ...fossils.filter((f) => !mine.some((m) => m.word === f.word))];
+  // First occurrence of a word wins, so the player's own entry beats a fossil and a repeated
+  // fossil word shows once.
+  const seen = new Set<string>();
+  return [...mine, ...fossils].filter((w) => !seen.has(w.word) && !!seen.add(w.word));
 }
+
+const STATUS_MS = 4000;
 
 /** What a screen reader hears when the dig finishes. DigRun sets it into its persistent live region. */
 export function announceDone(score: number): string {
@@ -32,11 +37,19 @@ export function announceDone(score: number): string {
  * the prompt screen they were typing in has gone. An already-played day passes nothing, so a
  * page load never jumps focus. */
 export default function EndScreen({ day, game, isToday, autoFocus = false }: { day: PreparedDay; game: StoredGame; isToday: boolean; autoFocus?: boolean }) {
-  const [copied, setCopied] = useState(false);
+  const [status, setStatus] = useState("");
   const [open, setOpen] = useState<Set<number>>(new Set());
   const storySent = useRef(false);
   const depth = useRef<HTMLHeadingElement>(null);
+  const clearTimer = useRef<number | undefined>(undefined);
   useEffect(() => { if (autoFocus) depth.current?.focus(); }, [autoFocus]);
+  useEffect(() => () => window.clearTimeout(clearTimer.current), []);
+  /** Sets the text of the always-mounted status line, then clears it after a few seconds. */
+  const say = (message: string) => {
+    window.clearTimeout(clearTimer.current);
+    setStatus(message);
+    if (message) clearTimer.current = window.setTimeout(() => setStatus(""), STATUS_MS);
+  };
   const text = shareText(day.number, game.score, game.tiers);
   const pct = isToday ? percentileLine(game.spread, game.score) : null;
   const onStory = () => {
@@ -44,11 +57,14 @@ export default function EndScreen({ day, game, isToday, autoFocus = false }: { d
   };
   const copy = async () => {
     const how = await copyResult(text);
-    if (how === "copied") setCopied(true);
-    if (how !== "failed") sendDigEvent({ kind: "share", how: "text" });
+    // The share text isn't on the page, so a failure can't point to it.
+    say(how === "copied" ? "Copied" : how === "failed" ? "Couldn't copy." : "");
+    if (how === "copied" || how === "shared") sendDigEvent({ kind: "share", how: "text" });
   };
   const image = async () => {
-    if ((await shareImage({ number: day.number, score: game.score, tiers: game.tiers, text })) !== "failed") sendDigEvent({ kind: "share", how: "image" });
+    const how = await shareImage({ number: day.number, score: game.score, tiers: game.tiers, text });
+    say(how === "shared" ? "Shared" : how === "downloaded" ? "Image saved" : how === "failed" ? "Couldn't make the image." : "");
+    if (how === "shared" || how === "downloaded") sendDigEvent({ kind: "share", how: "image" });
   };
   return (
     <section className="mt-8">
@@ -59,7 +75,8 @@ export default function EndScreen({ day, game, isToday, autoFocus = false }: { d
       <div className="mt-6 flex flex-wrap gap-3">
         <Button onClick={copy}>Copy result</Button>
         <Button variant="secondary" onClick={image}>Share image</Button>
-        {copied && <p role="status" className="self-center font-sans text-sm text-ink-soft">Copied</p>}
+        {/* Always mounted, so a screen reader announces the text when it changes. */}
+        <p role="status" aria-live="polite" className="self-center font-sans text-sm text-ink-soft">{status}</p>
       </div>
 
       <h2 className="mt-10 font-display text-2xl">Words worth knowing</h2>
@@ -74,9 +91,9 @@ export default function EndScreen({ day, game, isToday, autoFocus = false }: { d
         ))}
       </ul>
 
-      <h2 className="mt-10 font-display text-2xl">Today&apos;s answers</h2>
+      <h2 className="mt-10 font-display text-2xl">{isToday ? "Today's answers" : "The day's answers"}</h2>
       {day.prompts.map((p, i) => (
-        <details key={p.id} className="mt-3 border-t border-line pt-3" onToggle={(e) => e.currentTarget.open && setOpen(new Set(open).add(i))}>
+        <details key={p.id} className="mt-3 border-t border-line pt-3" onToggle={(e) => e.currentTarget.open && setOpen((o) => new Set(o).add(i))}>
           <summary className="cursor-pointer font-sans text-base">{p.text}</summary>
           {open.has(i) && TIERS.map((t) => {
             const words = day.secrets[i].answers.filter((a) => a[1] === t && a[2] === 1).map((a) => a[0]);
