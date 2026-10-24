@@ -9,20 +9,20 @@ const words = (prefix: string, n: number) => Array.from({ length: n }, (_, i) =>
 
 describe("cooldowns", () => {
   const history: HistoryDay[] = [{ date: "2026-12-01", prompts: [{ id: "theme:birds:c", base: "theme:birds", fossil: "chough" }, { id: "origin:arabic", base: "origin:arabic", fossil: "alembic", languages: ["Arabic"] }] }];
-  it("blocks an exact prompt for 90 days and its base theme for 30", () => {
+  it("blocks an exact prompt for 14 days and its base theme for 5", () => {
     expect(daysBetween("2026-12-01", "2026-12-31")).toBe(30);
-    expect(isEligible(mk("theme:birds:c", "theme", []), "2027-03-01", history)).toBe(true); // 90 days on
-    expect(isEligible(mk("theme:birds:c", "theme", []), "2027-02-27", history)).toBe(false); // 88 days on
-    expect(isEligible(mk("theme:birds", "theme", []), "2026-12-20", history)).toBe(false);
-    expect(isEligible(mk("theme:birds", "theme", []), "2026-12-31", history)).toBe(true);
+    expect(isEligible(mk("theme:birds:c", "theme", []), "2026-12-15", history)).toBe(true); // 14 days on
+    expect(isEligible(mk("theme:birds:c", "theme", []), "2026-12-14", history)).toBe(false); // 13 days on
+    expect(isEligible(mk("theme:birds", "theme", []), "2026-12-05", history)).toBe(false);
+    expect(isEligible(mk("theme:birds", "theme", []), "2026-12-06", history)).toBe(true);
   });
-  it("lets an origin return once its language cooldown has passed (no 90-day rule for origins)", () => {
-    expect(isEligible(mk("origin:arabic", "origin", [], { languages: ["Arabic"] }), "2026-12-14", history)).toBe(false);
-    expect(isEligible(mk("origin:arabic", "origin", [], { languages: ["Arabic"] }), "2026-12-15", history)).toBe(true);
+  it("lets an origin return once its language cooldown has passed (no exact-prompt rule for origins)", () => {
+    expect(isEligible(mk("origin:arabic", "origin", [], { languages: ["Arabic"] }), "2026-12-04", history)).toBe(false);
+    expect(isEligible(mk("origin:arabic", "origin", [], { languages: ["Arabic"] }), "2026-12-05", history)).toBe(true);
   });
-  it("blocks an origin language for 14 days, including inside a group", () => {
-    expect(isEligible(mk("origin:group:x", "origin", [], { languages: ["Persian", "Arabic"] }), "2026-12-10", history)).toBe(false);
-    expect(isEligible(mk("origin:group:y", "origin", [], { languages: ["Arabic"] }), "2026-12-15", history)).toBe(true);
+  it("blocks an origin language for 4 days, including inside a group", () => {
+    expect(isEligible(mk("origin:group:x", "origin", [], { languages: ["Persian", "Arabic"] }), "2026-12-03", history)).toBe(false);
+    expect(isEligible(mk("origin:group:y", "origin", [], { languages: ["Arabic"] }), "2026-12-05", history)).toBe(true);
   });
 });
 

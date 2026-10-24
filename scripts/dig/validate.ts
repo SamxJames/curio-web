@@ -2,8 +2,8 @@ import { buildLookup, checkGuess, oneEditVariants, type Lookup } from "../../lib
 import { normalizeKey } from "../../lib/dig/normalize";
 import { encodeDay } from "../../lib/dig/payload";
 import type { DigDayPlain, PromptSecret } from "../../lib/dig/types";
-import { daysBetween, overlapRatio, type HistoryDay } from "./assemble";
-import { hasBlockedWord } from "./answers";
+import { COOLDOWNS, daysBetween, overlapRatio, type HistoryDay } from "./assemble";
+import { floorFor, hasBlockedWord } from "./answers";
 
 export const MAX_DAY_CHARS = 400_000;
 export type ValidateCtx = { history: HistoryDay[]; storySlugs: Set<string>; dailyWords: Set<string>; blocked: Set<string> };
@@ -28,7 +28,7 @@ export function validateDay(day: DigDayPlain, ctx: ValidateCtx): string[] {
     const core = p.answers.filter((a) => a[2] === 1);
     const easyish = core.filter((a) => a[1] === "common" || a[1] === "familiar").length;
     const rareish = core.filter((a) => a[1] === "rare" || a[1] === "popular" || a[1] === "fossil").length;
-    const [minCore, minEasy, minRare] = isLetter ? [25, 3, 5] : [40, 8, 10];
+    const [minCore, minEasy, minRare] = floorFor(p.kind, isLetter);
     if (!p.text.trim()) problems.push(`${p.id}: empty prompt text`);
     if (core.length < minCore) problems.push(`${p.id}: core ${core.length} < ${minCore}`);
     if (easyish < minEasy) problems.push(`${p.id}: too few easy answers`);
@@ -77,9 +77,9 @@ export function validateDay(day: DigDayPlain, ctx: ValidateCtx): string[] {
   for (const h of ctx.history) {
     const gap = Math.abs(daysBetween(h.date, day.date));
     for (const hp of h.prompts) for (const p of ps) {
-      if (p.kind === "theme" && hp.id === p.id && gap < 90) problems.push(`${p.id}: repeats within 90 days`);
+      if (p.kind === "theme" && hp.id === p.id && gap < COOLDOWNS.exactDays) problems.push(`${p.id}: repeats within ${COOLDOWNS.exactDays} days`);
       if (hp.id === p.id && hp.fossil === p.fossil.word) problems.push(`${p.id}: repeats a previous fossil`);
-      if (p.kind === "theme" && hp.id !== p.id && gap < 30 && (hp.base || baseOf(hp.id)) === baseOf(p.id)) problems.push(`${p.id}: shares a base theme within 30 days`);
+      if (p.kind === "theme" && hp.id !== p.id && gap < COOLDOWNS.baseDays && (hp.base || baseOf(hp.id)) === baseOf(p.id)) problems.push(`${p.id}: shares a base theme within ${COOLDOWNS.baseDays} days`);
     }
   }
   if (JSON.stringify(encodeDay(day)).length > MAX_DAY_CHARS) problems.push(`day is larger than ${MAX_DAY_CHARS} characters`);

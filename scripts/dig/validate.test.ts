@@ -80,16 +80,16 @@ describe("validateDay", () => {
     d.prompts[1].fossil.word = d.prompts[1].answers[30][0];
     expect(validateDay(d, ctx)).toContain("theme:a and theme:b overlap ≥ 20%");
   });
-  it("flags a theme whose base was used 29 days earlier", () => {
+  it("flags a theme whose base was used 4 days earlier", () => {
     const d = good();
     d.prompts[0].id = "theme:weather:a";
-    const history = [{ date: "2026-11-06", prompts: [{ id: "theme:weather:b", base: "theme:weather", fossil: "zzzword" }] }];
-    expect(validateDay(d, { ...ctx, history })).toContain("theme:weather:a: shares a base theme within 30 days");
+    const history = [{ date: "2026-12-01", prompts: [{ id: "theme:weather:b", base: "theme:weather", fossil: "zzzword" }] }];
+    expect(validateDay(d, { ...ctx, history })).toContain("theme:weather:a: shares a base theme within 5 days");
   });
-  it("passes a theme whose base was used 30 days earlier", () => {
+  it("passes a theme whose base was used 5 days earlier", () => {
     const d = good();
     d.prompts[0].id = "theme:weather:a";
-    const history = [{ date: "2026-11-05", prompts: [{ id: "theme:weather:b", base: "theme:weather", fossil: "zzzword" }] }];
+    const history = [{ date: "2026-11-30", prompts: [{ id: "theme:weather:b", base: "theme:weather", fossil: "zzzword" }] }];
     expect(validateDay(d, { ...ctx, history })).toEqual([]);
   });
 });

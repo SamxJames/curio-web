@@ -21,7 +21,7 @@ describe("counts and floor", () => {
   it("explains why a small prompt fails", async () => {
     const index = await indexWiktionary([], new Set());
     const problems = floorProblems(cand(["apple"]), { wn, index, zipf: new Map() });
-    expect(problems).toEqual(expect.arrayContaining(["core 1 < 40", "easy 0 < 8", "rare 1 < 10", "no fossil"]));
+    expect(problems).toEqual(expect.arrayContaining(["core 1 < 30", "easy 0 < 5", "rare 1 < 10", "no fossil"]));
   });
 });
 

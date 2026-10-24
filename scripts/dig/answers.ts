@@ -61,9 +61,16 @@ export function fossilCandidates(c: Candidate, { wn, index, zipf }: Ctx): string
   });
 }
 
+/** Publishing floor [core, easy, rare]. Sam's 2026-10-24 supply ruling loosened themes to 30 / 5 and
+ * origins to 5 easy (the spec's 40 / 8 / 10 ran dry in about 8 days); letter variants keep 25 / 3 / 5. */
+export function floorFor(kind: "theme" | "origin", letter: boolean): [number, number, number] {
+  if (letter) return [25, 3, 5];
+  return kind === "theme" ? [30, 5, 10] : [40, 5, 10];
+}
+
 export function floorProblems(c: Candidate, ctx: Ctx): string[] {
   const n = counts(c, ctx.zipf);
-  const [minCore, minEasy, minRare] = isLetterVariant(c) ? [25, 3, 5] : [40, 8, 10];
+  const [minCore, minEasy, minRare] = floorFor(c.kind, isLetterVariant(c));
   const problems: string[] = [];
   if (n.core < minCore) problems.push(`core ${n.core} < ${minCore}`);
   if (n.easy < minEasy) problems.push(`easy ${n.easy} < ${minEasy}`);

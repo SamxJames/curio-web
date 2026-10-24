@@ -7,10 +7,11 @@ export type HistoryDay = { date: string; prompts: { id: string; base: string; fo
 const DAY = 24 * 60 * 60 * 1000;
 export const daysBetween = (a: string, b: string) => Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / DAY);
 
-const EXACT_DAYS = 90, BASE_DAYS = 30, LANGUAGE_DAYS = 14, MAX_OVERLAP = 0.2;
+// Sam's 2026-10-24 supply ruling (the spec's 90 / 30 / 14 ran dry in about 8 days).
+const EXACT_DAYS = 14, BASE_DAYS = 5, LANGUAGE_DAYS = 4, MAX_OVERLAP = 0.2;
 
-/** pipeline-design §3a fix 4. Origins return on their language cooldown alone (the spec's
- * "about 15 days for origins"); the exact-prompt rule is for themes. */
+/** pipeline-design §3a fix 4, at Sam's 2026-10-24 values. Origins return on their language cooldown alone;
+ * the exact-prompt rule is for themes. */
 export type Cooldowns = { exactDays: number; baseDays: number; languageDays: number };
 export const COOLDOWNS: Cooldowns = { exactDays: EXACT_DAYS, baseDays: BASE_DAYS, languageDays: LANGUAGE_DAYS };
 
