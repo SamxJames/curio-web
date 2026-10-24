@@ -46,4 +46,40 @@ describe("validateDay", () => {
     d.prompts[0].answers[0] = ["aaaword", "common", 1];
     expect(validateDay(d, ctx)).toContain("theme:a: answer 45 shares a key with answer 0 at a different tier");
   });
+  it("flags an alias whose target is out of range without throwing", () => {
+    const d = good();
+    d.prompts[0].aliases = { xyzword: 999 };
+    expect(() => validateDay(d, ctx)).not.toThrow();
+    expect(validateDay(d, ctx)).toContain("theme:a: alias target 999 out of range");
+  });
+  it("flags an alias that points at the wrong answer", () => {
+    const d = good();
+    d.prompts[0].aliases = { aaaword: 3 };
+    expect(validateDay(d, ctx)).toContain("theme:a: alias 3 does not match");
+  });
+  it("flags a fossil typo at the end of the word that resolves to another answer", () => {
+    const d = good();
+    d.prompts[0].answers[0] = ["box", "common", 1];
+    d.prompts[0].answers[30] = ["boxey", "fossil", 1];
+    d.prompts[0].fossil.word = "boxey";
+    expect(validateDay(d, ctx)).toContain("theme:a: a fossil typo resolves to another answer");
+  });
+  it("counts casing differences as overlap", () => {
+    const d = good();
+    d.prompts[1].answers = d.prompts[0].answers.map(([w, t, c]): [string, Tier, 0 | 1] => [w[0].toUpperCase() + w.slice(1), t, c]);
+    d.prompts[1].fossil.word = d.prompts[1].answers[30][0];
+    expect(validateDay(d, ctx)).toContain("theme:a and theme:b overlap ≥ 20%");
+  });
+  it("flags a theme whose base was used 29 days earlier", () => {
+    const d = good();
+    d.prompts[0].id = "theme:weather:a";
+    const history = [{ date: "2026-11-06", prompts: [{ id: "theme:weather:b", base: "theme:weather", fossil: "zzzword" }] }];
+    expect(validateDay(d, { ...ctx, history })).toContain("theme:weather:a: shares a base theme within 30 days");
+  });
+  it("passes a theme whose base was used 30 days earlier", () => {
+    const d = good();
+    d.prompts[0].id = "theme:weather:a";
+    const history = [{ date: "2026-11-05", prompts: [{ id: "theme:weather:b", base: "theme:weather", fossil: "zzzword" }] }];
+    expect(validateDay(d, { ...ctx, history })).toEqual([]);
+  });
 });

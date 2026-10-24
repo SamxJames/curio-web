@@ -7,6 +7,11 @@ import { daysBetween, overlapRatio, type HistoryDay } from "./assemble";
 export const MAX_DAY_CHARS = 400_000;
 export type ValidateCtx = { history: HistoryDay[]; storySlugs: Set<string>; dailyWords: Set<string>; blocked: Set<string> };
 
+/** "theme:weather:a" → "theme:weather" (a letter variant); any other id is its own base. */
+function baseOf(id: string): string {
+  return id.replace(/^(theme:[^:]+):[a-z]$/, "$1");
+}
+
 /** pipeline-design §10, run on every generated day. Returns human-readable problems
  * (counts and ids only, never answer text, because the job summary is public). */
 export function validateDay(day: DigDayPlain, ctx: ValidateCtx): string[] {
@@ -50,14 +55,18 @@ export function validateDay(day: DigDayPlain, ctx: ValidateCtx): string[] {
       if (r.kind !== "match" || p.answers[r.index][1] !== a[1]) problems.push(`${p.id}: answer ${i} does not match itself`);
     });
     for (const [k, i] of Object.entries(p.aliases)) {
+      if (!Number.isInteger(i) || i < 0 || i >= p.answers.length) {
+        problems.push(`${p.id}: alias target ${i} out of range`);
+        continue;
+      }
       const r = checkGuess(lookup, k);
-      if (r.kind !== "match" || r.index !== lookup.keys.get(k)) problems.push(`${p.id}: alias ${i} does not match`);
+      if (r.kind !== "match" || r.index !== i) problems.push(`${p.id}: alias ${i} does not match`);
     }
     if (fossilIndex >= 0) {
       const fk = normalizeKey(p.fossil.word);
-      for (const v of [...oneEditVariants(fk)].slice(0, 60)) {
+      for (const v of oneEditVariants(fk)) {
         const r = checkGuess(lookup, v);
-        if ((r.kind === "near" || r.kind === "match") && p.answers[r.index][0] !== p.fossil.word && normalizeKey(p.answers[r.index][0]) !== v) {
+        if ((r.kind === "near" || r.kind === "match") && r.index >= 0 && r.index < p.answers.length && p.answers[r.index][0] !== p.fossil.word && normalizeKey(p.answers[r.index][0]) !== v) {
           problems.push(`${p.id}: a fossil typo resolves to another answer`);
           break;
         }
@@ -66,8 +75,8 @@ export function validateDay(day: DigDayPlain, ctx: ValidateCtx): string[] {
   }
 
   for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++) {
-    const a = ps[i].answers.filter((x) => x[2] === 1).map((x) => x[0]);
-    const b = ps[j].answers.filter((x) => x[2] === 1).map((x) => x[0]);
+    const a = ps[i].answers.filter((x) => x[2] === 1).map((x) => normalizeKey(x[0]));
+    const b = ps[j].answers.filter((x) => x[2] === 1).map((x) => normalizeKey(x[0]));
     if (overlapRatio(a, b) >= 0.2) problems.push(`${ps[i].id} and ${ps[j].id} overlap ≥ 20%`);
   }
   if (new Set(ps.map((p) => p.fossil.word)).size !== ps.length) problems.push("fossils must all differ");
@@ -76,6 +85,7 @@ export function validateDay(day: DigDayPlain, ctx: ValidateCtx): string[] {
     for (const hp of h.prompts) for (const p of ps) {
       if (hp.id === p.id && gap < 90) problems.push(`${p.id}: repeats within 90 days`);
       if (hp.id === p.id && hp.fossil === p.fossil.word) problems.push(`${p.id}: repeats a previous fossil`);
+      if (p.kind === "theme" && hp.id !== p.id && gap < 30 && (hp.base || baseOf(hp.id)) === baseOf(p.id)) problems.push(`${p.id}: shares a base theme within 30 days`);
     }
   }
   if (JSON.stringify(encodeDay(day)).length > MAX_DAY_CHARS) problems.push(`day is larger than ${MAX_DAY_CHARS} characters`);
