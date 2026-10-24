@@ -92,6 +92,8 @@ licence matches the one we already use.
   Sanskrit 627, Dutch 497, Portuguese 385.
 - Excluded because they're too easy (more than 300 common answers): Latin, Old English, Old French. "From Latin" is
   half of English.
+- Also excluded: any language with more than 2,000 core answers (French, Ancient Greek), which is too broad to play
+  and too big for a day file. Japanese, Spanish, Italian and German fit under it.
 
 **Curio hooks**
 - **Story links are plentiful:** the median theme prompt contains **6 Curio story words**, and Clothing has 29, so a
@@ -127,9 +129,9 @@ repeats**. That's too short for an archive that people may browse.
 3. **Grouped origins:** "a word from a Scandinavian language", "from a language of India", "from the Americas",
    "from Africa", "from the Pacific". Each is a union of agreed language sets. Estimated **+10–15 origin prompts**.
 4. **A repeat policy as a backstop, enforced by validation:**
-   - a base theme may return after **30 days**;
-   - an exact prompt (including a letter variant) after **90 days**;
-   - an origin language after **14 days**;
+   - a base theme (its family) may return after **5 days**;
+   - an exact prompt (including a letter variant) after **14 days**;
+   - an origin language after **4 days**;
    - every return gets a different fossil.
 
    Most players are new, which is the acquisition goal, so repeats cost little.
@@ -137,6 +139,15 @@ repeats**. That's too short for an archive that people may browse.
 Expected supply with 1–3: about **200–250 theme prompts** and **35 origin prompts**. That's about 40–50 days before
 an exact theme repeats and about 15 days for origins. I'll re-measure once the improved anchoring is built in
 Phase 6.
+
+**Re-measured 2026-10-24 (Phase 6 dry run), and the rules changed to fit.** With the improved anchoring, broad-anchored
+sub-themes ("Baby animals") and the spec's big origin languages restored, supply under the original floor was
+**97 theme prompts in 43 families** and **12 origins**, not 200–250 and 35. Most Wiktionary categories don't reach 40
+answers that WordNet agrees on. A 120-day draw simulation ran dry in about 8 days under the original rules (90 / 30 / 14
+and 40 / 8 / 10), and in 12 at best with shorter cooldowns alone. **Sam decided 2026-10-24:** themes need core ≥ 30 and
+easy ≥ 5; origins easy ≥ 5; an exact prompt returns after 14 days, a family after 5, a language after 4. That gives
+about 126 theme prompts in 65 families and 22 origins, and the simulation runs 120+ days without stalling. A regular
+player meets a prompt again every 2–4 weeks, each time with a different fossil.
 
 Alternatives (not recommended):
 - **Relax the rule** to allow Wiktionary-only themes: more supply, but loses the safeguard you asked for.
@@ -210,8 +221,8 @@ Each prompt has two sets:
 - not vulgar, offensive or derogatory, and not on the LDNOOBW list.
 
 **Publishing floor (N), checked for every prompt:**
-- **core ≥ 40 answers**;
-- **≥ 8 easy answers** (Zipf ≥ 3.5), so a stranger can always score something;
+- **core ≥ 30 answers** for themes, 40 for origins (Sam, 2026-10-24; was 40);
+- **≥ 5 easy answers** (was 8) (Zipf ≥ 3.5), so a stranger can always score something;
 - **≥ 10 rare answers** (Zipf < 2.3), so the dig has somewhere to go;
 - **a valid fossil** (§7).
 
@@ -288,8 +299,8 @@ Matching is generous, and every correction is confirmed by the player:
 - **Order:** 5 themes and 2 origin prompts. The **first prompt is always the easiest theme** (the most easy
   answers), so a stranger scores within seconds. Origin prompts go 3rd and 6th. The 7th is the theme with the most
   rare answers.
-- **Repeats:** follow §3a's backstop. A base theme may return after 30 days, an exact prompt after 90, an origin
-  language after 14, always with a different fossil. Two themes from the same family never share a day (Fruits and
+- **Repeats:** follow §3a's backstop. A base theme may return after 5 days, an exact prompt after 14, an origin
+  language after 4 (Sam, 2026-10-24), always with a different fossil. Two themes from the same family never share a day (Fruits and
   Foods, Music and Musical instruments, Mammals and Felids).
 - **Overlap:** any two prompts on a day share less than 20% of their core.
 - **Gems are all different** across the day.
@@ -304,7 +315,7 @@ Every generated day is checked in CI. The same checks run as a Vitest suite in t
 
 1. **Schema:** 7 prompts, 5 themes and 2 origins, and every field present. Fact lines are 1 to 140 characters.
    Every story link is a slug that exists.
-2. **Per-prompt floor:** core ≥ 40, easy ≥ 8, rare ≥ 10, and the fossil passes the §7 rules.
+2. **Per-prompt floor:** core ≥ 30 for themes and 40 for origins, easy ≥ 5, rare ≥ 10, and the fossil passes the §7 rules.
 3. **Safety:** no answer, fossil or theme on the blocklist or tagged offensive.
 4. **Variety:** no repeats inside the windows in §9, overlap under 20%, all gems different, and no clash with the
    daily word or `/play`.
@@ -430,6 +441,7 @@ Alternatives considered:
    **Decided 2026-10-24: Upstash** under `curio:dig:`, written only by the weekly Action, edge-cached, serving
    today and earlier only.
 3. **Publishing floor** (§5): core ≥ 40, easy ≥ 8, rare ≥ 10, plus a fossil. Letter variants use 25 / 3 / 5.
-   **Decided 2026-10-24: keep as proposed.**
+   **Decided 2026-10-24: keep as proposed.** **Revised 2026-10-24 after the Phase 6 re-measure:** themes 30 / 5 / 10,
+   origins 40 / 5 / 10, with repeats after 14 days (family 5, language 4). See §3a.
 4. **Generous acceptance** (§5): single-source answers score but are never displayed. Recommended: yes.
    **Decided 2026-10-24: yes.** Single-source answers score but are never the fossil or shown in the reveal.

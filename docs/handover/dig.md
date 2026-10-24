@@ -8,6 +8,15 @@ A daily word game at `curioword.com/dig`, written "curio dig" in lowercase. Seve
 
 It does not touch the daily word. It does not push unread-ness: no counts of unplayed days, no streaks (see the product principle in `AGENTS.md`).
 
+## Content supply (the main constraint)
+
+There is less content than the spec expected. The Phase 6 re-measure found about 126 theme prompts in 65 families, and 22 origins. On 2026-10-24 Sam loosened the rules to fit (`pipeline-design.md` §3a):
+- Themes need 30 answers and 5 easy ones.
+- Origins need 5 easy ones.
+- An exact prompt can return after 14 days, a theme family after 5, an origin language after 4.
+
+The numbers live in one place each: `floorFor` in `scripts/dig/answers.ts` and `COOLDOWNS` in `scripts/dig/assemble.ts`. To grow supply, add `anchorOverrides` or `wikidataThemes` in `content/dig/catalogue.json`. The local supply simulation that produced these numbers is not in the repo.
+
 ## Where the code lives
 
 | Path | What |
