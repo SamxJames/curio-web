@@ -1,4 +1,4 @@
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -37,6 +37,34 @@ describe("fetchWikidataLabels", () => {
     const r = await fetchWikidataLabels(theme, { fetcher: async () => json({}, 504), cacheDir, now: new Date("2026-03-01") });
     expect(r.status).toBe("stale");
     expect(r.labels?.has("brie")).toBe(true);
+  });
+  it("replaces a corrupt cache file with a fresh fetch", async () => {
+    const cacheDir = mkdtempSync(path.join(tmpdir(), "wd-"));
+    const file = path.join(cacheDir, "Q10943.json");
+    writeFileSync(file, "{not json");
+    let n = 0;
+    const fetcher = async () => (n++ === 0 ? json(bindings(["cheese"])) : json(bindings(["Brie"])));
+    const r = await fetchWikidataLabels(theme, { fetcher, cacheDir, now: new Date("2026-11-02T00:00:00Z") });
+    expect(r.status).toBe("fresh");
+    expect(JSON.parse(readFileSync(file, "utf8")).labels).toEqual(["brie"]);
+  });
+  it("treats a wrong-shape cache as missing when the query fails", async () => {
+    const cacheDir = mkdtempSync(path.join(tmpdir(), "wd-"));
+    writeFileSync(path.join(cacheDir, "Q10943.json"), "{}");
+    const r = await fetchWikidataLabels(theme, { fetcher: async () => json({}, 504), cacheDir, now: new Date("2026-03-01T00:00:00Z") });
+    expect(r).toEqual({ labels: null, status: "missing" });
+  });
+  it("keeps an older cache when the members query comes back empty", async () => {
+    const cacheDir = mkdtempSync(path.join(tmpdir(), "wd-"));
+    const file = path.join(cacheDir, "Q10943.json");
+    const old = JSON.stringify({ fetchedAt: "2026-01-01T00:00:00.000Z", labels: ["brie"] });
+    writeFileSync(file, old);
+    let n = 0;
+    const fetcher = async () => (n++ === 0 ? json(bindings(["cheese"])) : json(bindings([])));
+    const r = await fetchWikidataLabels(theme, { fetcher, cacheDir, now: new Date("2026-03-01T00:00:00Z") });
+    expect(r.status).toBe("stale");
+    expect([...r.labels!]).toEqual(["brie"]);
+    expect(readFileSync(file, "utf8")).toBe(old);
   });
 });
 

@@ -24,20 +24,41 @@ const classLabel = (qid: string) => `SELECT ?label WHERE { wd:${qid} rdfs:label 
 const memberLabels = (qid: string) =>
   `SELECT DISTINCT ?label WHERE { ?item wdt:P31/wdt:P279* wd:${qid} . ?item rdfs:label ?label . FILTER(LANG(?label) = "en") } LIMIT 20000`;
 
+/** A cache file that is unreadable or wrong-shaped counts as no cache, so it gets refetched and overwritten. */
+function readCache(file: string): Cache | null {
+  if (!existsSync(file)) return null;
+  try {
+    const data: unknown = JSON.parse(readFileSync(file, "utf8"));
+    if (typeof data !== "object" || data === null) return null;
+    const { fetchedAt, labels } = data as Record<string, unknown>;
+    if (typeof fetchedAt !== "string" || !Number.isFinite(Date.parse(fetchedAt))) return null;
+    if (!Array.isArray(labels) || !labels.every((l) => typeof l === "string")) return null;
+    return { fetchedAt, labels };
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchWikidataLabels(
   theme: WikidataTheme,
   opts: { fetcher: FetchLike; cacheDir: string; now: Date }
 ): Promise<{ labels: Set<string> | null; status: "fresh" | "cached" | "stale" | "missing" | "label-mismatch" }> {
   mkdirSync(opts.cacheDir, { recursive: true });
   const file = path.join(opts.cacheDir, `${theme.qid}.json`);
-  const cache: Cache | null = existsSync(file) ? (JSON.parse(readFileSync(file, "utf8")) as Cache) : null;
+  const cache = readCache(file);
   if (cache && opts.now.getTime() - Date.parse(cache.fetchedAt) < FRESH_MS) {
     return { labels: new Set(cache.labels), status: "cached" };
   }
   try {
     const own = await sparql(opts.fetcher, classLabel(theme.qid));
-    if (!own.some((l) => l.toLowerCase() === theme.label)) return { labels: null, status: "label-mismatch" };
+    if (!own.some((l) => l.toLowerCase() === theme.label)) {
+      // An empty 200 is a transient gap, not a real label change: keep the last good cache.
+      if (own.length === 0 && cache) return { labels: new Set(cache.labels), status: "stale" };
+      return { labels: null, status: "label-mismatch" };
+    }
     const labels = [...new Set((await sparql(opts.fetcher, memberLabels(theme.qid))).map((l) => l.toLowerCase()))].filter((l) => SHAPE.test(l));
+    // Never cache an empty set: a transient empty 200 would otherwise hide the theme for 7 days.
+    if (labels.length === 0) return cache ? { labels: new Set(cache.labels), status: "stale" } : { labels: null, status: "missing" };
     writeFileSync(file, JSON.stringify({ fetchedAt: opts.now.toISOString(), labels } satisfies Cache));
     return { labels: new Set(labels), status: "fresh" };
   } catch {
