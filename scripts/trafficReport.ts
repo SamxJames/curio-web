@@ -37,6 +37,12 @@ async function main() {
     `total        ${String(s.totals.visits).padStart(6)}  ${String(s.totals.requests).padStart(8)}  ${String(s.totals.signups).padStart(7)}`
   );
   console.log(`share taps: story ${s.shares.story}, puzzle ${s.shares.puzzle}`);
+  if (s.placements.length > 0) {
+    console.log("\nby placement   requests  signups");
+    for (const p of s.placements) {
+      console.log(`  ${p.placement.padEnd(12)} ${String(p.requests).padStart(8)}  ${String(p.signups).padStart(7)}`);
+    }
+  }
   console.log("\nby day (visits):");
   for (const day of Object.keys(perDay).sort()) {
     const v = Object.entries(perDay[day])

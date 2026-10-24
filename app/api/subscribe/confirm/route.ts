@@ -30,5 +30,12 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error("traffic: signup record failed", err instanceof Error ? err.name : "unknown");
   }
+  if (claim.placement) {
+    try {
+      await recordTrafficEvent({ kind: "signup-at", placement: claim.placement });
+    } catch (err) {
+      console.error("traffic: signup-at record failed", err instanceof Error ? err.name : "unknown");
+    }
+  }
   return result(req, true);
 }

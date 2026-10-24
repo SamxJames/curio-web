@@ -12,9 +12,9 @@ be confirmed from its inbox first.
 
 **Flow:**
 
-1. The form (`EmailSignupInline`: the homepage arrival hero, `/play`'s
-   post-game funnel and the story-page front door) POSTs `{ email, source? }` to
-   `/api/subscribe`. It stores nothing; it emails a signed link
+1. The form (`EmailSignupInline`, rendered by `SignupOffer` on the arrival hero, the
+   returning homepage, `/play`'s post-game screen and the story-page front door) POSTs
+   `{ email, source?, placement? }` to `/api/subscribe`. It stores nothing; it emails a signed link
    (subject `Confirm your Curio subscription`) and replies
    `200 { ok: true, pending: true }`.
 2. The link opens `/subscribe/confirm?token=...` (noindex). That page only
@@ -72,6 +72,14 @@ accepts only `visit` and `share`; a `signup` or `request` body is a 400.
 set on `/subscribed?ok=1`, not when the form is submitted, so someone who
 mistypes their address still sees the signup box next time.
 
+**Signed-in readers skip all of this (2026-10-18):** `SignupOffer` shows them a one-tap
+"Email me the daily word" button instead, which POSTs to `/api/subscribe/me`. That route
+subscribes the session's own address only (never one from the body), with no confirmation
+email: the magic-link sign-in already proved the address. It requires JSON and rejects
+cross-site `Sec-Fetch-Site`, like `/api/traffic`. `/sample-email` shows today's digest
+(noindex, unsubscribe disabled, story link tagged `utm_source=sample` so it isn't read as
+an email arrival).
+
 ## Measuring growth (traffic sources)
 
 Vercel Web Analytics on the Hobby plan shows page views and referrers only:
@@ -97,6 +105,12 @@ first-party and with no personal data.
   carried (inside the token). An address that is already subscribed isn't
   re-counted, so repeats no longer inflate it. Before double opt-in
   (deployed with that work) it counted every successful subscribe.
+- `request-at:<placement>` and `signup-at:<placement>` (2026-10-18): where on the site a
+  signup happened: `arrival`, `today`, `story`, `play` or `account`. Requests are
+  confirmation emails sent; signups are confirmed or one-tap. The placement rides in the
+  confirm token as optional `p` (links sent before 2026-10-18 have none and still work).
+  `/admin` and `npm run traffic:report` show a "by placement" table. Read it as: which
+  spot converts, not how many people (counts are small).
 - `share:story` and `share:puzzle`: share taps. The story share URL carries
   `?utm_source=share`; the puzzle share text ends `curioword.com/play`
   (plain text, so a recipient arrives as `direct` or via their referrer).

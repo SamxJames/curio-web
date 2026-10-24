@@ -29,6 +29,19 @@ describe("POST /api/subscribe/confirm", () => {
     expect(recordTrafficEvent).toHaveBeenCalledWith({ kind: "signup", source: "reddit" });
   });
 
+  it("also counts a signup at the placement carried in the token", async () => {
+    const res = await POST(confirm(signConfirmToken("a@example.com", "reddit", unsubscribeSecret()!, new Date(), "story")));
+    expect(location(res).searchParams.get("ok")).toBe("1");
+    expect(recordTrafficEvent).toHaveBeenCalledWith({ kind: "signup", source: "reddit" });
+    expect(recordTrafficEvent).toHaveBeenCalledWith({ kind: "signup-at", placement: "story" });
+  });
+
+  it("counts no placement signup for a token without one", async () => {
+    await POST(confirm(signConfirmToken("a@example.com", "reddit", unsubscribeSecret()!)));
+    expect(recordTrafficEvent).toHaveBeenCalledTimes(1);
+    expect(recordTrafficEvent).not.toHaveBeenCalledWith(expect.objectContaining({ kind: "signup-at" }));
+  });
+
   it("is idempotent: an existing subscriber is left alone, not re-counted, still ok=1", async () => {
     vi.mocked(getSubscriberByEmail).mockResolvedValueOnce({ email: "a@example.com", hour: 9, createdAt: "2026-09-01T00:00:00Z" });
     const res = await POST(confirm(signConfirmToken("a@example.com", "direct", unsubscribeSecret()!)));

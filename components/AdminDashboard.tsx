@@ -91,6 +91,25 @@ export default function AdminDashboard({
           />
           <StatRow label="Share taps (story / puzzle)" value={`${traffic.shares.story} / ${traffic.shares.puzzle}`} />
         </div>
+        {traffic.placements.length > 0 && (
+          <div className="mt-4">
+            <div className="flex items-baseline justify-between py-1.5 font-sans text-[9.5px] tracking-[0.18em] text-ink-soft uppercase">
+              <span className="flex-1">Placement</span>
+              <span className="w-16 text-right">Requests</span>
+              <span className="w-16 text-right">Signups</span>
+            </div>
+            {traffic.placements.map((p) => (
+              <div
+                key={p.placement}
+                className="flex items-baseline justify-between border-t border-line py-1.5"
+              >
+                <span className="flex-1 font-sans text-[11px] tracking-[0.06em] text-ink-soft">{p.placement}</span>
+                <span className="w-16 text-right font-serif text-[13px]">{p.requests}</span>
+                <span className="w-16 text-right font-serif text-[13px]">{p.signups}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </Section>
 
       <Section title="People">

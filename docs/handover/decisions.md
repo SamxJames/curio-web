@@ -104,6 +104,14 @@ full.
   "Re-sending the Threads / Instagram posts by hand (production)").
 
 
+## 2026-10-18: Clear email offer; signed-in readers subscribe in one tap
+0 signups from 91 visits (check-in 10-12). The button said only "Join", returning visitors never saw the offer and
+signed-in readers were never offered it. Now: "Get tomorrow's word", a promise line ("One short email each morning.
+Free; stop anytime.") with a sample, an offer on the returning homepage, and a one-tap button for signed-in readers
+with **no confirmation email** (Sam's call: the magic-link sign-in already proved the address and the tap is explicit
+consent). "Each morning", not "9am UK", because the cron fires anywhere in the 09:00 UTC hour. Revisit with the
+per-placement counts after ~4 weeks.
+
 ## Rejected: retroactive history backfill
 
 When a new account's History looked sparse (1 entry on day 1), the

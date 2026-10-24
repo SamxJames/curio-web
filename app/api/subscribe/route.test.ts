@@ -40,15 +40,27 @@ describe("POST /api/subscribe (double opt-in)", () => {
     const res = await POST(post({ email: " Sam@Example.com ", source: "search" }));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true, pending: true });
-    expect(confirmUrl).toHaveBeenCalledWith("sam@example.com", "search", expect.any(String));
+    expect(confirmUrl).toHaveBeenCalledWith("sam@example.com", "search", expect.any(String), expect.any(Date), undefined);
     expect(sendConfirmEmail).toHaveBeenCalledWith("sam@example.com", expect.stringContaining("/subscribe/confirm"));
     expect(upsertSubscriber).not.toHaveBeenCalled();
     expect(recordTrafficEvent).toHaveBeenCalledWith({ kind: "request", source: "search" });
   });
 
+  it("records the placement and signs it into the confirm link", async () => {
+    await POST(post({ email: "a@b.com", source: "search", placement: "today" }));
+    expect(confirmUrl).toHaveBeenCalledWith("a@b.com", "search", expect.any(String), expect.any(Date), "today");
+    expect(recordTrafficEvent).toHaveBeenCalledWith({ kind: "request-at", placement: "today" });
+  });
+
+  it("ignores an unknown placement", async () => {
+    await POST(post({ email: "a@b.com", source: "search", placement: "popup" }));
+    expect(confirmUrl).toHaveBeenCalledWith("a@b.com", "search", expect.any(String), expect.any(Date), undefined);
+    expect(recordTrafficEvent).not.toHaveBeenCalledWith(expect.objectContaining({ kind: "request-at" }));
+  });
+
   it("files a missing or unknown source as direct", async () => {
     await POST(post({ email: "a@example.com", source: "myspace" }));
-    expect(confirmUrl).toHaveBeenCalledWith("a@example.com", "direct", expect.any(String));
+    expect(confirmUrl).toHaveBeenCalledWith("a@example.com", "direct", expect.any(String), expect.any(Date), undefined);
   });
 
   it("gives an existing subscriber the same reply but sends and counts nothing", async () => {

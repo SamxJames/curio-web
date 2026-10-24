@@ -495,6 +495,15 @@ at 26 words — now genuinely live at 1,147, not hypothetical:**
   reused via O(1) lookup for every word. Measured post-fix: ~0.35ms per
   call at 1,147 words. See "This session" below.
 
+## Email signup offer (2026-10-18)
+`components/SignupOffer.tsx` is the only place the email is offered (props: `placement`, `pitch`, `className`,
+`ariaLabel`). `lib/signupOffer.ts`'s pure `offerMode` decides: signed out → the form (`EmailSignupInline`); while the
+session loads → the form wrapped in `signed-in:hidden`, so it's in the server HTML but never flashes for signed-in
+readers; signed in → one-tap only once `GET /api/subscribe/me` says not subscribed; subscribed here or arrived from
+the digest → nothing. It pins its success message open (the old StoryFrontDoor `justJoined` job). Promise line:
+`components/SignupPromise.tsx`. Placements: ArrivalHero `arrival`, TodayHero `today`, StoryFrontDoor `story`,
+PuzzleGame `play`, `/account` `account`. Spec: `docs/superpowers/specs/2026-10-18-clear-email-offer-design.md`.
+
 ## Accounts / auth system, in one paragraph
 
 Passwordless magic-link sign-in (Resend email, no passwords stored).
