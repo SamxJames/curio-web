@@ -1,0 +1,96 @@
+import { describe, expect, it } from "vitest";
+import { ANSWER_SECONDS, createReducer, initialGame, prepareDay, resultTiers, type GameState } from "./game";
+import { parseDigEvent } from "./events";
+import { encodeDay } from "./payload";
+import { devDay } from "./devDay";
+import { scoreOf } from "./score";
+import { parseStore, withGame } from "./storage";
+
+const day = prepareDay({ ...encodeDay(devDay("2026-12-05")), number: 5 });
+const reduce = createReducer(day);
+const run = (s: GameState, ...actions: Parameters<typeof reduce>[1][]) => actions.reduce(reduce, s);
+
+describe("prepareDay", () => {
+  it("decodes every prompt and builds its lookup", () => {
+    expect(day.prompts[0].text).toBe("Name a fruit");
+    expect(day.secrets[0].fossil.word).toBe("pawpaw");
+    expect(day.lookups[0].keys.get("apple")).toBe(0);
+  });
+});
+
+describe("game reducer", () => {
+  it("reads for 3 seconds, then answers for 25", () => {
+    let s = run(initialGame(), { type: "start", noTimer: false });
+    expect(s).toMatchObject({ phase: "reading", clock: 3 });
+    s = run(s, { type: "tick" }, { type: "tick" }, { type: "tick" });
+    expect(s).toMatchObject({ phase: "answering", clock: ANSWER_SECONDS });
+  });
+  it("skips the read pause and ignores ticks with No timer", () => {
+    const s = run(initialGame(), { type: "start", noTimer: true }, { type: "tick" });
+    expect(s).toMatchObject({ phase: "answering", clock: 0 });
+  });
+  it("locks in a match and moves to the reveal", () => {
+    const s = run(initialGame(), { type: "start", noTimer: true }, { type: "submit", guess: "Apples" });
+    expect(s.phase).toBe("reveal");
+    expect(s.results[0]).toMatchObject({ answer: "apple", tier: "common" });
+  });
+  it("suggests a near miss, accepts it on the same guess, and judges a new guess on its own", () => {
+    let s = run(initialGame(), { type: "start", noTimer: true }, { type: "submit", guess: "persimon" });
+    expect(s.feedback).toEqual({ kind: "near", guess: "persimon", suggestion: "persimmon", index: 7 });
+    s = run(s, { type: "submit", guess: "persimon" });
+    expect(s.results[0]).toMatchObject({ answer: "persimmon", tier: "uncommon" });
+    let t = run(initialGame(), { type: "start", noTimer: true }, { type: "submit", guess: "persimon" }, { type: "submit", guess: "zzzz" });
+    expect(t.feedback).toEqual({ kind: "miss", guess: "zzzz" });
+    t = run(t, { type: "submit", guess: "plum" });
+    expect(t.results[0].tier).toBe("familiar");
+  });
+  it("keeps at most 3 distinct rejected guesses", () => {
+    const s = run(initialGame(), { type: "start", noTimer: true },
+      ...["zzzz", "ZZZZ", "yyyy", "xxxx", "wwww"].map((guess) => ({ type: "submit" as const, guess })));
+    expect(s.results[0].rejected).toEqual(["zzzz", "yyyy", "xxxx"]);
+  });
+  it("stores rejected guesses as normalised keys, so spacing and case count as one guess", () => {
+    const s = run(initialGame(), { type: "start", noTimer: true },
+      { type: "submit", guess: "z z z z" }, { type: "submit", guess: "zzzz" });
+    expect(s.results[0].rejected).toEqual(["zzzz"]);
+  });
+  it("times out to an empty layer and finishes after the seventh prompt", () => {
+    let s = run(initialGame(), { type: "start", noTimer: false });
+    for (let i = 0; i < 3 + ANSWER_SECONDS; i++) s = run(s, { type: "tick" });
+    expect(s.phase).toBe("reveal");
+    expect(s.results[0].answer).toBeNull();
+    for (let i = 0; i < 6; i++) s = run(s, { type: "next" }, { type: "tick" }, { type: "tick" }, { type: "tick" }, { type: "submit", guess: day.secrets[i + 1].fossil.word });
+    s = run(s, { type: "next" });
+    expect(s.phase).toBe("done");
+    expect(resultTiers(s)).toEqual([null, "fossil", "fossil", "fossil", "fossil", "fossil", "fossil"]);
+  });
+  it("sends a finish that parses even after more than 21 misses", () => {
+    let s = run(initialGame(), { type: "start", noTimer: true });
+    for (let p = 0; p < 7; p++) {
+      for (const guess of ["zzzz", "yyyy", "xxxx", "wwww", "vvvv"]) s = run(s, { type: "submit", guess });
+      s = run(s, { type: "submit", guess: day.secrets[p].answers[0][0] }, { type: "next" });
+    }
+    expect(s.phase).toBe("done");
+    const rejected = s.results.flatMap((r, i) => r.rejected.map((g): [number, string] => [i, g]));
+    expect(rejected).toHaveLength(21);
+    const tiers = resultTiers(s);
+    expect(parseDigEvent({ kind: "finish", date: day.date, score: scoreOf(tiers), tiers, rejected }, day.date)).toMatchObject({
+      kind: "finish",
+      score: scoreOf(tiers),
+      rejected,
+    });
+  });
+});
+
+describe("storage", () => {
+  it("survives junk and keeps the newest 400 games", () => {
+    expect(parseStore("{nope")).toEqual({ v: 1, settings: { noTimer: false }, games: {} });
+    let store = parseStore(null);
+    for (let i = 0; i < 405; i++) {
+      const date = new Date(Date.UTC(2026, 0, 1) + i * 86400000).toISOString().slice(0, 10);
+      store = withGame(store, date, { answers: [], tiers: [], score: 0, finishedAt: date });
+    }
+    expect(Object.keys(store.games)).toHaveLength(400);
+    expect(store.games["2026-01-01"]).toBeUndefined();
+  });
+});
