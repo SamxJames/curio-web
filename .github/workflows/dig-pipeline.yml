@@ -18,10 +18,14 @@ concurrency:
 
 jobs:
   build:
+    # Only the default branch may publish: a manual run on another branch must never write production.
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-node@v5
         with:
@@ -31,7 +35,7 @@ jobs:
       - run: npm ci
 
       - name: Restore datasets
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: dig-data
           key: dig-data-${{ github.run_id }}
@@ -45,3 +49,11 @@ jobs:
         env:
           DIG_REDIS_REST_URL: ${{ secrets.DIG_REDIS_REST_URL }}
           DIG_REDIS_REST_TOKEN: ${{ secrets.DIG_REDIS_REST_TOKEN }}
+
+      # Saved even when the build fails, so a slow download is not repeated. Caches dig-data only.
+      - name: Save datasets
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: dig-data
+          key: dig-data-${{ github.run_id }}

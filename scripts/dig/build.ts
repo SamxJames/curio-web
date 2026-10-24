@@ -39,14 +39,24 @@ export type BuildStats = {
 const BUFFER_FLOOR = 30, MIN_POOL_THEMES = 20, MIN_POOL_ORIGINS = 6, HEARTBEAT_STALE_DAYS = 3, MAX_SALTS = 5;
 const addDays = (d: string, n: number) => dayKey(new Date(dayStart(d).getTime() + n * DAY_MS));
 
-/** New dates only: from the day after the last built date (or today), up to today + target. */
+/** Every date from today to today + target - 1 that is not built yet, earliest first. Holes
+ * left by an earlier failed run are filled; a built date is never returned. */
 export function datesToBuild(today: string, built: string[], target: number): string[] {
-  const last = [...built].sort().at(-1);
-  let d = last && last >= today ? addDays(last, 1) : today;
-  const end = addDays(today, target);
+  const have = new Set(built);
   const out: string[] = [];
-  while (d <= end) { out.push(d); d = addDays(d, 1); }
+  for (let i = 0; i < target; i++) {
+    const d = addDays(today, i);
+    if (!have.has(d)) out.push(d);
+  }
   return out;
+}
+
+/** The number of consecutive built days starting from today. A hole ends the buffer. */
+export function bufferDaysFrom(today: string, built: string[]): number {
+  const have = new Set(built);
+  let n = 0;
+  while (have.has(addDays(today, n))) n++;
+  return n;
 }
 
 export function summaryLines(s: BuildStats): string[] {
@@ -88,16 +98,21 @@ async function main() {
     wikidata[r.status]++;
     if (r.labels) wdThemes.push({ theme, labels: r.labels });
   }
-  const extras = await sink.readExtras();
+  let extras = await sink.readExtras();
   const withExtras = (c: Candidate): Candidate => ({ ...c, accepted: [...new Set([...c.accepted, ...(extras[c.id] ?? [])])] });
   const fctx = { wn, index, zipf };
   const baseThemes = [...wordnetThemes(wn, index, zipf, cat), ...wikidataThemeCandidates(wdThemes, index, zipf)].map(withExtras);
   const letters = baseThemes.flatMap((t) => letterVariants(t, zipf)).map(withExtras);
-  const themes = [...baseThemes, ...letters].filter((c) => floorProblems(c, fctx).length === 0);
-  const origins = originCandidates(index, zipf, cat, curioLineage).map(withExtras).filter((c) => floorProblems(c, fctx).length === 0);
+  let themes = [...baseThemes, ...letters].filter((c) => floorProblems(c, fctx).length === 0);
+  let origins = originCandidates(index, zipf, cat, curioLineage).map(withExtras).filter((c) => floorProblems(c, fctx).length === 0);
+  const letterCount = letters.filter((c) => themes.includes(c)).length;
   const all = new Map([...themes, ...origins].map((c) => [c.id, c]));
 
   const adjudication = await adjudicate(sink, all, { today, lexicon, usable, blocked, zipf });
+  // Adjudication may have just added extras: merge them again so days built in this run include them.
+  extras = await sink.readExtras();
+  themes = themes.map(withExtras);
+  origins = origins.map(withExtras);
 
   const manifest: DigManifest = (await sink.readManifest()) ?? { v: 1, lastRun: "", days: {}, poolThemes: 0, poolOrigins: 0 };
   const history: HistoryDay[] = historyFromManifest(manifest);
@@ -116,6 +131,8 @@ async function main() {
 
   let built = 0, retries = 0, failedDates = 0;
   for (const date of datesToBuild(today, Object.keys(manifest.days), target)) {
+    // Every written day is frozen: a day on disk that the manifest doesn't know about is never overwritten.
+    if (await sink.readDay(date)) throw new Error(`day ${date} exists but is not in the manifest`);
     let done = false;
     for (let salt = 0; salt < MAX_SALTS && !done; salt++) {
       if (salt > 0) retries++;
@@ -146,33 +163,46 @@ async function main() {
       const entry = picks.map((c, i) => ({ id: c.id, base: c.base, fossil: prompts[i].fossil.word, ...(c.languages.length ? { languages: c.languages } : {}) }));
       manifest.days[date] = entry;
       history.push({ date, prompts: entry });
+      // Persist the manifest with every day, so a later failure never leaves a written day unrecorded.
+      manifest.lastRun = new Date().toISOString();
+      await sink.writeManifest(manifest);
       built++;
       done = true;
     }
     if (!done) failedDates++;
   }
 
+  const bufferDays = bufferDaysFrom(today, Object.keys(manifest.days));
   const furthest = Object.keys(manifest.days).sort().at(-1);
-  const bufferDays = furthest && furthest >= today ? Math.round((dayStart(furthest).getTime() - dayStart(today).getTime()) / DAY_MS) : 0;
   const after = addDays(furthest ?? today, 1);
   manifest.poolThemes = themes.filter((c) => isEligible(c, after, history)).length;
   manifest.poolOrigins = origins.filter((c) => isEligible(c, after, history)).length;
   manifest.lastRun = new Date().toISOString();
   await sink.writeManifest(manifest);
 
-  const stats: BuildStats = { themes: themes.length, origins: origins.length, letterVariants: letters.filter((c) => themes.includes(c)).length, built, retries, failedDates, bufferDays, poolThemes: manifest.poolThemes, poolOrigins: manifest.poolOrigins, wikidata, adjudication };
+  const stats: BuildStats = { themes: themes.length, origins: origins.length, letterVariants: letterCount, built, retries, failedDates, bufferDays, poolThemes: manifest.poolThemes, poolOrigins: manifest.poolOrigins, wikidata, adjudication };
   const lines = summaryLines(stats);
   console.log(lines.join("\n"));
   if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.map((l) => `- ${l}`).join("\n") + "\n");
 
   const failures: string[] = [];
+  if (failedDates > 0) failures.push(`${failedDates} dates could not be built`);
   if (bufferDays < BUFFER_FLOOR) failures.push(`buffer ${bufferDays} days < ${BUFFER_FLOOR}`);
   if (manifest.poolThemes < MIN_POOL_THEMES || manifest.poolOrigins < MIN_POOL_ORIGINS) failures.push("spare pool below 20 themes / 6 origins");
   const heartbeat = await sink.readHeartbeat();
-  if (heartbeat && Date.now() - Date.parse(heartbeat) > HEARTBEAT_STALE_DAYS * DAY_MS) failures.push("dig-health cron heartbeat is stale");
+  // Fail closed: an unparseable heartbeat counts as stale.
+  if (heartbeat) {
+    const beat = Date.parse(heartbeat);
+    if (!Number.isFinite(beat) || Date.now() - beat > HEARTBEAT_STALE_DAYS * DAY_MS) failures.push("dig-health cron heartbeat is stale");
+  }
   if (failures.length) { console.error(`dig:build failed: ${failures.join("; ")}`); process.exit(1); }
 }
 
 if (process.argv[1]?.endsWith("build.ts")) {
-  main().catch((err) => { console.error(`dig:build failed: ${err instanceof Error ? err.name : "unknown"}`); process.exit(1); });
+  main().catch((err) => {
+    // Only messages built word-free are printed; anything else could quote content, so just its name.
+    const safe = err instanceof Error && /^(pageviews failed|adjudicate:|day )/.test(err.message);
+    console.error(`dig:build failed: ${safe ? err.message : err instanceof Error ? err.name : "unknown"}`);
+    process.exit(1);
+  });
 }
