@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { parseOewn } from "./sources/oewn";
 import type { CompactEntry } from "./sources/compact";
 import { indexWiktionary, usableWord } from "./wiktionary";
-import { letterVariants, slugify, themeText, wordnetThemes } from "./themes";
+import { letterVariants, slugify, themeText, wordnetThemes, type Candidate } from "./themes";
 import type { Catalogue } from "./catalogue";
 
 const wn = parseOewn(readFileSync(path.join(__dirname, "fixtures/oewn-mini.xml"), "utf8"));
@@ -66,5 +66,27 @@ describe("letterVariants", () => {
     expect(c.id).toBe("theme:mammals:c");
     expect(c.base).toBe("theme:mammals");
     expect(c.text).toBe("Name a mammal beginning with C");
+  });
+
+  it("filters every source set to the variant's letter and keeps variants in letter order", () => {
+    const theme: Candidate = {
+      id: "theme:food", base: "theme:food", kind: "theme", text: "Name a food",
+      core: ["apple", "avocado", "banana", "bean", "carrot", "cat"],
+      accepted: ["apple", "avocado", "banana", "bean", "carrot", "cat", "axe", "beet", "cherry"],
+      sources: [
+        new Set(["apple", "avocado", "axe", "cat", "carrot", "banana", "bean"]),
+        new Set(["cherry", "beet", "kale", "apple"]),
+      ],
+      anchor: "x", senseIds: null, ancestors: new Set<string>(), languages: [],
+    };
+    const variants = letterVariants(theme, new Map(), { minCore: 2 });
+    expect(variants.map((v) => v.id)).toEqual(["theme:food:a", "theme:food:b", "theme:food:c"]);
+    for (const v of variants) {
+      const letter = v.id.slice(-1);
+      for (const s of v.sources) for (const w of s) expect(w[0]).toBe(letter);
+    }
+    const b = variants[1];
+    expect(b.sources[0]).toEqual(new Set(["banana", "bean"]));
+    expect(b.sources[1]).toEqual(new Set(["beet"]));
   });
 });

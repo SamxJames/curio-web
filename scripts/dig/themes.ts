@@ -118,15 +118,17 @@ export function letterVariants(theme: Candidate, zipf: Map<string, number>, opts
   const byLetter = new Map<string, string[]>();
   for (const w of theme.core) byLetter.set(w[0], [...(byLetter.get(w[0]) ?? []), w]);
   const out: Candidate[] = [];
-  for (const [letter, core] of [...byLetter].sort()) {
+  for (const [letter, core] of [...byLetter].sort((a, b) => a[0].localeCompare(b[0]))) {
     if (core.length < minCore) continue;
+    const inLetter = (w: string) => w[0] === letter;
     out.push({
       ...theme,
       id: `${theme.id}:${letter}`,
       base: theme.id,
       text: `${theme.text} beginning with ${letter.toUpperCase()}`,
       core,
-      accepted: theme.accepted.filter((w) => w[0] === letter),
+      accepted: theme.accepted.filter(inLetter),
+      sources: theme.sources.map((s) => new Set([...s].filter(inLetter))),
     });
   }
   return out;
