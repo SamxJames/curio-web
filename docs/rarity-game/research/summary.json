@@ -1,0 +1,19 @@
+{
+ "compactEntries": 1499161,
+ "topicalCategories": 2916,
+ "categoriesWith25Plus": 1032,
+ "themesWithCore": {
+  "30+": 364,
+  "40+": 324,
+  "60+": 261,
+  "100+": 223
+ },
+ "themesPassingRules": 260,
+ "themesPassingWithCurioGem": 143,
+ "originsWithAgreed": {
+  "30+": 47,
+  "60+": 42
+ },
+ "originsPassing": 15,
+ "originsPassingWithCurioGem": 5
+}
