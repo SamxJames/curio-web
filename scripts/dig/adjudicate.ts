@@ -4,7 +4,8 @@ import { tierFromZipf } from "../../lib/dig/score";
 import { historyFromManifest } from "../../lib/dig/keys";
 import { daysBetween } from "./assemble";
 import type { DigSink } from "./sink";
-import type { Candidate } from "./themes";
+import { ACCEPTED_CAP, type Candidate } from "./themes";
+import { MAX_DAY_CHARS } from "./validate";
 
 type JudgeCtx = { lexicon: Set<string>; usable: (w: string) => boolean; blocked: Set<string> };
 
@@ -25,7 +26,7 @@ export async function adjudicate(
   sink: DigSink,
   candidates: Map<string, Candidate>,
   ctx: JudgeCtx & { today: string; zipf: Map<string, number> }
-): Promise<{ judged: number; accepted: number; amendedDays: number }> {
+): Promise<{ judged: number; accepted: number; amendedDays: number; skippedOversize: number }> {
   const history = historyFromManifest(await sink.readManifest());
   const done = new Set(await sink.readAdjudicated());
   const extras = await sink.readExtras();
@@ -51,8 +52,14 @@ export async function adjudicate(
   for (const [promptId, byGuess] of tallies) {
     const c = candidates.get(promptId);
     if (!c) continue;
-    for (const [guess, t] of byGuess) {
+    // Most-guessed first, then alphabetical, so the cap always keeps the same words.
+    const ranked = [...byGuess].sort(
+      ([ga, a], [gb, b]) => (b.rej + b.claim) - (a.rej + a.claim) || (ga < gb ? -1 : ga > gb ? 1 : 0)
+    );
+    for (const [guess, t] of ranked) {
       if (t.claim < 1 && t.rej < 2) continue;
+      // Core + accepted + extras already at the cap: add nothing more for this prompt.
+      if (c.accepted.length + (extras[promptId] ?? []).length >= ACCEPTED_CAP) break;
       const mark = `${promptId}|${normalizeKey(guess)}`;
       if (done.has(mark)) continue;
       done.add(mark);
@@ -64,7 +71,7 @@ export async function adjudicate(
       accepted++;
     }
   }
-  let amendedDays = 0;
+  let amendedDays = 0, skippedOversize = 0;
   for (const h of history) {
     if (h.date === ctx.today) continue; // today's file is CDN-cached until rollover
     const ids = h.prompts.map((p) => p.id).filter((id) => newlyAccepted.has(id));
@@ -78,9 +85,14 @@ export async function adjudicate(
       p.answers.push([w, tierFromZipf(ctx.zipf.get(w)), 0]);
       changed = true;
     }
-    if (changed) { await sink.writeDay(encodeDay(plain)); amendedDays++; }
+    if (!changed) continue;
+    const encoded = encodeDay(plain);
+    // An amended day over the cap is left as it was. Only the count is reported.
+    if (JSON.stringify(encoded).length > MAX_DAY_CHARS) { skippedOversize++; continue; }
+    await sink.writeDay(encoded);
+    amendedDays++;
   }
   await sink.writeExtras(extras);
   await sink.writeAdjudicated([...done]);
-  return { judged, accepted, amendedDays };
+  return { judged, accepted, amendedDays, skippedOversize };
 }
