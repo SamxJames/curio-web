@@ -4,6 +4,60 @@
 and `pipeline-design.md` (how the days are made). The Phase 5 plan turns this into tasks. Decisions still open for
 Sam are in §14.
 
+## Changes made while planning (2026-10-24)
+
+The Phase 5 plan changed the spec in seven places. Where the sections below disagree, this list wins.
+
+1. **The day file carries no `number`.** `/api/dig/today` adds it from `DIG_LAUNCH_DATE`, so the launch date can be
+   chosen after days are built. Fossils and story links sit inside the obfuscated payload, because a fossil is a
+   spoiler.
+2. **Past-day responses use `s-maxage=86400, stale-while-revalidate=604800`, not `immutable`.** Weekly adjudication
+   can add accepted-only answers to past days.
+3. **Signup is counted by the browser.** It sends a `signup` event after `/api/subscribe` succeeds, and
+   `/api/subscribe` is unchanged.
+4. **The percentile line appears only from 50 finishers.** Below that no line is shown, instead of "deeper than
+   most" (§8), which would be untrue for low scores.
+5. **The share card is one square 1080×1080 image.** There is no second 1200×630 size.
+6. **The edge-request alert uses an estimate.** Vercel publishes no usage API for Hobby, so the health cron
+   estimates edge requests from first-party counters (8 per dig landing, 6 per site visit), alerts at 50% and 70%
+   with a projected date, and the constants are recalibrated against Vercel's usage page after launch week 1.
+7. **Past days are played at `/dig/<date>/play`.** That page is `noindex`. The archive page `/dig/<date>` stays the
+   indexed, spoiler-full page.
+
+## Changes made while building (2026-10-24)
+
+Decisions taken during the build that change what the product or spec does.
+
+1. **A Pass button.** It locks the prompt with no answer, exactly like a timeout. "No timer" otherwise gave no way to
+   give up on a prompt.
+2. **Finish events must be self-consistent.** The server drops a finish whose reported score doesn't equal the score
+   of its seven tiers. The score feeds the percentile, so this is a free spoof filter.
+3. **Guesses are stored in normalised form.** Rejected and claimed guesses are tallied under `normalizeKey`, so
+   "ice cream" and "icecream" are one tally.
+4. **The "should count" claim is offered only when a prompt ended unanswered.** A correct answer has nothing to claim.
+5. **The client sends at most 21 rejected guesses per finish** (3 per prompt, 7 prompts), and the server drops a
+   finish that carries more.
+6. **The event route is closed before launch.** It returns 404 until `DIG_LAUNCH_DATE` has passed, and rejects
+   bodies over 4 KB (413) before parsing. A maximum finish is under 2 KB.
+7. **Copy result copies.** It writes to the clipboard and falls back to the share sheet only if that fails. Share
+   image uses the share sheet where available, and downloads the PNG on any other error.
+8. **Share and signup events still count on past days.** They are actions taken today, so they land in today's funnel.
+9. **A miss clears the answer field; a near miss keeps it** so Enter accepts the suggestion. Guesses under four
+   letters never get a "Did you mean" suggestion.
+10. **The strata drawing is laid out for a phone.** It is a 360×360 square, capped at the form width, with strata
+    names in a left gutter, word labels alternating above and below, and labels over ten characters shortened in the
+    drawing only. Unanswered prompts show as small open rings.
+11. **The kill line counts absent days as zero starts.** It computes only once all seven window days (22–28 after
+    launch) have passed.
+12. **Depth rounds half-up.** Depth is score ÷ 100 shown to one decimal place, with ties rounded up.
+13. **Accepted-only additions never break a day.** Weekly adjudication skips words a day already matches, and
+    respects the answer-count and size caps. Words dropped by lineage filtering stay accepted.
+14. **The health cron's heartbeat doesn't depend on its other reads.** It is written before housekeeping, and the
+    usage estimate can fail without blocking the alert or the heartbeat. An unreadable `lastRun` counts as a problem.
+15. **Redis keys differ from §8.** There is no `curio:dig:pool`. Adjudication uses `curio:dig:extras` and
+    `curio:dig:adjudicated`, and the health cron uses `curio:dig:health:usage:<month>`. `docs/handover/dig.md` has the
+    current list.
+
 ## 1. Summary
 
 - **Game.** You get seven prompts a day, the same for everyone. Each gives 25 seconds (or no timer) to type one

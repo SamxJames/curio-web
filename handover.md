@@ -59,7 +59,7 @@ every feature against it.
 - Client components may only `import type` from `lib/words.ts` (the value is ~13k lines), or from any module that
   imports its values (`lib/puzzle.ts`: client code uses `lib/puzzleGuess.ts`). Same rule for
   `lib/languages/data.ts`: the panel loads it with `next/dynamic`. Never hand-edit `data.ts`/`sheetIndex.ts`.
-- Redis keys must use an existing prefix: `curio:subscriber|hour|auth|user|wordoftheday|digest|social|traffic|confirm*`.
+- Redis keys must use an existing prefix: `curio:subscriber|hour|auth|user|wordoftheday|digest|social|traffic|confirm|dig*`.
 - Auth.js's default session has **no `user.id`**; `lib/auth.ts` adds it. `useShowArrival` must check resolved
   `"unauthenticated"`, not `!== "authenticated"`.
 - `:focus-visible` must use **longhand** outline properties (Lightning CSS drops `var()` in the shorthand). Verify with real Tab presses.
@@ -101,6 +101,7 @@ every feature against it.
 | `docs/handover/architecture.md` | touching any `lib/`/`app/` module, the word bank or the content pipeline, auth |
 | `docs/handover/growth.md` | double opt-in, traffic attribution, demand report |
 | `docs/handover/language-panel.md` | language sheets and their pipeline |
+| `docs/handover/dig.md` | curio dig (the daily word game): code map, Redis keys, env vars, launch checklist, kill line |
 | `docs/handover/decisions.md` | before changing product behaviour |
 | `docs/handover/parked.md` | before "fixing" something that looks wrong |
 | `docs/handover/history.md` | archaeology only |

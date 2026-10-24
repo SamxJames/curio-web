@@ -384,3 +384,13 @@ Also used for the hero's dateline (`components/ArrivalHero.tsx:45-47`):
 **`ink-soft`/`ink-faint` usage split.** See §1 above for the full token guidance. In short: `ink-soft` for secondary text (supporting copy, inactive states), `ink-faint` for tertiary text (labels, metadata, placeholders) — the two currently share the same computed color in both themes after the Phase 3 contrast fix, but remain semantically distinct in the code and should not be treated as freely interchangeable.
 
 **`components/AdminDashboard.tsx` is out of scope.** It predates the design-system consolidation and was explicitly excluded from every phase (tokens, primitives, contrast fixes). It still uses raw Tailwind arbitrary values throughout — e.g. `text-[32px]`, `leading-[1.05]`, `tracking-[-0.015em]`, `mt-[36px]`, `text-[13.5px]` — and plain `border-line` where the rest of the app now uses `border-line-strong` on interactive elements. None of the `components/ui/` primitives are used there. Do not use it as a reference when building new UI, and do not "fix" it as a drive-by change — any future consolidation of `AdminDashboard.tsx` is its own separate, deliberate scope decision.
+
+---
+
+## 5. The dig's scoped brand
+
+curio dig uses the target brand (architecture §11) without rebranding the site. `app/dig/layout.tsx` wraps every `/dig` page in `data-brand="next"`, and `app/globals.css` redefines the colour tokens inside that scope: warm paper `#f5f1e8` and ink `#1c1a17` in light, the reverse in dark, ink-coloured links and accents, and the red `accent-button` reserved for actions. The site header and footer outside the wrapper keep the current brand. Use the normal tokens (`bg-paper`, `text-ink`, `border-line`) inside the dig; they resolve to the scoped values.
+
+**Stratum tokens.** `--stratum-1` to `--stratum-5` (`bg-stratum-1`…`bg-stratum-5`) are the five earth-tone bands of the depth drawing. They are the same in light and dark, because they are the drawing, not the page. `--stratum-ink` and `--stratum-paper` are the fixed dark and light used for labels drawn on the bands, and also do not invert with the theme. `lib/dig/strata.ts` mirrors these hex values for the canvas share card and the link-preview images, and a test checks the two stay in step. Change them in both places.
+
+**`font-display` is Libre Caslon Text, weight 700 only.** It is loaded in `app/dig/layout.tsx` (`@fontsource/libre-caslon-text/700.css`) and falls back to Newsreader. Use it for bold headings and the lowercase "curio dig" name, never for body text or at lighter weights, which would render as a synthesised weight.
