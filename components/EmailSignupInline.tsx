@@ -62,7 +62,9 @@ export default function EmailSignupInline({
 
   return (
     <div>
-      <form onSubmit={handleSubmit} className="flex gap-2">
+      {/* Stacked below sm: side by side, the button's label left the field too
+       * narrow to show its placeholder on a 375px phone. */}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row">
         <div className="min-w-0 flex-1">
           <TextField
             type="email"
@@ -76,7 +78,7 @@ export default function EmailSignupInline({
             placeholder="your@email.com"
           />
         </div>
-        <Button type="submit" disabled={status === "submitting"} className="shrink-0">
+        <Button type="submit" disabled={status === "submitting"} className="w-full shrink-0 sm:w-auto">
           {status === "submitting" ? "Sending…" : "Get tomorrow's word"}
         </Button>
       </form>
