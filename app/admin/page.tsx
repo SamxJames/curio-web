@@ -12,6 +12,10 @@ import {
 } from "@/lib/adminStats";
 import { getTrafficDays } from "@/lib/trafficStats";
 import { summarizeTraffic } from "@/lib/traffic";
+import { funnelDays } from "@/lib/dig/server";
+import { digLaunchDate } from "@/lib/dig/clock";
+import { killLineDates, summarizeDigFunnel } from "@/lib/dig/funnel";
+import { DAY_MS, dayKey } from "@/lib/day";
 import AdminDashboard from "@/components/AdminDashboard";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +30,12 @@ export default async function AdminPage() {
   if (!session.user.email || session.user.email.toLowerCase() !== adminEmail) redirect("/");
 
   const now = new Date();
-  const [subscribers, userActivity, favorites, playStates, emailMetrics7d, emailMetrics30d, trafficDays] =
+  const last28 = Array.from({ length: 28 }, (_, i) => dayKey(new Date(now.getTime() - i * DAY_MS)));
+  // Kill-window dates can fall outside the last 28 days, so they are fetched too.
+  // Before launch (no launch date) nothing is fetched. funnelDays omits days with no events.
+  const launch = digLaunchDate();
+  const digDates = launch ? [...new Set([...last28, ...killLineDates(launch)])] : [];
+  const [subscribers, userActivity, favorites, playStates, emailMetrics7d, emailMetrics30d, trafficDays, digDays] =
     await Promise.all([
       getAllSubscriberRecords(),
       getAllUserActivity(),
@@ -35,6 +44,7 @@ export default async function AdminPage() {
       getEmailMetrics(7, now),
       getEmailMetrics(30, now),
       getTrafficDays(28, now),
+      funnelDays(digDates),
     ]);
 
   const subscriberGrowth = cumulativeGrowth(
@@ -78,6 +88,7 @@ export default async function AdminPage() {
       emailMetrics7d={emailMetrics7d}
       emailMetrics30d={emailMetrics30d}
       traffic={summarizeTraffic(trafficDays)}
+      dig={summarizeDigFunnel(digDays, launch, { now, rowDates: last28 })}
     />
   );
 }

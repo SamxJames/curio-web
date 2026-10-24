@@ -2,6 +2,8 @@ import type { CumulativeCount, PuzzleEngagementSummary, RetentionResult, Account
 import type { EmailMetricsTotals } from "@/lib/resendMetrics";
 import type { Subscriber } from "@/lib/db";
 import type { TrafficSummary } from "@/lib/traffic";
+import type { DigFunnelSummary } from "@/lib/dig/funnel";
+import DigFunnelTable from "@/components/dig/DigFunnelTable";
 import { pluralize, capitalize, WIDE_DOT, formatShortDate } from "@/lib/collection";
 
 type Props = {
@@ -17,6 +19,7 @@ type Props = {
   emailMetrics7d: EmailMetricsTotals | null;
   emailMetrics30d: EmailMetricsTotals | null;
   traffic: TrafficSummary;
+  dig: DigFunnelSummary;
 };
 
 export default function AdminDashboard({
@@ -32,6 +35,7 @@ export default function AdminDashboard({
   emailMetrics7d,
   emailMetrics30d,
   traffic,
+  dig,
 }: Props) {
   return (
     <div className="mx-auto max-w-[720px] px-5 pt-[30px] pb-[60px]">
@@ -91,6 +95,10 @@ export default function AdminDashboard({
           />
           <StatRow label="Share taps (story / puzzle)" value={`${traffic.shares.story} / ${traffic.shares.puzzle}`} />
         </div>
+      </Section>
+
+      <Section title="curio dig">
+        <DigFunnelTable summary={dig} />
       </Section>
 
       <Section title="People">
