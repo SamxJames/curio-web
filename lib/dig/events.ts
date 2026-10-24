@@ -16,7 +16,8 @@ export type DigEvent =
   | { kind: "finish"; date: string; score: number; tiers: (Tier | null)[]; rejected: [number, string][] }
   | { kind: "claim"; date: string; prompt: number; guess: string };
 
-/** Letters (any script), apostrophes, spaces and hyphens: a word someone typed, nothing else. */
+/** Letters, apostrophes, spaces and hyphens: a word someone typed, nothing else. Non-Latin
+ * letters pass this check but normalise to nothing, so cleanGuess drops them. */
 export const GUESS_RE = /^[\p{L}' -]{2,40}$/u;
 export const MAX_REJECTED_PER_FINISH = 21;
 const PROMPTS = 7;

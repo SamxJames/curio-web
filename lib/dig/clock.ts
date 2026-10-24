@@ -16,7 +16,7 @@ export function isDateKey(s: string): boolean {
 /** Production stays closed (404) until Sam sets DIG_LAUNCH_DATE, so merging the code
  * can't launch the game before the pipeline has filled its buffer. */
 export function digLaunchDate(env: NodeJS.ProcessEnv = process.env): string | null {
-  const v = env.DIG_LAUNCH_DATE;
+  const v = env.DIG_LAUNCH_DATE?.trim();
   if (v && isDateKey(v)) return v;
   return env.VERCEL_ENV === "production" ? null : DEV_LAUNCH_DATE;
 }
