@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import Intro from "./Intro";
 import PromptScreen from "./PromptScreen";
-import Reveal from "./Reveal";
+import Reveal, { announceReveal } from "./Reveal";
+import { LoadFailed } from "./DigGame";
 
 const noop = () => {};
 const prompt = { id: "theme:sailing", kind: "theme" as const, text: "Name a word from sailing" };
@@ -58,6 +59,17 @@ describe("PromptScreen", () => {
     expect(dig![0]).toContain("border-line-strong");
     expect(html).not.toContain("bg-accent-button");
   });
+  it("says '1 second left' in the singular", () => {
+    const html = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={1} noTimer={false} feedback={null} />);
+    expect(html).toContain("1 second left");
+    expect(html).not.toContain("1 seconds");
+  });
+  it("announces 'Get ready.' in the live region during the read pause only", () => {
+    const reading = renderToStaticMarkup(<PromptScreen {...base} phase="reading" clock={3} noTimer={false} feedback={null} />);
+    expect(reading).toMatch(/aria-live="assertive"[^>]*>Get ready.</);
+    const answering = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={20} noTimer={false} feedback={null} />);
+    expect(answering).not.toContain("Get ready.");
+  });
   it("disables Pass and Dig during the read pause", () => {
     const html = renderToStaticMarkup(<PromptScreen {...base} phase="reading" clock={3} noTimer={false} feedback={null} />);
     expect(html.match(/<button[^>]*disabled=""[^>]*>Pass<\/button>/)).not.toBeNull();
@@ -110,5 +122,39 @@ describe("Reveal", () => {
   it("keeps Next prompt as the secondary button, not red", () => {
     const html = renderToStaticMarkup(<Reveal {...props} result={timedOut} />);
     expect(html).not.toContain("bg-accent-button");
+  });
+  it("offers a claim only when the prompt ended with no answer", () => {
+    const answeredAfterMiss = { answer: "keel", tier: "familiar" as const, rejected: ["jib"], lastGuess: "jib" };
+    const html = renderToStaticMarkup(<Reveal {...props} result={answeredAfterMiss} />);
+    expect(html).not.toContain("should count");
+    expect(html).not.toContain("Thanks");
+  });
+  it("makes the heading a focus target and leaves announcing to DigRun's persistent live region", () => {
+    const html = renderToStaticMarkup(<Reveal {...props} result={given} />);
+    expect(html).toMatch(/<h2[^>]*tabindex="-1"[^>]*>keel<\/h2>/);
+    expect(html).not.toContain("aria-live");
+    expect(html).not.toContain("focus:outline-none");
+  });
+  it("heads a passed prompt 'Passed', not 'Time's up'", () => {
+    const html = renderToStaticMarkup(<Reveal {...props} result={timedOut} passed />);
+    expect(html).toMatch(/<h2[^>]*>Passed<\/h2>/);
+    expect(html).not.toContain("Time&#x27;s up");
+  });
+});
+
+describe("announceReveal", () => {
+  it("says the outcome and the fossil word once, for the persistent live region", () => {
+    expect(announceReveal({ answer: "keel", tier: "familiar", rejected: [], lastGuess: null }, secret, false)).toBe("keel, Familiar, 30 points. Fossil: halyard.");
+    expect(announceReveal({ answer: null, tier: null, rejected: [], lastGuess: null }, secret, false)).toBe("Time's up. Fossil: halyard.");
+    expect(announceReveal({ answer: null, tier: null, rejected: [], lastGuess: null }, secret, true)).toBe("Passed. Fossil: halyard.");
+  });
+});
+
+describe("LoadFailed", () => {
+  it("names today for today's dig and not for a past one", () => {
+    expect(renderToStaticMarkup(<LoadFailed past={false} />)).toContain("Today&#x27;s dig didn&#x27;t load. Refresh to try again.");
+    const past = renderToStaticMarkup(<LoadFailed past />);
+    expect(past).toContain("This dig didn&#x27;t load. Refresh to try again.");
+    expect(past).not.toContain("Today");
   });
 });

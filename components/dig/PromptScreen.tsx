@@ -23,14 +23,23 @@ type Props = {
 export default function PromptScreen({ index, total, prompt, phase, clock, noTimer, feedback, onSubmit, onPass }: Props) {
   const [guess, setGuess] = useState("");
   const reading = phase === "reading";
-  const announce = !noTimer && phase === "answering" && (clock === 10 || clock === 5) ? `${clock} seconds left` : "";
+  const left = `${clock} ${clock === 1 ? "second" : "seconds"} left`;
+  const announce = reading ? "Get ready." : !noTimer && phase === "answering" && (clock === 10 || clock === 5) ? left : "";
+  // A second identical miss leaves the feedback text unchanged, which a screen reader would not
+  // repeat. Each new feedback object bumps a round, used as the key so the text is re-inserted.
+  const [seenFeedback, setSeenFeedback] = useState(feedback);
+  const [round, setRound] = useState(0);
+  if (feedback !== seenFeedback) {
+    setSeenFeedback(feedback);
+    setRound(round + 1);
+  }
   return (
     <section aria-labelledby="dig-prompt" className="mt-8">
       <p className="font-sans text-sm text-ink-faint">{`Prompt ${index + 1} of ${total}`}</p>
       <h2 id="dig-prompt" className="mt-2 font-display text-3xl leading-display">{prompt.text}</h2>
       {!noTimer && (
         <div className="mt-5" aria-hidden={reading}>
-          <p className="font-sans text-sm text-ink-soft">{reading ? "Ready…" : `${clock} seconds left`}</p>
+          <p className="font-sans text-sm text-ink-soft">{reading ? "Ready…" : left}</p>
           <div role="progressbar" aria-label="Time left" aria-valuemin={0} aria-valuemax={ANSWER_SECONDS}
             aria-valuenow={reading ? ANSWER_SECONDS : clock} className="mt-2 h-2 w-full overflow-hidden rounded-full bg-paper-raised">
             <div className="h-full bg-ink transition-all duration-1000 ease-linear motion-reduce:transition-none"
@@ -55,7 +64,7 @@ export default function PromptScreen({ index, total, prompt, phase, clock, noTim
             <Button variant="link" onClick={() => onSubmit(feedback.guess)}>Yes, {feedback.suggestion}</Button>
           </p>
         )}
-        {feedback?.kind === "miss" && <p>Not on today&apos;s list. Try another.</p>}
+        {feedback?.kind === "miss" && <p key={round}>Not on today&apos;s list. Try another.</p>}
         {feedback?.kind === "empty" && <p>Type a word first.</p>}
       </div>
       {/* The way out of a prompt with No timer on (and a shortcut with it on). The reducer
