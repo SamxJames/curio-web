@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/social",
       "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/dig-health",
+      "schedule": "0 7 * * *"
     }
   ]
 }

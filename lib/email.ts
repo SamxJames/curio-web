@@ -171,6 +171,29 @@ export async function sendConfirmEmail(email: string, url: string): Promise<void
   if (error) throw new Error(`Resend send failed: ${error.name}`);
 }
 
+export function buildDigAlertMessage(problems: string[]) {
+  const n = problems.length;
+  return {
+    subject: `curio dig: ${n} problem${n === 1 ? "" : "s"} need${n === 1 ? "s" : ""} a look`,
+    text: `The daily dig health check found:\n\n${problems.map((p) => `- ${p}`).join("\n")}\n\nThe dig pipeline runs from GitHub Actions ("Dig pipeline"); a manual run fills the buffer.`,
+  };
+}
+
+/** The dig health cron's alert to DIG_ALERT_TO, at most one a day (the cron runs once).
+ * Same shape as the other senders: a count-only dev log, and a thrown error in production
+ * when it isn't configured. */
+export async function sendDigAlert(problems: string[]): Promise<void> {
+  const to = process.env.DIG_ALERT_TO;
+  const msg = buildDigAlertMessage(problems);
+  if (!resend || !to) {
+    if (process.env.NODE_ENV === "production") throw new Error("Dig alert email not configured");
+    console.log(`[curio:email:dev-fallback] would send a dig alert with ${problems.length} problems`);
+    return;
+  }
+  const { error } = await resend.emails.send({ from: FROM_ADDRESS, to, ...msg });
+  if (error) throw new Error(`Resend send failed: ${error.name}`);
+}
+
 export type DigestMessage = {
   from: string;
   to: string;
