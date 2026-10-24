@@ -32,6 +32,9 @@ export default function PromptScreen({ index, total, prompt, phase, clock, noTim
   if (feedback !== seenFeedback) {
     setSeenFeedback(feedback);
     setRound(round + 1);
+    // A miss empties the field so the next word isn't typed onto the last. A near miss keeps
+    // it: pressing Enter again accepts the suggestion.
+    if (feedback?.kind === "miss") setGuess("");
   }
   return (
     <section aria-labelledby="dig-prompt" className="mt-8">

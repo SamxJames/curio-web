@@ -5,7 +5,7 @@ import "@fontsource/libre-caslon-text/700.css";
  * header and footer outside this wrapper keep the current brand. */
 export default function DigLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div data-brand="next" className="bg-paper text-ink">
+    <div data-brand="next" className="h-full bg-paper text-ink">
       {children}
     </div>
   );
