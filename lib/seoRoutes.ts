@@ -92,6 +92,16 @@ export function buildSitemapEntries(): SitemapEntry[] {
   return [...routes, ...stories, ...languages];
 }
 
+/** /dig, /dig/past and each finished day's archive page (never the /play copies, which
+ * are noindex). Added by app/sitemap.ts only once the game is open. */
+export function digSitemapEntries(pastDates: string[]): SitemapEntry[] {
+  return [
+    { url: absoluteUrl("/dig"), changeFrequency: "daily", priority: 0.9 },
+    { url: absoluteUrl("/dig/past"), changeFrequency: "daily", priority: 0.6 },
+    ...pastDates.map((d): SitemapEntry => ({ url: absoluteUrl(`/dig/${d}`), changeFrequency: "monthly", priority: 0.5 })),
+  ];
+}
+
 export type RobotsConfig = {
   rules: { userAgent: string; allow: string; disallow: string[] };
   sitemap: string[];
