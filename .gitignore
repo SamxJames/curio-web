@@ -59,3 +59,7 @@ next-env.d.ts
 
 # local language-draft review page (npm run languages:review)
 /content/languages/review.html
+
+# dig pipeline: local output and datasets (never committed: future answers, 3 GB dumps)
+.dig-out/
+dig-data/
