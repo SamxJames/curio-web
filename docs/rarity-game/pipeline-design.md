@@ -417,6 +417,12 @@ Alternatives considered:
 
 1. **Prompt supply** (§3a): the strict rule supports about 22 days of themes before repeats. Recommended: better
    anchoring, plus Wikidata as a second source, plus grouped origins, with repeat cooldowns as a backstop.
+   **Decided 2026-10-24: recommended fix.** The two-source rule stays strict. Phase 6 must re-measure supply once
+   the fix is in, and the 30-day pre-launch buffer is the proof.
 2. **Where days live** (§13): Upstash, served cached from the edge (recommended), or a private data repo.
+   **Decided 2026-10-24: Upstash** under `curio:dig:`, written only by the weekly Action, edge-cached, serving
+   today and earlier only.
 3. **Publishing floor** (§5): core ≥ 40, easy ≥ 8, rare ≥ 10, plus a fossil. Letter variants use 25 / 3 / 5.
+   **Decided 2026-10-24: keep as proposed.**
 4. **Generous acceptance** (§5): single-source answers score but are never displayed. Recommended: yes.
+   **Decided 2026-10-24: yes.** Single-source answers score but are never the fossil or shown in the reveal.
