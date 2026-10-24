@@ -382,14 +382,19 @@ These use USD at about £0.80 per $1 and prices as published on 2026-10-24.
    - Recommended: **00:00 UTC**, Curio's one clock, the same as the daily word.
    - The alternative is Krillion's 04:00 UTC, which is midnight on the US east coast. That would give the game a
      separate clock from the daily word it funnels to.
+   - **Decided 2026-10-24: 00:00 UTC.**
 2. **Brand scope.**
    - Recommended: **target brand inside `/dig` only** for the MVP, with the full-site rebrand as a separate project
      after launch.
    - The alternative is rebranding the whole site first, which adds roughly a week and a half before the game.
+   - **Decided 2026-10-24: `/dig` only.** The full-site rebrand is a separate project after launch.
 3. **Hobby → Pro trigger** (money, so it's yours).
    - Recommended: **pre-approve upgrading to Pro ($20 ≈ £16 a month) once edge requests pass 70% of Hobby's
      allotment for two days running.** That avoids a viral spike pausing the whole site.
    - The alternative is to decide when the alert arrives.
+   - **Decided 2026-10-24: no pre-approval.** Sam decides when the alert arrives. To leave time to decide, the
+     alert fires at **50% and again at 70%** of the month's edge-request allotment. It includes the date the
+     current daily rate would hit 100%. The upgrade is Sam's to make in the Vercel dashboard.
 
 ## 15. What the MVP includes (for the Phase 5 plan)
 
