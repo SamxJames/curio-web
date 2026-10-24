@@ -3,6 +3,7 @@ import { normalizeKey } from "../../lib/dig/normalize";
 import { encodeDay } from "../../lib/dig/payload";
 import type { DigDayPlain, PromptSecret } from "../../lib/dig/types";
 import { daysBetween, overlapRatio, type HistoryDay } from "./assemble";
+import { hasBlockedWord } from "./answers";
 
 export const MAX_DAY_CHARS = 400_000;
 export type ValidateCtx = { history: HistoryDay[]; storySlugs: Set<string>; dailyWords: Set<string>; blocked: Set<string> };
@@ -39,7 +40,7 @@ export function validateDay(day: DigDayPlain, ctx: ValidateCtx): string[] {
     if (p.fossil.story && !ctx.storySlugs.has(p.fossil.story)) problems.push(`${p.id}: unknown fossil story slug`);
     const unknownSlugs = Object.values(p.stories).filter((slug) => !ctx.storySlugs.has(slug)).length;
     if (unknownSlugs > 0) problems.push(`${p.id}: ${unknownSlugs} unknown story slug(s)`);
-    if (p.answers.some((a) => ctx.blocked.has(a[0]) || ctx.blocked.has(normalizeKey(a[0])))) problems.push(`${p.id}: blocked word`);
+    if (p.answers.some((a) => hasBlockedWord(a[0], ctx.blocked))) problems.push(`${p.id}: blocked word`);
     if (ctx.dailyWords.has(p.fossil.word)) problems.push(`${p.id}: fossil clashes with the daily word or /play`);
 
     // Matching self-test: every answer and alias finds itself; no key hides a second tier;
@@ -76,7 +77,7 @@ export function validateDay(day: DigDayPlain, ctx: ValidateCtx): string[] {
   for (const h of ctx.history) {
     const gap = Math.abs(daysBetween(h.date, day.date));
     for (const hp of h.prompts) for (const p of ps) {
-      if (hp.id === p.id && gap < 90) problems.push(`${p.id}: repeats within 90 days`);
+      if (p.kind === "theme" && hp.id === p.id && gap < 90) problems.push(`${p.id}: repeats within 90 days`);
       if (hp.id === p.id && hp.fossil === p.fossil.word) problems.push(`${p.id}: repeats a previous fossil`);
       if (p.kind === "theme" && hp.id !== p.id && gap < 30 && (hp.base || baseOf(hp.id)) === baseOf(p.id)) problems.push(`${p.id}: shares a base theme within 30 days`);
     }

@@ -3,7 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { parseOewn } from "./sources/oewn";
 import { indexWiktionary } from "./wiktionary";
-import { buildAliases, buildGuard, counts, dedupeByKey, floorProblems, fossilCandidates } from "./answers";
+import { buildAliases, buildGuard, counts, dedupeByKey, dropBlocked, floorProblems, fossilCandidates } from "./answers";
 import type { Candidate } from "./themes";
 
 const wn = parseOewn(readFileSync(path.join(__dirname, "fixtures/oewn-mini.xml"), "utf8"));
@@ -47,6 +47,15 @@ describe("aliases and guard", () => {
   it("guards real words one edit from any key, excluding the prompt's own keys", () => {
     const lexicon = new Set(["keel", "heel", "peel", "kneel", "zebra", "keels"]);
     expect(buildGuard(["keel"], { keels: 0 }, lexicon).sort()).toEqual(["heel", "kneel", "peel"]);
+  });
+});
+
+describe("dropBlocked", () => {
+  it("drops an answer when any word inside it is blocked", () => {
+    const c = cand(["glans penis", "kneecap", "penis bone"], { accepted: ["glans penis", "kneecap", "penis bone", "elbow"] });
+    const d = dropBlocked(c, new Set(["penis"]));
+    expect(d.core).toEqual(["kneecap"]);
+    expect(d.accepted).toEqual(["kneecap", "elbow"]);
   });
 });
 

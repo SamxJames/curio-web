@@ -10,7 +10,11 @@
     "Headwear": ["headdress"],
     "Gemstones": ["gem"],
     "Insects": ["insect"],
-    "Cooking": ["cooking"]
+    "Cooking": ["cooking"],
+    "Exercise equipment": ["exercise device"],
+    "String instruments": ["stringed instrument"],
+    "Sports areas": ["playing field", "athletic field"],
+    "Shapes": ["plane figure", "solid figure"]
   },
   "renames": {
     "Nautical": "Name a word from sailing",
@@ -27,7 +31,8 @@
     "religio", "death", "mytholog", "weapon", "military", "cell", "bacteri", "virus", "fung", "bone", "organ", "nerv",
     "muscle", "tissue", "matter", "substance", "object", "entity", "people", "person", "human", "occupation", "crime",
     "slur", "ethnic", "nationalit", "demonym", "plot device", "data struct", "hypothetical", "science",
-    "communication", "construction", "swear", "insult", "profan", "slang"
+    "communication", "construction", "swear", "insult", "profan", "slang",
+    "energy", "writing", "hair colo"
   ],
   "wikidataThemes": [
     { "id": "theme:cheeses", "text": "Name a cheese", "qid": "Q10943", "label": "cheese", "wiktionary": ["Cheeses"] },

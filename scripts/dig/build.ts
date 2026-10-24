@@ -22,10 +22,10 @@ import { buildLexicon } from "./lexicon";
 import { loadCatalogue } from "./catalogue";
 import { letterVariants, wikidataThemeCandidates, wordnetThemes, type Candidate } from "./themes";
 import { originCandidates } from "./origins";
-import { buildAliases, buildGuard, dedupeByKey, floorProblems, fossilCandidates } from "./answers";
+import { buildAliases, buildGuard, dedupeByKey, dropBlocked, floorProblems, fossilCandidates } from "./answers";
 import { yearlyViews } from "./pageviews";
 import { assignTiers, chooseFossil, toPlainPrompt, viewWordsFor } from "./fossil";
-import { daysBetween, isEligible, pickDay, type HistoryDay } from "./assemble";
+import { assignFamilies, daysBetween, isEligible, pickDay, type HistoryDay } from "./assemble";
 import { fossilTypoCollides, validateDay } from "./validate";
 import { adjudicate } from "./adjudicate";
 import { FileSink, RedisSink, type DigSink } from "./sink";
@@ -150,10 +150,10 @@ async function main() {
     if (r.labels) wdThemes.push({ theme, labels: r.labels });
   }
   let extras = await sink.readExtras();
-  // Every candidate passes through here, so this is also where spellings that share a key are collapsed.
-  const withExtras = (c: Candidate): Candidate => dedupeByKey({ ...c, accepted: [...new Set([...c.accepted, ...(extras[c.id] ?? [])])] });
+  // Every candidate passes through here, so this is also where blocked words go and spellings that share a key are collapsed.
+  const withExtras = (c: Candidate): Candidate => dedupeByKey(dropBlocked({ ...c, accepted: [...new Set([...c.accepted, ...(extras[c.id] ?? [])])] }, blocked));
   const fctx = { wn, index, zipf };
-  const baseThemes = [...wordnetThemes(wn, index, zipf, cat), ...wikidataThemeCandidates(wdThemes, index, zipf)].map(withExtras);
+  const baseThemes = assignFamilies([...wordnetThemes(wn, index, zipf, cat), ...wikidataThemeCandidates(wdThemes, index, zipf)].map(withExtras));
   const letters = baseThemes.flatMap((t) => letterVariants(t, zipf)).map(withExtras);
   let themes = [...baseThemes, ...letters].filter((c) => floorProblems(c, fctx).length === 0);
   let origins = originCandidates(index, zipf, cat, curioLineage).map(withExtras).filter((c) => floorProblems(c, fctx).length === 0);
@@ -215,6 +215,7 @@ async function main() {
           etymology: (w) => index.info.get(w)?.etymology ?? "",
           exclude: new Set([...daily, ...usedToday, ...previous]),
           reject: (w) => fossilTypoCollides(secret, w, lookup),
+          mustMention: c.kind === "origin" ? c.languages : undefined,
         });
         if (!fossil) break;
         usedToday.add(fossil.word);

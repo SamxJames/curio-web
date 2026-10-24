@@ -31,6 +31,18 @@ describe("etymologyFact", () => {
     expect(etymologyFact("")).toBeNull();
     expect(etymologyFact("x ".repeat(100))!.length).toBeLessThanOrEqual(140);
   });
+  it("skips Wiktionary's etymology tree and keeps the sentence after it", () => {
+    const et = "Etymology tree\nProto-Indo-European *kápros\nLatin caper\nScottish Gaelic cabarbor.\nEnglish caber\nFrom Scottish Gaelic cabar (“spar, pole”).";
+    expect(etymologyFact(et)).toBe("From Scottish Gaelic cabar (“spar, pole”)");
+    expect(etymologyFact("Etymology tree\nItalian flauto\nEnglish flautist")).toBeNull();
+  });
+  it("never splits inside brackets or quotes, and never leaves one open", () => {
+    expect(etymologyFact("Borrowed from Irish geis (“injunction; taboo”). Compare Welsh.")).toBe("Borrowed from Irish geis (“injunction; taboo”)");
+    const long = `From Ancient Greek νάρδος (nárdos), from Phoenician, Sanskrit नलद (nalada, “${"a ".repeat(60)}”)`;
+    const fact = etymologyFact(long)!;
+    expect(fact.length).toBeLessThanOrEqual(140);
+    expect(fact).not.toMatch(/\([^)]*$/);
+  });
 });
 
 describe("chooseFossil", () => {
@@ -48,6 +60,11 @@ describe("chooseFossil", () => {
   });
   it("otherwise takes the most-viewed candidate with an etymology fact", () => {
     expect(chooseFossil(c, { ...base, curio: new Map() })).toEqual({ word: "bowsprit", fact: "From Middle Low German bōchsprēt" });
+  });
+  it("for origin prompts, uses only facts that name one of the prompt's languages", () => {
+    const etymology = (w: string) => (w === "bowsprit" ? "Borrowed from Sotho lelapa." : w === "halyard" ? "From Māori hāriata." : "");
+    const pick = chooseFossil(c, { ...base, curio: new Map(), etymology, mustMention: ["Maori", "Tahitian"] });
+    expect(pick).toEqual({ word: "halyard", fact: "From Māori hāriata" });
   });
   it("skips words the build rejects (a typo would land on another answer)", () => {
     expect(chooseFossil(c, { ...base, curio: new Map(), reject: (w) => w === "bowsprit" })?.word).not.toBe("bowsprit");

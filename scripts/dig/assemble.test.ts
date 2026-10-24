@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { daysBetween, isEligible, overlapRatio, pickDay, sameFamily, type HistoryDay } from "./assemble";
+import { assignFamilies, daysBetween, isEligible, overlapRatio, pickDay, sameFamily, type HistoryDay } from "./assemble";
 import type { Candidate } from "./themes";
 
 const mk = (id: string, kind: "theme" | "origin", core: string[], over: Partial<Candidate> = {}): Candidate => ({
@@ -16,9 +16,23 @@ describe("cooldowns", () => {
     expect(isEligible(mk("theme:birds", "theme", []), "2026-12-20", history)).toBe(false);
     expect(isEligible(mk("theme:birds", "theme", []), "2026-12-31", history)).toBe(true);
   });
+  it("lets an origin return once its language cooldown has passed (no 90-day rule for origins)", () => {
+    expect(isEligible(mk("origin:arabic", "origin", [], { languages: ["Arabic"] }), "2026-12-14", history)).toBe(false);
+    expect(isEligible(mk("origin:arabic", "origin", [], { languages: ["Arabic"] }), "2026-12-15", history)).toBe(true);
+  });
   it("blocks an origin language for 14 days, including inside a group", () => {
     expect(isEligible(mk("origin:group:x", "origin", [], { languages: ["Persian", "Arabic"] }), "2026-12-10", history)).toBe(false);
     expect(isEligible(mk("origin:group:y", "origin", [], { languages: ["Arabic"] }), "2026-12-15", history)).toBe(true);
+  });
+});
+
+describe("assignFamilies", () => {
+  it("puts a theme that mostly repeats a bigger one into the bigger one's cooldown family", () => {
+    const liquids = mk("theme:liquids", "theme", words("w", 40));
+    const beverages = mk("theme:beverages", "theme", [...words("w", 25), ...words("b", 5)]);
+    const birds = mk("theme:birds", "theme", words("bird", 30));
+    const out = assignFamilies([beverages, birds, liquids]);
+    expect(out.map((c) => [c.id, c.base])).toEqual([["theme:beverages", "theme:liquids"], ["theme:birds", "theme:birds"], ["theme:liquids", "theme:liquids"]]);
   });
 });
 

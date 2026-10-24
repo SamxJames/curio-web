@@ -35,6 +35,10 @@ describe("wording and ids", () => {
     expect(themeText("Musical instruments", "kind-of", {})).toBe("Name a musical instrument");
     expect(themeText("Insects", "kind-of", {})).toBe("Name an insect");
     expect(themeText("Nautical", "domain", {})).toBe("Name a nautical word");
+    expect(themeText("Clothing", "kind-of", {})).toBe("Name a type of clothing");
+    expect(themeText("Glass", "kind-of", {})).toBe("Name a type of glass");
+    expect(themeText("Buildings and structures", "kind-of", {})).toBe("Name a building or structure");
+    expect(themeText("Arts and crafts", "kind-of", {})).toBe("Name an art or craft");
     expect(themeText("Nautical", "domain", { Nautical: "Name a word from sailing" })).toBe("Name a word from sailing");
     expect(slugify("Citrus fruits")).toBe("citrus-fruits");
   });

@@ -1,4 +1,5 @@
 import { hashSeed, mulberry32 } from "../../lib/words";
+import { normalizeKey } from "../../lib/dig/normalize";
 import type { Candidate } from "./themes";
 
 export type HistoryDay = { date: string; prompts: { id: string; base: string; fossil: string; languages?: string[] }[] };
@@ -8,14 +9,18 @@ export const daysBetween = (a: string, b: string) => Math.round((Date.parse(`${b
 
 const EXACT_DAYS = 90, BASE_DAYS = 30, LANGUAGE_DAYS = 14, MAX_OVERLAP = 0.2;
 
-/** pipeline-design §3a fix 4: exact prompt 90 days, base theme 30, origin language 14. */
-export function isEligible(c: Candidate, date: string, history: HistoryDay[]): boolean {
+/** pipeline-design §3a fix 4. Origins return on their language cooldown alone (the spec's
+ * "about 15 days for origins"); the exact-prompt rule is for themes. */
+export type Cooldowns = { exactDays: number; baseDays: number; languageDays: number };
+export const COOLDOWNS: Cooldowns = { exactDays: EXACT_DAYS, baseDays: BASE_DAYS, languageDays: LANGUAGE_DAYS };
+
+export function isEligible(c: Candidate, date: string, history: HistoryDay[], cd: Cooldowns = COOLDOWNS): boolean {
   for (const h of history) {
     const gap = Math.abs(daysBetween(h.date, date));
     for (const p of h.prompts) {
-      if (p.id === c.id && gap < EXACT_DAYS) return false;
-      if (c.kind === "theme" && p.base === c.base && gap < BASE_DAYS) return false;
-      if (c.kind === "origin" && gap < LANGUAGE_DAYS && (p.languages ?? []).some((l) => c.languages.includes(l))) return false;
+      if (c.kind === "theme" && p.id === c.id && gap < cd.exactDays) return false;
+      if (c.kind === "theme" && p.base === c.base && gap < cd.baseDays) return false;
+      if (c.kind === "origin" && gap < cd.languageDays && (p.languages ?? []).some((l) => c.languages.includes(l))) return false;
     }
   }
   return true;
@@ -26,6 +31,23 @@ export function overlapRatio(a: string[], b: string[]): number {
   const big = new Set(a.length <= b.length ? b : a);
   if (!small.length) return 0;
   return small.filter((w) => big.has(w)).length / small.length;
+}
+
+const FAMILY_OVERLAP = 0.5;
+
+/** Base themes whose core mostly repeats a bigger theme's ("Beverages" inside "Liquids") join that
+ * theme's cooldown family, so the two (and their letter variants) never run within 30 days of each
+ * other. Order is preserved; the biggest theme of a family is its root. */
+export function assignFamilies(themes: Candidate[]): Candidate[] {
+  const roots: Candidate[] = [];
+  const base = new Map<string, string>();
+  for (const c of [...themes].sort((a, b) => b.core.length - a.core.length || a.id.localeCompare(b.id))) {
+    const keys = c.core.map(normalizeKey);
+    const root = roots.find((r) => overlapRatio(keys, r.core.map(normalizeKey)) >= FAMILY_OVERLAP);
+    if (root) base.set(c.id, base.get(root.id)!);
+    else { roots.push(c); base.set(c.id, c.id); }
+  }
+  return themes.map((c) => ({ ...c, base: base.get(c.id)! }));
 }
 
 export function sameFamily(a: Candidate, b: Candidate): boolean {
@@ -52,19 +74,20 @@ export function pickDay(
   history: HistoryDay[],
   zipf: Map<string, number>,
   seedSalt: string,
-  salt = 0
+  salt = 0,
+  cd: Cooldowns = COOLDOWNS
 ): Candidate[] | null {
   const rand = mulberry32(hashSeed(`dig-${seedSalt}-${date}-${salt}`));
   const chosen: Candidate[] = [];
   const fits = (c: Candidate) =>
     chosen.every((o) => !sameFamily(o, c) && overlapRatio(o.core, c.core) < MAX_OVERLAP && !o.languages.some((l) => c.languages.includes(l)));
-  for (const c of shuffle(pools.themes.filter((t) => isEligible(t, date, history)), rand)) {
+  for (const c of shuffle(pools.themes.filter((t) => isEligible(t, date, history, cd)), rand)) {
     if (chosen.length === 5) break;
     if (fits(c)) chosen.push(c);
   }
   if (chosen.length < 5) return null;
   const origins: Candidate[] = [];
-  for (const c of shuffle(pools.origins.filter((o) => isEligible(o, date, history)), rand)) {
+  for (const c of shuffle(pools.origins.filter((o) => isEligible(o, date, history, cd)), rand)) {
     if (origins.length === 2) break;
     if (fits(c) && origins.every((o) => !sameFamily(o, c) && overlapRatio(o.core, c.core) < MAX_OVERLAP && !o.languages.some((l) => c.languages.includes(l)))) origins.push(c);
   }

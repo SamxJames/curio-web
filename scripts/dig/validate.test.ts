@@ -64,6 +64,11 @@ describe("validateDay", () => {
     d.prompts[0].fossil.word = "boxey";
     expect(validateDay(d, ctx)).toContain("theme:a: a fossil typo resolves to another answer");
   });
+  it("catches a blocked word inside a multi-word answer", () => {
+    const d = good();
+    d.prompts[2].answers[0][0] = "glans badword";
+    expect(validateDay(d, { ...ctx, blocked: new Set(["badword"]) })).toContain("origin:x: blocked word");
+  });
   it("fossilTypoCollides: the same test, usable before a fossil is chosen", () => {
     const answers: [string, Tier, 0 | 1][] = [["box", "common", 1], ["boxey", "rare", 1], ["gunwale", "rare", 1]];
     expect(fossilTypoCollides({ answers, aliases: {}, guard: [] }, "boxey")).toBe(true);

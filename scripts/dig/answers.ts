@@ -7,6 +7,17 @@ import type { WiktionaryIndex } from "./wiktionary";
 export type Counts = { core: number; easy: number; rare: number; common: number };
 type Ctx = { wn: Wordnet; index: WiktionaryIndex; zipf: Map<string, number> };
 
+/** True if the answer, its key, or any word inside it ("glans penis") is on the blocklist. */
+export function hasBlockedWord(w: string, blocked: Set<string>): boolean {
+  if (blocked.has(w) || blocked.has(normalizeKey(w))) return true;
+  return w.toLowerCase().split(/[\s-]+/).some((t) => blocked.has(t) || blocked.has(normalizeKey(t)));
+}
+
+export function dropBlocked(c: Candidate, blocked: Set<string>): Candidate {
+  const ok = (w: string) => !hasBlockedWord(w, blocked);
+  return { ...c, core: c.core.filter(ok), accepted: c.accepted.filter(ok) };
+}
+
 /** One spelling per normalised key ("ice rink" / "ice-rink" would otherwise be two answers sharing a key, possibly
  * at different tiers, which the validator rejects). A core spelling beats a non-core one; otherwise the first wins. */
 export function dedupeByKey(c: Candidate): Candidate {

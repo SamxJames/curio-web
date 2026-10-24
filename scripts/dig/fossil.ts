@@ -42,13 +42,59 @@ export function assignTiers(c: Candidate, zipf: Map<string, number>, views: Map<
 const MAX_FACT = 140;
 
 /** The first clause of a Wiktionary etymology, trimmed to 140 characters, or null. */
+const OPENERS = "(“[«", CLOSERS = ")”]»";
+
+/** Wiktionary prefixes some etymologies with an "Etymology tree" (one ancestor per line, ending at
+ * "English <word>"). The prose comes after it; a tree with no prose gives "". */
+function stripTree(text: string): string {
+  const t = text.trim();
+  if (!t.startsWith("Etymology tree")) return t;
+  const lines = t.split("\n");
+  const end = lines.findLastIndex((l) => /^English\s/.test(l));
+  return end >= 0 ? lines.slice(end + 1).join(" ").trim() : "";
+}
+
+/** Index of the outermost bracket or quote left open at the end of `s`, or -1. */
+function firstUnclosed(s: string): number {
+  const open: number[] = [];
+  for (let i = 0; i < s.length; i++) {
+    if (OPENERS.includes(s[i])) open.push(i);
+    else if (CLOSERS.includes(s[i])) open.pop();
+  }
+  return open[0] ?? -1;
+}
+
+/** `text` (tree stripped, whitespace collapsed) up to the first of `stops` outside brackets that
+ * ends a sentence or clause. */
+function leading(text: string, stops: string): string {
+  const t = stripTree(text).replace(/\s+/g, " ");
+  let depth = 0;
+  for (let i = 0; i < t.length; i++) {
+    if (OPENERS.includes(t[i])) depth++;
+    else if (CLOSERS.includes(t[i])) depth = Math.max(0, depth - 1);
+    else if (depth === 0 && stops.includes(t[i]) && (i + 1 === t.length || t[i + 1] === " ")) return t.slice(0, i).trim();
+  }
+  return t.trim();
+}
+
+/** The etymology's first sentence: the word's main line of descent, used to check an origin claim. */
+export const etymologySentence = (text: string): string => leading(text, ".");
+
+/** The first clause (up to a "." or ";" outside brackets), capped at 140 characters without
+ * leaving a bracket or quote open. */
 export function etymologyFact(text: string): string | null {
-  const first = text.trim().split(/(?<=[.;])\s/)[0]?.replace(/[.;]\s*$/, "").trim() ?? "";
+  const first = leading(text, ".;");
   if (!first) return null;
   if (first.length <= MAX_FACT) return first;
-  const cut = first.slice(0, MAX_FACT - 1);
-  return `${cut.slice(0, cut.lastIndexOf(" ") > 40 ? cut.lastIndexOf(" ") : cut.length)}…`;
+  let cut = first.slice(0, MAX_FACT - 1);
+  cut = cut.slice(0, cut.lastIndexOf(" ") > 40 ? cut.lastIndexOf(" ") : cut.length);
+  const open = firstUnclosed(cut);
+  if (open >= 0) cut = cut.slice(0, open);
+  cut = cut.replace(/[\s,;:]+$/, "");
+  return cut ? `${cut}…` : null;
 }
+
+export const fold = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 export type FossilCtx = {
   candidates: string[];
@@ -62,6 +108,9 @@ export type FossilCtx = {
   exclude: Set<string>;
   /** Words the validator would refuse as this prompt's fossil (validate.ts fossilTypoCollides). */
   reject?: (w: string) => boolean;
+  /** Origin prompts: a sourced fact must name one of these languages (a word can have several
+   * etymologies, and the first may be the wrong one). Curio teasers are exempt. */
+  mustMention?: string[];
 };
 
 /** Trims a fact to 140 characters or fewer: at the last space in the first 140, plus an ellipsis. */
@@ -87,6 +136,7 @@ export function chooseFossil(_c: Candidate, ctx: FossilCtx): DigFossil | null {
   }
   for (const w of pool) {
     const fact = etymologyFact(ctx.etymology(w)) ?? (ctx.definitions.get(w) ? etymologyFact(ctx.definitions.get(w)!) : null);
+    if (fact && ctx.mustMention?.length && !ctx.mustMention.some((l) => fold(fact).includes(fold(l)))) continue;
     if (fact) return { word: w, fact };
   }
   return null;

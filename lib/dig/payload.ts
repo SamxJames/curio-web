@@ -11,8 +11,13 @@ function shiftFor(date: string, id: string): number {
   return (h % 25) + 1;
 }
 
+/** Rotates letters and swaps " with ': the payload is stored inside a JSON string, so without
+ * the swap every quote mark of the secret's JSON would cost an escape (about 16% of a day file).
+ * The swap is its own inverse, so decoding is the same call with the opposite shift. */
 function rotate(s: string, by: number): string {
-  return s.replace(/[a-zA-Z]/g, (c) => {
+  return s.replace(/[a-zA-Z"']/g, (c) => {
+    if (c === '"') return "'";
+    if (c === "'") return '"';
     const base = c <= "Z" ? 65 : 97;
     return String.fromCharCode(((c.charCodeAt(0) - base + by) % 26) + base);
   });

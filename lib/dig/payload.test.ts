@@ -20,6 +20,13 @@ describe("payload", () => {
     expect(p).not.toContain("halyard");
     expect(p).not.toContain("answers");
   });
+  it("needs no escaping when stored as a JSON string, apostrophes included", () => {
+    const withApostrophe: PromptSecret = { ...secret, answers: [...secret.answers, ["o'clock", "common", 1]] };
+    const p = encodeSecret(withApostrophe, "2026-12-01", "theme:sailing");
+    // Only the fact's own quote marks and the apostrophe cost an escape; the JSON structure costs none.
+    expect(JSON.stringify(p).length - 2 - p.length).toBeLessThanOrEqual(10);
+    expect(decodeSecret(p, "2026-12-01", "theme:sailing")).toEqual(withApostrophe);
+  });
   it("round-trips across dates and prompt ids", () => {
     const dates = ["2026-12-01", "2026-12-02", "2027-01-31", "2028-02-29"];
     const ids = ["theme:sailing", "origin:latin", "theme:birds"];

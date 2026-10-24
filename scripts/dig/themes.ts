@@ -33,9 +33,18 @@ const singularPhrase = (s: string) => {
 export function themeText(name: string, via: "kind-of" | "domain", renames: Record<string, string>): string {
   if (renames[name]) return renames[name];
   const lower = name.toLowerCase();
-  if (via === "domain") return `Name ${/^[aeiou]/.test(lower) ? "an" : "a"} ${lower} word`;
+  const article = (s: string) => (/^[aeiou]/.test(s) ? "an" : "a");
+  if (via === "domain") return `Name ${article(lower)} ${lower} word`;
+  // "Buildings and structures" → "a building or structure"
+  if (lower.includes(" and ")) {
+    const s = lower.split(" and ").map(singularPhrase).join(" or ");
+    return `Name ${article(s)} ${s}`;
+  }
+  // A mass noun ("Clothing", "Glass") has no singular to name: "a type of clothing".
+  const last = lower.split(" ").at(-1)!;
+  if (!/s$/.test(last) || /(ss|us|is)$/.test(last)) return `Name a type of ${lower}`;
   const s = singularPhrase(lower);
-  return `Name ${/^[aeiou]/.test(s) ? "an" : "a"} ${s}`;
+  return `Name ${article(s)} ${s}`;
 }
 
 type Anchor = { id: string; via: "kind-of" | "domain"; size: number };
@@ -124,7 +133,7 @@ export function letterVariants(theme: Candidate, zipf: Map<string, number>, opts
     out.push({
       ...theme,
       id: `${theme.id}:${letter}`,
-      base: theme.id,
+      base: theme.base,
       text: `${theme.text} beginning with ${letter.toUpperCase()}`,
       core,
       accepted: theme.accepted.filter(inLetter),
