@@ -54,9 +54,8 @@ Decisions taken during the build that change what the product or spec does.
     respects the answer-count and size caps. Words dropped by lineage filtering stay accepted.
 14. **The health cron's heartbeat doesn't depend on its other reads.** It is written before housekeeping, and the
     usage estimate can fail without blocking the alert or the heartbeat. An unreadable `lastRun` counts as a problem.
-15. **Redis keys differ from §8.** There is no `curio:dig:pool`. Adjudication uses `curio:dig:extras` and
-    `curio:dig:adjudicated`, and the health cron uses `curio:dig:health:usage:<month>`. `docs/handover/dig.md` has the
-    current list.
+15. **Redis keys changed (§8 is now updated).** There is no `curio:dig:pool`. Adjudication uses `curio:dig:extras` and
+    `curio:dig:adjudicated`, and the health cron uses `curio:dig:health:usage:<month>`.
 
 ## 1. Summary
 
@@ -204,7 +203,7 @@ protect:
 
 ```
 weekly GitHub Action (public repo, counts-only logs)
-  └─ builds + validates days  ──►  Upstash  curio:dig:day:<date>, manifest, swap pool
+  └─ builds + validates days  ──►  Upstash  curio:dig:day:<date>, manifest, extras
                                         ▲ reads (rare, cached)          ▲ HINCRBY / HGETALL
 Vercel (curioword.com)                  │                               │
   /dig, /dig/past, /dig/<date>  ── ISR pages
@@ -278,12 +277,14 @@ All writes are production-only and use the `curio:dig:` prefix. Phase 6 adds `di
 |---|---|---|---|---|
 | `curio:dig:day:<date>` | string (JSON) | Action | The day file (§4) | none: the archive needs it |
 | `curio:dig:manifest` | string (JSON) | Action | Dates built, the buffer and the last run | none |
-| `curio:dig:pool` | string (JSON) | Action | Spare prompts for swaps | none |
+| `curio:dig:extras` | string (JSON) | Action (adjudication) | Prompt id → extra accepted words | none |
+| `curio:dig:adjudicated` | string (JSON) | Action (adjudication) | `prompt\|word` pairs already decided, so none is asked twice | none |
 | `curio:dig:scores:<date>` | hash | `event: finish` | Score bucket (score ÷ 10, 0–70) → count | 35 d |
 | `curio:dig:funnel:<date>` | hash | `event: *` | Funnel counters (§9) | 90 d |
 | `curio:dig:rej:<date>:<prompt>` | hash | `event: finish` | Rejected guess → count | 35 d |
 | `curio:dig:claim:<date>:<prompt>` | hash | `event: claim` | "This should count" → count | 35 d |
 | `curio:dig:health:last` | string | health cron | Heartbeat the Action checks | none |
+| `curio:dig:health:usage:<month>` | string | health cron | Highest usage alert sent this month (50 or 70) | 40 d |
 
 **What the events do**
 - **`finish`** is one request at the end of today's game. It carries the score, the seven tiers and at most 3
