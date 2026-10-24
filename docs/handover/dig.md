@@ -29,7 +29,7 @@ Locally, with no `VERCEL_ENV`, the game reads days from `.dig-out/days/` (or `DI
 |---|---|---|
 | `DIG_LAUNCH_DATE` | Vercel | `YYYY-MM-DD` of day 1. Unset means `/dig` and `/api/dig/*` return 404 in production. Setting it needs a redeploy. |
 | `DIG_ALERT_TO` | Vercel | Where the health cron emails problems. Must be set, or a problem day only shows as a 500 in Vercel logs. |
-| `DIG_REDIS_REST_URL`, `DIG_REDIS_REST_TOKEN` | GitHub Actions secrets (always); Vercel (only for a separate database) | The pipeline reads only these two. On Vercel they are optional: without them the site uses its normal `UPSTASH_REDIS_REST_*` client. |
+| `DIG_REDIS_REST_URL`, `DIG_REDIS_REST_TOKEN` | GitHub Actions secrets (always); Vercel (only for a separate database) | The pipeline reads only these two. On Vercel they are optional: without them the site uses its normal `UPSTASH_REDIS_REST_*` client. Both sides must point at the same database: the pipeline fails if it can't see the health cron's heartbeat. |
 | `DIG_SEED_SALT` | GitHub Actions secret | Secret seed for the daily draw. Required (16+ characters) with `--publish`; local runs use a fixed dev string. |
 | `DIG_LOCAL_DIR` | Local only | Folder of pipeline output for local dev. Default `.dig-out`. |
 

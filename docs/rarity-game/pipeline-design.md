@@ -7,7 +7,7 @@ The measurement scripts that produced the numbers below live outside the repo. P
 
 ## 1. Summary
 
-A **weekly GitHub Action** builds every day's seven prompts offline. It's free, because the repo is public.
+A **GitHub Action, run twice a week** (Mon and Thu 04:00 UTC), builds every day's seven prompts offline. It's free, because the repo is public.
 
 It downloads free datasets:
 - Wiktionary, via the Wiktextract dump
@@ -323,7 +323,7 @@ the job fails, and the next run tries it again. A day already written is never r
 Retries are written to the job summary. If the buffer can't be refilled to 30 days, the job **fails**, so GitHub
 emails Sam (§12).
 
-## 11. Rejected guesses, "this should count", and weekly adjudication
+## 11. Rejected guesses, "this should count", and adjudication
 
 **Logging (cheap):**
 - As built, rejections are batched into the one `finish` event the browser sends to `/api/dig/event`: a list of
@@ -339,7 +339,7 @@ emails Sam (§12).
   this week".
 - No email or account is needed. Each browser can claim once per prompt.
 
-**Weekly adjudication** runs in the same Action, using a **read-only** Upstash token for the logs. For each claimed
+**Adjudication** runs on every pipeline run, in the same Action (as built, it uses the same DIG_REDIS_* token as the day writes; a separate read-only token was dropped). For each claimed
 guess, and each rejected guess seen at least twice:
 1. Normalise it, and run the freak-match guard in reverse: is it a real English headword at all?
 2. **Accept** it if **any one** strong source places it in the prompt:
