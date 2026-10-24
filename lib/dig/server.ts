@@ -2,7 +2,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { Redis } from "@upstash/redis";
 import { DAY_MS, dayKey, dayStart } from "../day";
-import { digLaunchDate, isPastDay } from "./clock";
+import { digLaunchDate, isDateKey, isPastDay } from "./clock";
 import { devDay } from "./devDay";
 import { funnelField, planFinish, type DigEvent } from "./events";
 import { digKeys, type DigManifest } from "./keys";
@@ -37,6 +37,7 @@ const toCounts = (h: Record<string, unknown> | null | undefined) =>
   Object.fromEntries(Object.entries(h ?? {}).map(([k, v]) => [k, Number(v) || 0]));
 
 export async function readDay(date: string): Promise<DigDay | null> {
+  if (!isDateKey(date)) return null;
   if (readsRedis()) {
     const r = await digRedis();
     return (await r?.get<DigDay>(digKeys.day(date))) ?? null;
