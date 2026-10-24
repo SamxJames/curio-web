@@ -32,7 +32,9 @@ export const READ_SECONDS = 3;
 export const ANSWER_SECONDS = 25;
 export const MAX_REJECTED = 3;
 
-export type PromptResult = { answer: string | null; tier: Tier | null; rejected: string[] };
+/** `rejected` keeps up to MAX_REJECTED display forms, one per distinct key. `lastGuess` is the
+ * player's most recent miss, even once the cap is full, for Reveal and the claim button. */
+export type PromptResult = { answer: string | null; tier: Tier | null; rejected: string[]; lastGuess: string | null };
 export type Feedback =
   | { kind: "near"; guess: string; suggestion: string; index: number }
   | { kind: "miss"; guess: string }
@@ -47,7 +49,12 @@ export type GameState = {
   feedback: Feedback;
   results: PromptResult[];
 };
-export type GameAction = { type: "start"; noTimer: boolean } | { type: "tick" } | { type: "submit"; guess: string } | { type: "next" };
+export type GameAction =
+  | { type: "start"; noTimer: boolean }
+  | { type: "tick" }
+  | { type: "submit"; guess: string }
+  | { type: "pass" }
+  | { type: "next" };
 
 export function initialGame(): GameState {
   return { phase: "intro", current: 0, noTimer: false, clock: 0, feedback: null, results: [] };
@@ -68,7 +75,7 @@ export function createReducer(day: Pick<PreparedDay, "secrets" | "lookups">) {
     switch (a.type) {
       case "start":
         if (s.phase !== "intro") return s;
-        return enterPrompt({ ...s, noTimer: a.noTimer, results: day.secrets.map(() => ({ answer: null, tier: null, rejected: [] })) }, 0);
+        return enterPrompt({ ...s, noTimer: a.noTimer, results: day.secrets.map(() => ({ answer: null, tier: null, rejected: [], lastGuess: null })) }, 0);
       case "tick":
         if (s.noTimer) return s;
         if (s.phase === "reading") return s.clock > 1 ? { ...s, clock: s.clock - 1 } : { ...s, phase: "answering", clock: ANSWER_SECONDS };
@@ -84,13 +91,19 @@ export function createReducer(day: Pick<PreparedDay, "secrets" | "lookups">) {
           return { ...s, feedback: { kind: "near", guess: a.guess, suggestion: day.secrets[s.current].answers[r.index][0], index: r.index } };
         }
         const prev = s.results[s.current];
-        // Stored as the normalised key, so "ice cream" and "icecream" are one rejected guess (amendment N6).
-        const g = normalizeKey(a.guess);
-        const rejected = prev.rejected.includes(g) || prev.rejected.length >= MAX_REJECTED ? prev.rejected : [...prev.rejected, g];
+        // The display form is kept (Reveal shows what the player typed). Dedupe compares keys, so
+        // "ZZZZ" and "z z z z" take one slot; normalising for the server is cleanGuess's job.
+        const g = a.guess.trim();
+        const slot = normalizeKey(g);
+        const taken = prev.rejected.some((r) => normalizeKey(r) === slot);
+        const rejected = taken || prev.rejected.length >= MAX_REJECTED ? prev.rejected : [...prev.rejected, g];
         const results = [...s.results];
-        results[s.current] = { ...prev, rejected };
+        results[s.current] = { ...prev, rejected, lastGuess: g };
         return { ...s, results, feedback: { kind: "miss", guess: a.guess } };
       }
+      case "pass":
+        if (s.phase !== "answering") return s;
+        return lock(s, null);
       case "next":
         if (s.phase !== "reveal") return s;
         return s.current + 1 >= day.secrets.length ? { ...s, phase: "done" } : enterPrompt(s, s.current + 1);

@@ -1,10 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { ANSWER_SECONDS, createReducer, initialGame, prepareDay, resultTiers, type GameState } from "./game";
 import { parseDigEvent } from "./events";
 import { encodeDay } from "./payload";
 import { devDay } from "./devDay";
 import { scoreOf } from "./score";
-import { parseStore, withGame } from "./storage";
+import { markReported, parseStore, readStore, saveGame, setNoTimer, withGame, type StoredGame } from "./storage";
 
 const day = prepareDay({ ...encodeDay(devDay("2026-12-05")), number: 5 });
 const reduce = createReducer(day);
@@ -48,11 +48,30 @@ describe("game reducer", () => {
     const s = run(initialGame(), { type: "start", noTimer: true },
       ...["zzzz", "ZZZZ", "yyyy", "xxxx", "wwww"].map((guess) => ({ type: "submit" as const, guess })));
     expect(s.results[0].rejected).toEqual(["zzzz", "yyyy", "xxxx"]);
+    expect(s.results[0].lastGuess).toBe("wwww");
   });
-  it("stores rejected guesses as normalised keys, so spacing and case count as one guess", () => {
+  it("keeps the display form of a rejected guess and dedupes by key", () => {
     const s = run(initialGame(), { type: "start", noTimer: true },
-      { type: "submit", guess: "z z z z" }, { type: "submit", guess: "zzzz" });
-    expect(s.results[0].rejected).toEqual(["zzzz"]);
+      { type: "submit", guess: " Ice cream " }, { type: "submit", guess: "ICECREAM" },
+      { type: "submit", guess: "zzzz" }, { type: "submit", guess: "Z Z Z Z" });
+    expect(s.results[0].rejected).toEqual(["Ice cream", "zzzz"]);
+    expect(s.results[0].lastGuess).toBe("Z Z Z Z");
+  });
+  it("keeps the accents of a rejected guess in state", () => {
+    const s = run(initialGame(), { type: "start", noTimer: true }, { type: "submit", guess: "Crème brûlée" });
+    expect(s.results[0].rejected).toEqual(["Crème brûlée"]);
+  });
+  it("pass locks an empty layer with No timer on", () => {
+    const s = run(initialGame(), { type: "start", noTimer: true }, { type: "pass" });
+    expect(s.phase).toBe("reveal");
+    expect(s.results[0]).toMatchObject({ answer: null, tier: null });
+  });
+  it("pass locks an empty layer with the timer on, and is ignored while reading", () => {
+    let s = run(initialGame(), { type: "start", noTimer: false }, { type: "pass" });
+    expect(s).toMatchObject({ phase: "reading" });
+    s = run(s, { type: "tick" }, { type: "tick" }, { type: "tick" }, { type: "pass" });
+    expect(s.phase).toBe("reveal");
+    expect(s.results[0]).toMatchObject({ answer: null, tier: null });
   });
   it("times out to an empty layer and finishes after the seventh prompt", () => {
     let s = run(initialGame(), { type: "start", noTimer: false });
@@ -92,5 +111,48 @@ describe("storage", () => {
     }
     expect(Object.keys(store.games)).toHaveLength(400);
     expect(store.games["2026-01-01"]).toBeUndefined();
+  });
+  it("drops corrupted game entries and keeps the rest", () => {
+    const NULLS = Array.from({ length: 7 }, () => null);
+    const good = { answers: NULLS, tiers: NULLS, score: 0, finishedAt: "2026-12-01T10:00:00.000Z" };
+    const raw = JSON.stringify({
+      v: 1,
+      settings: { noTimer: true },
+      games: {
+        "2026-12-01": good,
+        "2026-12-02": { ...good, score: 5 },
+        "2026-12-03": { ...good, tiers: [null] },
+        "2026-12-04": { ...good, score: "0" },
+        "12/05/2026": good,
+        "2026-12-06": null,
+        "2026-12-07": { ...good, answers: [1, 2, 3, 4, 5, 6, 7] },
+        "2026-12-08": { ...good, spread: { "10": "many" }, reported: "yes" },
+      },
+    });
+    const store = parseStore(raw);
+    expect(store.settings.noTimer).toBe(true);
+    expect(Object.keys(store.games)).toEqual(["2026-12-01", "2026-12-08"]);
+    expect(store.games["2026-12-08"]).toEqual(good);
+    expect(store.games["2026-12-08"]).not.toHaveProperty("spread");
+  });
+  it("keeps in-session saves in memory when localStorage refuses them", () => {
+    const NULLS = Array.from({ length: 7 }, () => null);
+    vi.stubGlobal("window", {
+      localStorage: {
+        getItem: () => { throw new Error("denied"); },
+        setItem: () => { throw new Error("full"); },
+      },
+    });
+    try {
+      const game: StoredGame = { answers: NULLS, tiers: NULLS, score: 0, finishedAt: "2026-12-05T10:00:00.000Z" };
+      saveGame("2026-12-05", game);
+      setNoTimer(true);
+      markReported("2026-12-05", { "0": 60 });
+      const store = readStore();
+      expect(store.settings.noTimer).toBe(true);
+      expect(store.games["2026-12-05"]).toMatchObject({ reported: true, spread: { "0": 60 } });
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });
