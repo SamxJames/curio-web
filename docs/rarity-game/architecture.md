@@ -187,8 +187,9 @@ Matching runs entirely on the device, so a guess costs no server call. The funct
    - **Confirmation:** a correction is always confirmed, never applied silently.
 4. **Otherwise:** not on the list.
 
-**Answer protection: obfuscate, not hash (my call).** The answer table is XOR-scrambled with a key derived from the
-date and base64-encoded, and it's decoded only in memory when a prompt starts. Here is what that does and doesn't
+**Answer protection: obfuscate, not hash (my call).** The answer table is scrambled with a letter rotation whose
+shift comes from the date and prompt id (as built; XOR + base64 was planned, but a rotation keeps the JSON
+compressible), and it's decoded only in memory when a prompt starts. Here is what that does and doesn't
 protect:
 
 - **Real protection: future days never leave Redis** (decided at the Phase 3 gate). Copycat sites can't publish
@@ -281,8 +282,8 @@ All writes are production-only and use the `curio:dig:` prefix. Phase 6 adds `di
 | `curio:dig:adjudicated` | string (JSON) | Action (adjudication) | `prompt\|word` pairs already decided, so none is asked twice | none |
 | `curio:dig:scores:<date>` | hash | `event: finish` | Score bucket (score ÷ 10, 0–70) → count | 35 d |
 | `curio:dig:funnel:<date>` | hash | `event: *` | Funnel counters (§9) | 90 d |
-| `curio:dig:rej:<date>:<prompt>` | hash | `event: finish` | Rejected guess → count | 35 d |
-| `curio:dig:claim:<date>:<prompt>` | hash | `event: claim` | "This should count" → count | 35 d |
+| `curio:dig:rej:<date>:<index>` | hash | `event: finish` | Rejected guess → count (index = prompt position 0–6) | 35 d |
+| `curio:dig:claim:<date>:<index>` | hash | `event: claim` | "This should count" → count | 35 d |
 | `curio:dig:health:last` | string | health cron | Heartbeat the Action checks | none |
 | `curio:dig:health:usage:<month>` | string | health cron | Highest usage alert sent this month (50 or 70) | 40 d |
 

@@ -271,11 +271,13 @@ Matching is generous, and every correction is confirmed by the player:
   -ise/-ize, -yse/-yze, ae/oe → e, -ogue/-og, doubled l). These are applied symmetrically.
 - **Aliases:** Wiktionary "alternative form" spellings. Synonyms are **not** aliases: a synonym scores only if it's
   an answer in its own right.
-- **Near misses:** one edit allowed for words of 4 to 7 letters, two for 8 letters or more, and none for 3 letters or
-  fewer. The nearest answer must be unique.
+- **Near misses:** one edit for words of 4 letters or more, and none for 3 letters or fewer (changed at planning time
+  from "two edits for 8+ letters": two edits matched too many unrelated real words). Exactly one answer may be in
+  range.
   - **Freak-match guard:** if what the player typed is itself a real English word (in wordfreq, or a Wiktionary
     English headword), it is **never** fuzzed. They get "isn't on the list" instead. That blocks Krillion's "sea
-    monkey" → "sea donkey" failure.
+    monkey" → "sea donkey" failure. The day file can't carry the whole lexicon, so each prompt carries a **guard
+    list**: every real word exactly one edit from one of its answers.
   - A correction is never scored silently. The player sees "Did you mean *gunwale*?" and must press again. This was
     built and tested in the mockups.
 - Each day file carries the matching data for its own answers (forms and spelling variants), so matching runs
@@ -309,26 +311,30 @@ Every generated day is checked in CI. The same checks run as a Vitest suite in t
    - every core answer, plural and spelling variant matches itself;
    - no two answers collapse to the same normalised key with different tiers;
    - **simulated typos** of each fossil resolve to it or to nothing, never to a different answer.
-6. **Size:** a day file is ≤ 80 KB before compression.
+6. **Size:** a day file is ≤ 400,000 characters before compression (raised at planning time from 80 KB: the guard
+   lists and spelling variants make real days larger, and they compress well).
 
-**When a check fails**, the failing prompt is swapped for the next spare of the same type from a pre-validated
-**spare pool** (20 themes and 6 origins), and the day is checked again. If that day still fails after 3 swaps, the
-**whole day** is replaced by a spare day, and the schedule shifts.
+**When a check fails**, the whole day is picked again with a new seed, up to 5 times (as built; the planned
+per-prompt swap from a stored pool was dropped as simpler-but-equivalent). The "spare pool" is now a count: the job
+fails if fewer than 20 unused themes or 6 unused origins remain. A date that still fails after 5 tries is left empty,
+the job fails, and the next run tries it again. A day already written is never rebuilt.
 
-Every swap is written to the job summary. If the buffer can't be refilled to 30 days, the job **fails**, so GitHub
+Retries are written to the job summary. If the buffer can't be refilled to 30 days, the job **fails**, so GitHub
 emails Sam (§12).
 
 ## 11. Rejected guesses, "this should count", and weekly adjudication
 
 **Logging (cheap):**
-- When a guess gets "isn't on the list", the browser sends `{date, prompt, guess}` to `/api/dig/reject`.
-- The server checks the guess: 2 to 40 characters, letters, spaces, hyphens and apostrophes only. It writes one
-  `HINCRBY curio:dig:rej:<date>:<prompt> <guess> 1`, with a 35-day expiry.
-- Each browser logs at most 3 rejections per prompt, and bots are filtered the way `/api/traffic` already does.
+- As built, rejections are batched into the one `finish` event the browser sends to `/api/dig/event`: a list of
+  `[promptIndex, guess]` pairs, at most 3 per prompt (21 in all). Nothing is sent per guess.
+- The server checks each guess: 2 to 40 characters, letters, spaces, hyphens and apostrophes only. It writes
+  `HINCRBY curio:dig:rej:<date>:<index> <guess> 1` in the same pipelined round trip as the score; the daily health
+  cron sets the 35-day expiry.
+- Bots are filtered the way `/api/traffic` already does.
 
 **"This should count":**
 - The button sits beside a rejection, and on each prompt in the reveal.
-- It writes to `curio:dig:claim:<date>:<prompt>`, also with a 35-day expiry, and shows "Thanks, we'll check it
+- It writes to `curio:dig:claim:<date>:<index>`, also with a 35-day expiry, and shows "Thanks, we'll check it
   this week".
 - No email or account is needed. Each browser can claim once per prompt.
 
