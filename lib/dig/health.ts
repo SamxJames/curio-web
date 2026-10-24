@@ -12,7 +12,9 @@ export function evaluateHealth(i: { today: string; manifest: DigManifest | null;
   const buffer = furthest ? Math.round((dayStart(furthest).getTime() - dayStart(i.today).getTime()) / DAY_MS) : 0;
   if (buffer < 14) problems.push(`Only ${Math.max(buffer, 0)} days are built ahead (alert below 14).`);
   const age = Math.floor((i.now.getTime() - Date.parse(i.manifest.lastRun)) / DAY_MS);
-  if (age > 9) problems.push(`The pipeline last published ${age} days ago (alert after 9).`);
+  // An unreadable lastRun counts as stale, as the pipeline treats an unreadable heartbeat.
+  if (Number.isNaN(age)) problems.push("The pipeline manifest has no readable last-run time.");
+  else if (age > 9) problems.push(`The pipeline last published ${age} days ago (alert after 9).`);
   return problems;
 }
 
@@ -45,6 +47,6 @@ export function usageAlert(i: { estimated: number; now: Date; alreadySent: numbe
     : null;
   return {
     level,
-    message: `Edge requests are an estimated ${Math.round(pct)}% of Hobby's 1,000,000 this month. ${when ? `At this rate they reach 100% on ${when}.` : "At this rate they stay under 100% this month."} Check the Vercel usage page and decide whether to upgrade to Pro ($20, about £16 a month).`,
+    message: `Edge requests are an estimated ${Math.round(pct)}% of Hobby's 1,000,000 this month. ${pct >= 100 ? "They are already past the monthly allowance." : when ? `At this rate they reach 100% on ${when}.` : "At this rate they stay under 100% this month."} Check the Vercel usage page and decide whether to upgrade to Pro ($20, about £16 a month).`,
   };
 }

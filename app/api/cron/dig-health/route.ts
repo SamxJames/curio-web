@@ -26,16 +26,23 @@ export async function GET(req: NextRequest) {
     if (!reads) return NextResponse.json({ error: "Redis not configured" }, { status: 500 });
     const problems = evaluateHealth({ today, manifest: reads.manifest, todayExists: reads.todayExists, tomorrowExists: reads.tomorrowExists, launch: digLaunchDate(), now });
 
-    const dayOfMonth = now.getUTCDate();
-    const monthDates = Array.from({ length: dayOfMonth }, (_, i) => `${month}-${String(i + 1).padStart(2, "0")}`);
-    const [dig, site] = await Promise.all([funnelDays(monthDates), getTrafficDays(dayOfMonth, now)]);
-    const sum = (days: Record<string, Record<string, number>>, prefix: string) =>
-      Object.values(days).reduce((a, h) => a + Object.entries(h).reduce((b, [f, n]) => (f.startsWith(prefix) ? b + n : b), 0), 0);
-    const alert = usageAlert({ estimated: estimateEdgeRequests(sum(dig, "land:"), sum(site, "visit:")), now, alreadySent: reads.usageSent });
+    // The usage estimate is secondary: if its reads fail, the buffer alert and the heartbeat still go out.
+    let alert: ReturnType<typeof usageAlert> = null;
+    try {
+      const dayOfMonth = now.getUTCDate();
+      const monthDates = Array.from({ length: dayOfMonth }, (_, i) => `${month}-${String(i + 1).padStart(2, "0")}`);
+      const [dig, site] = await Promise.all([funnelDays(monthDates), getTrafficDays(dayOfMonth, now)]);
+      const sum = (days: Record<string, Record<string, number>>, prefix: string) =>
+        Object.values(days).reduce((a, h) => a + Object.entries(h).reduce((b, [f, n]) => (f.startsWith(prefix) ? b + n : b), 0), 0);
+      alert = usageAlert({ estimated: estimateEdgeRequests(sum(dig, "land:"), sum(site, "visit:")), now, alreadySent: reads.usageSent });
+    } catch (err) {
+      console.error("dig-health usage estimate failed", err instanceof Error ? err.name : "unknown");
+    }
     if (alert) problems.push(alert.message);
 
-    await housekeep(yesterday);
+    // Heartbeat first: the pipeline fails closed without it, so counter expiry can't block it.
     await writeHeartbeat(now);
+    await housekeep(yesterday);
     if (problems.length) {
       await sendDigAlert(problems);
       if (alert) await markUsageAlert(month, alert.level);

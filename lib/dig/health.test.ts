@@ -35,3 +35,15 @@ describe("usage", () => {
     expect(usageAlert({ estimated: 720_000, now: mid, alreadySent: 50 })!.level).toBe(70);
   });
 });
+
+describe("health edge cases", () => {
+  it("treats an unreadable manifest lastRun as stale, not fresh", () => {
+    const p = evaluateHealth({ today: "2026-12-10", manifest: manifest("2027-01-20", "not a date"), todayExists: true, tomorrowExists: true, launch: "2026-12-01", now });
+    expect(p).toContain("The pipeline manifest has no readable last-run time.");
+  });
+
+  it("says the allowance is already passed instead of naming a past date", () => {
+    const a = usageAlert({ estimated: 1_100_000, now: new Date("2026-12-20T07:00:00Z"), alreadySent: 0 });
+    expect(a!.message).toContain("already past the monthly allowance");
+  });
+});
