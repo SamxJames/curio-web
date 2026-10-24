@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LexicalResource>
+<Lexicon id="oewn" label="mini" language="en" email="x" license="CC BY 4.0" version="2025">
+<LexicalEntry id="oewn-fruit-n"><Lemma writtenForm="fruit" partOfSpeech="n"/><Sense id="oewn-fruit__1" synset="oewn-fruit-n-1"/></LexicalEntry>
+<LexicalEntry id="oewn-apple-n"><Lemma writtenForm="apple" partOfSpeech="n"/><Sense id="oewn-apple__1" synset="oewn-apple-n-1"/></LexicalEntry>
+<LexicalEntry id="oewn-citrus_fruit-n"><Lemma writtenForm="citrus fruit" partOfSpeech="n"/><Sense id="oewn-citrus_fruit__1" synset="oewn-citrus-n-1"/></LexicalEntry>
+<LexicalEntry id="oewn-lemon-n"><Lemma writtenForm="lemon" partOfSpeech="n"/><Sense id="oewn-lemon__1" synset="oewn-lemon-n-1"/></LexicalEntry>
+<LexicalEntry id="oewn-colour-n"><Lemma writtenForm="colour" partOfSpeech="n"/><Sense id="oewn-colour__1" synset="oewn-colour-n-1"/></LexicalEntry>
+<LexicalEntry id="oewn-color-n"><Lemma writtenForm="color" partOfSpeech="n"/><Sense id="oewn-color__1" synset="oewn-colour-n-1"/></LexicalEntry>
+<LexicalEntry id="oewn-seafaring-n"><Lemma writtenForm="seafaring" partOfSpeech="n"/><Sense id="oewn-seafaring__1" synset="oewn-seafaring-n-1"/></LexicalEntry>
+<LexicalEntry id="oewn-keel-n"><Lemma writtenForm="keel" partOfSpeech="n"/><Sense id="oewn-keel__1" synset="oewn-keel-n-1"/></LexicalEntry>
+<Synset id="oewn-fruit-n-1" ili="i1" members="oewn-fruit-n" partOfSpeech="n" lexfile="noun.plant"><Definition>the ripened reproductive body of a seed plant</Definition><SynsetRelation relType="hyponym" target="oewn-apple-n-1"/><SynsetRelation relType="hyponym" target="oewn-citrus-n-1"/></Synset>
+<Synset id="oewn-apple-n-1" ili="i2" members="oewn-apple-n" partOfSpeech="n" lexfile="noun.food"><Definition>fruit with red or yellow or green skin</Definition><SynsetRelation relType="hypernym" target="oewn-fruit-n-1"/></Synset>
+<Synset id="oewn-citrus-n-1" ili="i3" members="oewn-citrus_fruit-n" partOfSpeech="n" lexfile="noun.food"><Definition>any of numerous fruits of the genus Citrus</Definition><SynsetRelation relType="hypernym" target="oewn-fruit-n-1"/><SynsetRelation relType="hyponym" target="oewn-lemon-n-1"/></Synset>
+<Synset id="oewn-lemon-n-1" ili="i4" members="oewn-lemon-n" partOfSpeech="n" lexfile="noun.food"><Definition>yellow oval fruit with juicy acidic flesh</Definition><SynsetRelation relType="hypernym" target="oewn-citrus-n-1"/></Synset>
+<Synset id="oewn-colour-n-1" ili="i5" members="oewn-colour-n oewn-color-n" partOfSpeech="n" lexfile="noun.attribute"><Definition>a visual attribute of things</Definition></Synset>
+<Synset id="oewn-seafaring-n-1" ili="i6" members="oewn-seafaring-n" partOfSpeech="n" lexfile="noun.act"><Definition>the work of a sailor</Definition></Synset>
+<Synset id="oewn-keel-n-1" ili="i7" members="oewn-keel-n" partOfSpeech="n" lexfile="noun.artifact"><Definition>one of the main longitudinal beams of the hull</Definition><SynsetRelation relType="domain_topic" target="oewn-seafaring-n-1"/></Synset>
+</Lexicon>
+</LexicalResource>
