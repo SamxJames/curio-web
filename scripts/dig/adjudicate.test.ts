@@ -2,7 +2,7 @@ import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import { adjudicate, judge } from "./adjudicate";
+import { adjudicate, judge, JUDGE_PER_PROMPT } from "./adjudicate";
 import { FileSink } from "./sink";
 import { decodeDay, encodeDay } from "../../lib/dig/payload";
 import type { DigDayPlain } from "../../lib/dig/types";
@@ -43,7 +43,7 @@ describe("adjudicate", () => {
     expect(past.prompts[0].answers).toContainEqual(["jib", "uncommon", 0]);
     const todays = decodeDay((await sink.readDay("2026-12-03"))!);
     expect(todays.prompts[0].answers).toHaveLength(1);
-    expect(await sink.readAdjudicated()).toEqual(expect.arrayContaining(["theme:sailing|jib", "theme:sailing|banana"]));
+    expect(await sink.readAdjudicated("2026-12-03")).toEqual({ "theme:sailing|jib": "2026-12-03", "theme:sailing|banana": "2026-12-03" });
   });
 
   it("stops adding extras at ACCEPTED_CAP, most-guessed first", async () => {
@@ -59,6 +59,25 @@ describe("adjudicate", () => {
     const r = await adjudicate(sink, new Map([["theme:sailing", nearCap]]), { ...open, today: "2026-12-03", zipf: new Map() });
     expect(r).toEqual({ judged: 1, accepted: 1, amendedDays: 0, skippedOversize: 0 });
     expect(await sink.readExtras()).toEqual({ "theme:sailing": ["sail"] });
+  });
+
+  it("does not count extras twice: candidates that already include extras keep their room", async () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "adj-twice-"));
+    const sink = new FileSink(dir);
+    await sink.writeManifest({ v: 1, lastRun: "x", days: { "2026-12-01": [{ id: "theme:sailing", base: "theme:sailing", fossil: "keel" }] }, poolThemes: 0, poolOrigins: 0 });
+    mkdirSync(path.join(dir, "logs"), { recursive: true });
+    writeFileSync(path.join(dir, "logs", "rej-2026-12-01-0.json"), JSON.stringify({ jib: 4, sail: 3, mast: 2 }));
+    await sink.writeExtras({ "theme:sailing": ["e1", "e2"] });
+    // build.ts hands in candidates that already contain the extras: CAP - 2 accepted, room for exactly two more.
+    const filler = Array.from({ length: ACCEPTED_CAP - 4 }, (_, i) => `filler${i}`);
+    const nearCap: Candidate = { ...theme, accepted: ["keel", ...filler, "e1", "e2"], sources: [new Set(["keel", "sail", "jib", "mast"])] };
+    expect(nearCap.accepted).toHaveLength(ACCEPTED_CAP - 1);
+    nearCap.accepted.pop();
+    expect(nearCap.accepted).toHaveLength(ACCEPTED_CAP - 2);
+    const open = { lexicon: new Set(["keel", "sail", "jib", "mast"]), usable: () => true, blocked: new Set<string>() };
+    const r = await adjudicate(sink, new Map([["theme:sailing", nearCap]]), { ...open, today: "2026-12-03", zipf: new Map() });
+    expect(r.accepted).toBe(2);
+    expect(await sink.readExtras()).toEqual({ "theme:sailing": ["e1", "e2", "jib", "sail"] });
   });
 
   it("adds nothing when the prompt is already at ACCEPTED_CAP", async () => {
@@ -108,6 +127,45 @@ function fixture(logs: Record<string, object>) {
 
 const run = (sink: FileSink, cand: Candidate, lexicon: string[], zipf = new Map<string, number>()) =>
   adjudicate(sink, new Map([["theme:sailing", cand]]), { lexicon: new Set(lexicon), usable: () => true, blocked: new Set<string>(), today: "2026-12-03", zipf });
+
+describe("adjudicate bounds its work and its state", () => {
+  it("judges at most JUDGE_PER_PROMPT guesses per prompt per run, top-ranked first, then the rest on the next run", async () => {
+    const claims: Record<string, number> = Object.fromEntries(Array.from({ length: JUDGE_PER_PROMPT + 5 }, (_, i) => [`junk${String.fromCharCode(97 + i)}`, 1]));
+    claims.favourite = 9;
+    const { sink } = fixture({ "claim-2026-12-01-0.json": claims });
+    await sink.writeManifest(manifest);
+    const go = () => run(sink, theme, ["keel"]);
+    expect((await go()).judged).toBe(JUDGE_PER_PROMPT);
+    const marks = await sink.readAdjudicated("2026-12-03");
+    expect(Object.keys(marks)).toHaveLength(JUDGE_PER_PROMPT);
+    expect(marks["theme:sailing|favourite"]).toBe("2026-12-03");
+    expect((await go()).judged).toBe(6);
+  });
+
+  it("still judges a single claim (claim >= 1) and a guess rejected twice, but not one rejection", async () => {
+    const { sink } = fixture({ "claim-2026-12-01-0.json": { jib: 1 }, "rej-2026-12-01-0.json": { sail: 2, mast: 1 } });
+    await sink.writeManifest(manifest);
+    const r = await run(sink, { ...theme, sources: [new Set(["keel", "jib", "sail", "mast"])] }, ["keel", "jib", "sail", "mast"]);
+    expect(r.judged).toBe(2);
+  });
+
+  it("drops marks judged more than 40 days before today when writing, and keeps newer ones", async () => {
+    const { sink } = fixture({ "rej-2026-12-01-0.json": { jib: 2 } });
+    await sink.writeManifest(manifest);
+    await sink.writeAdjudicated({ "theme:sailing|old": "2026-10-20", "theme:sailing|edge": "2026-10-24", "theme:sailing|recent": "2026-12-01" });
+    await run(sink, theme, ["keel", "jib"]);
+    expect(await sink.readAdjudicated("2026-12-03")).toEqual({ "theme:sailing|edge": "2026-10-24", "theme:sailing|recent": "2026-12-01", "theme:sailing|jib": "2026-12-03" });
+  });
+
+  it("treats an old array-shaped mark list as judged today, so none is judged again", async () => {
+    const { dir, sink } = fixture({ "rej-2026-12-01-0.json": { jib: 2 } });
+    await sink.writeManifest(manifest);
+    writeFileSync(path.join(dir, "adjudicated.json"), JSON.stringify(["theme:sailing|jib"]));
+    const r = await run(sink, theme, ["keel", "jib"]);
+    expect(r.judged).toBe(0);
+    expect(await sink.readAdjudicated("2026-12-03")).toEqual({ "theme:sailing|jib": "2026-12-03" });
+  });
+});
 
 describe("adjudicate never shadows answers and rebuilds the guard", () => {
   it("does not add a rejected plural of an existing answer", async () => {

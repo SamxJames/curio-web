@@ -44,19 +44,25 @@ describe("pickDay", () => {
   });
   const origins = ["x", "y", "z"].map((p) => mk(`origin:${p}`, "origin", words(p, 50)));
   it("picks 5 themes and 2 origins, origins at positions 3 and 6, easiest theme first", () => {
-    const day = pickDay("2026-12-05", { themes, origins }, [], zipf)!;
+    const day = pickDay("2026-12-05", { themes, origins }, [], zipf, "test-salt")!;
     expect(day.map((c) => c.kind)).toEqual(["theme", "theme", "origin", "theme", "theme", "origin", "theme"]);
     const easy = (c: Candidate) => c.core.filter((w) => (zipf.get(w) ?? 0) >= 3.5).length;
     const themesOnDay = day.filter((c) => c.kind === "theme");
     expect(easy(day[0])).toBe(Math.max(...themesOnDay.map(easy)));
   });
   it("is deterministic and returns null when supply is too thin", () => {
-    expect(pickDay("2026-12-05", { themes, origins }, [], zipf)!.map((c) => c.id)).toEqual(pickDay("2026-12-05", { themes, origins }, [], zipf)!.map((c) => c.id));
-    expect(pickDay("2026-12-05", { themes: themes.slice(0, 4), origins }, [], zipf)).toBeNull();
+    expect(pickDay("2026-12-05", { themes, origins }, [], zipf, "test-salt")!.map((c) => c.id)).toEqual(pickDay("2026-12-05", { themes, origins }, [], zipf, "test-salt")!.map((c) => c.id));
+    expect(pickDay("2026-12-05", { themes: themes.slice(0, 4), origins }, [], zipf, "test-salt")).toBeNull();
+  });
+  it("draws differently under a different seed salt, and the same under the same one", () => {
+    const ids = (salt: string) => pickDay("2026-12-05", { themes, origins }, [], zipf, salt)!.map((c) => c.id).join();
+    expect(ids("salt-one-aaaaaaaa")).toBe(ids("salt-one-aaaaaaaa"));
+    const variants = new Set(["salt-two-bbbbbbbb", "salt-three-cccccc", "salt-four-dddddd", "salt-five-eeeeee"].map(ids));
+    expect(variants.has(ids("salt-one-aaaaaaaa")) && variants.size === 1).toBe(false);
   });
   it("never pairs two origins that share a core", () => {
     const shared = words("s", 50);
     const pool = [mk("origin:g1", "origin", shared), mk("origin:g2", "origin", shared)];
-    expect(pickDay("2026-12-05", { themes, origins: pool }, [], zipf)).toBeNull();
+    expect(pickDay("2026-12-05", { themes, origins: pool }, [], zipf, "test-salt")).toBeNull();
   });
 });

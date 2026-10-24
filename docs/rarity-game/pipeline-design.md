@@ -293,7 +293,8 @@ Matching is generous, and every correction is confirmed by the player:
   Foods, Music and Musical instruments, Mammals and Felids).
 - **Overlap:** any two prompts on a day share less than 20% of their core.
 - **Gems are all different** across the day.
-- Days are **deterministic**: a seeded draw from the eligible pool, so a rerun gives the same result.
+- Days are **deterministic**: a seeded draw from the eligible pool, so a rerun gives the same result. The draw is
+  seeded with a secret, `DIG_SEED_SALT`, so the public code and data can't recompute future days.
 - **Days are frozen 7 days before they go live.** Adjudication can still *add* accepted answers later (§11), but never
   removes or re-tiers them, so nobody's score changes.
 

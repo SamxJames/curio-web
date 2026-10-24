@@ -24,6 +24,10 @@ export function judge(guess: string, c: Candidate, ctx: JudgeCtx): string | null
 }
 
 const LOG_DAYS = 35;
+/** At most this many guesses are judged per prompt per run (the top-ranked); the rest wait for the next run. */
+export const JUDGE_PER_PROMPT = 20;
+/** Judged marks older than this are dropped on write. Re-judging is harmless: judge() is deterministic. */
+const MARK_KEEP_DAYS = 40;
 
 /** Reads and decodes one stored day. A corrupt day is a hard failure. The message names the
  * date only, because JSON parse errors can quote the file's content. */
@@ -42,7 +46,7 @@ export async function adjudicate(
   ctx: JudgeCtx & { today: string; zipf: Map<string, number> }
 ): Promise<{ judged: number; accepted: number; amendedDays: number; skippedOversize: number }> {
   const history = historyFromManifest(await sink.readManifest());
-  const done = new Set(await sink.readAdjudicated());
+  const done = await sink.readAdjudicated(ctx.today);
   const extras = await sink.readExtras();
   // Aggregate rejected (count ≥ 2) and claimed (any) guesses per prompt id.
   const tallies = new Map<string, Map<string, { rej: number; claim: number }>>();
@@ -72,19 +76,24 @@ export async function adjudicate(
     const ranked = [...byGuess].filter(([guess]) => !acceptedKeys.has(normalizeKey(guess))).sort(
       ([ga, a], [gb, b]) => (b.rej + b.claim) - (a.rej + a.claim) || (ga < gb ? -1 : ga > gb ? 1 : 0)
     );
+    // `c.accepted` already includes the extras (build.ts merges them), so only words accepted
+    // earlier in this run are added to it for the cap check.
+    let acceptedHere = 0, judgedHere = 0;
     for (const [guess, t] of ranked) {
       if (t.claim < 1 && t.rej < 2) continue;
-      // Core + accepted + extras already at the cap: add nothing more for this prompt.
-      if (c.accepted.length + (extras[promptId] ?? []).length >= ACCEPTED_CAP) break;
+      if (c.accepted.length + acceptedHere >= ACCEPTED_CAP) break;
+      if (judgedHere >= JUDGE_PER_PROMPT) break;
       const mark = `${promptId}|${normalizeKey(guess)}`;
-      if (done.has(mark)) continue;
-      done.add(mark);
+      if (mark in done) continue;
+      done[mark] = ctx.today;
       judged++;
+      judgedHere++;
       const word = judge(guess, c, ctx);
       if (!word || (extras[promptId] ?? []).includes(word)) continue;
       extras[promptId] = [...(extras[promptId] ?? []), word];
       newlyAccepted.set(promptId, [...(newlyAccepted.get(promptId) ?? []), word]);
       accepted++;
+      acceptedHere++;
     }
   }
   let amendedDays = 0, skippedOversize = 0;
@@ -117,6 +126,7 @@ export async function adjudicate(
     amendedDays++;
   }
   await sink.writeExtras(extras);
-  await sink.writeAdjudicated([...done]);
+  const kept = Object.fromEntries(Object.entries(done).filter(([, date]) => daysBetween(date, ctx.today) <= MARK_KEEP_DAYS));
+  await sink.writeAdjudicated(kept);
   return { judged, accepted, amendedDays, skippedOversize };
 }

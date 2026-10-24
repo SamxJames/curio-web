@@ -17,7 +17,7 @@ It does not touch the daily word. It does not push unread-ness: no counts of unp
 | `app/dig/` | Pages: `/dig`, `/dig/past`, `/dig/<date>` (indexed archive, shows answers), `/dig/<date>/play` (noindex), plus link-preview images. Wrapped in the scoped brand (`docs/design-system.md` §5). |
 | `app/api/dig/` | `today`, `day/<date>` (day files, answers obfuscated) and `event` (funnel, finish and claim writes). |
 | `app/api/cron/dig-health/` | Daily health cron, 07:00 UTC (`vercel.json`). |
-| `scripts/dig/` | The offline pipeline (Node). Builds, validates and stores days; weekly adjudication of rejected guesses. |
+| `scripts/dig/` | The offline pipeline (Node). Builds, validates and stores days; adjudication of rejected guesses on every pipeline run (Mon and Thu). |
 | `.github/workflows/dig-pipeline.yml` | Runs the pipeline Mon and Thu 04:00 UTC, or by hand (`workflow_dispatch`, master only). Failure emails Sam from GitHub. |
 | `components/AdminDashboard.tsx` | The "curio dig" section of the admin page: funnel and kill line. |
 
@@ -30,18 +30,19 @@ Locally, with no `VERCEL_ENV`, the game reads days from `.dig-out/days/` (or `DI
 | `DIG_LAUNCH_DATE` | Vercel | `YYYY-MM-DD` of day 1. Unset means `/dig` and `/api/dig/*` return 404 in production. Setting it needs a redeploy. |
 | `DIG_ALERT_TO` | Vercel | Where the health cron emails problems. Must be set, or a problem day only shows as a 500 in Vercel logs. |
 | `DIG_REDIS_REST_URL`, `DIG_REDIS_REST_TOKEN` | GitHub Actions secrets (always); Vercel (only for a separate database) | The pipeline reads only these two. On Vercel they are optional: without them the site uses its normal `UPSTASH_REDIS_REST_*` client. |
+| `DIG_SEED_SALT` | GitHub Actions secret | Secret seed for the daily draw. Required (16+ characters) with `--publish`; local runs use a fixed dev string. |
 | `DIG_LOCAL_DIR` | Local only | Folder of pipeline output for local dev. Default `.dig-out`. |
 
 ## Redis keys
 
-All under `curio:dig:`. Written only in production. Day files are never overwritten once built (every written day is frozen).
+All under `curio:dig:`. Written only in production. Days are never re-drawn or re-tiered once built; adjudication may add accepted-only answers.
 
 | Key | Type | Written by | What | Expiry |
 |---|---|---|---|---|
 | `curio:dig:day:<date>` | JSON | Pipeline | The day file | none |
 | `curio:dig:manifest` | JSON | Pipeline | Built dates, prompts, pool sizes, `lastRun` | none |
 | `curio:dig:extras` | JSON | Pipeline (adjudication) | Prompt id to extra accepted-only words | none |
-| `curio:dig:adjudicated` | JSON | Pipeline | `promptId|word` decisions already made | none |
+| `curio:dig:adjudicated` | JSON | Pipeline | `promptId|word` marks mapped to the date judged (marks older than 40 days are dropped) | none |
 | `curio:dig:scores:<date>` | hash | `finish` event | Score bucket (score ÷ 10) to count | 35 d (set by the cron the day after) |
 | `curio:dig:funnel:<date>` | hash | Events | Funnel counters (`land:<source>`, `start`, `finish`, `share:*`, `story`, `signup`, `past:start`) | 90 d (same) |
 | `curio:dig:rej:<date>:<0-6>` | hash | `finish` event | Rejected guess (normalised) to count | 35 d (same) |
@@ -89,7 +90,7 @@ Expiries are set by the health cron on yesterday's keys, because `HINCRBY` sets 
 
 ## Sam's manual checklist (names only)
 
-1. GitHub repo secrets `DIG_REDIS_REST_URL` and `DIG_REDIS_REST_TOKEN`. The workflow reads no other secret and the build stops without them. To use the site's existing database, copy the values of the site's `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` into them. To use a separate database, also set `DIG_REDIS_REST_URL` and `DIG_REDIS_REST_TOKEN` in Vercel.
+1. GitHub repo secrets `DIG_REDIS_REST_URL`, `DIG_REDIS_REST_TOKEN` and `DIG_SEED_SALT` (a random string of at least 16 characters; it seeds the daily draw so the public code can't recompute future days; keep it, because changing it changes every day built afterwards). The workflow reads no other secret and the build stops without them. To use the site's existing database, copy the values of the site's `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` into them. To use a separate database, also set `DIG_REDIS_REST_URL` and `DIG_REDIS_REST_TOKEN` in Vercel.
 2. Vercel env `DIG_ALERT_TO` (an address you read daily).
 3. Run the "Dig pipeline" Action by hand and check it goes green.
 4. At launch: set `DIG_LAUNCH_DATE` in Vercel, then redeploy.

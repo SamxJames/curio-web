@@ -4,6 +4,15 @@ import { Redis } from "@upstash/redis";
 import { digKeys, type DigManifest } from "../../lib/dig/keys";
 import type { DigDay } from "../../lib/dig/types";
 
+/** curio:dig:adjudicated maps "promptId|word" to the YYYY-MM-DD it was judged. The first version
+ * stored a bare array of marks: each of those counts as judged `today`. */
+export type AdjudicatedMarks = Record<string, string>;
+export function toAdjudicatedMarks(raw: unknown, today: string): AdjudicatedMarks {
+  if (Array.isArray(raw)) return Object.fromEntries(raw.filter((m): m is string => typeof m === "string").map((m) => [m, today]));
+  if (raw && typeof raw === "object") return Object.fromEntries(Object.entries(raw).filter((e): e is [string, string] => typeof e[1] === "string"));
+  return {};
+}
+
 export interface DigSink {
   readonly name: string;
   readManifest(): Promise<DigManifest | null>;
@@ -12,8 +21,8 @@ export interface DigSink {
   writeDay(day: DigDay): Promise<void>;
   readExtras(): Promise<Record<string, string[]>>;
   writeExtras(e: Record<string, string[]>): Promise<void>;
-  readAdjudicated(): Promise<string[]>;
-  writeAdjudicated(list: string[]): Promise<void>;
+  readAdjudicated(today: string): Promise<AdjudicatedMarks>;
+  writeAdjudicated(marks: AdjudicatedMarks): Promise<void>;
   readLog(kind: "rej" | "claim", date: string, index: number): Promise<Record<string, number>>;
   readHeartbeat(): Promise<string | null>;
 }
@@ -38,8 +47,8 @@ export class FileSink implements DigSink {
   async writeDay(day: DigDay) { this.write(`days/${day.date}.json`, day); }
   async readExtras() { return this.read<Record<string, string[]>>("extras.json", {}); }
   async writeExtras(e: Record<string, string[]>) { this.write("extras.json", e); }
-  async readAdjudicated() { return this.read<string[]>("adjudicated.json", []); }
-  async writeAdjudicated(list: string[]) { this.write("adjudicated.json", list); }
+  async readAdjudicated(today: string) { return toAdjudicatedMarks(this.read<unknown>("adjudicated.json", {}), today); }
+  async writeAdjudicated(marks: AdjudicatedMarks) { this.write("adjudicated.json", marks); }
   async readLog(kind: "rej" | "claim", date: string, index: number) { return this.read<Record<string, number>>(`logs/${kind}-${date}-${index}.json`, {}); }
   async readHeartbeat() { return this.read<string | null>("heartbeat.json", null); }
 }
@@ -61,8 +70,8 @@ export class RedisSink implements DigSink {
   async writeDay(day: DigDay) { await this.redis.set(digKeys.day(day.date), day); }
   async readExtras() { return (await this.redis.get<Record<string, string[]>>(digKeys.extras)) ?? {}; }
   async writeExtras(e: Record<string, string[]>) { await this.redis.set(digKeys.extras, e); }
-  async readAdjudicated() { return (await this.redis.get<string[]>(digKeys.adjudicated)) ?? []; }
-  async writeAdjudicated(list: string[]) { await this.redis.set(digKeys.adjudicated, list); }
+  async readAdjudicated(today: string) { return toAdjudicatedMarks(await this.redis.get<unknown>(digKeys.adjudicated), today); }
+  async writeAdjudicated(marks: AdjudicatedMarks) { await this.redis.set(digKeys.adjudicated, marks); }
   async readLog(kind: "rej" | "claim", date: string, index: number) {
     const key = kind === "rej" ? digKeys.rejected(date, index) : digKeys.claims(date, index);
     const h = (await this.redis.hgetall<Record<string, unknown>>(key)) ?? {};

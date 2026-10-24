@@ -279,7 +279,7 @@ All writes are production-only and use the `curio:dig:` prefix. Phase 6 adds `di
 | `curio:dig:day:<date>` | string (JSON) | Action | The day file (§4) | none: the archive needs it |
 | `curio:dig:manifest` | string (JSON) | Action | Dates built, the buffer and the last run | none |
 | `curio:dig:extras` | string (JSON) | Action (adjudication) | Prompt id → extra accepted words | none |
-| `curio:dig:adjudicated` | string (JSON) | Action (adjudication) | `prompt\|word` pairs already decided, so none is asked twice | none |
+| `curio:dig:adjudicated` | string (JSON) | Action (adjudication) | `prompt\|word` marks mapped to the date judged (dropped after 40 days), so none is asked twice | none |
 | `curio:dig:scores:<date>` | hash | `event: finish` | Score bucket (score ÷ 10, 0–70) → count | 35 d |
 | `curio:dig:funnel:<date>` | hash | `event: *` | Funnel counters (§9) | 90 d |
 | `curio:dig:rej:<date>:<index>` | hash | `event: finish` | Rejected guess → count (index = prompt position 0–6) | 35 d |

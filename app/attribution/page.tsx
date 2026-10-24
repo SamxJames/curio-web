@@ -125,6 +125,9 @@ export default function AttributionPage() {
         <ExtLink href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</ExtLink>
         ). Wiktionary pageviews come from the{" "}
         <ExtLink href="https://www.mediawiki.org/wiki/Wikimedia_REST_API">Wikimedia REST API</ExtLink>.
+        The fossil notes quote Wiktionary etymologies (
+        <ExtLink href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</ExtLink>
+        ) and Open English WordNet definitions.
       </p>
       <p className="mt-6 font-serif text-lg leading-relaxed text-ink-soft">
         The{" "}

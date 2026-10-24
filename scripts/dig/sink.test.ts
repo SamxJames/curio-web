@@ -1,4 +1,4 @@
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -25,6 +25,16 @@ describe("FileSink", () => {
     await sink.writeExtras({ "theme:a": ["x"] });
     expect(await sink.readExtras()).toEqual({ "theme:a": ["x"] });
     expect(await sink.readLog("rej", "2026-12-01", 0)).toEqual({});
+  });
+
+  it("round-trips adjudicated marks with their judged date, and reads the old array shape as judged today", async () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "dig-adj-"));
+    const sink = new FileSink(dir);
+    expect(await sink.readAdjudicated("2026-12-10")).toEqual({});
+    await sink.writeAdjudicated({ "theme:a|x": "2026-12-01" });
+    expect(await sink.readAdjudicated("2026-12-10")).toEqual({ "theme:a|x": "2026-12-01" });
+    writeFileSync(path.join(dir, "adjudicated.json"), JSON.stringify(["theme:a|y", "theme:a|z"]));
+    expect(await sink.readAdjudicated("2026-12-10")).toEqual({ "theme:a|y": "2026-12-10", "theme:a|z": "2026-12-10" });
   });
 });
 

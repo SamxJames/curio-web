@@ -43,15 +43,18 @@ function shuffle<T>(xs: T[], rand: () => number): T[] {
 }
 
 /** A seeded greedy draw (same inputs, same day). The fossil is chosen later; a day whose
- * fossils can't all be distinct is retried by the caller with another salt. */
+ * fossils can't all be distinct is retried by the caller with another salt. `seedSalt` is a
+ * secret (DIG_SEED_SALT) so the public code and data cannot recompute future days; assemble.ts
+ * stays pure and takes it as a parameter. */
 export function pickDay(
   date: string,
   pools: { themes: Candidate[]; origins: Candidate[] },
   history: HistoryDay[],
   zipf: Map<string, number>,
+  seedSalt: string,
   salt = 0
 ): Candidate[] | null {
-  const rand = mulberry32(hashSeed(`dig-${date}-${salt}`));
+  const rand = mulberry32(hashSeed(`dig-${seedSalt}-${date}-${salt}`));
   const chosen: Candidate[] = [];
   const fits = (c: Candidate) =>
     chosen.every((o) => !sameFamily(o, c) && overlapRatio(o.core, c.core) < MAX_OVERLAP && !o.languages.some((l) => c.languages.includes(l)));

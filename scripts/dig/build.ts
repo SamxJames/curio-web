@@ -24,7 +24,7 @@ import { originCandidates } from "./origins";
 import { buildAliases, buildGuard, floorProblems, fossilCandidates } from "./answers";
 import { yearlyViews } from "./pageviews";
 import { assignTiers, chooseFossil, toPlainPrompt, viewWordsFor } from "./fossil";
-import { isEligible, pickDay, type HistoryDay } from "./assemble";
+import { daysBetween, isEligible, pickDay, type HistoryDay } from "./assemble";
 import { validateDay } from "./validate";
 import { adjudicate } from "./adjudicate";
 import { FileSink, RedisSink, type DigSink } from "./sink";
@@ -33,7 +33,7 @@ export type BuildStats = {
   themes: number; origins: number; letterVariants: number; built: number; retries: number; failedDates: number;
   bufferDays: number; poolThemes: number; poolOrigins: number;
   wikidata: Record<"fresh" | "cached" | "stale" | "missing" | "label-mismatch", number>;
-  adjudication: { judged: number; accepted: number; amendedDays: number };
+  adjudication: { judged: number; accepted: number; amendedDays: number } | "failed";
 };
 
 const BUFFER_FLOOR = 30, MIN_POOL_THEMES = 20, MIN_POOL_ORIGINS = 6, HEARTBEAT_STALE_DAYS = 3, MAX_SALTS = 5;
@@ -63,10 +63,52 @@ export function summaryLines(s: BuildStats): string[] {
   return [
     `Supply: ${s.themes} themes (${s.letterVariants} letter variants), ${s.origins} origin prompts pass the floor`,
     `Wikidata: ${s.wikidata.fresh} fresh, ${s.wikidata.cached} cached, ${s.wikidata.stale} stale, ${s.wikidata.missing} missing, ${s.wikidata["label-mismatch"]} label mismatches`,
-    `Adjudication: ${s.adjudication.judged} judged, ${s.adjudication.accepted} accepted, ${s.adjudication.amendedDays} days amended`,
+    s.adjudication === "failed"
+      ? "Adjudication: failed"
+      : `Adjudication: ${s.adjudication.judged} judged, ${s.adjudication.accepted} accepted, ${s.adjudication.amendedDays} days amended`,
     `Built: ${s.built} days (${s.retries} retries, ${s.failedDates} dates failed)`,
     `Buffer: ${s.bufferDays} days. Spare pool: ${s.poolThemes} themes, ${s.poolOrigins} origins`,
   ];
+}
+
+const MIN_SEED_SALT_CHARS = 16;
+
+/** The draw is seeded with a secret (DIG_SEED_SALT) so the public code and data cannot recompute
+ * future days. Publishing refuses to start without one; local runs use a fixed dev string.
+ * The message names the variable only, never its value. */
+export function resolveSeedSalt(publish: boolean, value: string | undefined): string {
+  if (value && (!publish || value.length >= MIN_SEED_SALT_CHARS)) return value;
+  if (!publish) return "local-dev";
+  throw new Error(`DIG_SEED_SALT is missing or shorter than ${MIN_SEED_SALT_CHARS} characters`);
+}
+
+/** Only messages built word-free are printed; anything else could quote content, so just its name. */
+export function safeErrorText(err: unknown): string {
+  const safe = err instanceof Error && /^(pageviews failed|adjudicate:|day |DIG_SEED_SALT )/.test(err.message);
+  return safe ? (err as Error).message : err instanceof Error ? err.name : "unknown";
+}
+
+type AdjudicationResult = Awaited<ReturnType<typeof adjudicate>>;
+
+/** Adjudication is a secondary feature: a failure in it must never stop days being built. */
+export async function guardedAdjudication(run: () => Promise<AdjudicationResult>): Promise<{ ok: true; result: AdjudicationResult } | { ok: false; message: string }> {
+  try {
+    return { ok: true, result: await run() };
+  } catch (err) {
+    return { ok: false, message: safeErrorText(err) };
+  }
+}
+
+/** The dig-health cron writes a heartbeat daily. A stale or unparseable one fails the run (fail
+ * closed). A missing one fails only once the oldest built day is more than HEARTBEAT_STALE_DAYS
+ * old, so the very first runs stay green. */
+export function heartbeatProblem(heartbeat: string | null, builtDates: string[], today: string, nowMs: number): string | null {
+  if (heartbeat) {
+    const beat = Date.parse(heartbeat);
+    return !Number.isFinite(beat) || nowMs - beat > HEARTBEAT_STALE_DAYS * DAY_MS ? "dig-health cron heartbeat is stale" : null;
+  }
+  const oldest = [...builtDates].sort()[0];
+  return oldest && daysBetween(oldest, today) > HEARTBEAT_STALE_DAYS ? "dig-health cron heartbeat is missing" : null;
 }
 
 async function main() {
@@ -74,7 +116,10 @@ async function main() {
   const data = flagValue(args, "--data") ?? "dig-data";
   const target = Number(flagValue(args, "--days") ?? 45);
   const today = flagValue(args, "--today") ?? dayKey();
-  const sink: DigSink = args.includes("--publish") ? RedisSink.create() : new FileSink(flagValue(args, "--out") ?? ".dig-out");
+  const publish = args.includes("--publish");
+  // Resolved before any Redis client is built.
+  const seedSalt = resolveSeedSalt(publish, process.env.DIG_SEED_SALT);
+  const sink: DigSink = publish ? RedisSink.create() : new FileSink(flagValue(args, "--out") ?? ".dig-out");
   const cacheDir = path.join(data, "cache");
 
   const zipf = loadWordfreq(path.join(data, "wordfreq", "large_en.msgpack.gz"));
@@ -108,9 +153,16 @@ async function main() {
   const letterCount = letters.filter((c) => themes.includes(c)).length;
   const all = new Map([...themes, ...origins].map((c) => [c.id, c]));
 
-  const adjudication = await adjudicate(sink, all, { today, lexicon, usable, blocked, zipf });
+  const failures: string[] = [];
+  const judged = await guardedAdjudication(() => adjudicate(sink, all, { today, lexicon, usable, blocked, zipf }));
+  if (!judged.ok) {
+    // Counts only: the job still builds days, then exits 1 at the end.
+    console.error(`dig:build: adjudication failed (${judged.message})`);
+    failures.push("adjudication failed");
+  }
+  const adjudication: BuildStats["adjudication"] = judged.ok ? judged.result : "failed";
   // Adjudication may have just added extras: merge them again so days built in this run include them.
-  extras = await sink.readExtras();
+  try { extras = await sink.readExtras(); } catch { /* keep the extras read before adjudication */ }
   themes = themes.map(withExtras);
   origins = origins.map(withExtras);
 
@@ -136,7 +188,7 @@ async function main() {
     let done = false;
     for (let salt = 0; salt < MAX_SALTS && !done; salt++) {
       if (salt > 0) retries++;
-      const picks = pickDay(date, { themes, origins }, history, zipf, salt);
+      const picks = pickDay(date, { themes, origins }, history, zipf, seedSalt, salt);
       if (!picks) break;
       const views = await yearlyViews(picks.flatMap((c, i) => viewWordsFor(c, zipf, salt * 31 + i)), { fetcher, cachePath: path.join(cacheDir, "pageviews.json"), now: new Date() });
       const daily = dailyWordsFor(date);
@@ -185,24 +237,18 @@ async function main() {
   console.log(lines.join("\n"));
   if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.map((l) => `- ${l}`).join("\n") + "\n");
 
-  const failures: string[] = [];
   if (failedDates > 0) failures.push(`${failedDates} dates could not be built`);
   if (bufferDays < BUFFER_FLOOR) failures.push(`buffer ${bufferDays} days < ${BUFFER_FLOOR}`);
   if (manifest.poolThemes < MIN_POOL_THEMES || manifest.poolOrigins < MIN_POOL_ORIGINS) failures.push("spare pool below 20 themes / 6 origins");
   const heartbeat = await sink.readHeartbeat();
-  // Fail closed: an unparseable heartbeat counts as stale.
-  if (heartbeat) {
-    const beat = Date.parse(heartbeat);
-    if (!Number.isFinite(beat) || Date.now() - beat > HEARTBEAT_STALE_DAYS * DAY_MS) failures.push("dig-health cron heartbeat is stale");
-  }
+  const heartbeatIssue = heartbeatProblem(heartbeat, Object.keys(manifest.days), today, Date.now());
+  if (heartbeatIssue) failures.push(heartbeatIssue);
   if (failures.length) { console.error(`dig:build failed: ${failures.join("; ")}`); process.exit(1); }
 }
 
 if (process.argv[1]?.endsWith("build.ts")) {
   main().catch((err) => {
-    // Only messages built word-free are printed; anything else could quote content, so just its name.
-    const safe = err instanceof Error && /^(pageviews failed|adjudicate:|day )/.test(err.message);
-    console.error(`dig:build failed: ${safe ? err.message : err instanceof Error ? err.name : "unknown"}`);
+    console.error(`dig:build failed: ${safeErrorText(err)}`);
     process.exit(1);
   });
 }

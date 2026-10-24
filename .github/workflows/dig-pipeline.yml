@@ -49,6 +49,7 @@ jobs:
         env:
           DIG_REDIS_REST_URL: ${{ secrets.DIG_REDIS_REST_URL }}
           DIG_REDIS_REST_TOKEN: ${{ secrets.DIG_REDIS_REST_TOKEN }}
+          DIG_SEED_SALT: ${{ secrets.DIG_SEED_SALT }}
 
       # Saved even when the build fails, so a slow download is not repeated. Caches dig-data only.
       - name: Save datasets
