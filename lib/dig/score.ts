@@ -57,7 +57,7 @@ export function scoreOf(tiers: (Tier | null)[]): number {
 
 /** Depth in metres is score ÷ 100: a perfect dig is 7.0 m. */
 export function formatDepth(score: number): string {
-  return `${(score / 100).toFixed(1)} m`;
+  return `${(Math.round(score / 10) / 10).toFixed(1)} m`;
 }
 
 export function shareRow(tiers: (Tier | null)[]): string {

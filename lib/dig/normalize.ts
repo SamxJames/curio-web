@@ -8,7 +8,7 @@ const LIGATURES: Record<string, string> = { æ: "ae", œ: "oe", ß: "ss", ø: "o
 export function normalizeKey(raw: string): string {
   let s = raw.toLowerCase().trim();
   s = s.replace(/[æœßøðþł]/g, (c) => LIGATURES[c]);
-  s = s.normalize("NFKD").replace(/[̀-ͯ]/g, "");
+  s = s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
   s = s.replace(/^(a|an|the)\s+/, "");
   return s.replace(/[^a-z]/g, "");
 }

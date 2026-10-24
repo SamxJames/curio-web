@@ -1,5 +1,5 @@
-/** The contract between the dig pipeline (scripts/dig) and the site. Pure types:
- * safe to import from client components. See docs/rarity-game/architecture.md §4. */
+/** The contract between the dig pipeline (scripts/dig) and the site. Shared types and constants.
+ * Client-safe: importable from client components. See docs/rarity-game/architecture.md §4. */
 
 export const TIERS = ["common", "popular", "familiar", "uncommon", "rare", "fossil"] as const;
 export type Tier = (typeof TIERS)[number];

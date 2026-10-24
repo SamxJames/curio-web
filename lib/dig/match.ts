@@ -21,7 +21,8 @@ export function buildLookup(secret: Pick<PromptSecret, "answers" | "aliases" | "
   return { keys, guard: new Set(secret.guard) };
 }
 
-/** One edit for keys of 4+ letters; none for shorter ones (spec change 1 in the pipeline plan). */
+/** One edit for keys of 4+ letters; none for shorter ones (spec change 1 in the pipeline plan).
+ * Guesses under 4 letters never get a near miss either (the length guard in checkGuess). */
 export function maxEdits(len: number): number {
   return len >= 4 ? 1 : 0;
 }

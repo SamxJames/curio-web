@@ -13,6 +13,7 @@ const secret: Pick<PromptSecret, "answers" | "aliases" | "guard"> = {
     ["hurdy-gurdy", "rare", 1],
     ["cart", "common", 1],
     ["card", "common", 1],
+    ["oar", "common", 1],
   ],
   aliases: { harbor: 3 },
   guard: ["heel", "peel", "reel", "feel", "kneel", "keen"],
@@ -63,6 +64,16 @@ describe("checkGuess", () => {
   it("reports empty input and plain misses", () => {
     expect(checkGuess(lookup, "  ")).toEqual({ kind: "empty" });
     expect(checkGuess(lookup, "zebra")).toEqual({ kind: "miss" });
+  });
+  it("never suggests a near miss for a three-letter answer, under the guess-length guard or maxEdits", () => {
+    expect(checkGuess(lookup, "oak")).toEqual({ kind: "miss" });
+    expect(checkGuess(lookup, "oarx")).toEqual({ kind: "miss" });
+  });
+  it("offers a near miss for an adjacent swap", () => {
+    expect(checkGuess(lookup, "crat")).toEqual({ kind: "near", index: 6 });
+  });
+  it("counts an answer and its alias one edit away as one candidate", () => {
+    expect(checkGuess(lookup, "harbur")).toEqual({ kind: "near", index: 3 });
   });
 });
 

@@ -21,6 +21,12 @@ describe("scoring", () => {
     expect(formatDepth(460)).toBe("4.6 m");
     expect(formatDepth(0)).toBe("0.0 m");
     expect(formatDepth(MAX_SCORE)).toBe("7.0 m");
+    expect(formatDepth(15)).toBe("0.2 m");
+    expect(formatDepth(85)).toBe("0.9 m");
+    expect(formatDepth(95)).toBe("1.0 m");
+    expect(formatDepth(135)).toBe("1.4 m");
+    expect(formatDepth(145)).toBe("1.5 m");
+    expect(formatDepth(385)).toBe("3.9 m");
   });
   it("builds the spoiler-free emoji row", () => {
     expect(shareRow(["common", "popular", "familiar", "uncommon", "rare", "fossil", null])).toBe("🌱🌱🟫🟧🪨🦴▫️");

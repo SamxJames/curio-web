@@ -20,8 +20,20 @@ describe("payload", () => {
     expect(p).not.toContain("halyard");
     expect(p).not.toContain("answers");
   });
-  it("varies by date and prompt", () => {
-    expect(encodeSecret(secret, "2026-12-01", "theme:sailing")).not.toBe(encodeSecret(secret, "2026-12-02", "theme:sailing"));
+  it("round-trips across dates and prompt ids", () => {
+    const dates = ["2026-12-01", "2026-12-02", "2027-01-31", "2028-02-29"];
+    const ids = ["theme:sailing", "origin:latin", "theme:birds"];
+    for (const date of dates) {
+      for (const id of ids) {
+        expect(decodeSecret(encodeSecret(secret, date, id), date, id)).toEqual(secret);
+      }
+    }
+  });
+  it("does not encode every date, or every prompt id, the same way", () => {
+    const dates = Array.from({ length: 10 }, (_, i) => `2026-12-${String(i + 1).padStart(2, "0")}`);
+    const ids = Array.from({ length: 10 }, (_, i) => `theme:word${i}`);
+    expect(new Set(dates.map((d) => encodeSecret(secret, d, "theme:sailing"))).size).toBeGreaterThan(1);
+    expect(new Set(ids.map((id) => encodeSecret(secret, "2026-12-01", id))).size).toBeGreaterThan(1);
   });
   it("round-trips a whole day", () => {
     const day: DigDayPlain = {
