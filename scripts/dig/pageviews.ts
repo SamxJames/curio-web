@@ -8,8 +8,25 @@ import { fetchMonthlyViews, lastCompleteMonths } from "../demand/wiktionary";
 const STALE_MS = 180 * 24 * 60 * 60 * 1000;
 type Cache = Record<string, { views: number; at: string }>;
 
+/** An unreadable or malformed cache counts as empty, so the run refetches instead of crashing. */
+function readCache(file: string): Cache {
+  if (!existsSync(file)) return {};
+  try {
+    const data: unknown = JSON.parse(readFileSync(file, "utf8"));
+    if (typeof data !== "object" || data === null || Array.isArray(data)) return {};
+    for (const entry of Object.values(data)) {
+      const { views, at } = (entry ?? {}) as Record<string, unknown>;
+      if (typeof views !== "number" || !Number.isFinite(views)) return {};
+      if (typeof at !== "string" || !Number.isFinite(Date.parse(at))) return {};
+    }
+    return data as Cache;
+  } catch {
+    return {};
+  }
+}
+
 export async function yearlyViews(words: string[], opts: { fetcher: FetchLike; cachePath: string; now: Date }): Promise<Map<string, number>> {
-  const cache: Cache = existsSync(opts.cachePath) ? JSON.parse(readFileSync(opts.cachePath, "utf8")) : {};
+  const cache = readCache(opts.cachePath);
   const months = lastCompleteMonths(opts.now, 12);
   const out = new Map<string, number>();
   let fetched = 0;

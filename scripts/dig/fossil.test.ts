@@ -1,5 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { assignTiers, chooseFossil, etymologyFact, toPlainPrompt } from "./fossil";
+import { yearlyViews } from "./pageviews";
 import type { Candidate } from "./themes";
 
 const c: Candidate = {
@@ -58,5 +62,84 @@ describe("toPlainPrompt", () => {
     expect(p.answers.find((a) => a[0] === "boom")).toEqual(["boom", "common", 0]);
     expect(p.stories).toEqual({ keel: "keel" });
     expect(p.aliases).toEqual({ halyards: 2 });
+  });
+});
+
+describe("yearlyViews", () => {
+  const now = new Date("2026-10-24T00:00:00Z");
+  const DAY = 24 * 60 * 60 * 1000;
+  let dir: string;
+  let cachePath: string;
+
+  beforeEach(() => {
+    dir = mkdtempSync(path.join(os.tmpdir(), "pageviews-test-"));
+    cachePath = path.join(dir, "pageviews.json");
+  });
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  /** Twelve monthly items for Oct 2025 to Sep 2026, the window before `now`, each with `views`. */
+  const monthlyItems = (views: number) =>
+    Array.from({ length: 12 }, (_, i) => {
+      const d = new Date(Date.UTC(2025, 9 + i, 1));
+      return { timestamp: `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, "0")}0100`, views };
+    });
+
+  function fakeFetcher(notFound = false) {
+    const calls: string[] = [];
+    const fetcher = async (url: string) => {
+      calls.push(url);
+      if (notFound) return new Response("", { status: 404 });
+      return new Response(JSON.stringify({ items: monthlyItems(10) }), { status: 200 });
+    };
+    return { fetcher, calls };
+  }
+
+  it("sums twelve months of views and asks for the complete window", async () => {
+    const { fetcher, calls } = fakeFetcher();
+    const out = await yearlyViews(["halyard", "gunwale"], { fetcher, cachePath, now });
+    expect(out.get("halyard")).toBe(120);
+    expect(out.get("gunwale")).toBe(120);
+    expect(calls).toHaveLength(2);
+    expect(calls[0]).toContain("/monthly/20251001/20260930");
+  });
+
+  it("reuses a fresh cache entry without refetching", async () => {
+    await yearlyViews(["halyard"], { fetcher: fakeFetcher().fetcher, cachePath, now });
+    const second = fakeFetcher();
+    const out = await yearlyViews(["halyard"], { fetcher: second.fetcher, cachePath, now: new Date(now.getTime() + 10 * DAY) });
+    expect(out.get("halyard")).toBe(120);
+    expect(second.calls).toHaveLength(0);
+  });
+
+  it("refetches an entry older than 180 days", async () => {
+    await yearlyViews(["halyard"], { fetcher: fakeFetcher().fetcher, cachePath, now });
+    const later = fakeFetcher();
+    await yearlyViews(["halyard"], { fetcher: later.fetcher, cachePath, now: new Date(now.getTime() + 200 * DAY) });
+    expect(later.calls).toHaveLength(1);
+  });
+
+  it("counts a 404 as zero views and caches that zero", async () => {
+    const out = await yearlyViews(["obscure"], { fetcher: fakeFetcher(true).fetcher, cachePath, now });
+    expect(out.get("obscure")).toBe(0);
+    const cached = JSON.parse(readFileSync(cachePath, "utf8"));
+    expect(cached.obscure.views).toBe(0);
+  });
+
+  it("treats a corrupt cache file as empty and still returns the right sum", async () => {
+    writeFileSync(cachePath, "{not json");
+    const { fetcher, calls } = fakeFetcher();
+    const out = await yearlyViews(["halyard"], { fetcher, cachePath, now });
+    expect(out.get("halyard")).toBe(120);
+    expect(calls).toHaveLength(1);
+  });
+
+  it("treats a cache of the wrong shape as empty", async () => {
+    writeFileSync(cachePath, JSON.stringify({ halyard: { views: "lots", at: 5 } }));
+    const { fetcher, calls } = fakeFetcher();
+    const out = await yearlyViews(["halyard"], { fetcher, cachePath, now });
+    expect(out.get("halyard")).toBe(120);
+    expect(calls).toHaveLength(1);
   });
 });
