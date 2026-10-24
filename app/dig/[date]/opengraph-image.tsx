@@ -21,12 +21,17 @@ export default async function Image({ params }: { params: Promise<{ date: string
   const title = day && launch ? `curio dig, day ${dayNumber(date, launch)}` : "curio dig";
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", padding: "56px 80px", background: ogDigTheme.paper, color: ogDigTheme.ink }}>
-        <div style={{ display: "flex", fontFamily: "Caslon", fontSize: 80 }}>{title}</div>
-        <div style={{ display: "flex", flexDirection: "column", marginTop: 24 }}>
-          {(day?.prompts ?? []).map((p) => (
-            <div key={p.id} style={{ display: "flex", fontSize: 30, color: ogDigTheme.inkSoft, marginTop: 8 }}>{p.text}</div>
-          ))}
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: ogDigTheme.paper, color: ogDigTheme.ink }}>
+        <div style={{ display: "flex", flexDirection: "column", padding: "56px 80px 0" }}>
+          <div style={{ display: "flex", fontFamily: "Caslon", fontSize: 80 }}>{title}</div>
+          <div style={{ display: "flex", flexDirection: "column", marginTop: 24 }}>
+            {(day?.prompts ?? []).map((p) => (
+              <div key={p.id} style={{ display: "flex", fontSize: 30, color: ogDigTheme.inkSoft, marginTop: 8 }}>{p.text}</div>
+            ))}
+          </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", marginTop: "auto" }}>
+          {ogDigTheme.strata.map((c) => <div key={c} style={{ display: "flex", height: 14, background: c }} />)}
         </div>
       </div>
     ),
