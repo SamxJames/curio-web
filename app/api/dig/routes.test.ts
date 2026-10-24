@@ -74,4 +74,50 @@ describe("/api/dig/event", () => {
     expect((await event(post({ kind: "story" }, { "user-agent": "Googlebot" }))).status).toBe(204);
     expect(server.recordFunnel).not.toHaveBeenCalled();
   });
+  it("returns 404 with no-store on all three routes before launch in production", async () => {
+    vi.stubEnv("VERCEL_ENV", "production");
+    vi.stubEnv("DIG_LAUNCH_DATE", undefined as unknown as string);
+    const results = [
+      await today(),
+      await pastDay(new NextRequest("http://localhost"), ctx("2026-12-09")),
+      await event(post({ kind: "start", date: "2026-12-10" })),
+    ];
+    for (const res of results) {
+      expect(res.status).toBe(404);
+      expect(res.headers.get("cache-control")).toBe("no-store");
+    }
+    expect(server.recordFunnel).not.toHaveBeenCalled();
+  });
+  it("returns 413 for a body over 4096 bytes", async () => {
+    const big = JSON.stringify({ kind: "story", pad: "x".repeat(5000) });
+    const res = await event(post(JSON.parse(big)));
+    expect(res.status).toBe(413);
+    expect(server.recordFunnel).not.toHaveBeenCalled();
+  });
+  it("passes a same-origin start event and counts it", async () => {
+    const res = await event(post({ kind: "start", date: "2026-12-10" }, { "sec-fetch-site": "same-origin" }));
+    expect(res.status).toBe(204);
+    expect(server.recordFunnel).toHaveBeenCalledWith("2026-12-10", { kind: "start", date: "2026-12-10" });
+  });
+  it("rejects a finish for a past day with 400", async () => {
+    const res = await event(post({ kind: "finish", date: "2026-12-09", score: 390, tiers: ["fossil", "fossil", "fossil", "uncommon", "familiar", null, null], rejected: [] }));
+    expect(res.status).toBe(400);
+    expect(server.recordFinish).not.toHaveBeenCalled();
+  });
+  it("sends a valid finish to recordFinish as the parsed event", async () => {
+    await event(post({ kind: "finish", date: "2026-12-10", score: 390, tiers: ["fossil", "fossil", "fossil", "uncommon", "familiar", null, null], rejected: [[0, "ice cream"]] }));
+    expect(server.recordFinish).toHaveBeenCalledWith({
+      kind: "finish",
+      date: "2026-12-10",
+      score: 390,
+      tiers: ["fossil", "fossil", "fossil", "uncommon", "familiar", null, null],
+      rejected: [[0, "icecream"]],
+    });
+  });
+  it("answers bots with 204 whatever the body holds", async () => {
+    const big = JSON.stringify({ kind: "story", pad: "x".repeat(5000) });
+    const res = await event(post(JSON.parse(big), { "user-agent": "Googlebot" }));
+    expect(res.status).toBe(204);
+    expect(server.recordFunnel).not.toHaveBeenCalled();
+  });
 });
