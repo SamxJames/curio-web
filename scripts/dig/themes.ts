@@ -28,6 +28,11 @@ const IRREGULAR: Record<string, string> = {
   children: "child", cacti: "cactus", fungi: "fungus", knives: "knife", wolves: "wolf", leaves: "leaf", loaves: "loaf",
   shelves: "shelf", halves: "half", calves: "calf", scarves: "scarf", potatoes: "potato", tomatoes: "tomato", heroes: "hero",
 };
+/** Look plural, but have no singular to name ("Name a type of clothes"). "Fabrics" is a real plural. */
+const NO_SINGULAR = new Set([
+  "clothes", "mathematics", "physics", "economics", "politics", "ethics", "athletics", "gymnastics",
+  "linguistics", "electronics", "statistics", "acoustics", "aerobics", "news",
+]);
 const singular = (s: string) => {
   if (IRREGULAR[s]) return IRREGULAR[s];
   if (/ies$/.test(s)) return s.replace(/ies$/, "y");
@@ -45,7 +50,7 @@ export function themeText(name: string, via: "kind-of" | "domain", renames: Reco
   const lower = name.toLowerCase();
   // "a utensil", "a uniform", "a eucalyptus", "a one-man band": vowels that sound like a consonant.
   const article = (s: string) => (/^[aeiou]/.test(s) && !/^(u(ni|s[aeiou]|t[aeiou]|r[aeiou]|k|v)|eu|ewe|one)/.test(s) ? "an" : "a");
-  const plural = (word: string) => !!IRREGULAR[word] || (/s$/.test(word) && !/(ss|us|is|ics)$/.test(word) && word !== "clothes"); // "Clothes", "Mathematics": no singular
+  const plural = (word: string) => !!IRREGULAR[word] || (/s$/.test(word) && !/(ss|us|is)$/.test(word) && !NO_SINGULAR.has(word));
   if (via === "domain") return `Name ${article(lower)} ${lower} word`;
   // "Buildings and structures" → "a building or structure"
   if (lower.includes(" and ")) {

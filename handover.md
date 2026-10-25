@@ -24,6 +24,9 @@ every feature against it.
   (`/api/cron/social`). Mondays 06:00: demand report (GitHub Action → private `SamxJames/curio-reports`).
 
 ## Current state (2026-10-18)
+- **curio dig (2026-10-25, branch `worktree-rarity-game`, not merged or deployed):** the daily word game at `/dig`.
+  Built and reviewed. Content supply is the constraint, and Sam loosened the floors and repeat waits on 2026-10-24.
+  Everything is in `docs/handover/dig.md`, including the launch checklist (GitHub secrets, `DIG_ALERT_TO`, `DIG_LAUNCH_DATE`).
 - **Shipped 2026-10-18 (merge 3438c64 + eb742d0):** puzzle clue rewrite. 202 of 1,147 words have new clues (clue 1 = what
   the word is + a history fact, clue 2 = modern meaning, clue 3 = nearly a giveaway); the other 945 still have the old
   history-only clues. Pipeline: `npm run clues:rewrite` then `npm run clues:apply -- --keep-today` (plan:

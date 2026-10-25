@@ -30,6 +30,9 @@ describe("etymologyFact", () => {
   it("keeps the first clause and caps at 140 characters", () => {
     expect(etymologyFact("From Middle English halier, from halen (“to haul”). Compare Dutch.")).toBe("From Middle English halier, from halen (“to haul”)");
     expect(etymologyFact("")).toBeNull();
+    expect(etymologyFact("See the etymology of the corresponding lemma form.")).toBeNull();
+    expect(etymologyFact("Unknown.")).toBeNull();
+    expect(etymologyFact("Imitative.")).toBeNull();
     expect(etymologyFact("x ".repeat(100))!.length).toBeLessThanOrEqual(140);
   });
   it("skips Wiktionary's etymology tree and keeps the sentence after it", () => {

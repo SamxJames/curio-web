@@ -84,11 +84,13 @@ export const etymologySentence = (text: string): string => leading(text, ".").te
 /** The first clause (up to a "." or ";" outside brackets), capped at 140 characters without
  * leaving a bracket or quote open. A clause the compact file cut off (no stop before its
  * ETYMOLOGY_CHARS limit) loses its partial last word and ends in "…". */
-const MIN_CUT_FACT = 25;
+const MIN_CUT_FACT = 25, MIN_FACT = 15;
 
 export function etymologyFact(text: string): string | null {
   const { text: first, stopped } = leading(text, ".;");
-  if (!first) return null;
+  // A pointer elsewhere ("See the etymology of the corresponding lemma form") or a bare label
+  // ("Unknown", "Imitative") tells a player nothing: no fact, so the next candidate gets a turn.
+  if (!first || first.length < MIN_FACT || /^see\b|corresponding lemma/i.test(first)) return null;
   const cutOff = !stopped && text.length >= ETYMOLOGY_CHARS;
   if (!cutOff && first.length <= MAX_FACT && firstUnclosed(first) < 0) return first;
   let cut = first.slice(0, Math.min(first.length, MAX_FACT - 1));
