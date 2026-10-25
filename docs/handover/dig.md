@@ -17,6 +17,8 @@ There is less content than the spec expected. The Phase 6 re-measure found about
 
 The numbers live in one place each: `floorFor` in `scripts/dig/answers.ts` and `COOLDOWNS` in `scripts/dig/assemble.ts`. To grow supply, add `anchorOverrides` or `wikidataThemes` in `content/dig/catalogue.json`. The local supply simulation that produced these numbers is not in the repo.
 
+A local dry run on 2026-10-25 (`npm run dig:build -- --data <data dir> --out .dig-out --days 45`, which writes files and never touches Redis) built all 45 days with none failing. It left 35 themes and 15 origins spare and used 129 different prompts. A cold run spends about 10 minutes loading data, then takes about a minute per day once the pageview cache is warm. The cache is kept between Actions runs.
+
 ## Where the code lives
 
 | Path | What |
