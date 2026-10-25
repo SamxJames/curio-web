@@ -6,6 +6,9 @@ import { prepareDay } from "@/lib/dig/game";
 import { encodeDay } from "@/lib/dig/payload";
 import { devDay } from "@/lib/dig/devDay";
 
+// A signed-out reader, so SignupOffer renders the email form.
+vi.mock("next-auth/react", () => ({ useSession: () => ({ status: "unauthenticated" }) }));
+
 const plain = devDay("2026-12-05");
 plain.prompts[0].stories = { apple: "apple" };
 const day = prepareDay({ ...encodeDay(plain), number: 5 });
@@ -57,11 +60,11 @@ describe("EndScreen", () => {
     expect(html).toMatch(/<h2[^>]*tabindex="-1"[^>]*>1\.1 m down<\/h2>/);
     expect(html).not.toContain("focus:outline-none");
   });
-  it("keeps red for Copy result and the signup's Join alone", () => {
+  it("keeps red for Copy result and the signup button alone", () => {
     const html = renderToStaticMarkup(<EndScreen day={day} game={game} isToday />);
     expect(html.match(/bg-accent-button/g)).toHaveLength(2);
     expect(html).toMatch(/<button[^>]*bg-accent-button[^>]*>Copy result<\/button>/);
-    expect(html).toMatch(/<button[^>]*bg-accent-button[^>]*>Join<\/button>/);
+    expect(html).toMatch(/<button[^>]*bg-accent-button[^>]*>Get tomorrow&#x27;s word<\/button>/);
     expect(html).not.toMatch(/<button[^>]*bg-accent-button[^>]*>Share image<\/button>/);
   });
 });

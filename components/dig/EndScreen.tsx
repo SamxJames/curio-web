@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import Button from "@/components/ui/Button";
-import EmailSignupInline from "@/components/EmailSignupInline";
+import SignupOffer from "@/components/SignupOffer";
 import type { PreparedDay } from "@/lib/dig/game";
 import { formatDepth, TIER_LABEL } from "@/lib/dig/score";
 import { percentileLine, shareText } from "@/lib/dig/share";
@@ -106,13 +106,18 @@ export default function EndScreen({ day, game, isToday, autoFocus = false }: { d
         </details>
       ))}
 
-      <div className="mt-10 border-t border-line pt-6">
-        <h2 className="font-display text-2xl">One word&apos;s story, every morning</h2>
-        <p className="mt-2 font-sans text-base text-ink-soft">Curio sends one word and where it came from. Free.</p>
-        <div className="mt-4 max-w-form">
-          <EmailSignupInline onSubscribed={() => sendDigEvent({ kind: "signup" })} />
-        </div>
-      </div>
+      {/* SignupOffer hides itself, pitch included, for readers who already get the email. */}
+      <SignupOffer
+        placement="dig"
+        className="mt-10 max-w-form border-t border-line pt-6"
+        pitch={
+          <>
+            <h2 className="font-display text-2xl">One word&apos;s story, every morning</h2>
+            <p className="mt-2 font-sans text-base text-ink-soft">Curio sends one word and where it came from.</p>
+          </>
+        }
+        onSubscribed={() => sendDigEvent({ kind: "signup" })}
+      />
       <p className="mt-8 font-sans text-base">
         <Link href="/dig/past" prefetch={false} className="underline underline-offset-2">Past digs</Link>
       </p>

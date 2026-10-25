@@ -20,6 +20,15 @@ export function isTrafficSource(x: unknown): x is TrafficSource {
   return typeof x === "string" && (TRAFFIC_SOURCES as readonly string[]).includes(x);
 }
 
+/** Where on the site a signup form or one-tap button sits. Recorded
+ * server-side only, so the counters answer "which placement earns signups". */
+export const SIGNUP_PLACEMENTS = ["arrival", "today", "story", "play", "account", "dig"] as const;
+export type SignupPlacement = (typeof SIGNUP_PLACEMENTS)[number];
+
+export function isSignupPlacement(x: unknown): x is SignupPlacement {
+  return typeof x === "string" && (SIGNUP_PLACEMENTS as readonly string[]).includes(x);
+}
+
 /** utm_source values our own links carry (digest, social posts, share). */
 const TAGGED: readonly TrafficSource[] = ["email", "bluesky", "threads", "instagram", "share", "rss"];
 
@@ -68,7 +77,9 @@ export type TrafficEvent =
   | { kind: "visit"; source: TrafficSource }
   | { kind: "signup"; source: TrafficSource }
   | { kind: "request"; source: TrafficSource }
-  | { kind: "share"; what: ShareKind };
+  | { kind: "share"; what: ShareKind }
+  | { kind: "request-at"; placement: SignupPlacement }
+  | { kind: "signup-at"; placement: SignupPlacement };
 
 /** The only gate between a PUBLIC request body and a Redis field name. It
  * accepts only what the browser sends (visit, share): signup and request
@@ -85,7 +96,9 @@ export function parseTrafficEvent(body: unknown): TrafficEvent | null {
 }
 
 export function eventField(ev: TrafficEvent): string {
-  return ev.kind === "share" ? `share:${ev.what}` : `${ev.kind}:${ev.source}`;
+  if (ev.kind === "share") return `share:${ev.what}`;
+  if (ev.kind === "request-at" || ev.kind === "signup-at") return `${ev.kind}:${ev.placement}`;
+  return `${ev.kind}:${ev.source}`;
 }
 
 export type TrafficRow = {
@@ -99,6 +112,8 @@ export type TrafficSummary = {
   rows: TrafficRow[];
   totals: { visits: number; requests: number; signups: number };
   shares: { story: number; puzzle: number };
+  /** Only placements with any count, in SIGNUP_PLACEMENTS order. */
+  placements: { placement: SignupPlacement; requests: number; signups: number }[];
 };
 
 /** Folds per-day counter hashes into one row per source (only sources with
@@ -111,6 +126,8 @@ export function summarizeTraffic(days: Record<string, Record<string, number>>): 
   const requests = new Map<TrafficSource, number>();
   const signups = new Map<TrafficSource, number>();
   const shares = { story: 0, puzzle: 0 };
+  const placeRequests = new Map<SignupPlacement, number>();
+  const placeSignups = new Map<SignupPlacement, number>();
   for (const fields of Object.values(days)) {
     for (const [field, raw] of Object.entries(fields)) {
       const n = Number(raw) || 0;
@@ -119,6 +136,8 @@ export function summarizeTraffic(days: Record<string, Record<string, number>>): 
       else if (kind === "visit" && isTrafficSource(name)) visits.set(name, (visits.get(name) ?? 0) + n);
       else if (kind === "request" && isTrafficSource(name)) requests.set(name, (requests.get(name) ?? 0) + n);
       else if (kind === "signup" && isTrafficSource(name)) signups.set(name, (signups.get(name) ?? 0) + n);
+      else if (kind === "request-at" && isSignupPlacement(name)) placeRequests.set(name, (placeRequests.get(name) ?? 0) + n);
+      else if (kind === "signup-at" && isSignupPlacement(name)) placeSignups.set(name, (placeSignups.get(name) ?? 0) + n);
     }
   }
   const sources = TRAFFIC_SOURCES.filter((s) => visits.has(s) || requests.has(s) || signups.has(s));
@@ -138,5 +157,10 @@ export function summarizeTraffic(days: Record<string, Record<string, number>>): 
       signups: rows.reduce((t, r) => t + r.signups, 0),
     },
     shares,
+    placements: SIGNUP_PLACEMENTS.filter((p) => placeRequests.has(p) || placeSignups.has(p)).map((p) => ({
+      placement: p,
+      requests: placeRequests.get(p) ?? 0,
+      signups: placeSignups.get(p) ?? 0,
+    })),
   };
 }

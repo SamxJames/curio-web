@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSubscriberByEmail } from "@/lib/db";
-import { isTrafficSource } from "@/lib/traffic";
+import { isSignupPlacement, isTrafficSource } from "@/lib/traffic";
 import { recordTrafficEvent } from "@/lib/trafficStats";
 import { normaliseEmail, unsubscribeSecret } from "@/lib/unsubscribeToken";
 import { claimConfirmSend, releaseConfirmSend } from "@/lib/confirmCooldown";
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const { email, source } = (body ?? {}) as { email?: unknown; source?: unknown };
+  const { email, source, placement } = (body ?? {}) as { email?: unknown; source?: unknown; placement?: unknown };
   if (typeof email !== "string" || !EMAIL_RE.test(email.trim())) {
     return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
   }
@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
 
   const address = normaliseEmail(email);
   const src = isTrafficSource(source) ? source : "direct";
+  const place = isSignupPlacement(placement) ? placement : undefined;
 
   // A Redis error here must not escape as an HTML 500 (the client's
   // res.json() would fail). Fail closed: no email is sent.
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await sendConfirmEmail(address, confirmUrl(address, src, secret));
+    await sendConfirmEmail(address, confirmUrl(address, src, secret, new Date(), place));
   } catch (err) {
     console.error("[curio:subscribe] confirm email failed:", err instanceof Error ? err.name : "unknown");
     await releaseConfirmSend(address).catch(() => {});
@@ -81,6 +82,13 @@ export async function POST(req: NextRequest) {
     await recordTrafficEvent({ kind: "request", source: src });
   } catch (err) {
     console.error("traffic: request record failed", err instanceof Error ? err.name : "unknown");
+  }
+  if (place) {
+    try {
+      await recordTrafficEvent({ kind: "request-at", placement: place });
+    } catch (err) {
+      console.error("traffic: request-at record failed", err instanceof Error ? err.name : "unknown");
+    }
   }
   return NextResponse.json(PENDING);
 }

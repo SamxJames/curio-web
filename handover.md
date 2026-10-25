@@ -1,6 +1,6 @@
 # Curio: Handover
 
-Last updated: 2026-10-18. Read this first; it's deliberately short. Open a file in `docs/handover/` only when the
+Last updated: 2026-10-19. Read this first; it's deliberately short. Open a file in `docs/handover/` only when the
 task touches that area. **Keep this file under ~200 lines:** current state, gotchas and pointers only. Put session
 detail in `docs/handover/history.md` and depth in the topic files.
 
@@ -23,10 +23,15 @@ every feature against it.
 - **Crons (UTC, Hobby fires anywhere in the hour):** 09:00 digest + Bluesky (`/api/cron/send-daily`), 10:00 Threads/IG
   (`/api/cron/social`). Mondays 06:00: demand report (GitHub Action → private `SamxJames/curio-reports`).
 
-## Current state (2026-10-18)
-- **curio dig (2026-10-25, branch `worktree-rarity-game`, not merged or deployed):** the daily word game at `/dig`.
-  Built and reviewed. Content supply is the constraint, and Sam loosened the floors and repeat waits on 2026-10-24.
-  Everything is in `docs/handover/dig.md`, including the launch checklist (GitHub secrets, `DIG_ALERT_TO`, `DIG_LAUNCH_DATE`).
+## Current state (2026-10-25)
+- **curio dig (2026-10-25, merged into master locally, not pushed or deployed):** the daily word game at `/dig`.
+  Built and reviewed, and a 45-day local dry run built every day. Content supply is the constraint, and Sam loosened
+  the floors and repeat waits on 2026-10-24. Everything is in `docs/handover/dig.md`, including the launch checklist
+  (GitHub secrets, `DIG_ALERT_TO`, `DIG_LAUNCH_DATE`).
+- **Clear email offer (branch `feat/clear-email-offer`, 2026-10-19):** one `SignupOffer` everywhere ("Get tomorrow's
+  word", promise line, `/sample-email`), a new offer on the returning homepage, one-tap subscribe for signed-in readers
+  (no confirmation email, Sam's call), and signup counts per placement (`request-at:`/`signup-at:` in the traffic hash;
+  "by placement" in `/admin` and `traffic:report`). Details: `docs/handover/growth.md`, `architecture.md`.
 - **Shipped 2026-10-18 (merge 3438c64 + eb742d0):** puzzle clue rewrite. 202 of 1,147 words have new clues (clue 1 = what
   the word is + a history fact, clue 2 = modern meaning, clue 3 = nearly a giveaway); the other 945 still have the old
   history-only clues. Pipeline: `npm run clues:rewrite` then `npm run clues:apply -- --keep-today` (plan:

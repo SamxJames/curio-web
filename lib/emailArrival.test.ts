@@ -9,6 +9,7 @@ describe("isEmailArrival", () => {
   it("is false for Bluesky links, other sources and no query at all", () => {
     expect(isEmailArrival("?utm_source=bluesky&utm_medium=social")).toBe(false);
     expect(isEmailArrival("?utm_source=emailx")).toBe(false);
+    expect(isEmailArrival("?utm_source=sample")).toBe(false);
     expect(isEmailArrival("")).toBe(false);
   });
 });
