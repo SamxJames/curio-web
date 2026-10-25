@@ -5,7 +5,7 @@ import { etymologySentence, fold } from "./fossil";
 
 export const ORIGIN_CORE_CAP = 2000;
 
-type LangSets ={ core: Set<string>; accepted: Set<string>; category: Set<string>; template: Set<string> };
+type LangSets = { core: Set<string>; accepted: Set<string>; category: Set<string>; template: Set<string> };
 
 /** Origin prompts (pipeline-design §4): core needs both Wiktionary's "derived from" category
  * and a structured etymology template naming the language. Grouped origins union their

@@ -81,7 +81,7 @@ describe("heartbeatProblem", () => {
 
 describe("guardedAdjudication", () => {
   it("passes a result through, and turns a throw into a failure with a safe message", async () => {
-    const result = { judged: 1, accepted: 0, amendedDays: 0, skippedOversize: 0 };
+    const result = { judged: 1, accepted: 0, amendedDays: 0, skippedOversize: 0, skippedTypo: 0 };
     expect(await guardedAdjudication(async () => result)).toEqual({ ok: true, result });
     const known = await guardedAdjudication(async () => { throw new Error("adjudicate: day 2026-12-01 unreadable"); });
     expect(known).toEqual({ ok: false, message: "adjudicate: day 2026-12-01 unreadable" });

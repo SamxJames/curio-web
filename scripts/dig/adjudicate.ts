@@ -5,10 +5,10 @@ import { tierFromZipf } from "../../lib/dig/score";
 import { historyFromManifest } from "../../lib/dig/keys";
 import type { DigDayPlain } from "../../lib/dig/types";
 import { daysBetween } from "./assemble";
-import { buildGuard } from "./answers";
+import { buildGuard, hasBlockedWord } from "./answers";
 import type { DigSink } from "./sink";
 import { ACCEPTED_CAP, type Candidate } from "./themes";
-import { MAX_DAY_CHARS } from "./validate";
+import { fossilTypoCollides, MAX_DAY_CHARS } from "./validate";
 
 type JudgeCtx = { lexicon: Set<string>; usable: (w: string) => boolean; blocked: Set<string> };
 
@@ -16,9 +16,9 @@ type JudgeCtx = { lexicon: Set<string>; usable: (w: string) => boolean; blocked:
  * be a real, usable, unblocked English word. Returns the source's spelling. */
 export function judge(guess: string, c: Candidate, ctx: JudgeCtx): string | null {
   const key = normalizeKey(guess);
-  if (!key || !ctx.lexicon.has(key) || ctx.blocked.has(key)) return null;
+  if (!key || !ctx.lexicon.has(key) || hasBlockedWord(key, ctx.blocked)) return null;
   for (const source of c.sources) for (const w of source) {
-    if (normalizeKey(w) === key && ctx.usable(w) && !ctx.blocked.has(w)) return w;
+    if (normalizeKey(w) === key && ctx.usable(w) && !hasBlockedWord(w, ctx.blocked)) return w;
   }
   return null;
 }
@@ -44,7 +44,7 @@ export async function adjudicate(
   sink: DigSink,
   candidates: Map<string, Candidate>,
   ctx: JudgeCtx & { today: string; zipf: Map<string, number>; guardLexicon: Set<string> }
-): Promise<{ judged: number; accepted: number; amendedDays: number; skippedOversize: number }> {
+): Promise<{ judged: number; accepted: number; amendedDays: number; skippedOversize: number; skippedTypo: number }> {
   const history = historyFromManifest(await sink.readManifest());
   const done = await sink.readAdjudicated(ctx.today);
   const extras = await sink.readExtras();
@@ -96,7 +96,7 @@ export async function adjudicate(
       acceptedHere++;
     }
   }
-  let amendedDays = 0, skippedOversize = 0;
+  let amendedDays = 0, skippedOversize = 0, skippedTypo = 0;
   for (const h of history) {
     if (h.date === ctx.today) continue; // today's file is CDN-cached until rollover
     const ids = h.prompts.map((p) => p.id).filter((id) => newlyAccepted.has(id));
@@ -111,12 +111,13 @@ export async function adjudicate(
         // The lookup is rebuilt per word, so two new words in one run cannot shadow each other.
         if (checkGuess(buildLookup(p), w).kind === "match") continue;
         p.answers.push([w, tierFromZipf(ctx.zipf.get(w)), 0]);
+        const guard = p.guard;
+        p.guard = buildGuard(p.answers.map((a) => a[0]), p.aliases, ctx.guardLexicon);
+        // The validator's rule holds for amended days too: no answer one typo from the fossil.
+        if (fossilTypoCollides(p, p.fossil.word)) { p.answers.pop(); p.guard = guard; skippedTypo++; continue; }
         added = true;
       }
-      if (added) {
-        p.guard = buildGuard(p.answers.map((a) => a[0]), p.aliases, ctx.guardLexicon);
-        changed = true;
-      }
+      if (added) changed = true;
     }
     if (!changed) continue;
     const encoded = encodeDay(plain);
@@ -128,5 +129,5 @@ export async function adjudicate(
   await sink.writeExtras(extras);
   const kept = Object.fromEntries(Object.entries(done).filter(([, date]) => daysBetween(date, ctx.today) <= MARK_KEEP_DAYS));
   await sink.writeAdjudicated(kept);
-  return { judged, accepted, amendedDays, skippedOversize };
+  return { judged, accepted, amendedDays, skippedOversize, skippedTypo };
 }

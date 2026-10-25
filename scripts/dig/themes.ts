@@ -26,6 +26,7 @@ export const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-"
 const IRREGULAR: Record<string, string> = {
   teeth: "tooth", geese: "goose", mice: "mouse", lice: "louse", feet: "foot", men: "man", women: "woman",
   children: "child", cacti: "cactus", fungi: "fungus", knives: "knife", wolves: "wolf", leaves: "leaf", loaves: "loaf",
+  shelves: "shelf", halves: "half", calves: "calf", scarves: "scarf", potatoes: "potato", tomatoes: "tomato", heroes: "hero",
 };
 const singular = (s: string) => IRREGULAR[s] ?? s.replace(/ies$/, "y").replace(/(ch|sh|x|ss)es$/, "$1").replace(/s$/, "");
 const singularPhrase = (s: string) => {
@@ -37,16 +38,28 @@ const singularPhrase = (s: string) => {
 export function themeText(name: string, via: "kind-of" | "domain", renames: Record<string, string>): string {
   if (renames[name]) return renames[name];
   const lower = name.toLowerCase();
-  const article = (s: string) => (/^[aeiou]/.test(s) ? "an" : "a");
+  // "a utensil", "a uniform", "a eucalyptus", "a one-man band": vowels that sound like a consonant.
+  const article = (s: string) => (/^[aeiou]/.test(s) && !/^(u(ni|s[aeiou]|t[aeiou]|r[aeiou])|eu|one)/.test(s) ? "an" : "a");
+  const plural = (word: string) => !!IRREGULAR[word] || (/s$/.test(word) && !/(ss|us|is)$/.test(word));
   if (via === "domain") return `Name ${article(lower)} ${lower} word`;
   // "Buildings and structures" → "a building or structure"
   if (lower.includes(" and ")) {
-    const s = lower.split(" and ").map(singularPhrase).join(" or ");
+    const parts = lower.split(" and ");
+    if (!parts.every((p) => plural(p.split(" ").at(-1)!))) return `Name a type of ${parts.join(" or ")}`;
+    const s = parts.map(singularPhrase).join(" or ");
     return `Name ${article(s)} ${s}`;
+  }
+  // "Birds of prey" → "a bird of prey": the head is the noun before "of".
+  if (lower.includes(" of ")) {
+    const [head, ...rest] = lower.split(" of ");
+    if (plural(head.split(" ").at(-1)!)) {
+      const s = `${singularPhrase(head)} of ${rest.join(" of ")}`;
+      return `Name ${article(s)} ${s}`;
+    }
   }
   // A mass noun ("Clothing", "Glass") has no singular to name: "a type of clothing".
   const last = lower.split(" ").at(-1)!;
-  if (!IRREGULAR[last] && (!/s$/.test(last) || /(ss|us|is)$/.test(last))) return `Name a type of ${lower}`;
+  if (!plural(last)) return `Name a type of ${lower}`;
   const s = singularPhrase(lower);
   return `Name ${article(s)} ${s}`;
 }
@@ -62,7 +75,7 @@ export function anchorCategory(wn: Wordnet, name: string, words: Set<string>, ov
   let fallback: Anchor | null = null;
   // A multi-word name anchored only by its last word ("Baby animals" at animal) is "broad".
   // "Buildings and structures" names two kinds, not a subset: its last word is its own head.
-  const broadHead = !overrides[name] && lower.includes(" ") && !lower.includes(" and ") ?singular(lower.split(" ").slice(-1)[0]) : null;
+  const broadHead = !overrides[name] && lower.includes(" ") && !lower.includes(" and ") ? singular(lower.split(" ").slice(-1)[0]) : null;
   for (const head of [...new Set(heads)]) {
     let best: Anchor | null = null;
     for (const id of wn.synsetsOf.get(head) ?? []) {

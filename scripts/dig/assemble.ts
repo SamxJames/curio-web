@@ -37,7 +37,7 @@ export function overlapRatio(a: string[], b: string[]): number {
 const FAMILY_OVERLAP = 0.5;
 
 /** Base themes whose core mostly repeats a bigger theme's ("Beverages" inside "Liquids") join that
- * theme's cooldown family, so the two (and their letter variants) never run within 30 days of each
+ * theme's cooldown family, so the two (and their letter variants) never run within COOLDOWNS.baseDays of each
  * other. Order is preserved; the biggest theme of a family is its root. */
 export function assignFamilies(themes: Candidate[]): Candidate[] {
   const roots: Candidate[] = [];

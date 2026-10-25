@@ -6,7 +6,12 @@ import { COOLDOWNS, daysBetween, overlapRatio, type HistoryDay } from "./assembl
 import { floorFor, hasBlockedWord } from "./answers";
 
 export const MAX_DAY_CHARS = 400_000;
-export type ValidateCtx = { history: HistoryDay[]; storySlugs: Set<string>; dailyWords: Set<string>; blocked: Set<string> };
+/** `today` is the manifest entry the build will store for this day: each prompt's cooldown family
+ * (assignFamilies can put "theme:beverages" in "theme:liquids") and origin languages. */
+export type ValidateCtx = {
+  history: HistoryDay[]; storySlugs: Set<string>; dailyWords: Set<string>; blocked: Set<string>;
+  today?: HistoryDay["prompts"];
+};
 
 /** "theme:weather:a" → "theme:weather" (a letter variant); any other id is its own base. */
 function baseOf(id: string): string {
@@ -76,11 +81,14 @@ export function validateDay(day: DigDayPlain, ctx: ValidateCtx): string[] {
   if (new Set(ps.map((p) => p.fossil.word)).size !== ps.length) problems.push("fossils must all differ");
   for (const h of ctx.history) {
     const gap = Math.abs(daysBetween(h.date, day.date));
-    for (const hp of h.prompts) for (const p of ps) {
+    for (const hp of h.prompts) ps.forEach((p, i) => {
+      const base = ctx.today?.[i]?.base ?? baseOf(p.id);
+      const languages = ctx.today?.[i]?.languages ?? [];
       if (p.kind === "theme" && hp.id === p.id && gap < COOLDOWNS.exactDays) problems.push(`${p.id}: repeats within ${COOLDOWNS.exactDays} days`);
       if (hp.id === p.id && hp.fossil === p.fossil.word) problems.push(`${p.id}: repeats a previous fossil`);
-      if (p.kind === "theme" && hp.id !== p.id && gap < COOLDOWNS.baseDays && (hp.base || baseOf(hp.id)) === baseOf(p.id)) problems.push(`${p.id}: shares a base theme within ${COOLDOWNS.baseDays} days`);
-    }
+      if (p.kind === "theme" && hp.id !== p.id && gap < COOLDOWNS.baseDays && (hp.base || baseOf(hp.id)) === base) problems.push(`${p.id}: shares a base theme within ${COOLDOWNS.baseDays} days`);
+      if (p.kind === "origin" && gap < COOLDOWNS.languageDays && (hp.languages ?? []).some((l) => languages.includes(l))) problems.push(`${p.id}: repeats a language within ${COOLDOWNS.languageDays} days`);
+    });
   }
   if (JSON.stringify(encodeDay(day)).length > MAX_DAY_CHARS) problems.push(`day is larger than ${MAX_DAY_CHARS} characters`);
   return problems;

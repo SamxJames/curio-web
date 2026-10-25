@@ -3,6 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "no
 import os from "node:os";
 import path from "node:path";
 import { assignTiers, chooseFossil, etymologyFact, toPlainPrompt } from "./fossil";
+import { ETYMOLOGY_CHARS } from "./sources/compact";
 import { yearlyViews } from "./pageviews";
 import type { Candidate } from "./themes";
 
@@ -36,6 +37,17 @@ describe("etymologyFact", () => {
     expect(etymologyFact(et)).toBe("From Scottish Gaelic cabar (“spar, pole”)");
     expect(etymologyFact("Etymology tree\nItalian flauto\nEnglish flautist")).toBeNull();
   });
+  it("ends a clause the compact file cut off at a whole word, with an ellipsis", () => {
+    const tree = "Etymology tree\n" + "Proto-Indo-European *kápros\n".repeat(7) + "English caber\n";
+    const et = (tree + "From Scottish Gaelic cabar (“spar, pole, rafter”), from Old Irish cabar, perhaps from Latin capreus").slice(0, ETYMOLOGY_CHARS);
+    const fact = etymologyFact(et)!;
+    expect(fact.endsWith("…")).toBe(true);
+    expect(fact).not.toMatch(/(fro|perh|capr)…$/);
+    expect(etymologyFact("From Arabic qahwa")).toBe("From Arabic qahwa"); // short and whole: no stop needed
+  });
+  it("never leaves a bracket open, even in a short fact", () => {
+    expect(etymologyFact("From Hindi ḍāku (“robber")).toBe("From Hindi ḍāku…");
+  });
   it("never splits inside brackets or quotes, and never leaves one open", () => {
     expect(etymologyFact("Borrowed from Irish geis (“injunction; taboo”). Compare Welsh.")).toBe("Borrowed from Irish geis (“injunction; taboo”)");
     const long = `From Ancient Greek νάρδος (nárdos), from Phoenician, Sanskrit नलद (nalada, “${"a ".repeat(60)}”)`;
@@ -67,7 +79,8 @@ describe("chooseFossil", () => {
     expect(pick).toEqual({ word: "halyard", fact: "From Māori hāriata" });
   });
   it("skips words the build rejects (a typo would land on another answer)", () => {
-    expect(chooseFossil(c, { ...base, curio: new Map(), reject: (w) => w === "bowsprit" })?.word).not.toBe("bowsprit");
+    const etymology = (w: string) => (w === "bowsprit" ? "From Middle Low German bōchsprēt." : w === "halyard" ? "From Middle English halier." : "");
+    expect(chooseFossil(c, { ...base, curio: new Map(), etymology, reject: (w) => w === "bowsprit" })?.word).toBe("halyard");
   });
   it("skips excluded words and returns null when nothing is left", () => {
     expect(chooseFossil(c, { ...base, curio: new Map(), exclude: new Set(["halyard", "gunwale", "bowsprit"]) })).toBeNull();

@@ -42,9 +42,12 @@ export function compactEntry(raw: unknown): CompactEntry | null {
     .slice(0, 6);
   return {
     w: e.word, pos: e.pos ?? "", t: [...topics], c: [...cats], g: [...tags].filter((x) => KEEP_TAGS.has(x)),
-    e: ety, f: forms, n: (e.senses ?? []).length, et: (e.etymology_text ?? "").slice(0, 300),
+    e: ety, f: forms, n: (e.senses ?? []).length, et: (e.etymology_text ?? "").slice(0, ETYMOLOGY_CHARS),
   };
 }
+
+/** The compact file keeps this much etymology text; anything at this length was cut off. */
+export const ETYMOLOGY_CHARS = 300;
 
 export async function compactDump(input: string, output: string): Promise<{ lines: number; kept: number }> {
   const out = createWriteStream(output);

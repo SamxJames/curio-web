@@ -13,7 +13,7 @@ It does not touch the daily word. It does not push unread-ness: no counts of unp
 There is less content than the spec expected. The Phase 6 re-measure found about 126 theme prompts in 65 families, and 22 origins. On 2026-10-24 Sam loosened the rules to fit (`pipeline-design.md` §3a):
 - Themes need 30 answers and 5 easy ones.
 - Origins need 5 easy ones.
-- An exact prompt can return after 14 days, a theme family after 5, an origin language after 4.
+- An exact theme prompt can return after 14 days, a theme family after 5, an origin language after 4. Origins have no exact-prompt rule: an origin can return as soon as its languages are out of their 4-day window.
 
 The numbers live in one place each: `floorFor` in `scripts/dig/answers.ts` and `COOLDOWNS` in `scripts/dig/assemble.ts`. To grow supply, add `anchorOverrides` or `wikidataThemes` in `content/dig/catalogue.json`. The local supply simulation that produced these numbers is not in the repo.
 

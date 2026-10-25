@@ -130,7 +130,8 @@ repeats**. That's too short for an archive that people may browse.
    "from Africa", "from the Pacific". Each is a union of agreed language sets. Estimated **+10–15 origin prompts**.
 4. **A repeat policy as a backstop, enforced by validation:**
    - a base theme (its family) may return after **5 days**;
-   - an exact prompt (including a letter variant) after **14 days**;
+   - an exact theme prompt (including a letter variant) after **14 days**. Origins have no exact-prompt rule: 22
+     origins at 2 a day can't meet one, so they return on the language window alone;
    - an origin language after **4 days**;
    - every return gets a different fossil.
 
@@ -299,8 +300,8 @@ Matching is generous, and every correction is confirmed by the player:
 - **Order:** 5 themes and 2 origin prompts. The **first prompt is always the easiest theme** (the most easy
   answers), so a stranger scores within seconds. Origin prompts go 3rd and 6th. The 7th is the theme with the most
   rare answers.
-- **Repeats:** follow §3a's backstop. A base theme may return after 5 days, an exact prompt after 14, an origin
-  language after 4 (Sam, 2026-10-24), always with a different fossil. Two themes from the same family never share a day (Fruits and
+- **Repeats:** follow §3a's backstop. A base theme may return after 5 days, an exact theme prompt after 14, an origin
+  language after 4 (Sam, 2026-10-24; origins have no exact-prompt rule), always with a different fossil. Two themes from the same family never share a day (Fruits and
   Foods, Music and Musical instruments, Mammals and Felids).
 - **Overlap:** any two prompts on a day share less than 20% of their core.
 - **Gems are all different** across the day.

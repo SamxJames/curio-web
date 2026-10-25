@@ -1,4 +1,5 @@
 import { tierFromZipf } from "../../lib/dig/score";
+import { ETYMOLOGY_CHARS } from "./sources/compact";
 import type { DigFossil, DigPromptPlain, Tier } from "../../lib/dig/types";
 import type { Candidate } from "./themes";
 
@@ -65,29 +66,31 @@ function firstUnclosed(s: string): number {
 }
 
 /** `text` (tree stripped, whitespace collapsed) up to the first of `stops` outside brackets that
- * ends a sentence or clause. */
-function leading(text: string, stops: string): string {
+ * ends a sentence or clause. `stopped` is false when the text ran out first. */
+function leading(text: string, stops: string): { text: string; stopped: boolean } {
   const t = stripTree(text).replace(/\s+/g, " ");
   let depth = 0;
   for (let i = 0; i < t.length; i++) {
     if (OPENERS.includes(t[i])) depth++;
     else if (CLOSERS.includes(t[i])) depth = Math.max(0, depth - 1);
-    else if (depth === 0 && stops.includes(t[i]) && (i + 1 === t.length || t[i + 1] === " ")) return t.slice(0, i).trim();
+    else if (depth === 0 && stops.includes(t[i]) && (i + 1 === t.length || t[i + 1] === " ")) return { text: t.slice(0, i).trim(), stopped: true };
   }
-  return t.trim();
+  return { text: t.trim(), stopped: false };
 }
 
 /** The etymology's first sentence: the word's main line of descent, used to check an origin claim. */
-export const etymologySentence = (text: string): string => leading(text, ".");
+export const etymologySentence = (text: string): string => leading(text, ".").text;
 
 /** The first clause (up to a "." or ";" outside brackets), capped at 140 characters without
- * leaving a bracket or quote open. */
+ * leaving a bracket or quote open. A clause the compact file cut off (no stop before its
+ * ETYMOLOGY_CHARS limit) loses its partial last word and ends in "…". */
 export function etymologyFact(text: string): string | null {
-  const first = leading(text, ".;");
+  const { text: first, stopped } = leading(text, ".;");
   if (!first) return null;
-  if (first.length <= MAX_FACT) return first;
-  let cut = first.slice(0, MAX_FACT - 1);
-  cut = cut.slice(0, cut.lastIndexOf(" ") > 40 ? cut.lastIndexOf(" ") : cut.length);
+  const cutOff = !stopped && text.length >= ETYMOLOGY_CHARS;
+  if (!cutOff && first.length <= MAX_FACT && firstUnclosed(first) < 0) return first;
+  let cut = first.slice(0, Math.min(first.length, MAX_FACT - 1));
+  if (cutOff || first.length > MAX_FACT) cut = cut.slice(0, cut.lastIndexOf(" ") > 40 ? cut.lastIndexOf(" ") : cut.length);
   const open = firstUnclosed(cut);
   if (open >= 0) cut = cut.slice(0, open);
   cut = cut.replace(/[\s,;:]+$/, "");
@@ -136,7 +139,7 @@ export function chooseFossil(_c: Candidate, ctx: FossilCtx): DigFossil | null {
   }
   for (const w of pool) {
     const fact = etymologyFact(ctx.etymology(w)) ?? (ctx.definitions.get(w) ? etymologyFact(ctx.definitions.get(w)!) : null);
-    if (fact && ctx.mustMention?.length && !ctx.mustMention.some((l) => fold(fact).includes(fold(l)))) continue;
+    if (fact && ctx.mustMention?.length && !ctx.mustMention.some((l) => fold(fact).includes(fold(l.split(" ").at(-1)!)))) continue;
     if (fact) return { word: w, fact };
   }
   return null;

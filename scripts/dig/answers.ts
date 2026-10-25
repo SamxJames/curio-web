@@ -32,7 +32,7 @@ export function dedupeByKey(c: Candidate): Candidate {
   return { ...c, accepted, core: [...new Set(c.core.filter((w) => kept.has(w)))] };
 }
 
-export const isLetterVariant =(c: Candidate) => c.id.split(":").length === 3 && c.kind === "theme";
+export const isLetterVariant = (c: Candidate) => c.id.split(":").length === 3 && c.kind === "theme";
 
 export function counts(c: Candidate, zipf: Map<string, number>): Counts {
   let easy = 0, rare = 0, common = 0;

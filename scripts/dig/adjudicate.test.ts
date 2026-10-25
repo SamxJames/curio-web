@@ -24,6 +24,25 @@ describe("judge", () => {
     expect(judge("cleat", theme, ctx)).toBeNull();
     expect(judge("zzzz", theme, ctx)).toBeNull();
   });
+  it("rejects a phrase containing a blocked word", () => {
+    const t = { ...theme, sources: [new Set(["jib sheet"])] };
+    expect(judge("jib sheet", t, { ...ctx, lexicon: new Set(["jibsheet", "jib sheet"]), blocked: new Set(["sheet"]) })).toBeNull();
+  });
+  it("never adds an answer to a stored day that sits one typo from its fossil", async () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "adj-"));
+    const sink = new FileSink(dir);
+    const plain = { v: 1 as const, date: "2026-12-01", rejSample: 1, prompts: [{ id: "theme:sailing", kind: "theme" as const, text: "t", answers: [["keel", "fossil", 1] as ["keel", "fossil", 1]], aliases: {}, guard: [], fossil: { word: "keel", fact: "f" }, stories: {} }] };
+    await sink.writeDay(encodeDay(plain));
+    await sink.writeManifest({ v: 1, lastRun: "x", days: { "2026-12-01": [{ id: "theme:sailing", base: "theme:sailing", fossil: "keel" }] }, poolThemes: 0, poolOrigins: 0 });
+    mkdirSync(path.join(dir, "logs"), { recursive: true });
+    writeFileSync(path.join(dir, "logs", "rej-2026-12-01-0.json"), JSON.stringify({ kee: 3 }));
+    // "kees", one typo from keel, would match the plural of "kee".
+    const t = { ...theme, sources: [new Set(["keel", "kee"])] };
+    const lex = new Set(["keel", "kee"]);
+    const r = await adjudicate(sink, new Map([["theme:sailing", t]]), { ...ctx, lexicon: lex, guardLexicon: lex, today: "2026-12-03", zipf: new Map() });
+    expect(r).toEqual({ judged: 1, accepted: 1, amendedDays: 0, skippedOversize: 0, skippedTypo: 1 });
+    expect(decodeDay((await sink.readDay("2026-12-01"))!).prompts[0].answers).toHaveLength(1);
+  });
 });
 
 describe("adjudicate", () => {
@@ -37,7 +56,7 @@ describe("adjudicate", () => {
     mkdirSync(path.join(dir, "logs"), { recursive: true });
     writeFileSync(path.join(dir, "logs", "rej-2026-12-01-0.json"), JSON.stringify({ jib: 2, banana: 5, cleat: 1 }));
     const r = await adjudicate(sink, new Map([["theme:sailing", theme]]), { ...ctx, today: "2026-12-03", zipf: new Map([["jib", 2.5]]) });
-    expect(r).toEqual({ judged: 2, accepted: 1, amendedDays: 1, skippedOversize: 0 });
+    expect(r).toEqual({ judged: 2, accepted: 1, amendedDays: 1, skippedOversize: 0, skippedTypo: 0 });
     expect(await sink.readExtras()).toEqual({ "theme:sailing": ["jib"] });
     const past = decodeDay((await sink.readDay("2026-12-01"))!);
     expect(past.prompts[0].answers).toContainEqual(["jib", "uncommon", 0]);
@@ -57,7 +76,7 @@ describe("adjudicate", () => {
     const nearCap: Candidate = { ...theme, accepted: ["keel", ...filler], sources: [new Set(["keel", "sail", "jib"])] };
     const open = { lexicon: new Set(["keel", "sail", "jib"]), guardLexicon: new Set(["keel", "sail", "jib"]), usable: () => true, blocked: new Set<string>() };
     const r = await adjudicate(sink, new Map([["theme:sailing", nearCap]]), { ...open, today: "2026-12-03", zipf: new Map() });
-    expect(r).toEqual({ judged: 1, accepted: 1, amendedDays: 0, skippedOversize: 0 });
+    expect(r).toEqual({ judged: 1, accepted: 1, amendedDays: 0, skippedOversize: 0, skippedTypo: 0 });
     expect(await sink.readExtras()).toEqual({ "theme:sailing": ["sail"] });
   });
 
@@ -90,7 +109,7 @@ describe("adjudicate", () => {
     const full: Candidate = { ...theme, accepted: ["keel", ...filler], sources: [new Set(["keel", "jib"])] };
     const open = { lexicon: new Set(["keel", "jib"]), guardLexicon: new Set(["keel", "jib"]), usable: () => true, blocked: new Set<string>() };
     const r = await adjudicate(sink, new Map([["theme:sailing", full]]), { ...open, today: "2026-12-03", zipf: new Map() });
-    expect(r).toEqual({ judged: 0, accepted: 0, amendedDays: 0, skippedOversize: 0 });
+    expect(r).toEqual({ judged: 0, accepted: 0, amendedDays: 0, skippedOversize: 0, skippedTypo: 0 });
     expect(await sink.readExtras()).toEqual({});
   });
 
@@ -107,7 +126,7 @@ describe("adjudicate", () => {
     mkdirSync(path.join(dir, "logs"), { recursive: true });
     writeFileSync(path.join(dir, "logs", "rej-2026-12-01-0.json"), JSON.stringify({ jib: 2 }));
     const r = await adjudicate(sink, new Map([["theme:sailing", theme]]), { ...ctx, today: "2026-12-03", zipf: new Map([["jib", 2.5]]) });
-    expect(r).toEqual({ judged: 1, accepted: 1, amendedDays: 0, skippedOversize: 1 });
+    expect(r).toEqual({ judged: 1, accepted: 1, amendedDays: 0, skippedOversize: 1, skippedTypo: 0 });
     expect(decodeDay((await sink.readDay("2026-12-01"))!).prompts[0].answers).toHaveLength(1);
   });
 });
@@ -199,7 +218,7 @@ describe("adjudicate never shadows answers and rebuilds the guard", () => {
     await sink.writeManifest(manifest);
     await sink.writeDay(encodeDay(dayOf()));
     const r = await run(sink, theme, ["keel"]);
-    expect(r).toEqual({ judged: 0, accepted: 0, amendedDays: 0, skippedOversize: 0 });
+    expect(r).toEqual({ judged: 0, accepted: 0, amendedDays: 0, skippedOversize: 0, skippedTypo: 0 });
     expect(await sink.readExtras()).toEqual({});
   });
 
@@ -208,11 +227,11 @@ describe("adjudicate never shadows answers and rebuilds the guard", () => {
     await sink.writeManifest(manifest);
     await sink.writeDay(encodeDay(dayOf()));
     const first = await run(sink, theme, ["keel", "jib"], new Map([["jib", 2.5]]));
-    expect(first).toEqual({ judged: 1, accepted: 1, amendedDays: 1, skippedOversize: 0 });
+    expect(first).toEqual({ judged: 1, accepted: 1, amendedDays: 1, skippedOversize: 0, skippedTypo: 0 });
     const afterFirst = await sink.readDay("2026-12-01");
     const writeDay = vi.spyOn(sink, "writeDay");
     const second = await run(sink, theme, ["keel", "jib"], new Map([["jib", 2.5]]));
-    expect(second).toEqual({ judged: 0, accepted: 0, amendedDays: 0, skippedOversize: 0 });
+    expect(second).toEqual({ judged: 0, accepted: 0, amendedDays: 0, skippedOversize: 0, skippedTypo: 0 });
     expect(writeDay).not.toHaveBeenCalled();
     expect(await sink.readDay("2026-12-01")).toEqual(afterFirst);
   });

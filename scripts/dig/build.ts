@@ -223,7 +223,8 @@ async function main() {
       }
       if (prompts.length !== 7) continue;
       const day: DigDayPlain = { v: 1, date, rejSample: 1, prompts };
-      const problems = validateDay(day, { history, storySlugs, dailyWords: daily, blocked });
+      const entry = picks.map((c, i) => ({ id: c.id, base: c.base, fossil: prompts[i].fossil.word, ...(c.languages.length ? { languages: c.languages } : {}) }));
+      const problems = validateDay(day, { history, storySlugs, dailyWords: daily, blocked, today: entry });
       if (problems.length) {
         console.log(`Date ${date} salt ${salt}: ${problems.length} validation problems`);
         // Local runs only: prompt ids name future prompts, so they never reach the public Actions log.
@@ -235,7 +236,6 @@ async function main() {
         continue;
       }
       await sink.writeDay(encodeDay(day));
-      const entry = picks.map((c, i) => ({ id: c.id, base: c.base, fossil: prompts[i].fossil.word, ...(c.languages.length ? { languages: c.languages } : {}) }));
       manifest.days[date] = entry;
       history.push({ date, prompts: entry });
       // Persist the manifest with every day, so a later failure never leaves a written day unrecorded.

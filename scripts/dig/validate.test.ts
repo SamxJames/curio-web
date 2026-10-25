@@ -92,4 +92,22 @@ describe("validateDay", () => {
     const history = [{ date: "2026-11-30", prompts: [{ id: "theme:weather:b", base: "theme:weather", fossil: "zzzword" }] }];
     expect(validateDay(d, { ...ctx, history })).toEqual([]);
   });
+  it("checks the family the build stored, not one worked out from the id", () => {
+    const d = good();
+    const today = d.prompts.map((p) => ({ id: p.id, base: p.id === "theme:a" ? "theme:liquids" : p.id, fossil: p.fossil.word }));
+    const history = [{ date: "2026-12-02", prompts: [{ id: "theme:liquids", base: "theme:liquids", fossil: "zzzword" }] }];
+    expect(validateDay(d, { ...ctx, history, today })).toContain("theme:a: shares a base theme within 5 days");
+  });
+  it("blocks an exact theme repeat for 14 days", () => {
+    const at = (date: string) => validateDay(good(), { ...ctx, history: [{ date, prompts: [{ id: "theme:a", base: "theme:a", fossil: "zzzword" }] }] });
+    expect(at("2026-11-22")).toContain("theme:a: repeats within 14 days");
+    expect(at("2026-11-21")).toEqual([]);
+  });
+  it("blocks an origin language for 4 days", () => {
+    const d = good();
+    const today = d.prompts.map((p) => ({ id: p.id, base: p.id, fossil: p.fossil.word, ...(p.id === "origin:x" ? { languages: ["Arabic"] } : {}) }));
+    const at = (date: string) => validateDay(d, { ...ctx, today, history: [{ date, prompts: [{ id: "origin:group:z", base: "origin:group:z", fossil: "zzzword", languages: ["Persian", "Arabic"] }] }] });
+    expect(at("2026-12-02")).toContain("origin:x: repeats a language within 4 days");
+    expect(at("2026-12-01")).toEqual([]);
+  });
 });
