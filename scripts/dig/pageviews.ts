@@ -6,6 +6,8 @@ import type { FetchLike } from "../demand/http";
 import { fetchMonthlyViews, lastCompleteMonths } from "../demand/wiktionary";
 
 const STALE_MS = 180 * 24 * 60 * 60 * 1000;
+/** Requests in flight at once. With the build's 25 ms gap that is still at most 40 a second. */
+const VIEW_CONCURRENCY = 6;
 type Cache = Record<string, { views: number; at: string }>;
 
 /** An unreadable or malformed cache counts as empty, so the run refetches instead of crashing. */
@@ -38,21 +40,31 @@ export async function yearlyViews(words: string[], opts: { fetcher: FetchLike; c
   const out = new Map<string, number>();
   let fetched = 0;
   mkdirSync(path.dirname(opts.cachePath), { recursive: true });
-  try {
-    for (const w of [...new Set(words)]) {
-      const hit = Object.hasOwn(cache, w) ? cache[w] : undefined;
-      if (hit && opts.now.getTime() - Date.parse(hit.at) < STALE_MS) { out.set(w, hit.views); continue; }
-      let views: number;
+  const todo: string[] = [];
+  for (const w of [...new Set(words)]) {
+    const hit = Object.hasOwn(cache, w) ? cache[w] : undefined;
+    if (hit && opts.now.getTime() - Date.parse(hit.at) < STALE_MS) out.set(w, hit.views);
+    else todo.push(w);
+  }
+  // A few requests in flight at once; the fetcher's minimum gap still caps the rate.
+  let next = 0, failure: Error | null = null;
+  const worker = async () => {
+    while (!failure && next < todo.length) {
+      const w = todo[next++];
       try {
-        views = (await fetchMonthlyViews(w, months, opts.fetcher)).reduce((a, b) => a + b, 0);
+        const views = (await fetchMonthlyViews(w, months, opts.fetcher)).reduce((a, b) => a + b, 0);
+        cache[w] = { views, at: opts.now.toISOString() };
+        out.set(w, views);
+        if (++fetched % 500 === 0) writeFileSync(opts.cachePath, JSON.stringify(cache));
       } catch (err) {
         // The word and the original error are left out on purpose: Actions logs are public.
-        throw new Error(`pageviews failed after ${fetched} fetched: ${failureReason(err)}`);
+        failure ??= new Error(`pageviews failed after ${fetched} fetched: ${failureReason(err)}`);
       }
-      cache[w] = { views, at: opts.now.toISOString() };
-      out.set(w, views);
-      if (++fetched % 500 === 0) writeFileSync(opts.cachePath, JSON.stringify(cache));
     }
+  };
+  try {
+    await Promise.all(Array.from({ length: Math.min(VIEW_CONCURRENCY, todo.length) }, worker));
+    if (failure) throw failure;
   } finally {
     // Runs on failure too, so the words fetched before a thrown error survive.
     writeFileSync(opts.cachePath, JSON.stringify(cache));

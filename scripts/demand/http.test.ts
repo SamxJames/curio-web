@@ -80,6 +80,16 @@ describe("createFetcher", () => {
     expect(c.sleep.mock.calls.map(([ms]) => ms)).toEqual([100]);
   });
 
+  it("spaces concurrent requests by the minimum gap too", async () => {
+    let t = 0;
+    const starts: number[] = [];
+    const sleep = (ms: number) => new Promise<void>((r) => setTimeout(() => { t = Math.max(t, ms); r(); }, 0));
+    const fetch = vi.fn<FetchLike>(async () => { starts.push(t); return res(200); });
+    const fetcher = createFetcher({ fetch, minGapMs: 100, now: () => 0, sleep });
+    await Promise.all([fetcher("https://x.test/a"), fetcher("https://x.test/b"), fetcher("https://x.test/c")]);
+    // With the clock frozen at 0, each caller sleeps until its own reserved slot.
+    expect(starts.sort((a, b) => a - b)).toEqual([0, 100, 200]);
+  });
   it("passes the URL and init through unchanged", async () => {
     const c = clock();
     const fetch = sequence(res(200));

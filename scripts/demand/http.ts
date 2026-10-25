@@ -48,9 +48,12 @@ export function createFetcher(options: FetcherOptions = {}): FetchLike {
 
   return async (url, init) => {
     for (let attempt = 1; ; attempt++) {
-      const wait = lastStart + minGapMs - now();
+      // Reserve the next start slot before sleeping, so concurrent callers queue behind each
+      // other instead of all waking at the same moment.
+      const slot = Math.max(now(), lastStart + minGapMs);
+      lastStart = slot;
+      const wait = slot - now();
       if (wait > 0) await sleep(wait);
-      lastStart = now();
 
       const lastTry = attempt >= attempts;
       const backoff = baseDelayMs * 2 ** (attempt - 1);

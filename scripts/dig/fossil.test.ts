@@ -218,10 +218,12 @@ describe("yearlyViews", () => {
         : new Response(JSON.stringify({ items: monthlyItems(10) }), { status: 200 });
     const err = await yearlyViews(["alpha", "beta", "secretword", "gamma"], { fetcher, cachePath, now }).catch((e: unknown) => e);
     expect(err).toBeInstanceOf(Error);
-    expect((err as Error).message).toContain("after 2 fetched");
+    expect((err as Error).message).toMatch(/after \d+ fetched/);
     expect((err as Error).message).toContain("HTTP 500");
     expect((err as Error).message).not.toContain("secretword");
-    const cached = JSON.parse(readFileSync(cachePath, "utf8"));
-    expect(Object.keys(cached).sort()).toEqual(["alpha", "beta"]);
+    // Fetches run concurrently, so the words alongside the failure may be cached too; the failure never is.
+    const cached = Object.keys(JSON.parse(readFileSync(cachePath, "utf8")));
+    expect(cached).toEqual(expect.arrayContaining(["alpha", "beta"]));
+    expect(cached).not.toContain("secretword");
   });
 });
