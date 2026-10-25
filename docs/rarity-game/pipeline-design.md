@@ -146,7 +146,7 @@ sub-themes ("Baby animals") and the spec's big origin languages restored, supply
 **97 theme prompts in 43 families** and **12 origins**, not 200–250 and 35. Most Wiktionary categories don't reach 40
 answers that WordNet agrees on. A 120-day draw simulation ran dry in about 8 days under the original rules (90 / 30 / 14
 and 40 / 8 / 10), and in 12 at best with shorter cooldowns alone. **Sam decided 2026-10-24:** themes need core ≥ 30 and
-easy ≥ 5; origins easy ≥ 5; an exact prompt returns after 14 days, a family after 5, a language after 4. That gives
+easy ≥ 5; origins easy ≥ 5; an exact theme prompt returns after 14 days, a family after 5, a language after 4. That gives
 about 126 theme prompts in 65 families and 22 origins, and the simulation runs 120+ days without stalling. A regular
 player meets a prompt again every 2–4 weeks, each time with a different fossil.
 

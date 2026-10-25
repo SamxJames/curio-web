@@ -44,6 +44,12 @@ describe("etymologyFact", () => {
     expect(fact.endsWith("…")).toBe(true);
     expect(fact).not.toMatch(/(fro|perh|capr)…$/);
     expect(etymologyFact("From Arabic qahwa")).toBe("From Arabic qahwa"); // short and whole: no stop needed
+    const treeOf = (n: number) => "Etymology tree\n" + "Proto-Indo-European *kápros\n".repeat(n) + "English caber\n";
+    const prose = "From Scottish Gaelic cabar (“spar, pole”), from Old Irish cabar, perhaps from Latin capreus";
+    expect(etymologyFact((treeOf(7) + prose).slice(0, ETYMOLOGY_CHARS))).toBe("From Scottish Gaelic cabar (“spar, pole”), from Old Irish cabar, perhaps…");
+    expect(etymologyFact((treeOf(8) + prose).slice(0, ETYMOLOGY_CHARS))).toBe("From Scottish Gaelic cabar (“spar, pole”)…");
+    expect(etymologyFact((treeOf(9) + prose).slice(0, ETYMOLOGY_CHARS))).toBeNull(); // only a stub survives
+    expect(etymologyFact((treeOf(5) + prose).slice(0, ETYMOLOGY_CHARS))).toBe(prose); // under the limit: whole
   });
   it("never leaves a bracket open, even in a short fact", () => {
     expect(etymologyFact("From Hindi ḍāku (“robber")).toBe("From Hindi ḍāku…");

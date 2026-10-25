@@ -28,7 +28,12 @@ const IRREGULAR: Record<string, string> = {
   children: "child", cacti: "cactus", fungi: "fungus", knives: "knife", wolves: "wolf", leaves: "leaf", loaves: "loaf",
   shelves: "shelf", halves: "half", calves: "calf", scarves: "scarf", potatoes: "potato", tomatoes: "tomato", heroes: "hero",
 };
-const singular = (s: string) => IRREGULAR[s] ?? s.replace(/ies$/, "y").replace(/(ch|sh|x|ss)es$/, "$1").replace(/s$/, "");
+const singular = (s: string) => {
+  if (IRREGULAR[s]) return IRREGULAR[s];
+  if (/ies$/.test(s)) return s.replace(/ies$/, "y");
+  if (/(ch|sh|x|ss)es$/.test(s)) return s.replace(/es$/, "");
+  return /ss$/.test(s) ? s : s.replace(/s$/, "");
+};
 const singularPhrase = (s: string) => {
   const parts = s.split(" ");
   parts[parts.length - 1] = singular(parts[parts.length - 1]);
@@ -39,8 +44,8 @@ export function themeText(name: string, via: "kind-of" | "domain", renames: Reco
   if (renames[name]) return renames[name];
   const lower = name.toLowerCase();
   // "a utensil", "a uniform", "a eucalyptus", "a one-man band": vowels that sound like a consonant.
-  const article = (s: string) => (/^[aeiou]/.test(s) && !/^(u(ni|s[aeiou]|t[aeiou]|r[aeiou])|eu|one)/.test(s) ? "an" : "a");
-  const plural = (word: string) => !!IRREGULAR[word] || (/s$/.test(word) && !/(ss|us|is)$/.test(word));
+  const article = (s: string) => (/^[aeiou]/.test(s) && !/^(u(ni|s[aeiou]|t[aeiou]|r[aeiou]|k|v)|eu|ewe|one)/.test(s) ? "an" : "a");
+  const plural = (word: string) => !!IRREGULAR[word] || (/s$/.test(word) && !/(ss|us|is|ics)$/.test(word) && word !== "clothes"); // "Clothes", "Mathematics": no singular
   if (via === "domain") return `Name ${article(lower)} ${lower} word`;
   // "Buildings and structures" → "a building or structure"
   if (lower.includes(" and ")) {

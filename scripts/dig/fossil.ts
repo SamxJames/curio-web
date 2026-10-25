@@ -84,16 +84,22 @@ export const etymologySentence = (text: string): string => leading(text, ".").te
 /** The first clause (up to a "." or ";" outside brackets), capped at 140 characters without
  * leaving a bracket or quote open. A clause the compact file cut off (no stop before its
  * ETYMOLOGY_CHARS limit) loses its partial last word and ends in "…". */
+const MIN_CUT_FACT = 25;
+
 export function etymologyFact(text: string): string | null {
   const { text: first, stopped } = leading(text, ".;");
   if (!first) return null;
   const cutOff = !stopped && text.length >= ETYMOLOGY_CHARS;
   if (!cutOff && first.length <= MAX_FACT && firstUnclosed(first) < 0) return first;
   let cut = first.slice(0, Math.min(first.length, MAX_FACT - 1));
-  if (cutOff || first.length > MAX_FACT) cut = cut.slice(0, cut.lastIndexOf(" ") > 40 ? cut.lastIndexOf(" ") : cut.length);
+  // A cut-off clause always loses its partial last word; an over-long one is cut at a space past 40.
+  if (cutOff) cut = cut.slice(0, Math.max(0, cut.lastIndexOf(" ")));
+  else if (first.length > MAX_FACT) cut = cut.slice(0, cut.lastIndexOf(" ") > 40 ? cut.lastIndexOf(" ") : cut.length);
   const open = firstUnclosed(cut);
   if (open >= 0) cut = cut.slice(0, open);
   cut = cut.replace(/[\s,;:]+$/, "");
+  // What survives of a cut-off clause can be a stub ("From Old Norse…"): no fact is better.
+  if (cutOff && cut.length < MIN_CUT_FACT) return null;
   return cut ? `${cut}…` : null;
 }
 

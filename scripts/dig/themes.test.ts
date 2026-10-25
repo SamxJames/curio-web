@@ -49,6 +49,10 @@ describe("wording and ids", () => {
     expect(themeText("Umbrellas", "kind-of", {})).toBe("Name an umbrella");
     expect(themeText("Potatoes", "kind-of", {})).toBe("Name a potato");
     expect(themeText("Shelves", "kind-of", {})).toBe("Name a shelf");
+    expect(themeText("Clothes", "kind-of", {})).toBe("Name a type of clothes");
+    expect(themeText("Mathematics", "kind-of", {})).toBe("Name a type of mathematics");
+    expect(themeText("Classes of drugs", "kind-of", {})).toBe("Name a class of drugs");
+    expect(themeText("Ukuleles", "kind-of", {})).toBe("Name a ukulele");
     expect(slugify("Citrus fruits")).toBe("citrus-fruits");
   });
 });
