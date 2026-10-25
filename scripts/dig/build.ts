@@ -38,7 +38,7 @@ export type BuildStats = {
 };
 
 const GUARD_MIN_ZIPF = 2;
-const BUFFER_FLOOR = 30, MIN_POOL_THEMES = 20, MIN_POOL_ORIGINS = 6, HEARTBEAT_STALE_DAYS = 3, MAX_SALTS = 5;
+const BUFFER_FLOOR = 30, MIN_POOL_THEMES = 20, MIN_POOL_ORIGINS = 6, HEARTBEAT_STALE_DAYS = 3, MAX_SALTS = 10;
 const addDays = (d: string, n: number) => dayKey(new Date(dayStart(d).getTime() + n * DAY_MS));
 
 /** Every date from today to today + target - 1 that is not built yet, earliest first. Holes
@@ -196,7 +196,9 @@ async function main() {
     for (let salt = 0; salt < MAX_SALTS && !done; salt++) {
       if (salt > 0) retries++;
       const picks = pickDay(date, { themes, origins }, history, zipf, seedSalt, salt);
-      if (!picks) break;
+      // Another salt shuffles differently and may find a draw, so a failed one is not the end.
+      // Reasons go to the log as positions and counts only: prompt ids would name future prompts.
+      if (!picks) { console.log(`Date ${date} salt ${salt}: no draw fits the cooldowns`); continue; }
       const views = await yearlyViews(picks.flatMap((c, i) => viewWordsFor(c, zipf, salt * 31 + i)), { fetcher, cachePath: path.join(cacheDir, "pageviews.json"), now: new Date() });
       const daily = dailyWordsFor(date);
       const usedToday = new Set<string>();
@@ -217,7 +219,7 @@ async function main() {
           reject: (w) => fossilTypoCollides(secret, w, lookup),
           mustMention: c.kind === "origin" ? c.languages : undefined,
         });
-        if (!fossil) break;
+        if (!fossil) { console.log(`Date ${date} salt ${salt}: no usable fossil for prompt ${prompts.length + 1}`); break; }
         usedToday.add(fossil.word);
         prompts.push(toPlainPrompt(c, tiers, fossil, aliases, guard, curio));
       }
