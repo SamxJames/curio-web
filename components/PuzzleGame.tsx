@@ -4,7 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Share } from "lucide-react";
 import type { WordEntry } from "@/lib/words";
-import { isCorrectGuess, buildPuzzleShareText, buildLetterHint } from "@/lib/puzzleGuess";
+import {
+  isCorrectGuess,
+  isCloseGuess,
+  isRepeatGuess,
+  revealedLetterPositions,
+  buildPuzzleShareText,
+  MAX_FREE_CLOSE_GUESSES,
+} from "@/lib/puzzleGuess";
 import { dayKey } from "@/lib/day";
 import { sendTrafficEvent } from "@/lib/trafficClient";
 import {
@@ -16,10 +23,24 @@ import {
 } from "@/lib/storage";
 import { useSession } from "next-auth/react";
 import SignupOffer from "./SignupOffer";
+import LetterTiles from "./LetterTiles";
 import Button from "@/components/ui/Button";
 import TextField from "@/components/ui/TextField";
 
 const CLUE_LABELS = ["First clue", "Second clue", "Third clue"] as const;
+
+/** Longest guess kept in the saved list, so a pasted paragraph can't bloat
+ * local storage or the synced account copy. */
+const MAX_SAVED_GUESS_LENGTH = 40;
+
+type Feedback = "wrong" | "close" | "lastClose" | "repeat" | null;
+
+const FEEDBACK_TEXT: Record<Exclude<Feedback, null>, string> = {
+  wrong: "Not quite — here's another clue.",
+  close: "So close! Check your spelling — that one didn't cost a guess.",
+  lastClose: "So close! Check your spelling — that one was free, but the next near miss will count.",
+  repeat: "You've already tried that one.",
+};
 
 export default function PuzzleGame({
   word,
@@ -33,7 +54,7 @@ export default function PuzzleGame({
   const stats = usePuzzleStats();
   const { status: sessionStatus } = useSession();
   const [guess, setGuess] = useState("");
-  const [wrongFlash, setWrongFlash] = useState(false);
+  const [feedback, setFeedback] = useState<Feedback>(null);
   const [shareCopied, setShareCopied] = useState(false);
 
   // Fresh state for a puzzle date this browser has no local record of yet.
@@ -68,27 +89,45 @@ export default function PuzzleGame({
 
   function handleNeedAnotherClue() {
     if (state.status !== "playing" || state.cluesRevealed >= 3) return;
+    setFeedback(null);
     savePlayState({ ...state, cluesRevealed: (state.cluesRevealed + 1) as 2 | 3 });
   }
 
   function attemptGuess(rawGuess: string) {
     if (isCorrectGuess(rawGuess, word.word)) {
       const cluesUsed = state.cluesRevealed;
+      setFeedback(null);
       savePlayState({ ...state, status: "solved", cluesUsedToSolve: cluesUsed });
       recordPuzzleResult(cluesUsed);
       return;
     }
 
-    setWrongFlash(true);
-    setTimeout(() => setWrongFlash(false), 600);
+    const prior = state.guesses ?? [];
+    if (isRepeatGuess(rawGuess, prior.map((g) => g.text))) {
+      setFeedback("repeat");
+      return;
+    }
 
+    const text = rawGuess.trim().slice(0, MAX_SAVED_GUESS_LENGTH);
+    const freeUsed = prior.filter((g) => g.free).length;
+
+    // A near miss is forgiven, up to a cap: it stays on this clue.
+    if (isCloseGuess(rawGuess, word.word) && freeUsed < MAX_FREE_CLOSE_GUESSES) {
+      setFeedback(freeUsed + 1 < MAX_FREE_CLOSE_GUESSES ? "close" : "lastClose");
+      savePlayState({ ...state, guesses: [...prior, { text, free: true }] });
+      return;
+    }
+
+    const guesses = [...prior, { text, free: false }];
     if (state.cluesRevealed >= 3) {
-      savePlayState({ ...state, status: "failed", cluesUsedToSolve: null });
+      setFeedback(null);
+      savePlayState({ ...state, guesses, status: "failed", cluesUsedToSolve: null });
       recordPuzzleResult(null);
       return;
     }
 
-    savePlayState({ ...state, cluesRevealed: (state.cluesRevealed + 1) as 2 | 3 });
+    setFeedback("wrong");
+    savePlayState({ ...state, guesses, cluesRevealed: (state.cluesRevealed + 1) as 2 | 3 });
   }
 
   async function handleShare() {
@@ -115,6 +154,7 @@ export default function PuzzleGame({
   }
 
   const isDone = state.status === "solved" || state.status === "failed";
+  const guesses = state.guesses ?? [];
 
   return (
     <div className="mx-auto max-w-page px-6 py-16">
@@ -127,11 +167,18 @@ export default function PuzzleGame({
             <div key={i}>
               <p className="font-sans text-xs tracking-wide text-ink-faint">{CLUE_LABELS[i]}</p>
               <p className="mt-1 font-serif text-lg leading-relaxed text-ink">{word.clues[i]}</p>
-              {i === 2 && (
-                <p className="mt-1 font-sans text-sm text-ink-soft">{buildLetterHint(word.word)}</p>
-              )}
             </div>
           ))}
+
+          {/* The answer's shape: its length from the start, then a letter
+              more with each later clue (see revealedLetterPositions). */}
+          <div className="pt-4">
+            <LetterTiles
+              word={word.word}
+              revealed={revealedLetterPositions(word.word, state.cluesRevealed)}
+              outcome="playing"
+            />
+          </div>
 
           {/* One turn per clue: a wrong guess or "another clue" both move on,
               and a wrong guess on the third ends the game. */}
@@ -154,8 +201,35 @@ export default function PuzzleGame({
               </Button>
             </form>
           </div>
-          {wrongFlash && (
-            <p role="alert" className="font-sans text-sm text-danger">Not quite — here&apos;s another clue.</p>
+          <p
+            role="status"
+            className={
+              feedback === "wrong" || feedback === "repeat"
+                ? "font-sans text-sm text-danger"
+                : "font-sans text-sm text-accent-deep"
+            }
+          >
+            {feedback ? FEEDBACK_TEXT[feedback] : ""}
+          </p>
+          {guesses.length > 0 && (
+            <div>
+              <p className="font-sans text-xs tracking-wide text-ink-faint">Tried</p>
+              <ul className="mt-2 flex flex-wrap gap-2">
+                {guesses.map((g, i) => (
+                  <li
+                    key={i}
+                    className={
+                      g.free
+                        ? "rounded-full border border-dashed border-accent px-3 py-1 font-sans text-sm text-ink-soft"
+                        : "rounded-full border border-line px-3 py-1 font-sans text-sm text-ink-faint line-through"
+                    }
+                  >
+                    {g.text}
+                    {g.free && <span className="text-accent-deep"> · close</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
           {state.cluesRevealed < 3 && (
             <Button variant="link" className="text-xs" onClick={handleNeedAnotherClue}>
@@ -170,10 +244,13 @@ export default function PuzzleGame({
           <p className="font-sans text-sm text-ink-soft">
             {state.status === "solved" ? "Solved it." : "This one got away."}
           </p>
-          <h2 className="mt-2 font-serif text-4xl">{word.word}</h2>
-          <p className="mt-1 font-sans text-sm text-ink-soft">
+          <h2 className="mt-3">
+            <LetterTiles word={word.word} revealed={[]} outcome={state.status === "solved" ? "solved" : "failed"} />
+          </h2>
+          <p className="mt-3 font-sans text-sm text-ink-soft">
             {word.respelling} &middot; {word.partOfSpeech}
           </p>
+          <p className="mt-4 max-w-[46ch] font-serif text-lg leading-relaxed text-ink">{word.teaser}</p>
 
           {/* Sharing is the primary action: it's how the puzzle reaches
            * new people. The story is one tap away as the secondary. */}

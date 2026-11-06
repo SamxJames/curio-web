@@ -185,6 +185,20 @@
    * nothing about it needed fixing. */
   --container-page: 40rem; /* 640px */
   --container-form: 27.5rem; /* 440px */
+
+  /* /play letter tiles: a letter settles into its tile when revealed. Used
+   * as motion-safe:animate-tile-reveal so reduced-motion users get none. */
+  --animate-tile-reveal: tile-reveal 320ms ease-out both;
+  @keyframes tile-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(-6px) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
 }
 
 @layer base {

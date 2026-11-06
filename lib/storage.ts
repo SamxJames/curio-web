@@ -320,6 +320,9 @@ export type PlayState = {
   cluesRevealed: 1 | 2 | 3;
   status: "playing" | "solved" | "failed";
   cluesUsedToSolve: 1 | 2 | 3 | null; // set only once status leaves "playing"
+  /** Wrong guesses in order (since 2026-11-06; absent on older states).
+   * `free` marks a close guess that didn't cost a turn. */
+  guesses?: { text: string; free: boolean }[];
 };
 
 function playStateKey(puzzleDate: string): string {

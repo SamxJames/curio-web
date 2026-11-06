@@ -46,6 +46,57 @@ export function isCorrectGuess(guess: string, answer: string): boolean {
   return guessForms.some((gf) => answerForms.includes(gf));
 }
 
+/** Edit distance counting insertions, deletions, substitutions and a swap
+ * of two neighbouring letters as one edit each (optimal string alignment). */
+function editDistance(a: string, b: string): number {
+  const d: number[][] = Array.from({ length: a.length + 1 }, (_, i) =>
+    Array.from({ length: b.length + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0))
+  );
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+        d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+      }
+    }
+  }
+  return d[a.length][b.length];
+}
+
+/** How many close guesses a game forgives before they cost a turn like any
+ * other miss. A cap, so close calls can't be used to probe letters for free. */
+export const MAX_FREE_CLOSE_GUESSES = 2;
+
+/** A wrong guess that's nearly right: within one edit of the answer (two for
+ * answers of 8+ letters), after the same case, plural and UK/US folding
+ * isCorrectGuess uses. Answers under 4 letters get no close calls, since one
+ * edit away from a 3-letter word is just a different word. */
+export function isCloseGuess(guess: string, answer: string): boolean {
+  const g = normalizeGuess(guess);
+  const a = normalizeGuess(answer);
+  if (g.length < 3 || a.length < 4 || isCorrectGuess(guess, answer)) return false;
+  const limit = a.length >= 8 ? 2 : 1;
+  const guessForms = pluralForms(g).map(foldSpelling);
+  const answerForms = pluralForms(a).map(foldSpelling);
+  return guessForms.some((gf) => answerForms.some((af) => editDistance(gf, af) <= limit));
+}
+
+/** True when the player already tried this guess, so it shouldn't cost a turn. */
+export function isRepeatGuess(guess: string, earlier: string[]): boolean {
+  const g = normalizeGuess(guess);
+  return earlier.some((e) => normalizeGuess(e) === g);
+}
+
+/** Which letter tiles show a letter before the word is solved: none on the
+ * first clue, the first letter from the second, and the last letter too on
+ * the third for words of 5+ letters (shorter words would be half given away). */
+export function revealedLetterPositions(answer: string, cluesRevealed: 1 | 2 | 3): number[] {
+  if (cluesRevealed === 1) return [];
+  if (cluesRevealed === 3 && answer.length >= 5) return [0, answer.length - 1];
+  return [0];
+}
+
 const RESULT_SQUARES = 3;
 
 /** The result grid for a share: 🟫 marks which clue solved it, ⬜ marks
