@@ -121,6 +121,15 @@ export default function EndScreen({ day, game, isToday, autoFocus = false }: { d
       <p className="mt-8 font-sans text-base">
         <Link href="/dig/past" prefetch={false} className="underline underline-offset-2">Past digs</Link>
       </p>
+      {/* One more game: today's /play puzzle (only on today's dig, not past ones). */}
+      {isToday && (
+        <p className="mt-3 font-sans text-base text-ink-soft">
+          One more for today:{" "}
+          <Link href="/play" prefetch={false} className="underline underline-offset-2 text-ink">
+            guess the word from three clues
+          </Link>
+        </p>
+      )}
     </section>
   );
 }

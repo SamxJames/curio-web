@@ -1,5 +1,6 @@
 import PuzzleGame from "@/components/PuzzleGame";
 import { getTodayPuzzle } from "@/lib/puzzle";
+import { isDigOpen } from "@/lib/dig/clock";
 
 export const metadata = {
   title: "Daily puzzle — Curio",
@@ -32,5 +33,5 @@ export default function PlayPage() {
     );
   }
 
-  return <PuzzleGame word={puzzle.word} puzzleNumber={puzzle.puzzleNumber} />;
+  return <PuzzleGame word={puzzle.word} puzzleNumber={puzzle.puzzleNumber} digOpen={isDigOpen()} />;
 }

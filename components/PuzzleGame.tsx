@@ -45,9 +45,12 @@ const FEEDBACK_TEXT: Record<Exclude<Feedback, null>, string> = {
 export default function PuzzleGame({
   word,
   puzzleNumber,
+  digOpen = false,
 }: {
   word: WordEntry;
   puzzleNumber: number;
+  /** Whether curio dig has launched; the end screen offers it as one more game. */
+  digOpen?: boolean;
 }) {
   const puzzleDate = dayKey();
   const localState = usePlayState(puzzleDate);
@@ -266,6 +269,16 @@ export default function PuzzleGame({
               Read the full story &rarr;
             </Link>
           </div>
+
+          {digOpen && (
+            <p className="mt-6 font-sans text-sm text-ink-soft">
+              One more for today:{" "}
+              <Link href="/dig" className="text-ink underline underline-offset-2 hover:text-accent">
+                curio dig
+              </Link>
+              : name words that fit seven prompts and see how deep you dig.
+            </p>
+          )}
 
           {/* Form for signed-out readers, one tap for signed-in readers who
            * aren't subscribed, nothing for subscribers (see SignupOffer). */}
