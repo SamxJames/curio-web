@@ -36,7 +36,9 @@ export default function TextField({ label, error, icon, className, id, ...rest }
             // duplicating it with a :focus border-color change fires on
             // every mouse click (not just keyboard focus) and is exactly
             // the anti-pattern that ring's own comment argues against.
-            "w-full rounded-full border border-line-strong bg-transparent py-2.5 font-sans text-sm text-ink placeholder:text-ink-faint",
+            // text-base (16px), not smaller: iOS Safari zooms the whole page
+            // into any focused field under 16px and leaves it zoomed.
+            "w-full rounded-full border border-line-strong bg-transparent py-2.5 font-sans text-base text-ink placeholder:text-ink-faint",
             icon ? "pl-9 pr-3" : "px-4",
             className
           )}

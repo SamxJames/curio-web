@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
-import PromptScreen, { nextPassState } from "./PromptScreen";
+import PromptScreen, { focusOnShow, nextPassState } from "./PromptScreen";
 import { bannedHits } from "@/lib/dig/copyAudit";
 import { noop, promptBase } from "./testFixtures";
 
@@ -51,6 +51,23 @@ describe("PromptScreen", () => {
     expect(reading).toMatch(/aria-live="assertive"[^>]*>Get ready.</);
     const answering = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={20} noTimer={false} feedback={null} />);
     expect(answering).not.toContain("Get ready.");
+  });
+  it("keeps the answer box typeable during the read pause, so a tap there opens a phone keyboard", () => {
+    // iOS gives a read-only field focus but no keyboard, and a later tap on the focused field
+    // often doesn't bring one up. Dig stays disabled and the reducer ignores early submits.
+    const html = renderToStaticMarkup(<PromptScreen {...base} phase="reading" clock={3} noTimer={false} feedback={null} />);
+    const input = html.match(/<input[^>]*>/)![0];
+    expect(input.toLowerCase()).not.toContain("readonly");
+  });
+  it("leaves focusing to the client, never autofocus in the markup", () => {
+    const html = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={10} noTimer={false} feedback={null} />);
+    expect(html.toLowerCase()).not.toContain("autofocus");
+  });
+  it("focuses the answer box by script only with a mouse or trackpad, never on a touch screen", () => {
+    const media = (fine: boolean) => ((q: string) => ({ matches: q === "(pointer: fine)" ? fine : !fine })) as (q: string) => { matches: boolean };
+    expect(focusOnShow(media(true))).toBe(true);
+    expect(focusOnShow(media(false))).toBe(false);
+    expect(focusOnShow(undefined)).toBe(false);
   });
   it("disables Pass and Dig during the read pause", () => {
     const html = renderToStaticMarkup(<PromptScreen {...base} phase="reading" clock={3} noTimer={false} feedback={null} />);

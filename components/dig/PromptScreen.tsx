@@ -30,6 +30,13 @@ export function nextPassState(state: PassState, event: "tap" | "type" | "blur"):
   return { state: "idle", fire: false };
 }
 
+/** Whether to put the cursor in the answer box when a prompt appears. Only with a mouse or
+ * trackpad: on a touch screen, focus from script opens no keyboard (iOS), and the field then
+ * sits focused, so the player's own tap often fails to raise one. Their tap is the focus there. */
+export function focusOnShow(matchMedia: ((query: string) => { matches: boolean }) | undefined): boolean {
+  return !!matchMedia && matchMedia("(pointer: fine)").matches;
+}
+
 /** One prompt (mockup screen 2). Rendered with key={index} by DigGame, so the field resets.
  * Red is reserved for Start, Copy result and Join, so Dig and Pass are both quiet buttons. */
 export default function PromptScreen({ index, total, prompt, phase, clock, noTimer, feedback, onSubmit, onPass, onTimer }: Props) {
@@ -69,6 +76,11 @@ export default function PromptScreen({ index, total, prompt, phase, clock, noTim
   const answerArea = useRef<HTMLDivElement>(null);
   const showAnswerArea = () => answerArea.current?.scrollIntoView?.({ block: "nearest" });
   useEffect(() => { if (round > 0) showAnswerArea(); }, [round]);
+  useEffect(() => {
+    if (focusOnShow(typeof window === "undefined" ? undefined : (q) => window.matchMedia(q))) {
+      answerArea.current?.querySelector("input")?.focus();
+    }
+  }, []);
   return (
     <section aria-labelledby="dig-prompt" className="mt-8 short:mt-2">
       <p className="font-sans text-sm text-ink-faint">{`Prompt ${index + 1} of ${total}`}</p>
@@ -106,11 +118,11 @@ export default function PromptScreen({ index, total, prompt, phase, clock, noTim
       <div ref={answerArea}>
       <form className="mt-6 short:mt-3 flex gap-2" onSubmit={(e) => { e.preventDefault(); onSubmit(guess); }}>
         <div className="min-w-0 flex-1">
-          {/* readOnly, not disabled, during the read pause: a disabled field can't hold the
-              autoFocus, so the player would have to tap it again when the clock starts. */}
+          {/* Typeable even during the read pause: a read-only or disabled field gets no phone
+              keyboard. Dig is disabled then, and the reducer ignores a submit until the clock starts. */}
           <TextField aria-label="Your answer" value={guess} onChange={(e) => { setGuess(e.target.value); disarm("type"); }}
-            onFocus={showAnswerArea} readOnly={reading}
-            autoFocus autoComplete="off" autoCapitalize="none" spellCheck={false} enterKeyHint="go" maxLength={40} />
+            onFocus={showAnswerArea}
+            autoComplete="off" autoCapitalize="none" spellCheck={false} enterKeyHint="go" maxLength={40} />
         </div>
         <Button type="submit" variant="secondary" disabled={reading} className="shrink-0">Dig</Button>
       </form>

@@ -48,7 +48,9 @@ export default function Header() {
         <Link href="/" className="font-serif text-lg tracking-tight">
           Curio
         </Link>
-        <nav className="flex items-center gap-2.5 sm:gap-5">
+        {/* Wraps instead of overflowing: unwrapped, this row needs ~366px, and on a narrower
+            phone (iPhone Display Zoom, larger Safari text) it widened every page. */}
+        <nav className="flex min-w-0 flex-wrap items-center justify-end gap-x-2.5 gap-y-1 sm:gap-x-5">
           <Link href="/" className={navLinkClass(todayActive)}>
             Today
           </Link>
