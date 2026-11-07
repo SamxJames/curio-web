@@ -7,7 +7,13 @@ import { ToggleGroup } from "@/components/ui/SegmentedControl";
 export default function Intro({ noTimer, onToggleTimer, onStart }: { noTimer: boolean; onToggleTimer: () => void; onStart: () => void }) {
   return (
     <div className="mt-8">
-      <p className="font-sans text-lg text-ink-soft">7 prompts. 25 seconds each. Rarer answers dig deeper.</p>
+      <p className="font-sans text-lg text-ink">Each prompt hides one word nobody expects.</p>
+      <p className="mt-2 font-sans text-lg text-ink-soft">7 prompts. 25 seconds each. Rarer answers dig deeper.</p>
+      <p className="mt-2 font-sans text-base text-ink-soft">Your answers build a cross-section as you go. The hidden word is the fossil, buried in the bedrock.</p>
+      <div className="mt-4 border border-line p-4">
+        <p className="font-serif text-lg text-ink">{"For example: Name a fruit"}</p>
+        <p className="mt-1 font-serif text-base text-ink-soft">{"apple lands in the topsoil. quince digs down to the clay."}</p>
+      </div>
       <div className="mt-6 flex flex-wrap items-center gap-4">
         <Button onClick={onStart}>Start</Button>
         <ToggleGroup
