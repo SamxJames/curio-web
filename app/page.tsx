@@ -4,6 +4,7 @@ import HomeContent from "@/components/HomeContent";
 import ServerSessionMarker from "@/components/ServerSessionMarker";
 import { auth } from "@/lib/auth";
 import { dayKey, formatDay } from "@/lib/day";
+import { isDigOpen } from "@/lib/dig/clock";
 import { buildSiteJsonLd, serializeJsonLd } from "@/lib/storyJsonLd";
 import { recordUserSeen } from "@/lib/userData";
 import { resolveTodayWord } from "@/lib/words";
@@ -27,7 +28,7 @@ export default async function TodayPage() {
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildSiteJsonLd()) }}
       />
       <ServerSessionMarker signedIn={!!session?.user?.id} />
-      <HomeContent word={word} date={formatDay(dayKey(now))} />
+      <HomeContent word={word} date={formatDay(dayKey(now))} digOpen={isDigOpen(now)} />
     </>
   );
 }

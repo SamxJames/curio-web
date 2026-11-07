@@ -1,14 +1,17 @@
 import Link from "next/link";
 import EtymologyLineage from "@/components/EtymologyLineage";
 import SignupOffer from "@/components/SignupOffer";
+import TodayStrip from "@/components/TodayStrip";
 import type { WordEntry } from "@/lib/words";
 
 export default function TodayHero({
   word,
   date,
+  digOpen,
 }: {
   word: WordEntry;
   date: string;
+  digOpen: boolean;
 }) {
   return (
     <section className="mx-auto flex max-w-page flex-col items-start px-6 py-20">
@@ -34,18 +37,11 @@ export default function TodayHero({
         >
           Read the full story
         </Link>
-
-        {/* Styled as Button's secondary variant — a Link, so it can't use
-         * the <button> primitive directly. */}
-        <Link
-          href="/play"
-          className="inline-flex items-center gap-2 rounded-full border border-line-strong px-5 py-2.5 font-sans text-sm text-ink-soft transition-colors hover:border-accent hover:text-ink"
-        >
-          Play today&apos;s puzzle
-        </Link>
       </div>
 
-      <p className="mt-6 font-sans text-sm">
+      <TodayStrip digOpen={digOpen} />
+
+      <p className="mt-8 font-sans text-sm">
         <Link href="/history" className="text-ink-soft transition-colors hover:text-ink">
           Past words &rarr;
         </Link>
