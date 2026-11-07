@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import Reveal, { announceReveal } from "./Reveal";
+import { bannedHits } from "@/lib/dig/copyAudit";
 import { noop, secret } from "./testFixtures";
 
 describe("Reveal", () => {
@@ -8,15 +9,56 @@ describe("Reveal", () => {
   const timedOut = { answer: null, tier: null, rejected: ["jib"], lastGuess: "jib" };
   const props = { secret, isLast: false, onNext: noop, onClaim: noop, claimed: false, canClaim: true };
 
-  it("shows the tier, points, stratum and the fossil", () => {
+  it("shows the layer line, points and the fossil", () => {
     const html = renderToStaticMarkup(<Reveal {...props} result={given} />);
     expect(html).toContain("keel");
-    expect(html).toContain("Familiar, 30 points, into the loam");
+    expect(html).toContain("Loam. Familiar, and a little below the surface.");
+    expect(html).toContain("30 points");
+    expect(html).toContain("The fossil was");
+    expect(html).not.toContain("Familiar, 30 points");
     expect(html).toContain("halyard");
     expect(html).toContain("/story/halyard");
     expect(html).toContain("Next prompt");
   });
 
+  it("varies the layer line by how many times that layer was already hit", () => {
+    const mk = (n: number) => renderToStaticMarkup(<Reveal {...props} result={given} variantIndex={n} />);
+    expect(new Set([mk(0), mk(1), mk(2)]).size).toBe(3);
+  });
+  it("a fossil hit is one block with the bone mark, no layer line and no second fossil heading", () => {
+    const html = renderToStaticMarkup(<Reveal {...props} result={{ answer: "halyard", tier: "fossil", rejected: [], lastGuess: null }} />);
+    expect(html).toContain("You found the fossil.");
+    expect(html).toContain('aria-hidden="true"');
+    expect(html.match(/You found the fossil./g)).toHaveLength(1);
+    expect(html).not.toContain("The fossil was");
+    expect(html).not.toContain("This prompt&#x27;s fossil");
+    expect(html).not.toContain("Loam.");
+    expect(html).toContain("From haul + yard.");
+  });
+  it("a different fossil-tier word reads as a found fossil, naming the prompt's own fossil", () => {
+    const html = renderToStaticMarkup(<Reveal {...props} result={{ answer: "gaff", tier: "fossil", rejected: [], lastGuess: null }} />);
+    expect(html).toContain("You found a fossil. The fossil was halyard.");
+  });
+  it("a miss shows The fossil was, no layer line, no points", () => {
+    const html = renderToStaticMarkup(<Reveal {...props} result={{ answer: null, tier: null, rejected: [], lastGuess: null }} />);
+    expect(html).toContain("The fossil was");
+    expect(html).not.toMatch(/points/);
+  });
+  it("a story fact links with descriptive text and reports the click", () => {
+    const html = renderToStaticMarkup(<Reveal {...props} secret={{ ...secret, stories: { tea: "tea" } }} result={{ answer: "tea", tier: "common", rejected: [], lastGuess: null }} onStory={noop} />);
+    expect(html).toContain("Read the story of tea");
+    expect(html).toContain("/story/tea");
+    expect(html).not.toContain(">Read it<");
+  });
+  it("shows an origin fact on an origin prompt", () => {
+    const html = renderToStaticMarkup(<Reveal {...props} kind="origin" promptText="Name a word that came to English from Russian" result={{ answer: "kvass", tier: "common", rejected: [], lastGuess: null }} />);
+    expect(html).toContain("English took kvass from Russian.");
+  });
+  it("every tier's reveal passes the copy audit", () => {
+    for (const tier of ["common", "popular", "familiar", "uncommon", "rare", "fossil"] as const) for (const n of [0, 1, 2]) {
+      expect(bannedHits(renderToStaticMarkup(<Reveal {...props} result={{ answer: "tea", tier, rejected: [], lastGuess: null }} variantIndex={n} />))).toEqual([]);
+    }
+  });
   it("hides a dictionary-notation fact and links to its source instead", () => {
     const raw = { ...secret, fossil: { word: "phial", fact: "The noun is derived partly: * from Middle English fiole [and other forms]…" } };
     const html = renderToStaticMarkup(<Reveal {...props} secret={raw} result={given} />);
@@ -77,6 +119,10 @@ describe("Reveal", () => {
 });
 
 describe("announceReveal", () => {
+  it("announces the fossil only when found", () => {
+    expect(announceReveal({ answer: "halyard", tier: "fossil", rejected: [], lastGuess: null }, secret, false)).toBe("halyard, Fossil, 100 points. You found the fossil.");
+    expect(announceReveal({ answer: "tea", tier: "common", rejected: [], lastGuess: null }, secret, false)).toContain("Fossil: halyard.");
+  });
   it("says the outcome and the fossil word once, for the persistent live region", () => {
     expect(announceReveal({ answer: "keel", tier: "familiar", rejected: [], lastGuess: null }, secret, false)).toBe("keel, Familiar, 30 points. Fossil: halyard.");
     expect(announceReveal({ answer: null, tier: null, rejected: [], lastGuess: null }, secret, false)).toBe("Time's up. Fossil: halyard.");
