@@ -67,7 +67,9 @@ export function sendViaOnce(): void {
     if (!from) return;
     const url = new URL(window.location.href);
     url.searchParams.delete("from");
-    window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
+    // Pass null, not history.state: Next's patched replaceState only syncs its router URL
+    // when the state lacks its internal marker, so null lets Next update its own URL too.
+    window.history.replaceState(null, "", url.pathname + url.search + url.hash);
     const key = `curio:dig:via:${from}`;
     if (window.sessionStorage.getItem(key)) return;
     window.sessionStorage.setItem(key, "1");

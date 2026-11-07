@@ -29,6 +29,13 @@ describe("TodayStrip", () => {
     expect(html).not.toContain("done today");
     expect(html).not.toMatch(/\d of \d/);
   });
+  it("labels the list with the 'Also today' heading", () => {
+    const html = renderToStaticMarkup(<TodayStrip digOpen />);
+    const labelledBy = html.match(/<ul[^>]*aria-labelledby="([^"]+)"/)?.[1];
+    const headingId = html.match(/<p[^>]*id="([^"]+)"[^>]*>Also today<\/p>/)?.[1];
+    expect(labelledBy).toBeTruthy();
+    expect(headingId).toBe(labelledBy);
+  });
   it("omits the dig while dig is closed", () => {
     expect(renderToStaticMarkup(<TodayStrip digOpen={false} />)).not.toContain("/dig");
   });

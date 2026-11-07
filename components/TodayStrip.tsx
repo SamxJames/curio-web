@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import Link from "next/link";
 import { Check } from "lucide-react";
 import { dayKey } from "@/lib/day";
@@ -19,14 +20,15 @@ export function isDigDone(store: DigStore, today: string): boolean {
 export default function TodayStrip({ digOpen }: { digOpen: boolean }) {
   const puzzleDone = useClientOnlyValue(() => isPuzzleDone(getPlayState(dayKey())), false);
   const digDone = useClientOnlyValue(() => isDigDone(readStore(), dayKey()), false);
+  const labelId = useId();
   const rows = [
     { href: "/play", title: "The puzzle", line: "Guess the word from three clues.", done: puzzleDone },
     ...(digOpen ? [{ href: "/dig?from=home", title: "curio dig", line: "Name words for seven prompts. Rarer ones dig deeper.", done: digDone }] : []),
   ];
   return (
     <div className="mt-8 w-full max-w-form">
-      <p className="font-sans text-xs tracking-wide text-ink-faint">Also today</p>
-      <ul className="mt-2 border-b border-line">
+      <p id={labelId} className="font-sans text-xs tracking-wide text-ink-faint">Also today</p>
+      <ul aria-labelledby={labelId} className="mt-2 border-b border-line">
         {rows.map((r) => (
           <li key={r.href} className="border-t border-line">
             <Link href={r.href} className="group flex items-start justify-between gap-4 py-3">

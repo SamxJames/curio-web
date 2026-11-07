@@ -52,7 +52,8 @@ export default function Header({ digOpen = false }: { digOpen?: boolean }) {
         {/* Wraps instead of overflowing: unwrapped, this row needs ~366px, and on a narrower
             phone (iPhone Display Zoom, larger Safari text) it widened every page. */}
         <nav className="flex min-w-0 flex-wrap items-center justify-end gap-x-2.5 gap-y-1 sm:gap-x-5">
-          <Link href="/" className={navLinkClass(todayActive)}>
+          {/* On phones the Curio wordmark is the way home; dropping Today keeps the row on one line at 375px with Dig added. */}
+          <Link href="/" className={clsx(navLinkClass(todayActive), "hidden sm:inline")}>
             Today
           </Link>
           <Link href="/play" className={navLinkClass(puzzleActive)}>
