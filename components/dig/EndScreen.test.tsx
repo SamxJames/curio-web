@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
-import EndScreen, { announceDone, formatDigDate, rowEvent, wordsWorthKnowing } from "./EndScreen";
+import EndScreen, { announceDone, formatDigDate, foundLine, rowEvent, wordsWorthKnowing } from "./EndScreen";
 import { bannedHits } from "@/lib/dig/copyAudit";
 import { copyResult, shareImage } from "./shareImage";
 import { prepareDay } from "@/lib/dig/game";
@@ -291,4 +291,17 @@ describe("EndScreen today's-word link", () => {
   it("does not show the today's-word row on a past dig", () => {
     expect(renderToStaticMarkup(<EndScreen day={day} game={game} isToday={false} />)).not.toContain("Today&#x27;s word on Curio");
   });
+});
+
+describe("foundLine", () => {
+  it("leads with what was found and the deepest layer reached", () => {
+    expect(foundLine(["common", null, null, null, null, null, "fossil"])).toBe("You found 2 words and reached the bedrock.");
+    expect(foundLine(["familiar", null, null, null, null, null, null])).toBe("You found 1 word and reached the loam.");
+    expect(foundLine([null, null, null, null, null, null, null])).toBe("Hard ground today. Here's what was buried.");
+  });
+});
+it("shows the found line on the postcard and passes the copy audit", () => {
+  const html = renderToStaticMarkup(<EndScreen day={day} game={game} isToday />);
+  expect(html).toContain("You found 2 words and reached the bedrock.");
+  expect(bannedHits(html)).toEqual([]);
 });

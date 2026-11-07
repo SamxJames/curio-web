@@ -145,3 +145,12 @@ describe("Reveal compactness and targets", () => {
     expect(html).toMatch(/py-2[^>]*>s*Read the story of/);
   });
 });
+
+describe("Reveal coaching", () => {
+  it("shows the one-time tip only when coached", () => {
+    const tip = "Every word that fits counts. Rarer ones dig deeper.";
+    const answeredProps = { secret, isLast: false, onNext: noop, onClaim: noop, claimed: false, canClaim: true, result: { answer: "keel", tier: "familiar" as const, rejected: [], lastGuess: null } };
+    expect(renderToStaticMarkup(<Reveal {...answeredProps} coach />)).toContain(tip);
+    expect(renderToStaticMarkup(<Reveal {...answeredProps} />)).not.toContain(tip);
+  });
+});

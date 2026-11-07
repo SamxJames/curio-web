@@ -22,6 +22,8 @@ type Props = {
   canClaim: boolean;
   /** how many earlier results in this run landed in the same layer (picks the wording) */
   variantIndex?: number;
+  /** first answer this device has ever made: show the one-time tip */
+  coach?: boolean;
   kind?: PromptKind;
   promptText?: string;
   /** a Curio story link was followed */
@@ -44,7 +46,7 @@ export function announceReveal(result: PromptResult, secret: PromptSecret, passe
 /** After each prompt (mockup screen 3): where the answer landed, and the prompt's fossil.
  * The prompt's inputs have just unmounted, so focus would fall to <body>: it moves to the
  * heading instead, and Next prompt is the next tab stop. */
-export default function Reveal({ result, secret, isLast, claimed, passed = false, canClaim, variantIndex = 0, kind = "theme", promptText = "", onStory, onNext, onClaim }: Props) {
+export default function Reveal({ result, secret, isLast, claimed, passed = false, canClaim, variantIndex = 0, coach = false, kind = "theme", promptText = "", onStory, onNext, onClaim }: Props) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => { heading.current?.focus(); }, []);
   // Only a prompt that ended with no answer has anything to claim: the player's own most recent
@@ -73,6 +75,7 @@ export default function Reveal({ result, secret, isLast, claimed, passed = false
           )}
         </p>
       )}
+      {coach && answered && <p className="mt-2 font-sans text-base text-ink">Every word that fits counts. Rarer ones dig deeper.</p>}
       <div className="mt-4 border-t border-line pt-3">
         {foundFossil ? (
           <p className="flex items-center gap-2 font-display text-xl">

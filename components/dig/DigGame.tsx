@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { createReducer, initialGame, prepareDay, resultTiers, resumeGame, toSavedRun, type DigDayResponse, type GameState, type PreparedDay } from "@/lib/dig/game";
+import { coachIndex, createReducer, initialGame, prepareDay, resultTiers, resumeGame, toSavedRun, type DigDayResponse, type GameState, type PreparedDay } from "@/lib/dig/game";
 import { priorSameTier } from "@/lib/dig/revealCopy";
 import { stripState } from "@/lib/dig/strip";
 import { scoreOf } from "@/lib/dig/score";
-import { clearRun, effectiveNoTimer, markReported, readRun, readStore, saveGame, saveRun, setNoTimer, useDigStore } from "@/lib/dig/storage";
+import { clearRun, effectiveNoTimer, markCoached, markReported, readRun, readStore, saveGame, saveRun, setNoTimer, useDigStore } from "@/lib/dig/storage";
 import { buildFinishEvent, buildStartEvent, sendDigEvent, sendFinish, sendLandOnce, sendViaOnce } from "@/lib/dig/client";
 import EndScreen, { announceDone } from "./EndScreen";
 import Intro from "./Intro";
@@ -81,6 +81,11 @@ function DigRun({ day, isToday, heading, note }: { day: PreparedDay; isToday: bo
   const [resumedReveal] = useState(() => (resumed?.state.phase === "reveal" ? resumed.state.current : -1));
   const [claimed, setClaimed] = useState<Set<number>>(new Set());
   const [passed, setPassed] = useState<Set<number>>(() => new Set(resumed?.passed ?? []));
+  // Coaching is decided once, at mount, so marking it seen doesn't hide the tip mid-reveal.
+  const [coachable] = useState(() => !readStore().settings.coached);
+  const coachAt = coachable ? coachIndex(state.results) : -1;
+  const coachNow = state.phase === "reveal" && coachAt === state.current;
+  useEffect(() => { if (coachNow) markCoached(); }, [coachNow]);
   const saved = useRef(false);
   const finished = store.games[day.date];
 
@@ -152,6 +157,7 @@ function DigRun({ day, isToday, heading, note }: { day: PreparedDay; isToday: bo
         passed={passed.has(state.current)}
         canClaim={isToday}
         variantIndex={priorSameTier(state.results, state.current)}
+        coach={coachNow}
         kind={day.prompts[state.current].kind}
         promptText={day.prompts[state.current].text}
         onStory={() => sendDigEvent({ kind: "story" })}

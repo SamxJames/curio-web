@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { ANSWER_SECONDS, createReducer, initialGame, prepareDay, resultTiers, type GameState } from "./game";
+import { ANSWER_SECONDS, coachIndex, createReducer, initialGame, prepareDay, resultTiers, type GameState } from "./game";
 import { parseDigEvent } from "./events";
 import { encodeDay } from "./payload";
 import { devDay } from "./devDay";
@@ -221,4 +221,10 @@ describe("letters feedback", () => {
     s = reduce(s, { type: "submit", guess: "   " });
     expect(s.feedback).toEqual({ kind: "empty" });
   });
+});
+
+it("coaches on the first answered prompt only", () => {
+  const r = (answer: string | null) => ({ answer, tier: answer ? ("common" as const) : null, rejected: [], lastGuess: null });
+  expect(coachIndex([r(null), r("apple"), r("pear")])).toBe(1);
+  expect(coachIndex([r(null)])).toBe(-1);
 });

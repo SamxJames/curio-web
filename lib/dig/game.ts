@@ -157,3 +157,8 @@ export function resumeGame(run: unknown, date: string, prompts: number): { state
   const state = r.revealed ? { ...base, current: r.current!, phase: "reveal" as const } : enterPrompt(base, r.current!);
   return { state, passed };
 }
+
+/** The prompt whose reveal carries the one-time "every word counts" tip: the first one answered. */
+export function coachIndex(results: PromptResult[]): number {
+  return results.findIndex((r) => r.answer !== null);
+}

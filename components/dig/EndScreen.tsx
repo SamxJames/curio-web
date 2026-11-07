@@ -5,10 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import Button from "@/components/ui/Button";
 import SignupOffer from "@/components/SignupOffer";
 import type { PreparedDay } from "@/lib/dig/game";
-import { formatDepth, TIER_LABEL } from "@/lib/dig/score";
+import { formatDepth, STRATUM, TIER_LABEL } from "@/lib/dig/score";
 import { percentileLine, shareText } from "@/lib/dig/share";
 import type { StoredGame } from "@/lib/dig/storage";
-import { TIERS } from "@/lib/dig/types";
+import { TIERS, type Tier } from "@/lib/dig/types";
 import { sendDigEvent } from "@/lib/dig/client";
 import type { DigEvent } from "@/lib/dig/events";
 import Strata from "./Strata";
@@ -31,6 +31,14 @@ export function wordsWorthKnowing(day: PreparedDay, answers: (string | null)[]) 
 }
 
 const STATUS_MS = 4000;
+
+/** The postcard's first line: what the player found, never what they didn't. */
+export function foundLine(tiers: (Tier | null)[]): string {
+  const found = tiers.filter((t): t is Tier => t !== null);
+  if (found.length === 0) return "Hard ground today. Here's what was buried.";
+  const deepest = found.reduce((a, t) => (TIERS.indexOf(t) > TIERS.indexOf(a) ? t : a));
+  return `You found ${found.length} ${found.length === 1 ? "word" : "words"} and reached the ${STRATUM[deepest]}.`;
+}
 
 /** "7 November 2026", always in UTC so a player's timezone can't shift the date. */
 export function formatDigDate(date: string): string {
@@ -93,7 +101,8 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, offer
           <p className="font-display text-lg">curio dig</p>
           <p className="font-sans text-sm text-ink-soft">{`Dig #${day.number}`}</p>
         </div>
-        <h2 ref={depth} tabIndex={-1} className="mt-3 font-display text-5xl leading-display outline-none">{`${formatDepth(game.score)} down`}</h2>
+        <p className="mt-3 font-sans text-base text-ink">{foundLine(game.tiers)}</p>
+        <h2 ref={depth} tabIndex={-1} className="mt-1 font-display text-5xl leading-display outline-none">{`${formatDepth(game.score)} down`}</h2>
         {pct && <p className="mt-2 font-sans text-base text-ink-soft">{pct}</p>}
         <p className="mt-1 font-sans text-sm text-ink-soft">{formatDigDate(day.date)}</p>
         <div className="-mx-4 -mb-4 mt-4 overflow-hidden rounded-b-lg">
