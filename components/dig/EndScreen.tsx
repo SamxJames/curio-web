@@ -50,7 +50,8 @@ export function announceDone(score: number): string {
 /** `autoFocus` is for a dig the player has just finished: focus moves to the depth line, because
  * the prompt screen they were typing in has gone. An already-played day passes nothing, so a
  * page load never jumps focus. */
-export default function EndScreen({ day, game, isToday, autoFocus = false }: { day: PreparedDay; game: StoredGame; isToday: boolean; autoFocus?: boolean }) {
+export default function EndScreen({ day, game, isToday, autoFocus = false, offerTimer = false, onAddTimer }: { day: PreparedDay; game: StoredGame; isToday: boolean; autoFocus?: boolean; offerTimer?: boolean; onAddTimer?: () => void }) {
+  const [timerAdded, setTimerAdded] = useState(false);
   const [status, setStatus] = useState("");
   const [open, setOpen] = useState<Set<number>>(new Set());
   const storySent = useRef(false);
@@ -108,6 +109,13 @@ export default function EndScreen({ day, game, isToday, autoFocus = false }: { d
       <p role="status" aria-live="polite" className="mt-3 min-h-6 font-sans text-sm text-ink-soft">{status}</p>
 
       {isToday && <p className="mt-4 font-sans text-base text-ink-soft">A new dig opens at midnight UTC.</p>}
+      {(offerTimer || timerAdded) && onAddTimer && (
+        <p className="mt-2 font-sans text-base text-ink-soft">
+          {timerAdded ? "Timer on for your next dig." : (
+            <Button variant="link" onClick={() => { onAddTimer(); setTimerAdded(true); }}>Want more of a challenge? Add a 25-second timer next time.</Button>
+          )}
+        </p>
+      )}
 
       <ul className="mt-6 max-w-form border-b border-line">
         {isToday && (

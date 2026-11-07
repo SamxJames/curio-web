@@ -5,7 +5,7 @@ import { createReducer, initialGame, prepareDay, resultTiers, resumeGame, toSave
 import { priorSameTier } from "@/lib/dig/revealCopy";
 import { stripState } from "@/lib/dig/strip";
 import { scoreOf } from "@/lib/dig/score";
-import { clearRun, markReported, readRun, readStore, saveGame, saveRun, setNoTimer, useDigStore } from "@/lib/dig/storage";
+import { clearRun, effectiveNoTimer, markReported, readRun, readStore, saveGame, saveRun, setNoTimer, useDigStore } from "@/lib/dig/storage";
 import { buildFinishEvent, buildStartEvent, sendDigEvent, sendFinish, sendLandOnce, sendViaOnce } from "@/lib/dig/client";
 import EndScreen, { announceDone } from "./EndScreen";
 import Intro from "./Intro";
@@ -118,15 +118,16 @@ function DigRun({ day, isToday, heading, note }: { day: PreparedDay; isToday: bo
   }, [state, day, isToday, store.games]);
 
   if (state.phase === "intro" && !finished) {
+    const noTimer = effectiveNoTimer(store.settings);
     return (
       <>
         <Heading heading={heading} phase="intro" note={note} />
         <Intro
-          noTimer={store.settings.noTimer}
-          onToggleTimer={() => setNoTimer(!store.settings.noTimer)}
+          noTimer={noTimer}
+          onToggleTimer={() => setNoTimer(!noTimer)}
           onStart={() => {
             sendDigEvent(isToday ? buildStartEvent(day.date, readStore().games) : { kind: "past" });
-            dispatch({ type: "start", noTimer: store.settings.noTimer });
+            dispatch({ type: "start", noTimer });
           }}
         />
       </>
@@ -136,7 +137,7 @@ function DigRun({ day, isToday, heading, note }: { day: PreparedDay; isToday: bo
   if (finished && (state.phase === "intro" || state.phase === "done")) {
     // Already played, or just finished: their own result, never a countdown. Only a dig finished in
     // this session takes focus (a page load of a played day must not jump it).
-    screen = <EndScreen day={day} game={finished} isToday={isToday} autoFocus={state.phase === "done"} />;
+    screen = <EndScreen day={day} game={finished} isToday={isToday} autoFocus={state.phase === "done"} offerTimer={isToday && store.settings.noTimer === undefined} onAddTimer={() => setNoTimer(false)} />;
   } else if (state.phase === "done") {
     // The save is a render away: show nothing in the meantime. The live region below must still
     // render, so it persists from the last reveal through to the end screen.

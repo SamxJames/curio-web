@@ -19,9 +19,16 @@ export type StoredGame = {
   /** the finish event has been sent (one per browser per day) */
   reported?: boolean;
 };
-export type DigStore = { v: 1; settings: { noTimer: boolean }; games: Record<string, StoredGame> };
+/** noTimer absent = never chosen = no timer (a new player's first digs have no clock).
+ * Stores saved before 2026-11-07 always hold true or false, so returning players keep theirs. */
+export type DigSettings = { noTimer?: boolean; coached?: true };
+export type DigStore = { v: 1; settings: DigSettings; games: Record<string, StoredGame> };
 
-const empty = (): DigStore => ({ v: 1, settings: { noTimer: false }, games: {} });
+const empty = (): DigStore => ({ v: 1, settings: {}, games: {} });
+
+export function effectiveNoTimer(s: DigSettings): boolean {
+  return s.noTimer ?? true;
+}
 
 const isTier = (t: unknown): t is Tier | null => t === null || (TIERS as readonly unknown[]).includes(t);
 
@@ -59,7 +66,14 @@ export function parseStore(raw: string | null): DigStore {
       const game = parseGame(entry);
       if (game) games[date] = game;
     }
-    return { v: 1, settings: { noTimer: !!s.settings?.noTimer }, games };
+    return {
+      v: 1,
+      settings: {
+        ...(typeof s.settings?.noTimer === "boolean" ? { noTimer: s.settings.noTimer } : {}),
+        ...(s.settings?.coached === true ? { coached: true as const } : {}),
+      },
+      games,
+    };
   } catch {
     return empty();
   }

@@ -16,6 +16,15 @@ plain.prompts[0].stories = { apple: "apple" };
 const day = prepareDay({ ...encodeDay(plain), number: 5 });
 const game = { answers: ["apple", null, null, null, null, null, "gimlet"], tiers: ["common", null, null, null, null, null, "fossil"] as never, score: 110, finishedAt: "x", spread: { "1": 100 } };
 
+describe("timer offer", () => {
+  it("offers a timer once, as an opt-in, when the player never chose one", () => {
+    const html = renderToStaticMarkup(<EndScreen day={day} game={game} isToday offerTimer onAddTimer={() => {}} />);
+    expect(html).toContain("Want more of a challenge? Add a 25-second timer next time.");
+    expect(bannedHits(html)).toEqual([]);
+    expect(renderToStaticMarkup(<EndScreen day={day} game={game} isToday />)).not.toContain("Add a 25-second timer");
+  });
+});
+
 describe("wordsWorthKnowing", () => {
   it("lists the player's story words first, then each prompt's fossil", () => {
     const list = wordsWorthKnowing(day, game.answers);
