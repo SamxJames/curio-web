@@ -106,6 +106,9 @@ The existing `46ch` prose measure (used in a few places, e.g. `ArrivalHero`'s pa
 | Token | Value | Usage |
 |---|---|---|
 | `--duration-theme` | `250ms` | Consumed directly via `var(--duration-theme)` in the `body` rule's `transition` (theme light/dark fade). Deliberately **not** registered in `@theme inline` — it doesn't back a generated Tailwind utility class, and is intentionally its own value rather than reusing Tailwind's default interactive-element transition (150ms), because a full light/dark swap reads better slower than a hover state does. |
+| `--duration-drop` | `420ms` | curio dig strata strip: a new marker drops from the surface to its band (`.dig-drop`). Only under `prefers-reduced-motion: no-preference`. |
+| `--duration-found` | `700ms` | curio dig: one ring pulse around a found fossil (`.dig-found`). Only under `no-preference`. |
+| `--ease-settle` | `cubic-bezier(0.2, 0.8, 0.2, 1)` | Easing for the two dig animations above. |
 
 ---
 

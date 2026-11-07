@@ -186,6 +186,11 @@
   --container-page: 40rem; /* 640px */
   --container-form: 27.5rem; /* 440px */
 
+  /* curio dig strata: a new marker drops into its band, a found fossil pulses once. */
+  --duration-drop: 420ms;
+  --duration-found: 700ms;
+  --ease-settle: cubic-bezier(0.2, 0.8, 0.2, 1);
+
   /* /play letter tiles: a letter settles into its tile when revealed. Used
    * as motion-safe:animate-tile-reveal so reduced-motion users get none. */
   --animate-tile-reveal: tile-reveal 320ms ease-out both;
@@ -198,6 +203,30 @@
       opacity: 1;
       transform: none;
     }
+  }
+}
+
+/* The strata strip (components/dig/Strata.tsx). Animated only when motion is welcome;
+ * otherwise the marker is simply there. transform-box/origin make SVG shapes scale from
+ * their own centre rather than the viewBox origin. --drop-from is set inline (SVG units). */
+@keyframes dig-drop {
+  from { transform: translateY(var(--drop-from, 0px)); }
+  to { transform: translateY(0); }
+}
+@keyframes dig-found {
+  from { transform: scale(0.6); opacity: 1; }
+  to { transform: scale(1.8); opacity: 0; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .dig-drop {
+    animation: dig-drop var(--duration-drop) var(--ease-settle) both;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .dig-found {
+    animation: dig-found var(--duration-found) var(--ease-settle) both;
+    transform-box: fill-box;
+    transform-origin: center;
   }
 }
 
