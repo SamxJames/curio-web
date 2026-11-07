@@ -24,8 +24,13 @@ describe("summarizeDigFunnel", () => {
       LAUNCH,
       { now: new Date("2026-12-03T12:00:00Z"), rowDates: ["2026-12-02"] },
     );
-    expect(s.rows).toEqual([{ date: "2026-12-02", land: 7, start: 4, finish: 3, share: 2, story: 1, signup: 1, past: 2, returning: 0, returnShare: 0 }]);
+    expect(s.rows).toEqual([{ date: "2026-12-02", land: 7, start: 4, finish: 3, share: 2, story: 1, signup: 1, past: 2, returning: 0, returnShare: 0, via: {} }]);
     expect(s.killLine).toBeNull();
+  });
+
+  it("collects via counts per row", () => {
+    const s = summarizeDigFunnel({ "2026-12-02": { "via:nav": 3, "via:home": 2, start: 1 } }, null, { now: new Date("2026-12-03T00:00:00Z"), rowDates: ["2026-12-02"] });
+    expect(s.rows[0].via).toEqual({ nav: 3, home: 2 });
   });
 
   it("sums returning starts and gives the share of all starts", () => {

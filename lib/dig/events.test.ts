@@ -45,6 +45,18 @@ describe("parseDigEvent", () => {
   });
 });
 
+describe("via event", () => {
+  it("parses a via event from a known internal link and rejects others", () => {
+    expect(parseDigEvent({ kind: "via", from: "nav" }, today)).toEqual({ kind: "via", from: "nav" });
+    expect(parseDigEvent({ kind: "via", from: "evil" }, today)).toBeNull();
+    expect(parseDigEvent({ kind: "via" }, today)).toBeNull();
+  });
+  it("counts a via event under via:<from>", () => {
+    expect(funnelField({ kind: "via", from: "home" })).toBe("via:home");
+    expect(funnelFields({ kind: "via", from: "story" })).toEqual(["via:story"]);
+  });
+});
+
 describe("funnel fields and the finish plan", () => {
   it("maps events to field names", () => {
     expect(funnelField({ kind: "land", source: "direct" })).toBe("land:direct");

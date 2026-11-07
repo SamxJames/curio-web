@@ -11,7 +11,7 @@ export default function DigFunnelTable({ summary }: { summary: DigFunnelSummary 
         {killLineText(summary.killLine, summary.killReturnShare)} Returning = starts from a device that
         finished a dig on an earlier day. It undercounts (Safari clears storage after 7 days, private
         windows). Read from day 2; target 30% by days 8 to 14. With a small daily sample, read the trend,
-        not one day. Share arrivals land as land:direct, because chat apps strip the referrer, so read
+        not one day. via = which Curio link brought a visitor in (nav, home, arrival, play, story), once per tab session. Share arrivals land as land:direct, because chat apps strip the referrer, so read
         direct against the pre-launch baseline.
       </p>
       {summary.rows.length === 0 ? (
@@ -24,6 +24,7 @@ export default function DigFunnelTable({ summary }: { summary: DigFunnelSummary 
               <span key={c} className="w-16 text-right">{c}</span>
             ))}
             <span className="w-16 text-right">Return %</span>
+            <span className="w-40 text-right">via</span>
           </div>
           {summary.rows.map((row) => (
             <div key={row.date} className="flex items-baseline justify-between border-t border-line py-1.5">
@@ -33,6 +34,9 @@ export default function DigFunnelTable({ summary }: { summary: DigFunnelSummary 
               ))}
               <span className="w-16 text-right font-serif text-[13px] tabular-nums">
                 {row.returnShare === null ? "" : `${row.returnShare}%`}
+              </span>
+              <span className="w-40 text-right font-sans text-[11px] text-ink-soft">
+                {Object.entries(row.via).map(([k, n]) => `${k} ${n}`).join(" · ")}
               </span>
             </div>
           ))}
