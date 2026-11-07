@@ -10,6 +10,13 @@ describe("shareText", () => {
   });
 });
 
+describe("past digs", () => {
+  it("end with the plain dig link, no challenge code", () => {
+    const t = shareText(12, 100, ["common", null, null, null, null, null, null], false).split(String.fromCharCode(10));
+    expect(t[t.length - 1]).toBe("curioword.com/dig");
+  });
+});
+
 describe("challenge link", () => {
   it("ends with the spoiler-free link", () => {
     const t = ["common", "rare", null, "fossil", "popular", "familiar", "uncommon"] as const;

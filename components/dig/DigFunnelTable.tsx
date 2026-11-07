@@ -40,6 +40,7 @@ export default function DigFunnelTable({ summary, cohorts }: { summary: DigFunne
         </div>
       )}
       <p className="mt-6 font-sans text-[9.5px] tracking-[0.18em] text-ink-soft uppercase">Dig cohorts (first-play date)</p>
+      <p className="mt-1 font-sans text-[11px] text-ink-soft">From 8 Nov 2026. &lsquo;Back&rsquo; counts starts per device, so it reads slightly high (a first finish on a past dig or an unsent report isn&rsquo;t counted as new).</p>
       <div className="mt-1">
         <div className="flex items-baseline justify-between py-1.5 font-sans text-[9.5px] tracking-[0.18em] text-ink-soft uppercase">
           <span className="flex-1">Date</span>

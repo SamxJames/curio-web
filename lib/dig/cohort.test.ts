@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cohortDay, firstPlayDate, isNewPlayer, summarizeCohorts } from "./cohort";
+import { COHORT_START, cohortDay, firstPlayDate, isNewPlayer, summarizeCohorts } from "./cohort";
 
 const games = { "2026-11-08": { finishedAt: "2026-11-08T10:00:00Z" }, "2026-11-10": { finishedAt: "2026-11-10T09:00:00Z" } };
 describe("cohorts", () => {
@@ -18,6 +18,8 @@ describe("cohorts", () => {
     expect(cohortDay("2026-11-08", "2026-11-08")).toBeNull();
     expect(cohortDay("2026-09-01", "2026-11-15")).toBeNull();
     expect(cohortDay("nonsense", "2026-11-15")).toBeNull();
+    expect(cohortDay("2026-02-30", "2026-03-15")).toBeNull();
+    expect(cohortDay("2026-11-31", "2026-12-05")).toBeNull();
   });
   it("summarizes new finishers and returns", () => {
     const rows = summarizeCohorts(
@@ -29,5 +31,9 @@ describe("cohorts", () => {
       { date: "2026-11-08", newFinishers: 20, d1: 4, d7: 2, d8to13: 2 },
       { date: "2026-11-09", newFinishers: 0, d1: 0, d7: 0, d8to13: 0 },
     ]);
+  });
+  it("hides dates before the cohort start", () => {
+    const rows = summarizeCohorts({}, {}, ["2026-11-09", COHORT_START, "2026-11-07"]);
+    expect(rows.map((r) => r.date)).toEqual(["2026-11-09", COHORT_START]);
   });
 });

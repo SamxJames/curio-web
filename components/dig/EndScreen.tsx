@@ -64,7 +64,7 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, frien
     setStatus(message);
     if (message) clearTimer.current = window.setTimeout(() => setStatus(""), STATUS_MS);
   };
-  const text = shareText(day.number, game.score, game.tiers);
+  const text = shareText(day.number, game.score, game.tiers, isToday);
   const pct = isToday ? percentileLine(game.spread, game.score) : null;
   const onStory = () => {
     if (isToday && !storySent.current) { storySent.current = true; sendDigEvent({ kind: "story" }); }

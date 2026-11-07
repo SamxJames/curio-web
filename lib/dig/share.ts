@@ -3,8 +3,9 @@ import { encodeVs } from "./challenge";
 import type { Tier } from "./types";
 
 /** The agreed spoiler-free share text (architecture §10). */
-export function shareText(n: number, score: number, tiers: (Tier | null)[]): string {
-  return [`curio dig, day ${n}`, `${formatDepth(score)} down`, shareRow(tiers), `curioword.com/dig?vs=${encodeVs(n, tiers)}&utm_source=challenge`].join("\n");
+export function shareText(n: number, score: number, tiers: (Tier | null)[], challenge = true): string {
+  const link = challenge ? `curioword.com/dig?vs=${encodeVs(n, tiers)}&utm_source=challenge` : "curioword.com/dig";
+  return [`curio dig, day ${n}`, `${formatDepth(score)} down`, shareRow(tiers), link].join("\n");
 }
 
 const MIN_FINISHERS = 100;

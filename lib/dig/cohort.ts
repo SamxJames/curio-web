@@ -2,6 +2,8 @@
 const DAY = 86_400_000;
 const day = (iso: string) => { const t = Date.parse(iso.slice(0, 10) + "T00:00:00Z"); return Number.isNaN(t) ? null : t; };
 const MAX_COHORT_DAY = 60;
+/** Finishes before this deploy never sent isNew, so earlier cohort rows are wrong and stay hidden. */
+export const COHORT_START = "2026-11-08";
 
 export function firstPlayDate(games: Record<string, { finishedAt: string }>, today: string): string | null {
   const now = day(today);
@@ -18,7 +20,7 @@ export const isNewPlayer = (games: Record<string, { finishedAt: string }>, today
 export function cohortDay(first: string, today: string): number | null {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(first)) return null;
   const a = day(first), b = day(today);
-  if (a === null || b === null) return null;
+  if (a === null || b === null || new Date(a).toISOString().slice(0, 10) !== first) return null;
   const n = Math.round((b - a) / DAY);
   return n >= 1 && n <= MAX_COHORT_DAY ? n : null;
 }
@@ -28,7 +30,7 @@ export function summarizeCohorts(
   funnel: Record<string, Record<string, number>>,
   dates: string[],
 ) {
-  return dates.map((date) => {
+  return dates.filter((date) => date >= COHORT_START).map((date) => {
     const c = cohorts[date] ?? {};
     let d8to13 = 0;
     for (let i = 8; i <= 13; i++) d8to13 += c[`d${i}`] ?? 0;
