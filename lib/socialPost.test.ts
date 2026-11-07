@@ -202,6 +202,63 @@ describe("buildThreadsPost", () => {
   });
 });
 
+describe("buildThreadsPost with today's dig line", () => {
+  const dig = { prompt: "Name a beverage" };
+
+  it("adds the quoted line and the threads-tagged link before the tag", () => {
+    const text = buildThreadsPost(ketchup, dig);
+    expect(text).toContain("Today's dig starts with “Name a beverage”. Seven prompts, about three minutes.");
+    expect(text).toContain("utm_source=threads");
+    expect(text.indexOf("Today's dig")).toBeLessThan(text.indexOf("#etymology"));
+    expect(text.endsWith("#etymology")).toBe(true);
+  });
+
+  it("is byte for byte the current post with null or no dig", () => {
+    expect(buildThreadsPost(ketchup, null)).toBe(buildThreadsPost(ketchup));
+  });
+
+  it("stays within 500 bytes for every word, and never drops the teaser", () => {
+    for (const w of WORDS) {
+      const text = buildThreadsPost(w, dig);
+      expect(Buffer.byteLength(text, "utf8")).toBeLessThanOrEqual(500);
+      expect(text.startsWith(w.teaser)).toBe(true);
+    }
+  });
+
+  it("falls back to the short line, then to no dig, when it would pass 500 bytes", () => {
+    const base = buildThreadsPost(ketchup);
+    const room = 500 - Buffer.byteLength(base, "utf8");
+    // Pad the teaser so the full line (about 190 bytes with its link) no longer fits, but the short one does.
+    const mid = { ...ketchup, teaser: ketchup.teaser + "x".repeat(Math.max(0, room - 150)) } as WordEntry;
+    const short = buildThreadsPost(mid, dig);
+    expect(short).toContain("Today's dig starts with “Name a beverage”.");
+    expect(short).not.toContain("Seven prompts");
+    expect(Buffer.byteLength(short, "utf8")).toBeLessThanOrEqual(500);
+    const none = { ...ketchup, teaser: ketchup.teaser + "x".repeat(room) } as WordEntry;
+    expect(buildThreadsPost(none, dig)).toBe(buildThreadsPost(none));
+  });
+});
+
+describe("buildInstagramCaption with today's dig line", () => {
+  const dig = { prompt: "Name a beverage" };
+
+  it("adds the line, ending Link in bio, with no URL, before the hashtags", () => {
+    const caption = buildInstagramCaption(ketchup, dig);
+    const line = "Today's dig starts with “Name a beverage”. Seven prompts, about three minutes. Link in bio.";
+    expect(caption).toContain(line);
+    expect(line).not.toContain("http");
+    expect(caption.endsWith(`${line}\n\n${INSTAGRAM_HASHTAGS}`)).toBe(true);
+  });
+
+  it("is byte for byte the current caption with null or no dig", () => {
+    expect(buildInstagramCaption(ketchup, null)).toBe(buildInstagramCaption(ketchup));
+  });
+
+  it("stays within Instagram's limits for every word", () => {
+    for (const w of WORDS) expect([...buildInstagramCaption(w, dig)].length).toBeLessThanOrEqual(2200);
+  });
+});
+
 describe("buildInstagramCaption", () => {
   it("has the teaser, the lineage line, the link-in-bio line and the hashtags", () => {
     expect(buildInstagramCaption(ketchup)).toBe(

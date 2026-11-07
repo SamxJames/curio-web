@@ -1,5 +1,6 @@
 import type { WordEntry } from "./words";
 import { absoluteUrl } from "./siteUrl";
+import { digLineText, digLineUrl, type DigLine } from "./dig/digLineText";
 
 // Pure builders for the Threads post, the Instagram caption and the
 // carousel's slides. Every sentence comes from the stored, reviewed
@@ -12,6 +13,7 @@ export type SocialChannel = "threads" | "instagram";
 export const CAROUSEL_SIZE = { width: 1080, height: 1350 } as const;
 export const INSTAGRAM_HASHTAGS = "#etymology #wordoftheday #words #language #wordnerd";
 const MAX_STORY_SLIDES = 3;
+const THREADS_MAX_BYTES = 500;
 
 export function socialStoryUrl(word: WordEntry, channel: SocialChannel): string {
   const url = new URL(absoluteUrl(`/story/${word.slug}`));
@@ -34,16 +36,26 @@ function lineageLine(word: WordEntry): string {
 /** The Bluesky format with one tag: Threads treats a post's single
  * hashtag as its topic, so a second adds nothing. The link travels in the
  * post's link_attachment (see lib/threads.ts), not the text. */
-export function buildThreadsPost(word: WordEntry): string {
-  return `${word.teaser}\n\n${lineageLine(word)}\n\n#etymology`;
+export function buildThreadsPost(word: WordEntry, dig?: DigLine | null): string {
+  const base = `${word.teaser}\n\n${lineageLine(word)}`;
+  if (dig) {
+    // Threads' limit is 500 UTF-8 bytes. Same fallback as Bluesky: drop the
+    // second sentence, then the paragraph; the word never loses text.
+    for (const short of [false, true]) {
+      const full = `${base}\n\n${digLineText(dig.prompt, { short })}\n${digLineUrl("threads")}\n\n#etymology`;
+      if (Buffer.byteLength(full, "utf8") <= THREADS_MAX_BYTES) return full;
+    }
+  }
+  return `${base}\n\n#etymology`;
 }
 
 /** Instagram captions can't hold a clickable link, so the story is
  * "link in bio" — the profile's bio link is set to curioword.com. */
-export function buildInstagramCaption(word: WordEntry): string {
+export function buildInstagramCaption(word: WordEntry, dig?: DigLine | null): string {
+  const digParagraph = dig ? `${digLineText(dig.prompt)} Link in bio.\n\n` : "";
   return (
     `${word.teaser}\n\n${lineageLine(word)}\n\n` +
-    `The full story is at curioword.com (link in bio).\n\n${INSTAGRAM_HASHTAGS}`
+    `The full story is at curioword.com (link in bio).\n\n${digParagraph}${INSTAGRAM_HASHTAGS}`
   );
 }
 

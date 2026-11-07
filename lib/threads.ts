@@ -2,6 +2,7 @@ import type { WordEntry } from "./words";
 import { buildThreadsPost, socialStoryUrl } from "./socialPost";
 import { getMetaToken } from "./metaTokens";
 import { siteUrl } from "./siteUrl";
+import type { DigLine } from "./dig/digLineText";
 import { SafeError, call, containerId, form, failureReason, tokenLookupFailed } from "./metaGraph";
 
 const API = "https://graph.threads.net/v1.0";
@@ -12,13 +13,14 @@ const POLL_TRIES = 6; // ≈30s — Meta's recommended wait before publishing
  * Never throws: the social cron runs unattended. Unconfigured → logs. */
 export async function postDailyWordToThreads(
   word: WordEntry,
-  opts: { sleep?: (ms: number) => Promise<void> } = {}
+  opts: { sleep?: (ms: number) => Promise<void> } = {},
+  dig?: DigLine | null
 ): Promise<{ posted: boolean }> {
   const sleep = opts.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
   let token: string | null = null;
 
   try {
-    const text = buildThreadsPost(word);
+    const text = buildThreadsPost(word, dig);
     const link = socialStoryUrl(word, "threads");
     // Inside the try: getMetaToken rejects when Redis is unavailable.
     const userId = process.env.THREADS_USER_ID;

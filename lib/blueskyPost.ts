@@ -5,6 +5,7 @@
 import type { WordEntry } from "./words";
 import { absoluteUrl } from "./siteUrl";
 import { storyPageTitle } from "./storyTitle";
+import { digLineText, digLineUrl, type DigLine } from "./dig/digLineText";
 
 const MAX_GRAPHEMES = 300;
 const ELLIPSIS = "…";
@@ -36,9 +37,23 @@ function sliceGraphemes(text: string, count: number): string {
  * English`, then the hashtags. No link: it lives in the card (see
  * buildStoryCard). Every word in the bank fits (longest: "wine", 291), so
  * truncating the teaser is only a guard for future content. The word and
- * lineage are never cut. */
-export function buildBlueskyPost(word: WordEntry): string {
-  const tail = `\n\n${word.word} · ${word.lineage.join(" → ")}\n\n${HASHTAGS}`;
+ * lineage are never cut.
+ *
+ * With a dig line (today's dig, see lib/dig/digLineText.ts) a paragraph goes
+ * before the hashtags: the line and its link (a bare URL, which Bluesky's
+ * facet detection makes clickable). It must fit beside the whole teaser and
+ * lineage, so if it doesn't it drops its second sentence, and if it still
+ * doesn't it is left out. The dig never costs the word any of its text. */
+export function buildBlueskyPost(word: WordEntry, dig?: DigLine | null): string {
+  const base = `\n\n${word.word} · ${word.lineage.join(" → ")}`;
+  if (dig) {
+    const url = digLineUrl("bluesky");
+    for (const short of [false, true]) {
+      const full = `${word.teaser}${base}\n\n${digLineText(dig.prompt, { short })}\n${url}\n\n${HASHTAGS}`;
+      if (graphemeLength(full) <= MAX_GRAPHEMES) return full;
+    }
+  }
+  const tail = `${base}\n\n${HASHTAGS}`;
   const budget = MAX_GRAPHEMES - graphemeLength(tail);
 
   let teaser = word.teaser;
