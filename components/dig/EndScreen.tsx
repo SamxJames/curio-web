@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Button from "@/components/ui/Button";
 import SignupOffer from "@/components/SignupOffer";
 import type { PreparedDay } from "@/lib/dig/game";
@@ -15,6 +15,13 @@ import Strata from "./Strata";
 import TomorrowHint from "./TomorrowHint";
 import { copyResult, shareImage } from "./shareImage";
 import { etymologyLink, presentableFact } from "@/lib/dig/fact";
+import { ROLLOVER_FALLBACK, rolloverLine } from "@/lib/dig/rollover";
+
+const noSubscribe = () => () => {};
+/** The rollover on the player's clock in the browser; the UTC wording on the server and at hydration. */
+function useRolloverLine(): string {
+  return useSyncExternalStore(noSubscribe, () => rolloverLine(), () => ROLLOVER_FALLBACK);
+}
 
 /** Answers with a Curio story first (the player's own), then every prompt's fossil. */
 export function wordsWorthKnowing(day: PreparedDay, answers: (string | null)[]) {
@@ -60,6 +67,7 @@ export function announceDone(score: number, tiers: (Tier | null)[]): string {
  * page load never jumps focus. */
 export default function EndScreen({ day, game, isToday, autoFocus = false, offerTimer = false, onAddTimer }: { day: PreparedDay; game: StoredGame; isToday: boolean; autoFocus?: boolean; offerTimer?: boolean; onAddTimer?: () => void }) {
   const [timerAdded, setTimerAdded] = useState(false);
+  const rollover = useRolloverLine();
   const [status, setStatus] = useState("");
   const [open, setOpen] = useState<Set<number>>(new Set());
   const storySent = useRef(false);
@@ -117,7 +125,7 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, offer
       {/* Always mounted, so a screen reader announces the text when it changes. */}
       <p role="status" aria-live="polite" className="mt-3 min-h-6 font-sans text-sm text-ink-soft">{status}</p>
 
-      {isToday && <p className="mt-4 font-sans text-base text-ink-soft">A new dig opens at midnight UTC.</p>}
+      {isToday && <p className="mt-4 font-sans text-base text-ink-soft">{rollover}</p>}
       {(offerTimer || timerAdded) && onAddTimer && (
         <p className="mt-2 font-sans text-base text-ink-soft">
           {timerAdded ? "Timer on for your next dig." : (
@@ -184,7 +192,7 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, offer
               {w.note ? (
                 <p className="font-serif text-base leading-relaxed text-ink-soft">{w.note}</p>
               ) : !w.story && (
-                <a href={etymologyLink(w.word)} target="_blank" rel="noopener noreferrer" className="font-sans text-sm text-ink-soft underline underline-offset-2">
+                <a href={etymologyLink(w.word)} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-sans text-sm text-ink-soft underline underline-offset-2">
                   Where it came from (Wiktionary)
                 </a>
               )}

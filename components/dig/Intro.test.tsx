@@ -21,6 +21,16 @@ describe("Intro", () => {
     expect(html).toContain("Seven prompts, 25 seconds each.");
     expect(html).toContain('aria-pressed="false"');
   });
+  it("labels the toggle in plain words, unchanged by its state, and puts it after Start", () => {
+    for (const noTimer of [true, false]) {
+      const html = renderToStaticMarkup(<Intro noTimer={noTimer} onToggleTimer={noop} onStart={noop} />);
+      const toggle = html.match(/<button[^>]*aria-pressed[^>]*>.*?<\/button>/)![0];
+      expect(toggle).toContain("Take your time (no timer)");
+      expect(toggle).toContain("min-h-11");
+      expect(html).not.toContain("No timer: on");
+      expect(html.indexOf(">Start<")).toBeLessThan(html.indexOf("Take your time (no timer)"));
+    }
+  });
   it("keeps red for Start alone", () => {
     const html = renderToStaticMarkup(<Intro noTimer={false} onToggleTimer={noop} onStart={noop} />);
     expect(html.match(/bg-accent-button/g)).toHaveLength(1);

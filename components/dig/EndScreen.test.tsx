@@ -68,6 +68,7 @@ describe("EndScreen", () => {
   });
   it("today: midnight line, play row, no Today's dig row; past: the reverse, no percentile or midnight line", () => {
     const today = renderToStaticMarkup(<EndScreen day={day} game={game} isToday />);
+    // Server markup: the UTC wording. The browser swaps in the player's own time (lib/dig/rollover).
     expect(today).toContain("A new dig opens at midnight UTC.");
     expect(today).toContain("Cool down with a clue puzzle");
     expect(today).toContain("Guess the word from three clues.");

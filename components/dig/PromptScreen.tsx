@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import Button from "@/components/ui/Button";
-import { ToggleGroup } from "@/components/ui/SegmentedControl";
 import TextField from "@/components/ui/TextField";
 import { ANSWER_SECONDS, type Feedback, type GameState } from "@/lib/dig/game";
 import type { PromptKind } from "@/lib/dig/types";
@@ -17,13 +16,14 @@ type Props = {
   feedback: Feedback;
   onSubmit: (guess: string) => void;
   onPass: () => void;
-  /** Switch the timer on or off mid-prompt. The pill renders only when this is passed. */
+  /** Switch the timer off mid-prompt. "Turn off timer" shows only when this is passed and the
+   * timer is running: once it is off, there is nothing to undo mid-run. */
   onTimer?: (noTimer: boolean) => void;
 };
 
 export type PassState = "idle" | "armed";
 
-/** Pass takes two taps so a stray tap cannot give up a prompt. Nothing here is timed: a
+/** Skip takes two taps so a stray tap cannot give up a prompt. Nothing here is timed: a
  * confirmation that expires on its own can be lost by slower, switch or screen-reader users. */
 export function nextPassState(state: PassState, event: "tap" | "type" | "blur"): { state: PassState; fire: boolean } {
   if (event === "tap") return state === "armed" ? { state: "idle", fire: true } : { state: "armed", fire: false };
@@ -38,7 +38,7 @@ export function focusOnShow(matchMedia: ((query: string) => { matches: boolean }
 }
 
 /** One prompt (mockup screen 2). Rendered with key={index} by DigGame, so the field resets.
- * Red is reserved for Start, Copy result and Join, so Dig and Pass are both quiet buttons. */
+ * Red is reserved for Start, Copy result and Join, so Dig and Skip are both quiet buttons. */
 export default function PromptScreen({ index, total, prompt, phase, clock, noTimer, feedback, onSubmit, onPass, onTimer }: Props) {
   const [guess, setGuess] = useState("");
   const [pass, setPass] = useState<PassState>("idle");
@@ -48,15 +48,26 @@ export default function PromptScreen({ index, total, prompt, phase, clock, noTim
   const tapPass = () => {
     const r = nextPassState(pass, "tap");
     setPass(r.state);
-    setPassNote(r.fire ? "" : "Tap Pass again to give up this prompt.");
+    setPassNote(r.fire ? "" : "Tap Skip again to skip this prompt.");
     if (r.fire) onPass();
   };
-  const flipTimer = () => {
+  const timerOff = () => {
     if (!onTimer) return;
-    onTimer(!noTimer);
+    onTimer(true);
     setPassNote("");
-    setTimerNote(noTimer ? `Timer on. ${ANSWER_SECONDS} seconds.` : "Timer off.");
+    setTimerNote("Timer off. Take your time.");
+    refocus.current = true;
   };
+  // The button unmounts with the timer, so focus would drop to <body>. With a mouse, it goes to
+  // the answer box; on a touch screen (see focusOnShow), to the "Take your time." line instead.
+  const refocus = useRef(false);
+  const calm = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (!noTimer || !refocus.current) return;
+    refocus.current = false;
+    if (focusOnShow(typeof window === "undefined" ? undefined : (q) => window.matchMedia(q))) answerArea.current?.querySelector("input")?.focus();
+    else calm.current?.focus();
+  }, [noTimer]);
   const reading = phase === "reading";
   const left = `${clock} ${clock === 1 ? "second" : "seconds"} left`;
   const announce = reading ? "Get ready." : !noTimer && phase === "answering" && (clock === 10 || clock === 5) ? left : "";
@@ -87,7 +98,7 @@ export default function PromptScreen({ index, total, prompt, phase, clock, noTim
       <h2 id="dig-prompt" className="mt-2 font-display text-3xl leading-display">{prompt.text}</h2>
       <div className="mt-5 flex items-start justify-between gap-4">
         {noTimer ? (
-          <p className="pt-3 font-sans text-sm text-ink-soft">Take your time.</p>
+          <p ref={calm} tabIndex={-1} className="pt-3 font-sans text-sm text-ink-soft outline-none">Take your time.</p>
         ) : (
           <div className="min-w-0 flex-1 pt-2" aria-hidden={reading}>
             <p className="font-sans text-sm text-ink-soft">{reading ? "Ready…" : left}</p>
@@ -98,20 +109,8 @@ export default function PromptScreen({ index, total, prompt, phase, clock, noTim
             </div>
           </div>
         )}
-        {onTimer && (
-          <ToggleGroup
-            className="shrink-0"
-            segments={["No timer"]}
-            getKey={(s) => s}
-            isActive={() => noTimer}
-            onToggle={flipTimer}
-            renderSegment={(s) => <span>{s}</span>}
-            getButtonProps={(_, active) => ({
-              className: active
-                ? "min-h-11 rounded-full border border-ink px-3.5 font-sans text-sm text-ink"
-                : "min-h-11 rounded-full border border-line-strong px-3.5 font-sans text-sm text-ink-soft",
-            })}
-          />
+        {onTimer && !noTimer && (
+          <Button type="button" variant="secondary" size="sm" className="min-h-11 shrink-0" onClick={timerOff}>Turn off timer</Button>
         )}
       </div>
       <p className="sr-only" aria-live="assertive">{announce}</p>
@@ -138,13 +137,13 @@ export default function PromptScreen({ index, total, prompt, phase, clock, noTim
         {feedback?.kind === "letters" && <p>Answers are English words: use the letters A to Z.</p>}
       </div>
       </div>
-      {/* The way out of a prompt with No timer on (and a shortcut with it on). The reducer
+      {/* The way out of a prompt with the timer off (and a shortcut with it on). The reducer
           only honours it while answering, so it is disabled during the read pause. Two taps: the
-          first arms it, the second passes. There is no timeout. */}
+          first arms it, the second skips. There is no timeout. */}
       <p className="sr-only" aria-live="polite">{passNote || timerNote}</p>
       <div className="mt-2">
         <Button type="button" variant="ghost" className="min-h-11 text-sm" disabled={phase !== "answering"}
-          onClick={tapPass} onBlur={() => disarm("blur")}>{pass === "armed" ? "Pass? Tap again" : "Pass"}</Button>
+          onClick={tapPass} onBlur={() => disarm("blur")}>{pass === "armed" ? "Skip? Tap again" : "Skip"}</Button>
       </div>
     </section>
   );

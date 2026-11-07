@@ -3,7 +3,10 @@
 import Button from "@/components/ui/Button";
 import { ToggleGroup } from "@/components/ui/SegmentedControl";
 
-/** The landing card: two plain lines, an example, Start, and No timer. */
+export const NO_TIMER_LABEL = "Take your time (no timer)";
+
+/** The landing card: two plain lines, an example, Start, and under it the no-timer toggle. The
+ * toggle's words never change (aria-pressed carries the state); a tick shows it is on. */
 export default function Intro({ noTimer, onToggleTimer, onStart }: { noTimer: boolean; onToggleTimer: () => void; onStart: () => void }) {
   return (
     <div className="mt-8">
@@ -13,14 +16,19 @@ export default function Intro({ noTimer, onToggleTimer, onStart }: { noTimer: bo
         <p className="font-serif text-lg text-ink">{"For example: Name a fruit"}</p>
         <p className="mt-1 font-serif text-base text-ink-soft">{"apple lands in the topsoil. quince digs down to the clay."}</p>
       </div>
-      <div className="mt-6 flex flex-wrap items-center gap-4">
+      <div className="mt-6 flex flex-col items-start gap-3">
         <Button onClick={onStart}>Start</Button>
         <ToggleGroup
-          segments={["No timer"]}
+          segments={[NO_TIMER_LABEL]}
           getKey={(s) => s}
           isActive={() => noTimer}
           onToggle={onToggleTimer}
-          renderSegment={(s, active) => <span>{active ? `${s}: on` : s}</span>}
+          renderSegment={(s, active) => (
+            <span className="inline-flex items-center gap-2">
+              <span aria-hidden="true" className={active ? "inline-flex size-4 items-center justify-center rounded-full bg-ink text-xs text-paper" : "inline-block size-4 rounded-full border border-line-strong"}>{active ? "✓" : ""}</span>
+              {s}
+            </span>
+          )}
           getButtonProps={(_, active) => ({
             className: active
               ? "min-h-11 rounded-full border border-ink px-3.5 font-sans text-sm text-ink"
