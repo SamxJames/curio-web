@@ -10,7 +10,7 @@ import { writeSessionHint } from "@/lib/storage";
 import { loginHref } from "@/lib/returnPath";
 import ThemeToggle from "./ThemeToggle";
 
-export default function Header() {
+export default function Header({ digOpen = false }: { digOpen?: boolean }) {
   const pathname = usePathname();
   const { status } = useSession();
   const showArrival = useShowArrival();
@@ -28,7 +28,7 @@ export default function Header() {
   // The arrival hero (app/page.tsx, first-time anonymous visitors only)
   // draws its own wordmark + theme toggle row as part of its layout — the
   // global header would otherwise duplicate that row and add nav links
-  // ("Today", "Puzzle", "Collection", "Sign in") that don't make sense before someone
+  // ("Today", "Puzzle", "Dig", "Collection", "Sign in") that don't make sense before someone
   // has read a single word yet. See components/HomeContent.tsx for the
   // exact same condition this mirrors (useShowArrival has no route
   // awareness of its own, hence the separate pathname check here).
@@ -37,6 +37,7 @@ export default function Header() {
 
   const todayActive = pathname === "/";
   const puzzleActive = pathname === "/play";
+  const digActive = pathname.startsWith("/dig");
   const collectionActive = pathname.startsWith("/collection");
   const accountActive = pathname === "/account";
   const navLinkClass = (active: boolean) =>
@@ -57,6 +58,11 @@ export default function Header() {
           <Link href="/play" className={navLinkClass(puzzleActive)}>
             Puzzle
           </Link>
+          {digOpen && (
+            <Link href="/dig?from=nav" className={navLinkClass(digActive)}>
+              Dig
+            </Link>
+          )}
 
           <Link href="/collection" className={navLinkClass(collectionActive)}>
             Collection

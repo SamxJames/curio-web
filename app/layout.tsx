@@ -3,6 +3,7 @@ import { SessionProvider } from "next-auth/react";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Header from "@/components/Header";
+import { isDigOpen } from "@/lib/dig/clock";
 import Footer from "@/components/Footer";
 import ThemeInit from "@/components/ThemeInit";
 import SessionHintInit from "@/components/SessionHintInit";
@@ -69,7 +70,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-full flex flex-col bg-paper text-ink">
         <SessionProvider>
-          <Header />
+          <Header digOpen={isDigOpen()} />
           <AccountFavoritesSync />
           <main className="flex-1">{children}</main>
           <Footer />
