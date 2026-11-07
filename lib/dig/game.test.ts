@@ -18,6 +18,36 @@ describe("prepareDay", () => {
   });
 });
 
+describe("timer action", () => {
+  const started = run(initialGame(), { type: "start", noTimer: false });
+  it("answering -> No timer stops the clock and stays answering", () => {
+    const s = { ...started, phase: "answering" as const, clock: 12 };
+    expect(reduce(s, { type: "timer", noTimer: true })).toMatchObject({ phase: "answering", noTimer: true, clock: 0 });
+  });
+  it("answering -> timer on restarts the prompt clock at 25", () => {
+    const s = { ...started, phase: "answering" as const, noTimer: true, clock: 0 };
+    expect(reduce(s, { type: "timer", noTimer: false })).toMatchObject({ phase: "answering", noTimer: false, clock: ANSWER_SECONDS });
+  });
+  it("reading -> No timer goes straight to answering", () => {
+    const s = { ...started, phase: "reading" as const, clock: 2 };
+    expect(reduce(s, { type: "timer", noTimer: true })).toMatchObject({ phase: "answering", noTimer: true, clock: 0 });
+  });
+  it("reading -> timer on leaves phase and clock alone", () => {
+    const s = { ...started, phase: "reading" as const, noTimer: true, clock: 2 };
+    expect(reduce(s, { type: "timer", noTimer: false })).toMatchObject({ phase: "reading", noTimer: false, clock: 2 });
+  });
+  it("reveal: only records the setting; next prompt honours it", () => {
+    const r = reduce({ ...started, phase: "reveal" as const }, { type: "timer", noTimer: true });
+    expect(r.phase).toBe("reveal");
+    expect(reduce(r, { type: "next" })).toMatchObject({ phase: "answering", noTimer: true });
+  });
+  it("is ignored in intro and done", () => {
+    expect(reduce(initialGame(), { type: "timer", noTimer: true }).noTimer).toBe(false);
+    const done = { ...started, phase: "done" as const };
+    expect(reduce(done, { type: "timer", noTimer: true })).toBe(done);
+  });
+});
+
 describe("game reducer", () => {
   it("reads for 3 seconds, then answers for 25", () => {
     let s = run(initialGame(), { type: "start", noTimer: false });

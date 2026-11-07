@@ -56,7 +56,8 @@ export type GameAction =
   | { type: "tick" }
   | { type: "submit"; guess: string }
   | { type: "pass" }
-  | { type: "next" };
+  | { type: "next" }
+  | { type: "timer"; noTimer: boolean };
 
 export function initialGame(): GameState {
   return { phase: "intro", current: 0, noTimer: false, clock: 0, feedback: null, results: [] };
@@ -106,6 +107,11 @@ export function createReducer(day: Pick<PreparedDay, "secrets" | "lookups">) {
       case "pass":
         if (s.phase !== "answering") return s;
         return lock(s, null);
+      case "timer":
+        if (s.phase === "intro" || s.phase === "done") return s;
+        if (s.phase === "reveal") return { ...s, noTimer: a.noTimer };
+        if (s.phase === "reading") return a.noTimer ? { ...s, noTimer: true, phase: "answering", clock: 0 } : { ...s, noTimer: false };
+        return { ...s, noTimer: a.noTimer, clock: a.noTimer ? 0 : ANSWER_SECONDS };
       case "next":
         if (s.phase !== "reveal") return s;
         return s.current + 1 >= day.secrets.length ? { ...s, phase: "done" } : enterPrompt(s, s.current + 1);
