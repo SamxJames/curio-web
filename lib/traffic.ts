@@ -11,6 +11,7 @@ export const TRAFFIC_SOURCES = [
   "search",
   "reddit",
   "hn",
+  "challenge",
   "other",
   "direct",
 ] as const;
@@ -30,7 +31,7 @@ export function isSignupPlacement(x: unknown): x is SignupPlacement {
 }
 
 /** utm_source values our own links carry (digest, social posts, share). */
-const TAGGED: readonly TrafficSource[] = ["email", "bluesky", "threads", "instagram", "share", "rss"];
+const TAGGED: readonly TrafficSource[] = ["email", "bluesky", "threads", "instagram", "share", "rss", "challenge"];
 
 const REFERRER_RULES: { source: TrafficSource; test: RegExp }[] = [
   // Google and Yandex are anchored to their search hosts so mail.google.com,

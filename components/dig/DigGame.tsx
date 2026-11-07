@@ -5,6 +5,7 @@ import { createReducer, initialGame, prepareDay, resultTiers, resumeGame, toSave
 import { priorSameTier } from "@/lib/dig/revealCopy";
 import { stripState } from "@/lib/dig/strip";
 import { scoreOf } from "@/lib/dig/score";
+import { challengeLine, parseVs } from "@/lib/dig/challenge";
 import { clearRun, markReported, readRun, readStore, saveGame, saveRun, setNoTimer, useDigStore } from "@/lib/dig/storage";
 import { buildFinishEvent, buildStartEvent, sendDigEvent, sendFinish, sendLandOnce } from "@/lib/dig/client";
 import EndScreen, { announceDone } from "./EndScreen";
@@ -43,11 +44,16 @@ export function LoadFailed({ past }: { past: boolean }) {
 export default function DigGame({ date, heading, note }: { date?: string; heading?: string; note?: string }) {
   const [day, setDay] = useState<PreparedDay | null>(null);
   const [failed, setFailed] = useState(false);
+  const [vsRaw, setVsRaw] = useState<string | null>(null);
   useEffect(() => {
     let alive = true;
     fetch(date ? `/api/dig/day/${date}` : "/api/dig/today")
       .then((r) => (r.ok ? (r.json() as Promise<DigDayResponse>) : Promise.reject(new Error(String(r.status)))))
-      .then((d) => alive && setDay(prepareDay(d)))
+      .then((d) => {
+        if (!alive) return;
+        if (!date) setVsRaw(new URLSearchParams(window.location.search).get("vs"));
+        setDay(prepareDay(d));
+      })
       .catch(() => alive && setFailed(true));
     if (!date) sendLandOnce();
     return () => { alive = false; };
@@ -62,11 +68,12 @@ export default function DigGame({ date, heading, note }: { date?: string; headin
       </>
     );
   }
-  return <DigRun day={day} isToday={!date} heading={heading} note={note} />;
+  return <DigRun day={day} isToday={!date} vsRaw={vsRaw} heading={heading} note={note} />;
 }
 
-function DigRun({ day, isToday, heading, note }: { day: PreparedDay; isToday: boolean; heading?: string; note?: string }) {
+function DigRun({ day, isToday, vsRaw, heading, note }: { day: PreparedDay; isToday: boolean; vsRaw: string | null; heading?: string; note?: string }) {
   const store = useDigStore();
+  const friend = isToday ? parseVs(vsRaw, day.number) : null;
   const reduce = useMemo(() => createReducer(day), [day]);
   // A refresh mid-dig picks up where it left off (lib/dig/game.ts SavedRun), unless the day is
   // already finished. DigRun only mounts on the client, after the day has loaded, so reading
@@ -119,6 +126,7 @@ function DigRun({ day, isToday, heading, note }: { day: PreparedDay; isToday: bo
       <>
         <Heading heading={heading} phase="intro" note={note} />
         <Intro
+          challenge={friend ? challengeLine(friend) : null}
           noTimer={store.settings.noTimer}
           onToggleTimer={() => setNoTimer(!store.settings.noTimer)}
           onStart={() => {
@@ -133,7 +141,7 @@ function DigRun({ day, isToday, heading, note }: { day: PreparedDay; isToday: bo
   if (finished && (state.phase === "intro" || state.phase === "done")) {
     // Already played, or just finished: their own result, never a countdown. Only a dig finished in
     // this session takes focus (a page load of a played day must not jump it).
-    screen = <EndScreen day={day} game={finished} isToday={isToday} autoFocus={state.phase === "done"} />;
+    screen = <EndScreen day={day} game={finished} isToday={isToday} friend={friend} autoFocus={state.phase === "done"} />;
   } else if (state.phase === "done") {
     // The save is a render away: show nothing in the meantime. The live region below must still
     // render, so it persists from the last reveal through to the end screen.

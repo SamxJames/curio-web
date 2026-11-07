@@ -17,6 +17,7 @@ describe("classifySource", () => {
     expect(classifySource("?utm_source=share", "", HOST)).toBe("share");
     expect(classifySource("?utm_source=threads", "", HOST)).toBe("threads");
     expect(classifySource("?utm_source=rss", "", HOST)).toBe("rss");
+    expect(classifySource("?vs=12.04-5123&utm_source=challenge", "", HOST)).toBe("challenge");
   });
 
   it("ignores an unknown utm_source and falls back to the referrer", () => {

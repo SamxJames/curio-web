@@ -30,6 +30,13 @@ describe("wordsWorthKnowing", () => {
 });
 
 describe("EndScreen", () => {
+  it("shows tiers only for a friend, never their words, and nothing without a challenge", () => {
+    const friend = ["rare", null, "fossil", "common", "common", "common", "common"] as never;
+    const html = renderToStaticMarkup(<EndScreen day={day} game={game} isToday friend={friend} />);
+    expect(html).toContain("You and your friend");
+    expect(html).toContain("Friend · 2.3 m");
+    expect(renderToStaticMarkup(<EndScreen day={day} game={game} isToday />)).not.toContain("You and your friend");
+  });
   it("is a postcard: wordmark, dig number, UTC date, depth, depth before the drawing", () => {
     const html = renderToStaticMarkup(<EndScreen day={day} game={game} isToday />);
     expect(html).toContain("curio dig");

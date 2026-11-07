@@ -9,7 +9,7 @@ export default function Intro({ noTimer, onToggleTimer, onStart, loading, challe
   return (
     <div className="mt-8">
       {challenge && <p className="font-sans text-base text-ink">{challenge}</p>}
-      <p className="font-sans text-lg text-ink">{DIG_PITCH}</p>
+      <p className={challenge ? "mt-3 font-sans text-lg text-ink" : "font-sans text-lg text-ink"}>{DIG_PITCH}</p>
       <p className="mt-2 font-sans text-lg text-ink-soft">Each prompt hides one word nobody expects. 7 prompts. 25 seconds each. Rarer answers dig deeper.</p>
       <p className="mt-2 font-sans text-base text-ink-soft">Your answers build a cross-section as you go. The hidden word is the fossil, buried in the bedrock.</p>
       <div className="mt-4 border border-line p-4">

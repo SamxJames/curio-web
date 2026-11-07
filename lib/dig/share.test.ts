@@ -1,11 +1,20 @@
 import { describe, expect, it } from "vitest";
+import { scoreOf } from "./score";
 import { percentileLine, shareText } from "./share";
 
 describe("shareText", () => {
   it("matches the agreed format exactly", () => {
     expect(shareText(14, 460, ["common", "familiar", "uncommon", "rare", "fossil", "familiar", null])).toBe(
-      "curio dig, day 14\n4.6 m down\n🌱🟫🟧🪨🦴🟫▫️\ncurioword.com/dig"
+      "curio dig, day 14\n4.6 m down\n🌱🟫🟧🪨🦴🟫▫️\ncurioword.com/dig?vs=14.023452-&utm_source=challenge"
     );
+  });
+});
+
+describe("challenge link", () => {
+  it("ends with the spoiler-free link", () => {
+    const t = ["common", "rare", null, "fossil", "popular", "familiar", "uncommon"] as const;
+    const lines = shareText(12, scoreOf([...t]), [...t]).split(String.fromCharCode(10));
+    expect(lines[lines.length - 1]).toBe("curioword.com/dig?vs=12.04-5123&utm_source=challenge");
   });
 });
 

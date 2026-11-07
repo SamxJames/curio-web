@@ -5,10 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import Button from "@/components/ui/Button";
 import SignupOffer from "@/components/SignupOffer";
 import type { PreparedDay } from "@/lib/dig/game";
-import { formatDepth, TIER_LABEL } from "@/lib/dig/score";
+import { formatDepth, scoreOf, TIER_LABEL } from "@/lib/dig/score";
 import { percentileLine, shareText } from "@/lib/dig/share";
 import type { StoredGame } from "@/lib/dig/storage";
-import { TIERS } from "@/lib/dig/types";
+import { TIERS, type Tier } from "@/lib/dig/types";
 import { sendDigEvent } from "@/lib/dig/client";
 import type { DigEvent } from "@/lib/dig/events";
 import Strata from "./Strata";
@@ -50,7 +50,7 @@ export function announceDone(score: number): string {
 /** `autoFocus` is for a dig the player has just finished: focus moves to the depth line, because
  * the prompt screen they were typing in has gone. An already-played day passes nothing, so a
  * page load never jumps focus. */
-export default function EndScreen({ day, game, isToday, autoFocus = false }: { day: PreparedDay; game: StoredGame; isToday: boolean; autoFocus?: boolean }) {
+export default function EndScreen({ day, game, isToday, autoFocus = false, friend = null }: { day: PreparedDay; game: StoredGame; isToday: boolean; autoFocus?: boolean; friend?: (Tier | null)[] | null }) {
   const [status, setStatus] = useState("");
   const [open, setOpen] = useState<Set<number>>(new Set());
   const storySent = useRef(false);
@@ -99,6 +99,16 @@ export default function EndScreen({ day, game, isToday, autoFocus = false }: { d
           <Strata tiers={game.tiers} words={game.answers} label={`Your dig, ${formatDigDate(day.date)}`} height={240} />
         </div>
       </div>
+
+      {friend && (
+        <section className="mt-8 max-w-form border-t border-line pt-6">
+          <h2 className="font-sans text-sm text-ink-soft">You and your friend</h2>
+          <div className="mt-3 grid grid-cols-2 gap-4">
+            <div><p className="font-sans text-sm text-ink-soft">You · {formatDepth(game.score)}</p><Strata compact label="Your dig" tiers={game.tiers} /></div>
+            <div><p className="font-sans text-sm text-ink-soft">Friend · {formatDepth(scoreOf(friend))}</p><Strata compact label="Your friend's dig" tiers={friend} /></div>
+          </div>
+        </section>
+      )}
 
       <div className="mt-6 flex max-w-form flex-col gap-3 sm:flex-row">
         <Button fullWidth className="sm:w-auto" onClick={copy}>Share</Button>
