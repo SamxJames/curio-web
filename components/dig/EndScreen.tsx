@@ -51,8 +51,8 @@ export function rowEvent(to: "play" | "past", isToday: boolean): Extract<DigEven
 }
 
 /** What a screen reader hears when the dig finishes. DigRun sets it into its persistent live region. */
-export function announceDone(score: number): string {
-  return `Dig complete. ${formatDepth(score)} down.`;
+export function announceDone(score: number, tiers: (Tier | null)[]): string {
+  return `Dig complete. ${foundLine(tiers)} ${formatDepth(score)} down.`;
 }
 
 /** `autoFocus` is for a dig the player has just finished: focus moves to the depth line, because
@@ -121,7 +121,7 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, offer
       {(offerTimer || timerAdded) && onAddTimer && (
         <p className="mt-2 font-sans text-base text-ink-soft">
           {timerAdded ? "Timer on for your next dig." : (
-            <Button variant="link" onClick={() => { onAddTimer(); setTimerAdded(true); }}>Want more of a challenge? Add a 25-second timer next time.</Button>
+            <Button variant="link" className="min-h-11 text-left" onClick={() => { onAddTimer(); setTimerAdded(true); say("Timer on for your next dig."); depth.current?.focus(); }}>Want more of a challenge? Add a 25-second timer next time.</Button>
           )}
         </p>
       )}

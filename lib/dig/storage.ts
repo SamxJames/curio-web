@@ -20,7 +20,8 @@ export type StoredGame = {
   reported?: boolean;
 };
 /** noTimer absent = never chosen = no timer (a new player's first digs have no clock).
- * Stores saved before 2026-11-07 always hold true or false, so returning players keep theirs. */
+ * Stores saved before 2026-11-07 always hold true or false, so returning players keep theirs.
+ * A store that fails to parse falls back to empty settings, so that player gets no timer until they choose one. */
 export type DigSettings = { noTimer?: boolean; coached?: true };
 export type DigStore = { v: 1; settings: DigSettings; games: Record<string, StoredGame> };
 

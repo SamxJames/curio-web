@@ -87,7 +87,7 @@ const surfaces: Record<string, string> = {
   endTodayMany: html(<EndScreen day={day} game={many} isToday />),
   endTodayHint: html(<EndScreen day={{ ...day, tomorrow: "a word English took from Japanese" }} game={many} isToday autoFocus />),
   endPast: html(<EndScreen day={day} game={many} isToday={false} />),
-  announceDone: announceDone(125),
+  announceDone: announceDone(125, tiers),
   strataFull: html(<Strata tiers={tiers} words={answers} label="Your dig" />),
   strataCompact: html(<Strata compact tiers={[...tiers.slice(0, 3), undefined, undefined, undefined, undefined]} label="" current={3} justDropped={2} />),
   pastList: html(<PastList days={[{ date: "2026-12-05", number: 5 }]} />),

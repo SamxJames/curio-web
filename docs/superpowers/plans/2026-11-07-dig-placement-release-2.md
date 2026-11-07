@@ -24,6 +24,8 @@
 - **The first rejected guess needs no new coaching.** `PromptScreen` already shows "Not on today's list. Try another." in `text-ink-soft`, which meets spec B3's miss case.
 - **The fossil already appears as a reveal.** Both "The fossil was …" and "Words worth knowing" read that way, so there is no change for that part of B4.
 - **The intro's timer toggle keeps its "No timer" wording.** It now starts pressed for new players. The spec's "Add a 25-second timer" wording moves to the end-screen offer, where the choice is new.
+- **Timer stays off until the player opts in.** The spec's "timer once a game is finished" clause is dropped; this matches Sam's approved answer (offer the timer after the first dig, don't impose it). The end-screen offer repeats on each finished dig until they choose.
+- **The coaching tip reads "Every word that fits counts. Rarer ones dig deeper."** rather than the spec's "Nice. Everyday words count; rarer ones dig deeper.", so it fits a rare first answer too.
 
 ---
 

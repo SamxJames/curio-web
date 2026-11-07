@@ -196,9 +196,10 @@ function DigRun({ day, isToday, heading, note }: { day: PreparedDay; isToday: bo
   // One live region that outlives every screen change. Reveal mounts fresh when a prompt locks,
   // and a region that mounts with its text is not reliably announced, so the outcome is set
   // here, where the element persists.
+  const doneTiers = state.phase === "done" ? resultTiers(state) : [];
   const outcome = state.phase === "reveal"
     ? announceReveal(state.results[state.current], day.secrets[state.current], passed.has(state.current))
-    : state.phase === "done" ? announceDone(scoreOf(resultTiers(state))) : "";
+    : state.phase === "done" ? announceDone(scoreOf(doneTiers), doneTiers) : "";
   // The strip shows above the prompt and reveal screens only (not the intro, not the end screen).
   const showStrip = state.phase === "reading" || state.phase === "answering" || state.phase === "reveal";
   const shownPhase = finished && (state.phase === "intro" || state.phase === "done") ? "done" : state.phase;

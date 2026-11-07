@@ -178,7 +178,7 @@ describe("postcard contrast (WCAG 1.4.3, text 4.5:1)", () => {
 
 describe("announceDone", () => {
   it("says the dig is complete and how deep, for the persistent live region", () => {
-    expect(announceDone(110)).toBe("Dig complete. 1.1 m down.");
+    expect(announceDone(110, ["common", null, null, null, null, null, null])).toBe("Dig complete. You found 1 word and reached the topsoil. 1.1 m down.");
   });
 });
 
@@ -298,6 +298,7 @@ describe("foundLine", () => {
     expect(foundLine(["common", null, null, null, null, null, "fossil"])).toBe("You found 2 words and reached the bedrock.");
     expect(foundLine(["familiar", null, null, null, null, null, null])).toBe("You found 1 word and reached the loam.");
     expect(foundLine([null, null, null, null, null, null, null])).toBe("Hard ground today. Here's what was buried.");
+    expect(bannedHits(foundLine([null, null, null, null, null, null, null]))).toEqual([]);
   });
 });
 it("shows the found line on the postcard and passes the copy audit", () => {
