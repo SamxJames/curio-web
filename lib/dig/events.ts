@@ -6,9 +6,12 @@ import { TIERS, type Tier } from "./types";
 
 /** The only gate between a public request body and a Redis field name (architecture §8–9),
  * modelled on lib/traffic.ts's parseTrafficEvent. Today-only events must name today. */
+/** Coarse return-interval buckets a start may carry. Duplicated from client.ts on purpose: that is a client module. */
+export const RETURN_BUCKETS = ["d1", "d2_6", "d7"] as const;
+
 export type DigEvent =
   | { kind: "land"; source: TrafficSource }
-  | { kind: "start"; date: string }
+  | { kind: "start"; date: string; ret?: (typeof RETURN_BUCKETS)[number] }
   | { kind: "past" }
   | { kind: "share"; how: "text" | "image" }
   | { kind: "story" }
@@ -41,7 +44,11 @@ export function parseDigEvent(body: unknown, today: string): DigEvent | null {
     case "land":
       return isTrafficSource(b.source) ? { kind: "land", source: b.source } : null;
     case "start":
-      return b.date === today ? { kind: "start", date: today } : null;
+    {
+      if (b.date !== today) return null;
+      const ret = (RETURN_BUCKETS as readonly unknown[]).includes(b.ret) ? (b.ret as (typeof RETURN_BUCKETS)[number]) : undefined;
+      return ret ? { kind: "start", date: today, ret } : { kind: "start", date: today };
+    }
     case "past":
     case "story":
     case "signup":
@@ -91,6 +98,12 @@ export function funnelField(ev: DigEvent): string | null {
 /** Events one sender may send: any kind per minute, and finishes or claims per day. Generous for
  * a household or office sharing an address, tight enough that a script can't skew the
  * percentile or grow the rejected-guess hashes without limit. */
+export function funnelFields(ev: DigEvent): string[] {
+  const f = funnelField(ev);
+  if (!f) return [];
+  return ev.kind === "start" && ev.ret ? [f, `start:ret:${ev.ret}`] : [f];
+}
+
 export const RATE_LIMITS = { perMinute: 30, finishPerDay: 5, claimPerDay: 20 } as const;
 
 /** True when a sender's counts (after this event) go over a limit. */

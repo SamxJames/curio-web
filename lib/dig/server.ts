@@ -5,7 +5,7 @@ import { Redis } from "@upstash/redis";
 import { DAY_MS, dayKey, dayStart } from "../day";
 import { digLaunchDate, isDateKey, isPastDay } from "./clock";
 import { devDay } from "./devDay";
-import { funnelField, overRateLimit, planFinish, type DigEvent } from "./events";
+import { funnelFields, overRateLimit, planFinish, type DigEvent } from "./events";
 import { digKeys, type DigManifest } from "./keys";
 import { encodeDay } from "./payload";
 import type { DigDay } from "./types";
@@ -72,10 +72,18 @@ export async function pastDates(now: Date = new Date()): Promise<string[]> {
 }
 
 export async function recordFunnel(date: string, ev: DigEvent): Promise<void> {
-  const field = funnelField(ev);
-  if (!field || !writesRedis()) return;
+  const fields = funnelFields(ev);
+  if (!fields.length || !writesRedis()) return;
   const r = await digRedis();
-  if (r) await r.hincrby(digKeys.funnel(date), field, 1);
+  if (!r) return;
+  const key = digKeys.funnel(date);
+  if (fields.length === 1) {
+    await r.hincrby(key, fields[0], 1);
+    return;
+  }
+  const p = r.pipeline();
+  for (const f of fields) p.hincrby(key, f, 1);
+  await p.exec();
 }
 
 /** One pipelined round trip: the score bucket, the funnel, rejected guesses, and the

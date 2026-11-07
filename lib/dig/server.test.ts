@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { healthReads, isRateLimited, pastDates, readDay, readsRedis, recordFinish, writesRedis } from "./server";
+import { healthReads, isRateLimited, pastDates, readDay, readsRedis, recordFinish, recordFunnel, writesRedis } from "./server";
 import { encodeDay } from "./payload";
 import { devDay } from "./devDay";
 
@@ -99,6 +99,19 @@ describe("local reads", () => {
   it("records nothing locally and returns an empty spread", async () => {
     vi.stubEnv("VERCEL_ENV", "");
     expect(await recordFinish({ kind: "finish", date: "2026-10-21", score: 100, tiers: [], rejected: [] })).toEqual({});
+  });
+  it("writes start and start:ret:<bucket> in production, and nothing elsewhere", async () => {
+    vi.clearAllMocks();
+    vi.stubEnv("VERCEL_ENV", "production");
+    vi.stubEnv("DIG_REDIS_REST_URL", "https://dig.invalid");
+    vi.stubEnv("DIG_REDIS_REST_TOKEN", "dummy-token");
+    await recordFunnel("2026-10-21", { kind: "start", date: "2026-10-21", ret: "d7" });
+    const fields = [...h.ops.hincrby.mock.calls].map((c) => c[1]);
+    expect(fields.sort()).toEqual(["start", "start:ret:d7"]);
+    vi.clearAllMocks();
+    vi.stubEnv("VERCEL_ENV", "preview");
+    await recordFunnel("2026-10-21", { kind: "start", date: "2026-10-21", ret: "d7" });
+    expect(h.ops.hincrby).not.toHaveBeenCalled();
   });
   it("reads no health data locally, even when Upstash variables are set", async () => {
     vi.stubEnv("VERCEL_ENV", "");

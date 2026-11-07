@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { funnelField, overRateLimit, parseDigEvent, planFinish, RATE_LIMITS } from "./events";
+import { funnelField, funnelFields, overRateLimit, parseDigEvent, planFinish, RATE_LIMITS } from "./events";
 import { devDay } from "./devDay";
 
 const today = "2026-12-05";
@@ -81,5 +81,18 @@ describe("overRateLimit", () => {
     expect(overRateLimit("finish", 1, RATE_LIMITS.finishPerDay + 1)).toBe(true);
     expect(overRateLimit("claim", 1, RATE_LIMITS.claimPerDay + 1)).toBe(true);
     expect(overRateLimit("share", 1, 999)).toBe(false);
+  });
+});
+
+describe("return bucket on start", () => {
+  it("accepts a start with a valid return bucket and drops a junk one", () => {
+    expect(parseDigEvent({ kind: "start", date: today, ret: "d2_6" }, today)).toEqual({ kind: "start", date: today, ret: "d2_6" });
+    expect(parseDigEvent({ kind: "start", date: today, ret: "d9" }, today)).toEqual({ kind: "start", date: today });
+    expect(parseDigEvent({ kind: "start", date: today, ret: { $: 1 } }, today)).toEqual({ kind: "start", date: today });
+  });
+  it("a returning start increments start and start:ret:<bucket>; a plain one only start", () => {
+    expect(funnelFields({ kind: "start", date: today, ret: "d1" })).toEqual(["start", "start:ret:d1"]);
+    expect(funnelFields({ kind: "start", date: today })).toEqual(["start"]);
+    expect(funnelFields({ kind: "claim", date: today, prompt: 0, guess: "jib" })).toEqual([]);
   });
 });
