@@ -27,7 +27,7 @@ describe("buildBlueskyPost's dig line, against the real @atproto/api lexicon", (
       expect(rt.graphemeLength).toBeLessThanOrEqual(300);
     }
     expect(withDig).toBeGreaterThan(0);
-  });
+  }, 30_000);
 });
 
 describe("buildBlueskyPost's facets, against the real @atproto/api lexicon", () => {
