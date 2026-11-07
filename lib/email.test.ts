@@ -195,3 +195,24 @@ describe("digest dig line", () => {
     expect(out.sent).toBe(1);
   });
 });
+
+describe("digest origin text strips pipeline disclaimers", () => {
+  const dirty = {
+    ...word,
+    origin: "From crustade. The facts given don't support tracing this word to any other English cognate.",
+  };
+  it("cleans both the html and the plain-text body", () => {
+    const html = buildDigestHtml(dirty as never, "7 Nov 2026", "#", "https://x/y");
+    expect(html).toContain("From crustade.");
+    expect(html).not.toMatch(/facts given/);
+    const msg = buildDigestMessage("sam@example.com", dirty as never, new Date("2026-09-27T09:00:00Z"), "s3cret");
+    expect(msg.text).not.toMatch(/facts given/);
+    expect(msg.text).toContain("From crustade.");
+  });
+  it("omits the origin block when nothing is left", () => {
+    const onlyDisclaimer = { ...word, origin: "The facts given don't support tracing this word to any other English cognate." };
+    const html = buildDigestHtml(onlyDisclaimer as never, "7 Nov 2026", "#", "https://x/y");
+    expect(html).not.toMatch(/facts given/);
+    expect(html).not.toMatch(/margin:0 0 28px;">\s*<\/p>/);
+  });
+});

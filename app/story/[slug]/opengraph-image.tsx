@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getWordBySlug } from "@/lib/words";
 import { ogTheme } from "@/lib/ogTheme";
+import { cleanStoryText } from "@/lib/storyText";
 
 export const alt = "Curio";
 export const size = { width: 1200, height: 630 };
@@ -77,7 +78,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             color: ogTheme.ink,
           }}
         >
-          {truncate(word.origin, MAX_ORIGIN_LENGTH)}
+          {truncate(cleanStoryText(word.origin), MAX_ORIGIN_LENGTH)}
         </div>
       </div>
     ),

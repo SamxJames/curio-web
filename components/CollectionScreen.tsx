@@ -3,6 +3,7 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { cleanStoryText } from "@/lib/storyText";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import clsx from "clsx";
@@ -254,7 +255,8 @@ function CollectionBody({
   // word, which the collection view otherwise never shows (the story page is
   // the only other place it appears). Only for small, unfiltered collections.
   const closingWord = words[0];
-  const showClosingLine = !activeLanguage && sparse && !!closingWord;
+  const closingRelated = closingWord ? cleanStoryText(closingWord.related) : "";
+  const showClosingLine = !activeLanguage && sparse && !!closingWord && !!closingRelated;
 
   return (
     <>
@@ -358,7 +360,7 @@ function CollectionBody({
 
       {showClosingLine && (
         <p className="mt-7.5 border-t border-line pt-5.5 font-serif text-base leading-body text-ink-soft italic [text-wrap:pretty]">
-          A little more about {closingWord.word}: {closingWord.related}
+          A little more about {closingWord.word}: {closingRelated}
         </p>
       )}
     </>

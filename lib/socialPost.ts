@@ -1,5 +1,6 @@
 import type { WordEntry } from "./words";
 import { absoluteUrl } from "./siteUrl";
+import { cleanStoryText } from "./storyText";
 import { digLineText, digLineUrl, type DigLine } from "./dig/digLineText";
 
 // Pure builders for the Threads post, the Instagram caption and the
@@ -78,7 +79,7 @@ export type Slide =
 /** Hook (teaser) → the word and its lineage → the origin, a sentence a
  * slide (beyond three, the rest share the third) → Curio outro. */
 export function buildCarouselSlides(word: WordEntry): Slide[] {
-  const sentences = splitSentences(word.origin);
+  const sentences = splitSentences(cleanStoryText(word.origin));
   const parts =
     sentences.length <= MAX_STORY_SLIDES
       ? sentences

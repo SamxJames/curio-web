@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { WORDS, type WordEntry } from "./words";
+import { cleanStoryText } from "./storyText";
 import {
   buildCarouselSlides,
   buildInstagramCaption,
@@ -302,11 +303,11 @@ describe("buildCarouselSlides", () => {
     expect(slides.at(-1)).toEqual({ kind: "outro" });
   });
 
-  it("uses only stored text: the story slides rejoin to exactly the origin", () => {
+  it("uses only stored text: the story slides rejoin to exactly the origin (minus pipeline disclaimers)", () => {
     for (const w of WORDS) {
       const story = buildCarouselSlides(w).filter((s) => s.kind === "story");
       expect(story.map((s) => (s.kind === "story" ? s.text : "")).join(" ")).toBe(
-        splitSentences(w.origin).join(" ")
+        splitSentences(cleanStoryText(w.origin)).join(" ")
       );
     }
   });
@@ -321,5 +322,13 @@ describe("buildCarouselSlides", () => {
         if (s.kind === "story") expect({ index: s.index, total: s.total }).toEqual({ index: i + 1, total: story.length });
       });
     }
+  });
+});
+
+describe("carousel slides strip pipeline disclaimers", () => {
+  it("drops disclaimer sentences from the story slides", () => {
+    const dirty = { ...ketchup, origin: "Real fact. The facts given don't support tracing this word to any other English cognate." };
+    const text = buildCarouselSlides(dirty).filter((s) => s.kind === "story").map((s) => (s as { text: string }).text).join(" ");
+    expect(text).toBe("Real fact.");
   });
 });

@@ -1,5 +1,6 @@
 import type { HistoryDay } from "./words";
 import { absoluteUrl } from "./siteUrl";
+import { cleanStoryText } from "./storyText";
 
 export const FEED_DAYS = 30;
 export const FEED_PATH = "/feed.xml";
@@ -24,7 +25,8 @@ export function buildFeedXml(days: HistoryDay[], now: Date): string {
     const url = absoluteUrl(`/story/${word.slug}`);
     // <link> stays the bare canonical URL (the feed is also a sitemap in robots.txt);
     // only the in-body anchor carries the utm tag, so /admin can count "rss" clicks.
-    const html = `<p>${escapeXml(word.teaser)}</p><p>${escapeXml(word.origin)}</p><p><a href="${url}?utm_source=rss">Read the full story on Curio</a></p>`;
+    const origin = cleanStoryText(word.origin);
+    const html = `<p>${escapeXml(word.teaser)}</p>${origin ? `<p>${escapeXml(origin)}</p>` : ""}<p><a href="${url}?utm_source=rss">Read the full story on Curio</a></p>`;
     return [
       "<item>",
       `<title>${escapeXml(word.word)}</title>`,

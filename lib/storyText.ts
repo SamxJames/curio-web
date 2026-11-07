@@ -15,11 +15,13 @@
 // A clause that talks about the source material instead of the word.
 const DISCLAIMER = new RegExp(
   [
-    String.raw`\bfacts\b`, // "the facts here don't…", "the given facts", "in the facts available"
+    // "the facts here don't…", "the given facts", "given only the facts above", "these facts" (but not "the facts of the matter")
+    String.raw`\b(?:the|these|those) (?:(?:given|available|source|provided) )?facts\b(?! (?:of|about|behind)\b)`,
+    String.raw`\b(?:given|available|provided|source) facts\b|\bfacts (?:given|available|here|at hand|on hand|above)\b`,
     String.raw`\b(?:given|named|recorded) (?:here|in the (?:record|sources?))\b`, // "isn't given here"
-    String.raw`\bno\b[^.!?;—]{0,70}?\b(?:is|are|was|were) (?:given|named|recorded)\b`, // "no cognate is given"
-    String.raw`\bsource (?:facts|material|text)\b`,
-    String.raw`\b(?:given|available|provided) sources?\b|\bthe sources\b|\b(?:in|by|from) the record\b`,
+    String.raw`\bno\b[^.!?;—]{0,70}?\b(?:is|are) (?:given|named|recorded)\b`, // "no cognate is given"
+    String.raw`\bsource (?:material|text)\b`,
+    String.raw`\b(?:given|available|provided) sources?\b|\b(?:in|from|by) the (?:record|sources)\b`,
   ].join("|"),
   "i",
 );

@@ -85,3 +85,15 @@ describe("buildFeedXml", () => {
     }
   });
 });
+
+describe("buildFeedXml disclaimers", () => {
+  it("strips pipeline disclaimers from the item body and omits an empty origin", () => {
+    const base = WORDS[0];
+    const dirty = { ...base, origin: "Real fact. The facts given don't support tracing this word to any other English cognate." };
+    const empty = { ...base, slug: "x-empty", origin: "The facts given don't support tracing this word to any other English cognate." };
+    const out = buildFeedXml([{ date: "2026-10-13", word: dirty }, { date: "2026-10-12", word: empty }], NOW);
+    expect(out).not.toMatch(/facts given/);
+    expect(out).toContain("Real fact.");
+    expect(out).not.toContain("<p></p>");
+  });
+});

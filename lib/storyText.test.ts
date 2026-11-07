@@ -33,6 +33,18 @@ describe("cleanStoryText", () => {
     expect(cleanStoryText("It shares a root with pilus, though no specific English cognate is given in the record."))
       .toBe("It shares a root with pilus.");
   });
+  it("passes ordinary prose that merely uses the word 'facts' through unchanged", () => {
+    const s = "These are the facts of the matter: Latin gave it to French.";
+    expect(cleanStoryText(s)).toBe(s);
+  });
+  it("only ever changes word-bank fields that contain a disclaimer marker", () => {
+    const marker = /\bfacts\b|\b(?:given|available|provided) sources?\b|\b(?:in|by|from) the (?:record|sources)\b|\bsource (?:material|text)\b|\b(?:is|are) (?:given|named|recorded)\b|\b(?:given|named|recorded) here\b/i;
+    const unexpected: string[] = [];
+    for (const w of WORDS) for (const k of ["origin", "journey", "related"] as const) {
+      if (cleanStoryText(w[k]) !== w[k] && !marker.test(w[k])) unexpected.push(w.slug + "." + k);
+    }
+    expect(unexpected).toEqual([]);
+  });
   it("leaves clean text alone", () => {
     expect(cleanStoryText("From Hindustani jangal, 'desert'.")).toBe("From Hindustani jangal, 'desert'.");
   });

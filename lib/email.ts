@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import type { WordEntry } from "./words";
+import { cleanStoryText } from "./storyText";
 import { dayKey, formatDay } from "./day";
 import { absoluteUrl, siteUrl } from "./siteUrl";
 import { signUnsubscribeToken } from "./unsubscribeToken";
@@ -90,6 +91,7 @@ export function buildDigestHtml(
   // Absolute URL: email clients can't resolve relative paths. Alt text
   // matters because many clients block images by default.
   const headerSrc = absoluteUrl("/email/email-header@2x.png");
+  const origin = cleanStoryText(word.origin);
   return buildShell(`
       <img src="${headerSrc}" width="480" height="80" alt="Curio" style="display:block;border:0;width:100%;max-width:480px;height:auto;margin:0 0 24px;">
       <p style="font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:0.02em;color:#5b665f;margin:0 0 24px;">
@@ -101,9 +103,9 @@ export function buildDigestHtml(
       <p style="font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#8a9089;margin:0 0 24px;">
         ${word.respelling} &middot; ${word.partOfSpeech}
       </p>
-      <p style="font-size:17px;line-height:1.55;margin:0 0 28px;">
-        ${word.origin}
-      </p>
+      ${origin ? `<p style="font-size:17px;line-height:1.55;margin:0 0 28px;">
+        ${origin}
+      </p>` : ""}
       <a href="${storyUrl}" style="display:inline-block;font-family:Helvetica,Arial,sans-serif;font-size:14px;color:#7a4f1e;text-decoration:none;border-bottom:1px solid #7a4f1e;padding-bottom:2px;">
         Read the full story &rarr;
       </a>${buildDigBlock(dig, digSource)}
@@ -238,6 +240,7 @@ export type DigestMessage = {
  * link and headers are specific to them, so a shared to/cc/bcc would let
  * one person unsubscribe another. */
 export function buildDigestMessage(email: string, word: WordEntry, date: Date, secret: string, dig?: DigLine | null): DigestMessage {
+  const origin = cleanStoryText(word.origin);
   const dateStr = formatDay(dayKey(date));
   const digText = dig ? `${digLineText(dig.prompt)}\n${digLineUrl("email")}\n\n` : "";
   const storyUrl = digestStoryUrl(word.slug);
@@ -251,7 +254,7 @@ export function buildDigestMessage(email: string, word: WordEntry, date: Date, s
     subject: buildDigestSubject(word.teaser),
     html: buildDigestHtml(word, dateStr, unsubscribe, storyUrl, dig),
     // HTML-only email is itself a spam signal most filters weigh directly.
-    text: `${word.word} (${word.respelling}, ${word.partOfSpeech})\n\n${word.origin}\n\nRead the full story: ${storyUrl}\n\n${digText}Unsubscribe: ${unsubscribe}`,
+    text: `${word.word} (${word.respelling}, ${word.partOfSpeech})\n\n${origin ? `${origin}\n\n` : ""}Read the full story: ${storyUrl}\n\n${digText}Unsubscribe: ${unsubscribe}`,
     // RFC 2369 + RFC 8058: mailbox providers show their own unsubscribe
     // button from these and weigh them for inbox placement.
     headers: {
