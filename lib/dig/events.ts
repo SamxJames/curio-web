@@ -16,6 +16,8 @@ export type DigEvent =
   | { kind: "share"; how: "text" | "image" }
   | { kind: "story" }
   | { kind: "signup" }
+  | { kind: "timer" }
+  | { kind: "row"; to: "play" | "past" }
   | { kind: "finish"; date: string; score: number; tiers: (Tier | null)[]; rejected: [number, string][] }
   | { kind: "claim"; date: string; prompt: number; guess: string };
 
@@ -53,6 +55,10 @@ export function parseDigEvent(body: unknown, today: string): DigEvent | null {
     case "story":
     case "signup":
       return { kind: b.kind };
+    case "timer":
+      return { kind: "timer" };
+    case "row":
+      return b.to === "play" || b.to === "past" ? { kind: "row", to: b.to } : null;
     case "share":
       return b.how === "text" || b.how === "image" ? { kind: "share", how: b.how } : null;
     case "claim": {
@@ -90,6 +96,8 @@ export function funnelField(ev: DigEvent): string | null {
     case "share": return `share:${ev.how}`;
     case "story": return "story";
     case "signup": return "signup";
+    case "timer": return "timer:switch";
+    case "row": return `row:${ev.to}`;
     case "finish": return "finish";
     case "claim": return null;
   }
@@ -122,6 +130,8 @@ export function planFinish(ev: Extract<DigEvent, { kind: "finish" }>): Incr[] {
     [digKeys.scores(ev.date), String(Math.floor(ev.score / 10)), 1],
     [digKeys.funnel(ev.date), "finish", 1],
   ];
+  const fossils = ev.tiers.filter((t) => t === "fossil").length;
+  if (fossils > 0) out.push([digKeys.funnel(ev.date), "fossil", fossils]);
   const rej = new Map<string, Incr>();
   for (const [i, g] of ev.rejected) {
     const key = `${i}|${g}`;

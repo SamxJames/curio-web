@@ -52,10 +52,37 @@ describe("funnel fields and the finish plan", () => {
     expect(funnelField({ kind: "past" })).toBe("past:start");
     expect(funnelField({ kind: "claim", date: today, prompt: 1, guess: "jib" })).toBeNull();
   });
+  it("accepts the timer event and only the two row targets", () => {
+    expect(parseDigEvent({ kind: "timer" }, today)).toEqual({ kind: "timer" });
+    expect(funnelField({ kind: "timer" })).toBe("timer:switch");
+    expect(parseDigEvent({ kind: "timers" }, today)).toBeNull();
+    expect(parseDigEvent({ kind: "row", to: "play" }, today)).toEqual({ kind: "row", to: "play" });
+    expect(parseDigEvent({ kind: "row", to: "past" }, today)).toEqual({ kind: "row", to: "past" });
+    expect(parseDigEvent({ kind: "row", to: "evil:field" }, today)).toBeNull();
+    expect(parseDigEvent({ kind: "row" }, today)).toBeNull();
+    expect(funnelField({ kind: "row", to: "play" })).toBe("row:play");
+    expect(funnelField({ kind: "row", to: "past" })).toBe("row:past");
+    expect(funnelFields({ kind: "timer" })).toEqual(["timer:switch"]);
+  });
+  it("planFinish counts fossils found, and writes nothing when none", () => {
+    const withFossil = planFinish({ kind: "finish", date: today, score: SCORE, tiers: tiers as never, rejected: [] });
+    expect(withFossil).toContainEqual(["curio:dig:funnel:2026-12-05", "fossil", 1]);
+    const none = planFinish({ kind: "finish", date: today, score: 10, tiers: ["common", ...Array(6).fill(null)] as never, rejected: [] });
+    expect(none.some(([, f]) => f === "fossil")).toBe(false);
+    const two = planFinish({ kind: "finish", date: today, score: 200, tiers: ["fossil", "fossil", ...Array(5).fill(null)] as never, rejected: [] });
+    expect(two).toContainEqual(["curio:dig:funnel:2026-12-05", "fossil", 2]);
+  });
+  it("rate-limits timer and row like any cheap event, never unlimited", () => {
+    expect(overRateLimit("timer", RATE_LIMITS.perMinute + 1, null)).toBe(true);
+    expect(overRateLimit("row", RATE_LIMITS.perMinute + 1, null)).toBe(true);
+    expect(overRateLimit("timer", 1, null)).toBe(false);
+    expect(overRateLimit("row", 1, null)).toBe(false);
+  });
   it("plans one pipelined write per counter", () => {
     expect(planFinish({ kind: "finish", date: today, score: SCORE, tiers: tiers as never, rejected: [[2, "jib"], [2, "jib"]] })).toEqual([
       ["curio:dig:scores:2026-12-05", "30", 1],
       ["curio:dig:funnel:2026-12-05", "finish", 1],
+      ["curio:dig:funnel:2026-12-05", "fossil", 1],
       ["curio:dig:rej:2026-12-05:2", "jib", 2],
     ]);
   });
