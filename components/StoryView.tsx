@@ -9,6 +9,7 @@ import { isFavorite, toggleFavorite, useClientOnlyValue } from "@/lib/storage";
 import { track } from "@/lib/analytics";
 import { sendTrafficEvent } from "@/lib/trafficClient";
 import { useStoryDay } from "@/lib/useStoryDay";
+import { cleanStoryText } from "@/lib/storyText";
 import EtymologyLineage from "./EtymologyLineage";
 import Button from "@/components/ui/Button";
 import StoryDate from "./StoryDate";
@@ -30,6 +31,8 @@ export default function StoryView({
   lineageHrefs?: Record<string, string>;
 }) {
   const day = useStoryDay(word.slug);
+  // Pipeline disclaimers are stripped at render; a section left empty is hidden.
+  const sections = SECTIONS.map(({ key, label }) => ({ key, label, text: cleanStoryText(word[key]) })).filter((s) => s.text);
 
   useEffect(() => {
     track("story_view");
@@ -124,13 +127,13 @@ export default function StoryView({
       </div>
 
       <div className="mt-12 space-y-10">
-        {SECTIONS.map(({ key, label }) => (
+        {sections.map(({ key, label, text }) => (
           <section key={key}>
             <div className="mb-3 flex items-center gap-3">
               <h2 className="font-sans text-xs tracking-wide text-ink-faint">{label}</h2>
               <div className="h-px flex-1 bg-line" />
             </div>
-            <p className="font-serif text-lg leading-relaxed text-ink">{word[key]}</p>
+            <p className="font-serif text-lg leading-relaxed text-ink">{text}</p>
           </section>
         ))}
       </div>
