@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ANSWER_SECONDS, READ_SECONDS, initialGame, resumeGame, toSavedRun, type GameState, type PromptResult } from "./game";
+import { ANSWER_SECONDS, READ_SECONDS, createReducer, initialGame, resumeGame, toSavedRun, type GameState, type PromptResult } from "./game";
 
 const empty = (): PromptResult => ({ answer: null, tier: null, rejected: [], lastGuess: null });
 const results = (): PromptResult[] => Array.from({ length: 7 }, empty);
@@ -44,5 +44,21 @@ describe("toSavedRun / resumeGame", () => {
     expect(resumeGame({ ...run, date: "2026-11-07", current: 9 }, "2026-11-07", 7)).toBeNull();
     expect(resumeGame({ ...run, date: "2026-11-07", results: [{ answer: 3 }] }, "2026-11-07", 7)).toBeNull();
     expect(resumeGame({ ...run, date: "2026-11-07", results: results().map(() => ({ ...empty(), tier: "gold" })) }, "2026-11-07", 7)).toBeNull();
+  });
+
+  it("a mid-game timer switch is saved and resumed, and leaves results untouched", () => {
+    const reduce = createReducer({ secrets: [], lookups: [] });
+    const r = results();
+    r[0] = { answer: "mead", tier: "familiar", rejected: [], lastGuess: null };
+    const off = reduce(playing({ phase: "answering", current: 1, clock: 12, results: r }), { type: "timer", noTimer: true });
+    const run = toSavedRun("2026-11-07", off, []);
+    expect(run?.noTimer).toBe(true);
+    const back = resumeGame(JSON.parse(JSON.stringify(run)), "2026-11-07", 7);
+    expect(back?.state).toMatchObject({ phase: "answering", noTimer: true, clock: 0 });
+    expect(back?.state.results).toEqual(r);
+    const on = reduce(off, { type: "timer", noTimer: false });
+    const back2 = resumeGame(toSavedRun("2026-11-07", on, []), "2026-11-07", 7);
+    expect(back2?.state).toMatchObject({ phase: "reading", clock: READ_SECONDS, noTimer: false });
+    expect(back2?.state.results).toEqual(r);
   });
 });

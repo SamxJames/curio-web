@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import Intro from "./Intro";
+import { bannedHits } from "@/lib/dig/copyAudit";
 import { noop } from "./testFixtures";
 
 describe("Intro", () => {
@@ -14,5 +15,15 @@ describe("Intro", () => {
   it("keeps red for Start alone", () => {
     const html = renderToStaticMarkup(<Intro noTimer={false} onToggleTimer={noop} onStart={noop} />);
     expect(html.match(/bg-accent-button/g)).toHaveLength(1);
+  });
+  it("explains the game before Start with a real sample and no 'How it works' below", () => {
+    const html = renderToStaticMarkup(<Intro noTimer={false} onToggleTimer={noop} onStart={noop} />);
+    expect(html).toContain("Each prompt hides one word nobody expects.");
+    expect(html).toContain("7 prompts. 25 seconds each. Rarer answers dig deeper.");
+    expect(html).toContain("Your answers build a cross-section as you go. The hidden word is the fossil, buried in the bedrock.");
+    expect(html).toContain("For example: Name a fruit");
+    expect(html).toContain("apple lands in the topsoil. quince digs down to the clay.");
+    expect(html).toContain("No timer counts the same. Use it any time.");
+    expect(bannedHits(html)).toEqual([]);
   });
 });

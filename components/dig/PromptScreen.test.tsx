@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import PromptScreen from "./PromptScreen";
-import { promptBase } from "./testFixtures";
+import { readFileSync } from "node:fs";
+import PromptScreen, { nextPassState } from "./PromptScreen";
+import { bannedHits } from "@/lib/dig/copyAudit";
+import { noop, promptBase } from "./testFixtures";
 
 describe("PromptScreen", () => {
   const base = promptBase;
@@ -54,5 +56,37 @@ describe("PromptScreen", () => {
     const html = renderToStaticMarkup(<PromptScreen {...base} phase="reading" clock={3} noTimer={false} feedback={null} />);
     expect(html.match(/<button[^>]*disabled=""[^>]*>Pass<\/button>/)).not.toBeNull();
     expect(html.match(/<button[^>]*disabled=""[^>]*>Dig<\/button>/)).not.toBeNull();
+  });
+  it("shows a fixed 'No timer' pill; aria-pressed carries the state", () => {
+    const timed = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={10} noTimer={false} feedback={null} onTimer={noop} />);
+    expect(timed).toContain('aria-pressed="false"');
+    expect(timed).toContain("No timer");
+    expect(timed).toContain('role="progressbar"');
+    const off = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={0} noTimer feedback={null} onTimer={noop} />);
+    expect(off).toContain('aria-pressed="true"');
+    expect(off).toContain("Take your time.");
+    expect(off).not.toContain("No timer: on");
+    expect(off).not.toContain('role="progressbar"');
+  });
+  it("renders no pill until onTimer is supplied", () => {
+    expect(renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={10} noTimer={false} feedback={null} />)).not.toContain("aria-pressed");
+  });
+  it("Pass starts as 'Pass' and is disabled while reading", () => {
+    const html = renderToStaticMarkup(<PromptScreen {...base} phase="reading" clock={3} noTimer={false} feedback={null} onTimer={noop} />);
+    expect(html).toMatch(/<button[^>]*disabled[^>]*>Pass<\/button>/);
+  });
+  it("nextPassState: first tap arms, second fires; typing and blur disarm; nothing is timed", () => {
+    expect(nextPassState("idle", "tap")).toEqual({ state: "armed", fire: false });
+    expect(nextPassState("armed", "tap")).toEqual({ state: "idle", fire: true });
+    expect(nextPassState("armed", "type")).toEqual({ state: "idle", fire: false });
+    expect(nextPassState("armed", "blur")).toEqual({ state: "idle", fire: false });
+    expect(nextPassState("idle", "blur")).toEqual({ state: "idle", fire: false });
+  });
+  it("the prompt screen passes the copy audit", () => {
+    const html = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={10} noTimer={false} feedback={null} onTimer={noop} />);
+    expect(bannedHits(html)).toEqual([]);
+  });
+  it("has no timeout tied to Pass", () => {
+    expect(readFileSync("components/dig/PromptScreen.tsx", "utf8")).not.toMatch(/setTimeout\([^)]*3000/);
   });
 });

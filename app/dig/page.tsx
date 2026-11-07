@@ -19,11 +19,16 @@ export default function DigPage() {
     <main className="mx-auto max-w-page px-6 py-10">
       <h1 className="font-display text-4xl leading-display">curio dig</h1>
       <DigGame />
-      <section className="mt-16 border-t border-line pt-6 font-sans text-base text-ink-soft">
-        <h2 className="font-display text-2xl text-ink">How it works</h2>
-        <p className="mt-2">Each prompt asks for a word: a fruit, a sailing term, a word English took from Arabic. Any fitting word scores. Common answers land in the topsoil; rarer ones dig down through loam, clay and stone, and each prompt hides one fossil in the bedrock.</p>
-        <p className="mt-2">A new dig opens at midnight UTC. <Link href="/dig/past" className="underline underline-offset-2">Past digs</Link> stay open to play and browse.</p>
-      </section>
+      <noscript>
+        <p className="mt-8 font-sans text-base text-ink-soft">curio dig needs JavaScript to play. Curio&apos;s word stories and the Past digs list still work without it.</p>
+      </noscript>
+      <noscript>
+        <section className="mt-8 border-t border-line pt-6 font-sans text-base text-ink-soft">
+          <h2 className="font-display text-2xl text-ink">How it works</h2>
+          <p className="mt-2">Each prompt asks for a word: a fruit, a sailing term, a word English took from Arabic. Any fitting word scores. Common answers land in the topsoil; rarer ones dig down through loam, clay and stone, and each prompt hides one fossil in the bedrock.</p>
+          <p className="mt-2">A new dig opens at midnight UTC. <Link href="/dig/past" className="underline underline-offset-2">Past digs</Link> stay open to play and browse.</p>
+        </section>
+      </noscript>
     </main>
   );
 }
