@@ -1,6 +1,6 @@
 import type { DigFunnelSummary } from "@/lib/dig/funnel";
 
-const COLS = ["land", "start", "finish", "share", "story", "signup", "past"] as const;
+const COLS = ["land", "start", "finish", "share", "story", "signup", "past", "returning"] as const;
 
 /** Admin only: land → start → finish → share → story → signup for the last 28 days.
  * Markup follows the "Where visitors come from" table in AdminDashboard (internal tooling). */
@@ -21,6 +21,7 @@ export default function DigFunnelTable({ summary }: { summary: DigFunnelSummary 
             {COLS.map((c) => (
               <span key={c} className="w-16 text-right">{c}</span>
             ))}
+            <span className="w-16 text-right">Return %</span>
           </div>
           {summary.rows.map((row) => (
             <div key={row.date} className="flex items-baseline justify-between border-t border-line py-1.5">
@@ -28,6 +29,9 @@ export default function DigFunnelTable({ summary }: { summary: DigFunnelSummary 
               {COLS.map((c) => (
                 <span key={c} className="w-16 text-right font-serif text-[13px] tabular-nums">{row[c]}</span>
               ))}
+              <span className="w-16 text-right font-serif text-[13px] tabular-nums">
+                {row.returnShare === null ? "" : `${row.returnShare}%`}
+              </span>
             </div>
           ))}
         </div>

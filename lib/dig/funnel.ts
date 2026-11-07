@@ -1,6 +1,6 @@
 import { DAY_MS, dayKey, dayStart } from "../day";
 
-export type DigFunnelRow = { date: string; land: number; start: number; finish: number; share: number; story: number; signup: number; past: number };
+export type DigFunnelRow = { date: string; land: number; start: number; finish: number; share: number; story: number; signup: number; past: number; returning: number; returnShare: number | null };
 export type DigFunnelSummary = { rows: DigFunnelRow[]; killLine: number | null };
 
 const sum = (h: Record<string, number>, prefix: string) => Object.entries(h).reduce((a, [f, n]) => (f.startsWith(prefix) ? a + n : a), 0);
@@ -22,10 +22,15 @@ export function summarizeDigFunnel(
   const shown = new Set(opts.rowDates);
   const rows = Object.entries(days)
     .filter(([date]) => shown.has(date))
-    .map(([date, h]) => ({
-      date, land: sum(h, "land:"), start: h.start ?? 0, finish: h.finish ?? 0, share: sum(h, "share:"),
-      story: h.story ?? 0, signup: h.signup ?? 0, past: h["past:start"] ?? 0,
-    }))
+    .map(([date, h]) => {
+      const start = h.start ?? 0;
+      const returning = sum(h, "start:ret:");
+      return {
+        date, land: sum(h, "land:"), start, finish: h.finish ?? 0, share: sum(h, "share:"),
+        story: h.story ?? 0, signup: h.signup ?? 0, past: h["past:start"] ?? 0,
+        returning, returnShare: start ? Math.round((returning / start) * 1000) / 10 : null,
+      };
+    })
     .sort((a, b) => b.date.localeCompare(a.date));
   let killLine: number | null = null;
   if (launch) {

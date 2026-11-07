@@ -23,8 +23,18 @@ describe("summarizeDigFunnel", () => {
       LAUNCH,
       { now: new Date("2026-12-03T12:00:00Z"), rowDates: ["2026-12-02"] },
     );
-    expect(s.rows).toEqual([{ date: "2026-12-02", land: 7, start: 4, finish: 3, share: 2, story: 1, signup: 1, past: 2 }]);
+    expect(s.rows).toEqual([{ date: "2026-12-02", land: 7, start: 4, finish: 3, share: 2, story: 1, signup: 1, past: 2, returning: 0, returnShare: 0 }]);
     expect(s.killLine).toBeNull();
+  });
+
+  it("sums returning starts and gives the share of all starts", () => {
+    const days = { "2026-11-08": { start: 40, "start:ret:d1": 6, "start:ret:d2_6": 3, "start:ret:d7": 1 }, "2026-11-09": { land: 3 } };
+    const { rows } = summarizeDigFunnel(days, null, { now: new Date("2026-11-10T12:00:00Z"), rowDates: ["2026-11-08", "2026-11-09"] });
+    const r8 = rows.find((r) => r.date === "2026-11-08")!, r9 = rows.find((r) => r.date === "2026-11-09")!;
+    expect(r8.returning).toBe(10);
+    expect(r8.returnShare).toBe(25);
+    expect(r9.returning).toBe(0);
+    expect(r9.returnShare).toBeNull();
   });
 
   it("takes the median daily start over days 22–28 after launch", () => {
