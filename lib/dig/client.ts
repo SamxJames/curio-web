@@ -1,7 +1,7 @@
 "use client";
 
 import { getArrivalSource } from "../trafficClient";
-import { MAX_REJECTED_PER_FINISH } from "./events";
+import { MAX_REJECTED_PER_FINISH, VIA_SOURCES, type ViaSource } from "./events";
 import type { PromptResult } from "./game";
 import type { Tier } from "./types";
 
@@ -48,6 +48,30 @@ export function sendLandOnce(): void {
     if (window.sessionStorage.getItem(LANDED)) return;
     window.sessionStorage.setItem(LANDED, "1");
     window.setTimeout(() => sendDigEvent({ kind: "land", source: getArrivalSource() }), 0);
+  } catch {
+    // private mode: better to under-count
+  }
+}
+
+/** The Curio link a /dig visit came from (?from=), or null when absent or not a known source. */
+export function viaFrom(search: string): ViaSource | null {
+  const v = new URLSearchParams(search).get("from");
+  return v && (VIA_SOURCES as readonly string[]).includes(v) ? (v as ViaSource) : null;
+}
+
+/** Counts which Curio link opened /dig (once per tab session per link), then drops ?from= so
+ * a copied or shared URL is clean. */
+export function sendViaOnce(): void {
+  try {
+    const from = viaFrom(window.location.search);
+    if (!from) return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete("from");
+    window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
+    const key = `curio:dig:via:${from}`;
+    if (window.sessionStorage.getItem(key)) return;
+    window.sessionStorage.setItem(key, "1");
+    sendDigEvent({ kind: "via", from });
   } catch {
     // private mode: better to under-count
   }

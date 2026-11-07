@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { buildFinishEvent, buildStartEvent, returningBucket, sendDigEvent, sendFinish, sendLandOnce } from "./client";
+import { buildFinishEvent, buildStartEvent, returningBucket, sendDigEvent, sendFinish, sendLandOnce, viaFrom } from "./client";
 import { MAX_REJECTED_PER_FINISH, parseDigEvent } from "./events";
 import type { PromptResult } from "./game";
 
@@ -103,5 +103,16 @@ describe("buildStartEvent", () => {
   it("adds ret only when the device is returning", () => {
     expect(buildStartEvent("2026-11-10", {})).toEqual({ kind: "start", date: "2026-11-10" });
     expect(buildStartEvent("2026-11-10", { x: g("2026-11-09T01:00:00.000Z") })).toEqual({ kind: "start", date: "2026-11-10", ret: "d1" });
+  });
+});
+
+describe("viaFrom", () => {
+  it("reads a known from param", () => {
+    expect(viaFrom("?from=nav")).toBe("nav");
+    expect(viaFrom("?x=1&from=story")).toBe("story");
+  });
+  it("ignores unknown or missing values", () => {
+    expect(viaFrom("?from=evil")).toBeNull();
+    expect(viaFrom("")).toBeNull();
   });
 });

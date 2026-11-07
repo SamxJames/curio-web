@@ -6,7 +6,7 @@ import { priorSameTier } from "@/lib/dig/revealCopy";
 import { stripState } from "@/lib/dig/strip";
 import { scoreOf } from "@/lib/dig/score";
 import { clearRun, markReported, readRun, readStore, saveGame, saveRun, setNoTimer, useDigStore } from "@/lib/dig/storage";
-import { buildFinishEvent, buildStartEvent, sendDigEvent, sendFinish, sendLandOnce } from "@/lib/dig/client";
+import { buildFinishEvent, buildStartEvent, sendDigEvent, sendFinish, sendLandOnce, sendViaOnce } from "@/lib/dig/client";
 import EndScreen, { announceDone } from "./EndScreen";
 import Intro from "./Intro";
 import PromptScreen from "./PromptScreen";
@@ -49,7 +49,10 @@ export default function DigGame({ date, heading, note }: { date?: string; headin
       .then((r) => (r.ok ? (r.json() as Promise<DigDayResponse>) : Promise.reject(new Error(String(r.status)))))
       .then((d) => alive && setDay(prepareDay(d)))
       .catch(() => alive && setFailed(true));
-    if (!date) sendLandOnce();
+    if (!date) {
+      sendLandOnce();
+      sendViaOnce();
+    }
     return () => { alive = false; };
   }, [date]);
   if (failed) return <><Heading heading={heading} phase="intro" note={note} /><LoadFailed past={!!date} /></>;
