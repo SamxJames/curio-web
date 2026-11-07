@@ -11,7 +11,7 @@ import EndScreen, { announceDone } from "./EndScreen";
 import Intro from "./Intro";
 import PromptScreen from "./PromptScreen";
 import Reveal, { announceReveal } from "./Reveal";
-import Strata, { StrataSkeleton } from "./Strata";
+import Strata from "./Strata";
 
 /** The page heading is visible on the intro and while the day loads; on the play and end screens it
  * stays for assistive tech only (the postcard carries the wordmark, and hiding it frees room above
@@ -57,8 +57,8 @@ export default function DigGame({ date, heading, note }: { date?: string; headin
     return (
       <>
         <Heading heading={heading} phase="intro" note={note} />
-        <div className="mt-6"><StrataSkeleton /></div>
-        <p className="mt-4 font-sans text-ink-faint" aria-live="polite">Loading the dig…</p>
+        <Intro noTimer={false} onToggleTimer={() => {}} onStart={() => {}} loading />
+        <p className="sr-only" aria-live="polite">Loading the dig…</p>
       </>
     );
   }

@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import DigGame from "@/components/dig/DigGame";
+import { DIG_PITCH } from "@/lib/dig/pitch";
 import { isDigOpen } from "@/lib/dig/clock";
 
 export const metadata = {
   title: "curio dig: a daily word game | Curio",
-  description: "Seven prompts a day. Name a word that fits: the rarer your answer, the deeper you dig. Free, no login, one new dig a day.",
+  description: DIG_PITCH,
   alternates: { canonical: "/dig" },
 };
 
