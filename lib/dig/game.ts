@@ -6,7 +6,8 @@ import { TIERS, type DigDay, type PromptKind, type PromptSecret, type Tier } fro
 /** The whole game as a pure reducer (architecture §2): screens render from GameState,
  * a 1-second interval dispatches "tick", and nothing here touches the DOM or storage. */
 
-export type DigDayResponse = DigDay & { number: number };
+/** `tomorrow` is only on /api/dig/today: tomorrow's first prompt as a plain hint, or null. */
+export type DigDayResponse = DigDay & { number: number; tomorrow?: string | null };
 export type PreparedDay = {
   date: string;
   number: number;
@@ -14,6 +15,7 @@ export type PreparedDay = {
   prompts: { id: string; kind: PromptKind; text: string }[];
   secrets: PromptSecret[];
   lookups: Lookup[];
+  tomorrow?: string | null;
 };
 
 export function prepareDay(d: DigDayResponse): PreparedDay {
@@ -25,6 +27,7 @@ export function prepareDay(d: DigDayResponse): PreparedDay {
     prompts: d.prompts.map(({ id, kind, text }) => ({ id, kind, text })),
     secrets,
     lookups: secrets.map(buildLookup),
+    ...(d.tomorrow ? { tomorrow: d.tomorrow } : {}),
   };
 }
 

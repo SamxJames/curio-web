@@ -2,7 +2,10 @@ import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/dig/server", () => ({
-  readDay: vi.fn(async (date: string) => (date === "2026-12-09" || date === "2026-12-10" ? { v: 1, date, rejSample: 1, prompts: [] } : null)),
+  readDay: vi.fn(async (date: string) => {
+    if (date === "2026-12-11") return { v: 1, date, rejSample: 1, prompts: [{ id: "p", kind: "theme", text: "Name a word from sailing", payload: "x" }] };
+    return date === "2026-12-09" || date === "2026-12-10" ? { v: 1, date, rejSample: 1, prompts: [] } : null;
+  }),
   recordFunnel: vi.fn(async () => {}),
   recordFinish: vi.fn(async () => ({ "39": 4 })),
   recordClaim: vi.fn(async () => {}),
@@ -29,6 +32,25 @@ const post = (body: unknown, headers: Record<string, string> = {}) =>
   });
 
 describe("/api/dig/today", () => {
+  it("adds tomorrow's hint, from tomorrow's first prompt", async () => {
+    expect(await (await today()).json()).toMatchObject({ date: "2026-12-10", tomorrow: "a word from sailing" });
+  });
+  it("gives tomorrow: null when tomorrow's day is missing, and never fails the request", async () => {
+    vi.setSystemTime(new Date("2026-12-09T23:00:00Z"));
+    const res = await today();
+    expect(res.status).toBe(200);
+    expect((await res.json()).tomorrow).toBeNull();
+  });
+  it("gives tomorrow: null when tomorrow's read throws, or its prompt is not a Name prompt", async () => {
+    const today10 = { v: 1, date: "2026-12-10", rejSample: 1, prompts: [] } as never;
+    vi.mocked(server.readDay).mockResolvedValueOnce(today10).mockRejectedValueOnce(new Error("redis down"));
+    const res = await today();
+    expect(res.status).toBe(200);
+    expect((await res.json()).tomorrow).toBeNull();
+    const odd = { v: 1, date: "2026-12-11", rejSample: 1, prompts: [{ id: "p", kind: "theme", text: "Which word is a fruit", payload: "x" }] } as never;
+    vi.mocked(server.readDay).mockResolvedValueOnce(today10).mockResolvedValueOnce(odd);
+    expect((await (await today()).json()).tomorrow).toBeNull();
+  });
   it("serves today with its number, cached until 00:00 UTC", async () => {
     const res = await today();
     expect(res.status).toBe(200);
@@ -40,7 +62,7 @@ describe("/api/dig/today", () => {
     vi.stubEnv("VERCEL_ENV", "production");
     expect((await today()).status).toBe(404);
     vi.stubEnv("DIG_LAUNCH_DATE", "2026-12-01");
-    vi.setSystemTime(new Date("2026-12-11T01:00:00Z"));
+    vi.setSystemTime(new Date("2026-12-12T01:00:00Z"));
     const res = await today();
     expect(res.status).toBe(503);
     expect(res.headers.get("cache-control")).toBe("no-store");
