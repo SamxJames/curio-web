@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import EndScreen, { announceDone, wordsWorthKnowing } from "./EndScreen";
+import { readFileSync } from "node:fs";
+import EndScreen, { announceDone, formatDigDate, rowEvent, wordsWorthKnowing } from "./EndScreen";
+import { bannedHits } from "@/lib/dig/copyAudit";
 import { copyResult, shareImage } from "./shareImage";
 import { prepareDay } from "@/lib/dig/game";
 import { encodeDay } from "@/lib/dig/payload";
@@ -12,7 +14,7 @@ vi.mock("next-auth/react", () => ({ useSession: () => ({ status: "unauthenticate
 const plain = devDay("2026-12-05");
 plain.prompts[0].stories = { apple: "apple" };
 const day = prepareDay({ ...encodeDay(plain), number: 5 });
-const game = { answers: ["apple", null, null, null, null, null, "gimlet"], tiers: ["common", null, null, null, null, null, "fossil"] as never, score: 110, finishedAt: "x", spread: { "1": 60 } };
+const game = { answers: ["apple", null, null, null, null, null, "gimlet"], tiers: ["common", null, null, null, null, null, "fossil"] as never, score: 110, finishedAt: "x", spread: { "1": 100 } };
 
 describe("wordsWorthKnowing", () => {
   it("lists the player's story words first, then each prompt's fossil", () => {
@@ -28,26 +30,80 @@ describe("wordsWorthKnowing", () => {
 });
 
 describe("EndScreen", () => {
-  it("shows depth, share, signup and Past digs, with no backlog language", () => {
+  it("is a postcard: wordmark, dig number, UTC date, depth, depth before the drawing", () => {
     const html = renderToStaticMarkup(<EndScreen day={day} game={game} isToday />);
+    expect(html).toContain("curio dig");
+    expect(html).toContain("Dig #5");
+    expect(html).toContain("5 December 2026");
     expect(html).toContain("1.1 m down");
+    expect(html.indexOf("1.1 m down")).toBeLessThan(html.indexOf("<svg"));
+    expect(html).toContain('viewBox="0 0 360 240"');
+    expect(html).toContain("Your dig, 5 December 2026");
+    expect(html).not.toMatch(/Your dig, day/);
+    expect(html).toContain(">Share<");
+    expect(html).toContain("Save image");
+    expect(html).not.toContain("Copy result");
+    expect(html).not.toContain("Share image");
+  });
+  it("shows the percentile on today's dig once there are 100 finishers, with no backlog language", () => {
+    const html = renderToStaticMarkup(<EndScreen day={day} game={game} isToday />);
     expect(html).toContain("Deeper than 100% of today&#x27;s diggers");
-    expect(html).toContain("Copy result");
-    expect(html).toContain("Share image");
-    expect(html).toContain("/dig/past");
-    expect(html).toContain("Email address");
     expect(html.toLowerCase()).not.toMatch(/missed|streak|unplayed|left to play/);
   });
-  it("leaves out the percentile on a past day", () => {
-    expect(renderToStaticMarkup(<EndScreen day={day} game={game} isToday={false} />)).not.toContain("Deeper than");
+  it("Share is the only red action (Join is secondary)", () => {
+    const html = renderToStaticMarkup(<EndScreen day={day} game={game} isToday />);
+    expect(html.match(/bg-accent-button/g)).toHaveLength(1);
+    expect(html).toMatch(/<button[^>]*bg-accent-button[^>]*>Share<\/button>/);
+    expect(html).toMatch(/<button[^>]*>Get tomorrow&#x27;s word<\/button>/);
+    expect(html).not.toMatch(/<button[^>]*bg-accent-button[^>]*>Get tomorrow/);
   });
-  it("heads the answers 'Today's answers' today and 'The day's answers' on a past day", () => {
+  it("today: midnight line, play row, no Today's dig row; past: the reverse, no percentile or midnight line", () => {
     const today = renderToStaticMarkup(<EndScreen day={day} game={game} isToday />);
-    expect(today).toContain("Today&#x27;s answers");
+    expect(today).toContain("A new dig opens at midnight UTC.");
+    expect(today).toContain("Cool down with a clue puzzle");
+    expect(today).toContain("Guess the word from three clues.");
+    expect(today).toContain('href="/play"');
+    expect(today).not.toContain("Dig today&#x27;s prompts.");
+    const past = renderToStaticMarkup(<EndScreen day={day} game={game} isToday={false} />);
+    expect(past).not.toContain("midnight UTC");
+    expect(past).not.toContain("Deeper than");
+    expect(past).toContain("Today&#x27;s dig");
+    expect(past).toContain("Dig today&#x27;s prompts.");
+    expect(past).toContain('href="/dig"');
+    expect(past).not.toContain('href="/play"');
+  });
+  it("keeps the email offer, Past digs, and both disclosures closed by default", () => {
+    const html = renderToStaticMarkup(<EndScreen day={day} game={game} isToday />);
+    expect(html).toContain("Email address");
+    expect(html).toContain("/dig/past");
+    expect(html).toContain("Play or read any earlier dig.");
+    expect(html).toContain("Words worth knowing");
+    expect(html).toContain("Today&#x27;s answers");
+    expect(html).not.toMatch(/<details[^>]*\sopen/);
+  });
+  it("heads the answers disclosure 'Today's answers' today and 'The day's answers' on a past day", () => {
+    const today = renderToStaticMarkup(<EndScreen day={day} game={game} isToday />);
     expect(today).not.toContain("The day&#x27;s answers");
     const past = renderToStaticMarkup(<EndScreen day={day} game={game} isToday={false} />);
     expect(past).toContain("The day&#x27;s answers");
     expect(past).not.toContain("Today&#x27;s answers");
+  });
+  it("renders no tomorrow line while the day has no hint", () => {
+    expect(renderToStaticMarkup(<EndScreen day={day} game={game} isToday />)).not.toContain("Tomorrow:");
+  });
+  it("renders the tomorrow line first in the come-back row, today only", () => {
+    const withHint = { ...day, tomorrow: "a word English took from Japanese" };
+    const today = renderToStaticMarkup(<EndScreen day={withHint} game={game} isToday />);
+    expect(today).toContain("Tomorrow: a word English took from Japanese");
+    expect(today.indexOf("Tomorrow:")).toBeLessThan(today.indexOf("Email address"));
+    expect(renderToStaticMarkup(<EndScreen day={withHint} game={game} isToday={false} />)).not.toContain("Tomorrow:");
+  });
+  it("hides the depth percentile below 100 finishers", () => {
+    const few = { ...game, spread: { "10": 40, "30": 9 } };
+    expect(renderToStaticMarkup(<EndScreen day={day} game={few} isToday />)).not.toContain("Deeper than");
+  });
+  it("leaves out the percentile on a past day", () => {
+    expect(renderToStaticMarkup(<EndScreen day={day} game={game} isToday={false} />)).not.toContain("Deeper than");
   });
   it("renders one empty, always-mounted status line for share feedback", () => {
     const html = renderToStaticMarkup(<EndScreen day={day} game={game} isToday />);
@@ -60,13 +116,55 @@ describe("EndScreen", () => {
     expect(html).toMatch(/<h2[^>]*tabindex="-1"[^>]*>1\.1 m down<\/h2>/);
     expect(html).not.toContain("focus:outline-none");
   });
-  it("keeps red for Copy result and the signup button alone", () => {
-    const html = renderToStaticMarkup(<EndScreen day={day} game={game} isToday />);
-    expect(html.match(/bg-accent-button/g)).toHaveLength(2);
-    expect(html).toMatch(/<button[^>]*bg-accent-button[^>]*>Copy result<\/button>/);
-    expect(html).toMatch(/<button[^>]*bg-accent-button[^>]*>Get tomorrow&#x27;s word<\/button>/);
-    expect(html).not.toMatch(/<button[^>]*bg-accent-button[^>]*>Share image<\/button>/);
+  it("copy audit over the whole rendered postcard, today and past, with and without a hint", () => {
+    for (const isToday of [true, false]) {
+      for (const d of [day, { ...day, tomorrow: "a word from sailing" }]) {
+        expect(bannedHits(renderToStaticMarkup(<EndScreen day={d} game={game} isToday={isToday} />))).toEqual([]);
+      }
+    }
   });
+});
+
+describe("formatDigDate", () => {
+  it("formats the UTC date as day month year", () => {
+    expect(formatDigDate("2026-11-07")).toBe("7 November 2026");
+    expect(formatDigDate("2026-12-05")).toBe("5 December 2026");
+  });
+});
+
+describe("rowEvent", () => {
+  it("sends on today's dig only", () => {
+    expect(rowEvent("play", true)).toEqual({ kind: "row", to: "play" });
+    expect(rowEvent("past", true)).toEqual({ kind: "row", to: "past" });
+    expect(rowEvent("play", false)).toBeNull();
+    expect(rowEvent("past", false)).toBeNull();
+  });
+});
+
+describe("postcard contrast (WCAG 1.4.3, text 4.5:1)", () => {
+  const css = readFileSync("app/globals.css", "utf8");
+  const lum = (hex: string) => {
+    const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  const ratio = (a: string, b: string) => {
+    const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x);
+    return (hi + 0.05) / (lo + 0.05);
+  };
+  const block = (selector: string) => {
+    const at = css.indexOf(`${selector} {`);
+    expect(at, selector).toBeGreaterThan(-1);
+    return css.slice(at, css.indexOf("}", at));
+  };
+  const token = (b: string, name: string) => b.match(new RegExp(`${name}: *(#[0-9a-f]{6})`, "i"))![1];
+  for (const [theme, selector] of [["light", '[data-brand="next"]'], ["dark", '[data-theme="dark"] [data-brand="next"]']] as const) {
+    it(`ink and soft ink read on the raised postcard surface, ${theme}`, () => {
+      const b = block(selector);
+      const raised = token(b, "--paper-raised");
+      expect(ratio(token(b, "--ink"), raised)).toBeGreaterThanOrEqual(4.5);
+      expect(ratio(token(b, "--ink-soft"), raised)).toBeGreaterThanOrEqual(4.5);
+    });
+  }
 });
 
 describe("announceDone", () => {

@@ -10,7 +10,9 @@ import { percentileLine, shareText } from "@/lib/dig/share";
 import type { StoredGame } from "@/lib/dig/storage";
 import { TIERS } from "@/lib/dig/types";
 import { sendDigEvent } from "@/lib/dig/client";
+import type { DigEvent } from "@/lib/dig/events";
 import Strata from "./Strata";
+import TomorrowHint from "./TomorrowHint";
 import { copyResult, shareImage } from "./shareImage";
 import { etymologyLink, presentableFact } from "@/lib/dig/fact";
 
@@ -29,6 +31,16 @@ export function wordsWorthKnowing(day: PreparedDay, answers: (string | null)[]) 
 }
 
 const STATUS_MS = 4000;
+
+/** "7 November 2026", always in UTC so a player's timezone can't shift the date. */
+export function formatDigDate(date: string): string {
+  return new Date(date + "T00:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+}
+
+/** The funnel event for following a come-back row link. Today's dig only: no events from past digs. */
+export function rowEvent(to: "play" | "past", isToday: boolean): Extract<DigEvent, { kind: "row" }> | null {
+  return isToday ? { kind: "row", to } : null;
+}
 
 /** What a screen reader hears when the dig finishes. DigRun sets it into its persistent live region. */
 export function announceDone(score: number): string {
@@ -60,7 +72,7 @@ export default function EndScreen({ day, game, isToday, autoFocus = false }: { d
   const copy = async () => {
     const how = await copyResult(text);
     // The share text isn't on the page, so a failure can't point to it.
-    say(how === "copied" ? "Copied" : how === "failed" ? "Couldn't copy." : "");
+    say(how === "shared" ? "Shared" : how === "copied" ? "Copied. Paste it anywhere." : how === "failed" ? "Couldn't copy." : "");
     if (how === "copied" || how === "shared") sendDigEvent({ kind: "share", how: "text" });
   };
   const image = async () => {
@@ -68,76 +80,110 @@ export default function EndScreen({ day, game, isToday, autoFocus = false }: { d
     say(how === "shared" ? "Shared" : how === "downloaded" ? "Image saved" : how === "failed" ? "Couldn't make the image." : "");
     if (how === "shared" || how === "downloaded") sendDigEvent({ kind: "share", how: "image" });
   };
+  const rowLink = "block py-4 font-sans text-base";
+  const followRow = (to: "play" | "past") => () => {
+    const ev = rowEvent(to, isToday);
+    if (ev) sendDigEvent(ev);
+  };
   return (
     <section className="mt-8">
-      <Strata tiers={game.tiers} words={game.answers} label={`Your dig, day ${day.number}`} />
-      <h2 ref={depth} tabIndex={-1} className="mt-6 font-display text-5xl leading-display outline-none">{`${formatDepth(game.score)} down`}</h2>
-      {pct && <p className="mt-2 font-sans text-base text-ink-soft">{pct}</p>}
-
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Button onClick={copy}>Copy result</Button>
-        <Button variant="secondary" onClick={image}>Share image</Button>
-        {/* Always mounted, so a screen reader announces the text when it changes. */}
-        <p role="status" aria-live="polite" className="self-center font-sans text-sm text-ink-soft">{status}</p>
+      <div className="max-w-form rounded-lg border border-line-strong bg-paper-raised p-4">
+        <div className="flex items-baseline justify-between">
+          <p className="font-display text-lg">curio dig</p>
+          <p className="font-sans text-sm text-ink-soft">{`Dig #${day.number}`}</p>
+        </div>
+        <h2 ref={depth} tabIndex={-1} className="mt-3 font-display text-5xl leading-display outline-none">{`${formatDepth(game.score)} down`}</h2>
+        {pct && <p className="mt-2 font-sans text-base text-ink-soft">{pct}</p>}
+        <p className="mt-1 font-sans text-sm text-ink-soft">{formatDigDate(day.date)}</p>
+        <div className="mt-4">
+          <Strata tiers={game.tiers} words={game.answers} label={`Your dig, ${formatDigDate(day.date)}`} height={240} />
+        </div>
       </div>
 
-      <h2 className="mt-10 font-display text-2xl">Words worth knowing</h2>
-      <ul className="mt-3 space-y-3">
-        {wordsWorthKnowing(day, game.answers).map((w) => (
-          <li key={w.word}>
-            <p className="font-display text-xl">
-              {w.story ? <Link href={`/story/${w.story}`} prefetch={false} onClick={onStory} className="underline underline-offset-2">{w.word}</Link> : w.word}
-            </p>
-            {w.note ? (
-              <p className="font-serif text-base leading-relaxed text-ink-soft">{w.note}</p>
-            ) : !w.story && (
-              <a href={etymologyLink(w.word)} target="_blank" rel="noopener noreferrer" className="font-sans text-sm text-ink-soft underline underline-offset-2">
-                Where it came from (Wiktionary)
-              </a>
-            )}
-          </li>
-        ))}
+      <div className="mt-6 flex max-w-form flex-col gap-3 sm:flex-row">
+        <Button fullWidth className="sm:w-auto" onClick={copy}>Share</Button>
+        <Button fullWidth className="sm:w-auto" variant="secondary" onClick={image}>Save image</Button>
+      </div>
+      {/* Always mounted, so a screen reader announces the text when it changes. */}
+      <p role="status" aria-live="polite" className="mt-3 min-h-6 font-sans text-sm text-ink-soft">{status}</p>
+
+      {isToday && <p className="mt-4 font-sans text-base text-ink-soft">A new dig opens at midnight UTC.</p>}
+
+      <ul className="mt-6 max-w-form border-b border-line">
+        <li className="border-t border-line py-4 empty:hidden"><TomorrowHint isToday={isToday} hint={day.tomorrow} /></li>
+        {/* SignupOffer hides itself, pitch included, for readers who already get the email; its li then
+            has no children and closes up, with no stray rule. */}
+        <li className="empty:hidden">
+          <SignupOffer
+            placement="dig"
+            joinVariant="secondary"
+            className="border-t border-line py-4"
+            pitch={
+              <>
+                <h2 className="font-display text-2xl">One word&apos;s story, every morning</h2>
+                <p className="mt-2 font-sans text-base text-ink-soft">Curio sends one word and where it came from.</p>
+              </>
+            }
+            onSubscribed={() => sendDigEvent({ kind: "signup" })}
+          />
+        </li>
+        <li className="border-t border-line">
+          {isToday ? (
+            <Link href="/play" prefetch={false} onClick={followRow("play")} className={rowLink}>
+              <span className="underline underline-offset-2">Cool down with a clue puzzle</span>
+              <span className="block text-sm text-ink-soft">Guess the word from three clues.</span>
+            </Link>
+          ) : (
+            <Link href="/dig" prefetch={false} className={rowLink}>
+              <span className="underline underline-offset-2">Today&apos;s dig</span>
+              <span className="block text-sm text-ink-soft">Dig today&apos;s prompts.</span>
+            </Link>
+          )}
+        </li>
+        <li className="border-t border-line">
+          <Link href="/dig/past" prefetch={false} onClick={followRow("past")} className={rowLink}>
+            <span className="underline underline-offset-2">Past digs</span>
+            <span className="block text-sm text-ink-soft">Play or read any earlier dig.</span>
+          </Link>
+        </li>
       </ul>
 
-      <h2 className="mt-10 font-display text-2xl">{isToday ? "Today's answers" : "The day's answers"}</h2>
-      {day.prompts.map((p, i) => (
-        <details key={p.id} className="mt-3 border-t border-line pt-3" onToggle={(e) => e.currentTarget.open && setOpen((o) => new Set(o).add(i))}>
-          <summary className="cursor-pointer font-sans text-base">{p.text}</summary>
-          {open.has(i) && TIERS.map((t) => {
-            const words = day.secrets[i].answers.filter((a) => a[1] === t && a[2] === 1).map((a) => a[0]);
-            return words.length ? (
-              <p key={t} className="mt-2 font-serif text-base leading-relaxed">
-                <span className="font-sans text-sm text-ink-faint">{TIER_LABEL[t]}: </span>{words.join(", ")}
+      <details className="mt-6 max-w-form">
+        <summary className="cursor-pointer font-display text-xl">Words worth knowing</summary>
+        <ul className="mt-3 space-y-3">
+          {wordsWorthKnowing(day, game.answers).map((w) => (
+            <li key={w.word}>
+              <p className="font-display text-xl">
+                {w.story ? <Link href={`/story/${w.story}`} prefetch={false} onClick={onStory} className="underline underline-offset-2">{w.word}</Link> : w.word}
               </p>
-            ) : null;
-          })}
-        </details>
-      ))}
+              {w.note ? (
+                <p className="font-serif text-base leading-relaxed text-ink-soft">{w.note}</p>
+              ) : !w.story && (
+                <a href={etymologyLink(w.word)} target="_blank" rel="noopener noreferrer" className="font-sans text-sm text-ink-soft underline underline-offset-2">
+                  Where it came from (Wiktionary)
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+      </details>
 
-      {/* SignupOffer hides itself, pitch included, for readers who already get the email. */}
-      <SignupOffer
-        placement="dig"
-        className="mt-10 max-w-form border-t border-line pt-6"
-        pitch={
-          <>
-            <h2 className="font-display text-2xl">One word&apos;s story, every morning</h2>
-            <p className="mt-2 font-sans text-base text-ink-soft">Curio sends one word and where it came from.</p>
-          </>
-        }
-        onSubscribed={() => sendDigEvent({ kind: "signup" })}
-      />
-      <p className="mt-8 font-sans text-base">
-        <Link href="/dig/past" prefetch={false} className="underline underline-offset-2">Past digs</Link>
-      </p>
-      {/* One more game: today's /play puzzle (only on today's dig, not past ones). */}
-      {isToday && (
-        <p className="mt-3 font-sans text-base text-ink-soft">
-          One more for today:{" "}
-          <Link href="/play" prefetch={false} className="underline underline-offset-2 text-ink">
-            guess the word from three clues
-          </Link>
-        </p>
-      )}
+      <details className="mt-4 max-w-form">
+        <summary className="cursor-pointer font-display text-xl">{isToday ? "Today's answers" : "The day's answers"}</summary>
+        {day.prompts.map((p, i) => (
+          <details key={p.id} className="mt-3 border-t border-line pt-3" onToggle={(e) => e.currentTarget.open && setOpen((o) => new Set(o).add(i))}>
+            <summary className="cursor-pointer font-sans text-base">{p.text}</summary>
+            {open.has(i) && TIERS.map((t) => {
+              const words = day.secrets[i].answers.filter((a) => a[1] === t && a[2] === 1).map((a) => a[0]);
+              return words.length ? (
+                <p key={t} className="mt-2 font-serif text-base leading-relaxed">
+                  <span className="font-sans text-sm text-ink-faint">{TIER_LABEL[t]}: </span>{words.join(", ")}
+                </p>
+              ) : null;
+            })}
+          </details>
+        ))}
+      </details>
     </section>
   );
 }

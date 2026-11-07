@@ -17,6 +17,16 @@ describe("EmailSignupInline", () => {
   });
 });
 
+describe("SignupOffer joinVariant", () => {
+  it("is red by default and secondary when asked, so a screen can keep one red action", () => {
+    session.status = "unauthenticated";
+    expect(renderToStaticMarkup(<SignupOffer placement="dig" />)).toMatch(/<button[^>]*bg-accent-button[^>]*>Get tomorrow&#x27;s word<\/button>/);
+    const html = renderToStaticMarkup(<SignupOffer placement="dig" joinVariant="secondary" />);
+    expect(html).toContain("Get tomorrow&#x27;s word");
+    expect(html).not.toContain("bg-accent-button");
+  });
+});
+
 describe("SignupOffer server HTML", () => {
   it("while the session loads: the form and pitch, hidden pre-paint for signed-in readers", () => {
     session.status = "loading";

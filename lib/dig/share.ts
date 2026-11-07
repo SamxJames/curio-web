@@ -6,10 +6,10 @@ export function shareText(n: number, score: number, tiers: (Tier | null)[]): str
   return [`curio dig, day ${n}`, `${formatDepth(score)} down`, shareRow(tiers), "curioword.com/dig"].join("\n");
 }
 
-const MIN_FINISHERS = 50;
+const MIN_FINISHERS = 100;
 
 /** "Deeper than 72% of today's diggers": the share of finishers in a lower score bucket.
- * Nothing below 50 finishers, and nothing when nobody is shallower: never a ranking. */
+ * Nothing below 100 finishers, and nothing when nobody is shallower: never a ranking. */
 export function percentileLine(spread: Record<string, number> | undefined, score: number): string | null {
   if (!spread) return null;
   const total = Object.values(spread).reduce((a, b) => a + b, 0);

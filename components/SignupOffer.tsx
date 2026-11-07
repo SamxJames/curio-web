@@ -32,12 +32,16 @@ export default function SignupOffer({
   className,
   ariaLabel,
   onSubscribed,
+  joinVariant = "primary",
 }: {
   placement: SignupPlacement;
   pitch?: React.ReactNode;
   className?: string;
   ariaLabel?: string;
   onSubscribed?: () => void;
+  /** Style of the sign-up button (form and one-tap). Default keeps every page as it was; the dig
+   * postcard passes "secondary" so Share stays its one red action. */
+  joinVariant?: "primary" | "secondary";
 }) {
   const { status: session } = useSession();
   const subscribedHere = useHasSubscribedHere();
@@ -112,7 +116,7 @@ export default function SignupOffer({
   } else if (mode === "one-tap") {
     action = (
       <div>
-        <Button type="button" onClick={handleOneTap} disabled={oneTap === "pending"}>
+        <Button type="button" variant={joinVariant} onClick={handleOneTap} disabled={oneTap === "pending"}>
           {oneTap === "pending" ? "Subscribing…" : "Email me the daily word"}
         </Button>
         <SignupPromise />
@@ -125,6 +129,7 @@ export default function SignupOffer({
     action = (
       <EmailSignupInline
         placement={placement}
+        buttonVariant={joinVariant}
         onSubscribed={() => {
           flushSync(() => setPinned(true));
           onSubscribed?.();

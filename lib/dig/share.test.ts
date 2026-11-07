@@ -10,12 +10,13 @@ describe("shareText", () => {
 });
 
 describe("percentileLine", () => {
-  it("needs 50 finishers", () => {
-    expect(percentileLine({ "10": 49 }, 300)).toBeNull();
+  it("needs 100 finishers: nothing at 99, a line at 100", () => {
+    expect(percentileLine({ "10": 99 }, 300)).toBeNull();
+    expect(percentileLine({ "10": 100 }, 300)).not.toBeNull();
     expect(percentileLine(undefined, 300)).toBeNull();
   });
   it("counts finishers in lower buckets only", () => {
-    expect(percentileLine({ "20": 36, "30": 10, "40": 4 }, 300)).toBe("Deeper than 72% of today's diggers");
-    expect(percentileLine({ "20": 50 }, 200)).toBeNull();
+    expect(percentileLine({ "20": 72, "30": 20, "40": 8 }, 300)).toBe("Deeper than 72% of today's diggers");
+    expect(percentileLine({ "20": 100 }, 200)).toBeNull();
   });
 });

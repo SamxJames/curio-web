@@ -23,9 +23,12 @@ type Status = "idle" | "submitting" | "success" | "error";
 export default function EmailSignupInline({
   placement,
   onSubscribed,
+  buttonVariant = "primary",
 }: {
   placement: SignupPlacement;
   onSubscribed?: () => void;
+  /** "secondary" for a screen whose one red action is something else (the dig postcard). */
+  buttonVariant?: "primary" | "secondary";
 }) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
@@ -78,7 +81,7 @@ export default function EmailSignupInline({
             placeholder="your@email.com"
           />
         </div>
-        <Button type="submit" disabled={status === "submitting"} className="w-full shrink-0 sm:w-auto">
+        <Button type="submit" variant={buttonVariant} disabled={status === "submitting"} className="w-full shrink-0 sm:w-auto">
           {status === "submitting" ? "Sending…" : "Get tomorrow's word"}
         </Button>
       </form>
