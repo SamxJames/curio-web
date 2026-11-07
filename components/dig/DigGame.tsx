@@ -4,7 +4,7 @@ import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { createReducer, initialGame, prepareDay, resultTiers, resumeGame, toSavedRun, type DigDayResponse, type PreparedDay } from "@/lib/dig/game";
 import { scoreOf } from "@/lib/dig/score";
 import { clearRun, markReported, readRun, readStore, saveGame, saveRun, setNoTimer, useDigStore } from "@/lib/dig/storage";
-import { buildFinishEvent, sendDigEvent, sendFinish, sendLandOnce } from "@/lib/dig/client";
+import { buildFinishEvent, buildStartEvent, sendDigEvent, sendFinish, sendLandOnce } from "@/lib/dig/client";
 import EndScreen, { announceDone } from "./EndScreen";
 import Intro from "./Intro";
 import PromptScreen from "./PromptScreen";
@@ -88,7 +88,7 @@ function DigRun({ day, isToday }: { day: PreparedDay; isToday: boolean }) {
         noTimer={store.settings.noTimer}
         onToggleTimer={() => setNoTimer(!store.settings.noTimer)}
         onStart={() => {
-          sendDigEvent(isToday ? { kind: "start", date: day.date } : { kind: "past" });
+          sendDigEvent(isToday ? buildStartEvent(day.date, readStore().games) : { kind: "past" });
           dispatch({ type: "start", noTimer: store.settings.noTimer });
         }}
       />
