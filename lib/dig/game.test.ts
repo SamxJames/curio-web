@@ -156,3 +156,14 @@ describe("storage", () => {
     }
   });
 });
+
+describe("letters feedback", () => {
+  it("tells a player typing another alphabet to use A to Z", () => {
+    const reduce = createReducer(day);
+    let s = reduce(initialGame(), { type: "start", noTimer: true });
+    s = reduce(s, { type: "submit", guess: "друг" });
+    expect(s.feedback).toEqual({ kind: "letters" });
+    s = reduce(s, { type: "submit", guess: "   " });
+    expect(s.feedback).toEqual({ kind: "empty" });
+  });
+});

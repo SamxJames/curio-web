@@ -23,6 +23,6 @@ export async function GET(_req: NextRequest, ctx: RouteContext<"/api/dig/day/[da
   if (!day) return notFound();
   return NextResponse.json(
     { ...day, number: dayNumber(date, launch) },
-    { headers: { "Cache-Control": "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800" } }
+    { headers: { "Cache-Control": "public, max-age=0, s-maxage=3600, stale-while-revalidate=604800" } }
   );
 }

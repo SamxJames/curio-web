@@ -88,6 +88,19 @@ export function funnelField(ev: DigEvent): string | null {
   }
 }
 
+/** Events one sender may send: any kind per minute, and finishes or claims per day. Generous for
+ * a household or office sharing an address, tight enough that a script can't skew the
+ * percentile or grow the rejected-guess hashes without limit. */
+export const RATE_LIMITS = { perMinute: 30, finishPerDay: 5, claimPerDay: 20 } as const;
+
+/** True when a sender's counts (after this event) go over a limit. */
+export function overRateLimit(kind: DigEvent["kind"], minuteCount: number, dayCount: number | null): boolean {
+  if (minuteCount > RATE_LIMITS.perMinute) return true;
+  if (kind === "finish") return (dayCount ?? 0) > RATE_LIMITS.finishPerDay;
+  if (kind === "claim") return (dayCount ?? 0) > RATE_LIMITS.claimPerDay;
+  return false;
+}
+
 export type Incr = [key: string, field: string, by: number];
 
 /** Every write a finish makes, merged so a repeated guess is one HINCRBY. */

@@ -133,3 +133,24 @@ export function markReported(date: string, spread: Record<string, number> | null
   const g = s.games[date];
   if (g) writeStore(withGame(s, date, { ...g, reported: true, ...(spread ? { spread } : {}) }));
 }
+
+/** The unfinished run (lib/dig/game.ts SavedRun): one at a time, kept apart from finished games
+ * so a half-played day never looks finished. Plain reads and writes: nothing renders from it. */
+const RUN_KEY = "curio:dig:run";
+
+export function readRun(): unknown {
+  try {
+    const raw = window.localStorage.getItem(RUN_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveRun(run: unknown) {
+  try { window.localStorage.setItem(RUN_KEY, JSON.stringify(run)); } catch { /* full or blocked: a refresh starts over */ }
+}
+
+export function clearRun() {
+  try { window.localStorage.removeItem(RUN_KEY); } catch { /* nothing to clear */ }
+}

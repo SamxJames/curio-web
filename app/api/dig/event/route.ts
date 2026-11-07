@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { dayKey } from "@/lib/day";
 import { digLaunchDate, isDigOpen } from "@/lib/dig/clock";
 import { parseDigEvent } from "@/lib/dig/events";
-import { recordClaim, recordFinish, recordFunnel } from "@/lib/dig/server";
+import { isRateLimited, recordClaim, recordFinish, recordFunnel } from "@/lib/dig/server";
 import { isLikelyBot } from "@/lib/traffic";
 
 /** Largest body a dig event can legitimately need (a finish with 21 rejected guesses is well under this). */
@@ -12,7 +12,8 @@ const NO_STORE = { "Cache-Control": "no-store" };
 
 /** The dig game's one write endpoint (architecture §8), with /api/traffic's safeguards:
  * JSON only, same-origin only, bots get a silent 204 before their body is read, a body cap,
- * nothing identifies the sender, and a recording failure never surfaces to the page.
+ * a per-sender rate limit (keyed by a hash of address and day, never the address),
+ * nothing stored identifies the sender, and a recording failure never surfaces to the page.
  * Closed (404) until launch, like the pages. Writes happen in production only (server.ts). */
 export async function POST(req: NextRequest) {
   const launch = digLaunchDate();
@@ -41,6 +42,11 @@ export async function POST(req: NextRequest) {
   const today = dayKey();
   const ev = parseDigEvent(body, today);
   if (!ev) return NextResponse.json({ error: "Unknown event." }, { status: 400 });
+  // Vercel puts the caller's address first in x-forwarded-for.
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
+  if (await isRateLimited(ip, ev, today)) {
+    return NextResponse.json({ error: "Too many requests." }, { status: 429, headers: NO_STORE });
+  }
   try {
     if (ev.kind === "finish") return NextResponse.json({ spread: await recordFinish(ev) });
     if (ev.kind === "claim") await recordClaim(ev);

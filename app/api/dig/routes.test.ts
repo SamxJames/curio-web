@@ -6,6 +6,7 @@ vi.mock("@/lib/dig/server", () => ({
   recordFunnel: vi.fn(async () => {}),
   recordFinish: vi.fn(async () => ({ "39": 4 })),
   recordClaim: vi.fn(async () => {}),
+  isRateLimited: vi.fn(async () => false),
 }));
 import * as server from "@/lib/dig/server";
 import { GET as today } from "./today/route";
@@ -50,7 +51,7 @@ describe("/api/dig/day/[date]", () => {
   it("serves only launched past days", async () => {
     const ok = await pastDay(new NextRequest("http://localhost"), ctx("2026-12-09"));
     expect(ok.status).toBe(200);
-    expect(ok.headers.get("cache-control")).toContain("s-maxage=86400");
+    expect(ok.headers.get("cache-control")).toContain("s-maxage=3600");
     for (const d of ["2026-12-10", "2026-12-11", "2026-11-30", "nope"]) {
       const res = await pastDay(new NextRequest("http://localhost"), ctx(d));
       expect(res.status).toBe(404);
@@ -86,6 +87,13 @@ describe("/api/dig/event", () => {
       expect(res.status).toBe(404);
       expect(res.headers.get("cache-control")).toBe("no-store");
     }
+    expect(server.recordFunnel).not.toHaveBeenCalled();
+  });
+  it("refuses a rate-limited sender with 429 and records nothing", async () => {
+    vi.mocked(server.isRateLimited).mockResolvedValueOnce(true);
+    const res = await event(post({ kind: "story" }, { "x-forwarded-for": "203.0.113.7, 10.0.0.1" }));
+    expect(res.status).toBe(429);
+    expect(server.isRateLimited).toHaveBeenCalledWith("203.0.113.7", { kind: "story" }, "2026-12-10");
     expect(server.recordFunnel).not.toHaveBeenCalled();
   });
   it("returns 413 for a body over 4096 bytes", async () => {

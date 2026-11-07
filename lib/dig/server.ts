@@ -1,10 +1,11 @@
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { Redis } from "@upstash/redis";
 import { DAY_MS, dayKey, dayStart } from "../day";
 import { digLaunchDate, isDateKey, isPastDay } from "./clock";
 import { devDay } from "./devDay";
-import { funnelField, planFinish, type DigEvent } from "./events";
+import { funnelField, overRateLimit, planFinish, type DigEvent } from "./events";
 import { digKeys, type DigManifest } from "./keys";
 import { encodeDay } from "./payload";
 import type { DigDay } from "./types";
@@ -88,6 +89,32 @@ export async function recordFinish(ev: Extract<DigEvent, { kind: "finish" }>): P
   p.hgetall(digKeys.scores(ev.date));
   const results = await p.exec();
   return toCounts(results.at(-1) as Record<string, unknown> | null);
+}
+
+/** Counts this event against its sender and says whether it is over the limit (events.ts
+ * RATE_LIMITS). The sender is a hash of the address and the day, never the address itself, and
+ * the counters expire within two days. Production only; a Redis failure lets the event through. */
+export async function isRateLimited(ip: string | null, ev: DigEvent, today: string, now: Date = new Date()): Promise<boolean> {
+  if (!ip || !writesRedis()) return false;
+  try {
+    const r = await digRedis();
+    if (!r) return false;
+    const who = createHash("sha256").update(`${ip}|${today}`).digest("hex").slice(0, 16);
+    const minuteKey = digKeys.rate(who, `m${Math.floor(now.getTime() / 60_000)}`);
+    const daily = ev.kind === "finish" || ev.kind === "claim";
+    const dayKey = digKeys.rate(who, `d${today}:${ev.kind}`);
+    const p = r.pipeline();
+    p.incr(minuteKey);
+    p.expire(minuteKey, 120);
+    if (daily) {
+      p.incr(dayKey);
+      p.expire(dayKey, 2 * 86_400);
+    }
+    const res = (await p.exec()) as unknown[];
+    return overRateLimit(ev.kind, Number(res[0]) || 0, daily ? Number(res[2]) || 0 : null);
+  } catch {
+    return false;
+  }
 }
 
 /** The guess is already a normalised key: parseDigEvent (events.ts cleanGuess) folds it

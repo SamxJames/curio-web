@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import type { PromptResult } from "@/lib/dig/game";
 import { STRATUM, TIER_LABEL, TIER_POINTS } from "@/lib/dig/score";
 import type { PromptSecret } from "@/lib/dig/types";
+import { etymologyLink, presentableFact } from "@/lib/dig/fact";
 
 type Props = {
   result: PromptResult;
@@ -39,9 +40,10 @@ export default function Reveal({ result, secret, isLast, claimed, passed = false
   // Only a prompt that ended with no answer has anything to claim: the player's own most recent
   // miss, as typed (not rejected.at(-1): that list stops growing at its cap).
   const claimable = canClaim && result.answer === null ? result.lastGuess : null;
+  const fact = presentableFact(secret.fossil);
   return (
     <section className="mt-8">
-      <h2 ref={heading} tabIndex={-1} className={result.answer ? "font-display text-4xl leading-display" : "font-display text-3xl"}>
+      <h2 ref={heading} tabIndex={-1} className={result.answer ? "font-display text-4xl leading-display outline-none" : "font-display text-3xl outline-none"}>
         {result.answer ?? (passed ? "Passed" : "Time's up")}
       </h2>
       {result.answer && result.tier && (
@@ -52,7 +54,12 @@ export default function Reveal({ result, secret, isLast, claimed, passed = false
       <div className="mt-6 border-t border-line pt-4">
         <p className="font-sans text-sm text-ink-faint">This prompt&apos;s fossil</p>
         <p className="mt-1 font-display text-2xl">{secret.fossil.word}</p>
-        <p className="mt-1 font-serif text-lg leading-relaxed text-ink-soft">{secret.fossil.fact}</p>
+        {fact && <p className="mt-1 font-serif text-lg leading-relaxed text-ink-soft">{fact}</p>}
+        {!fact && !secret.fossil.story && (
+          <a href={etymologyLink(secret.fossil.word)} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block font-sans text-sm underline underline-offset-2">
+            Where {secret.fossil.word} came from (Wiktionary)
+          </a>
+        )}
         {secret.fossil.story && (
           <Link href={`/story/${secret.fossil.story}`} className="mt-2 inline-block font-sans text-sm underline underline-offset-2">
             Read the story of {secret.fossil.word}

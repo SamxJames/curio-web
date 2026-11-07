@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { funnelField, parseDigEvent, planFinish } from "./events";
+import { funnelField, overRateLimit, parseDigEvent, planFinish, RATE_LIMITS } from "./events";
 import { devDay } from "./devDay";
 
 const today = "2026-12-05";
@@ -67,5 +67,19 @@ describe("devDay", () => {
     expect(d.prompts).toHaveLength(7);
     expect(d.prompts.map((p) => p.kind)).toEqual(["theme", "theme", "origin", "theme", "theme", "origin", "theme"]);
     for (const p of d.prompts) expect(p.answers.filter((a) => a[1] === "fossil")).toHaveLength(1);
+  });
+});
+
+describe("overRateLimit", () => {
+  it("allows normal play and blocks bursts", () => {
+    expect(overRateLimit("start", 1, null)).toBe(false);
+    expect(overRateLimit("land", RATE_LIMITS.perMinute + 1, null)).toBe(true);
+  });
+
+  it("caps finishes and claims per sender per day", () => {
+    expect(overRateLimit("finish", 1, RATE_LIMITS.finishPerDay)).toBe(false);
+    expect(overRateLimit("finish", 1, RATE_LIMITS.finishPerDay + 1)).toBe(true);
+    expect(overRateLimit("claim", 1, RATE_LIMITS.claimPerDay + 1)).toBe(true);
+    expect(overRateLimit("share", 1, 999)).toBe(false);
   });
 });

@@ -11,6 +11,8 @@ export const digKeys = {
   rejected: (date: string, index: number) => `curio:dig:rej:${date}:${index}`,
   claims: (date: string, index: number) => `curio:dig:claim:${date}:${index}`,
   heartbeat: "curio:dig:health:last",
+  /** event rate counter for one hashed sender in one window ("m<minute>" or "d<date>"), short TTL */
+  rate: (who: string, window: string) => `curio:dig:rate:${who}:${window}`,
   /** highest usage alert threshold already sent this month (50 or 70) */
   usageAlert: (month: string) => `curio:dig:health:usage:${month}`,
 } as const;

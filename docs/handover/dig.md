@@ -59,6 +59,7 @@ All under `curio:dig:`. Written only in production. Days are never re-drawn or r
 | `curio:dig:rej:<date>:<0-6>` | hash | `finish` event | Rejected guess (normalised) to count | 35 d (same) |
 | `curio:dig:claim:<date>:<0-6>` | hash | `claim` event | "This should count" guess to count | 35 d (same) |
 | `curio:dig:health:last` | string | Health cron | Heartbeat (ISO time) the pipeline checks | none |
+| `curio:dig:rate:<hash>:m<minute>` / `:d<date>:<kind>` | string | `event` route | Per-sender event counters for the rate limit (`RATE_LIMITS` in `lib/dig/events.ts`: 30 events a minute, 5 finishes and 20 claims a day). `<hash>` is 16 hex of sha256(address + day), never the address | 120 s / 2 d |
 | `curio:dig:health:usage:<yyyy-mm>` | string | Health cron | Highest usage alert already sent this month (50 or 70) | 40 d |
 
 Expiries are set by the health cron on yesterday's keys, because `HINCRBY` sets none. If the cron stops, those hashes live forever until it runs again.
@@ -91,6 +92,9 @@ Expiries are set by the health cron on yesterday's keys, because `HINCRBY` sets 
 - `/dig/past` is built statically and fails the build loudly if Upstash blips. Retry the deploy.
 
 ## Operating notes
+
+- **Fossil facts are filtered where they are shown** (`lib/dig/fact.ts`). A Curio story teaser always shows. A sourced Wiktionary fact that is dictionary notation (list markers, brackets, a cut-off ending, non-Latin script, under 40 characters) is hidden and the screen links to its Wiktionary etymology instead. Days already built keep their raw facts in Redis; only the display changed (2026-11-07).
+- **A refresh resumes an unfinished dig** from localStorage `curio:dig:run` (`SavedRun` in `lib/dig/game.ts`): a revealed prompt comes back revealed, an unanswered one restarts with a fresh clock. `start` is sent only from the intro, so it counts once per run.
 
 - **`DIG_ALERT_TO` must be set.** The health cron emails it once a day when something is wrong (today's or tomorrow's day missing, fewer than 14 days built ahead, the pipeline's last run more than 9 days ago, or edge usage at 50% or 70%).
 - **The usage figure is an estimate.** Vercel Hobby has no usage API, so the cron estimates edge requests: 8 per player-day and 6 per site visit. The 6 is unsourced. Recalibrate both against Vercel's usage page in launch week. Vercel's own usage emails are the real backstop.

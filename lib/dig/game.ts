@@ -1,7 +1,7 @@
 import { buildLookup, checkGuess, type Lookup } from "./match";
 import { normalizeKey } from "./normalize";
 import { decodeSecret } from "./payload";
-import type { DigDay, PromptKind, PromptSecret, Tier } from "./types";
+import { TIERS, type DigDay, type PromptKind, type PromptSecret, type Tier } from "./types";
 
 /** The whole game as a pure reducer (architecture §2): screens render from GameState,
  * a 1-second interval dispatches "tick", and nothing here touches the DOM or storage. */
@@ -39,6 +39,8 @@ export type Feedback =
   | { kind: "near"; guess: string; suggestion: string; index: number }
   | { kind: "miss"; guess: string }
   | { kind: "empty" }
+  /** typed something, but nothing usable once folded to A–Z (another alphabet, or only digits) */
+  | { kind: "letters" }
   | null;
 export type GameState = {
   phase: "intro" | "reading" | "answering" | "reveal" | "done";
@@ -86,7 +88,7 @@ export function createReducer(day: Pick<PreparedDay, "secrets" | "lookups">) {
         if (s.feedback?.kind === "near" && normalizeKey(a.guess) === normalizeKey(s.feedback.guess)) return lock(s, s.feedback.index);
         const r = checkGuess(day.lookups[s.current], a.guess);
         if (r.kind === "match") return lock(s, r.index);
-        if (r.kind === "empty") return { ...s, feedback: { kind: "empty" } };
+        if (r.kind === "empty") return { ...s, feedback: { kind: a.guess.trim() ? "letters" : "empty" } };
         if (r.kind === "near") {
           return { ...s, feedback: { kind: "near", guess: a.guess, suggestion: day.secrets[s.current].answers[r.index][0], index: r.index } };
         }
@@ -112,3 +114,37 @@ export function createReducer(day: Pick<PreparedDay, "secrets" | "lookups">) {
 }
 
 export const resultTiers = (s: GameState): (Tier | null)[] => s.results.map((r) => r.tier);
+
+/** An unfinished run, saved after every step so a refresh resumes it rather than starting over
+ * (which would let a player replay prompts with the answers and fossils already seen, and would
+ * count a second start). `revealed` means the current prompt had locked; otherwise the player
+ * comes back to that prompt with a fresh clock, having seen only its text. */
+export type SavedRun = { v: 1; date: string; noTimer: boolean; current: number; revealed: boolean; results: PromptResult[]; passed: number[] };
+
+export function toSavedRun(date: string, s: GameState, passed: Iterable<number>): SavedRun | null {
+  if (s.phase === "intro" || s.phase === "done") return null;
+  return { v: 1, date, noTimer: s.noTimer, current: s.current, revealed: s.phase === "reveal", results: s.results, passed: [...passed] };
+}
+
+const isTierOrNull = (t: unknown) => t === null || (TIERS as readonly unknown[]).includes(t);
+const isStrOrNull = (v: unknown) => v === null || typeof v === "string";
+
+function isResult(r: unknown): r is PromptResult {
+  if (typeof r !== "object" || r === null) return false;
+  const x = r as Record<string, unknown>;
+  return isStrOrNull(x.answer) && isTierOrNull(x.tier) && isStrOrNull(x.lastGuess)
+    && Array.isArray(x.rejected) && x.rejected.length <= MAX_REJECTED && x.rejected.every((g) => typeof g === "string");
+}
+
+/** The game state to resume from a saved run for `date`, or null when there is nothing valid to resume. */
+export function resumeGame(run: unknown, date: string, prompts: number): { state: GameState; passed: number[] } | null {
+  if (typeof run !== "object" || run === null) return null;
+  const r = run as Partial<SavedRun>;
+  if (r.v !== 1 || r.date !== date || typeof r.noTimer !== "boolean" || typeof r.revealed !== "boolean") return null;
+  if (!Number.isInteger(r.current) || r.current! < 0 || r.current! >= prompts) return null;
+  if (!Array.isArray(r.results) || r.results.length !== prompts || !r.results.every(isResult)) return null;
+  const passed = Array.isArray(r.passed) ? r.passed.filter((n) => Number.isInteger(n) && n >= 0 && n < prompts) : [];
+  const base: GameState = { ...initialGame(), noTimer: r.noTimer, results: r.results };
+  const state = r.revealed ? { ...base, current: r.current!, phase: "reveal" as const } : enterPrompt(base, r.current!);
+  return { state, passed };
+}

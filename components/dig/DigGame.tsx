@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { createReducer, initialGame, prepareDay, resultTiers, type DigDayResponse, type PreparedDay } from "@/lib/dig/game";
+import { createReducer, initialGame, prepareDay, resultTiers, resumeGame, toSavedRun, type DigDayResponse, type PreparedDay } from "@/lib/dig/game";
 import { scoreOf } from "@/lib/dig/score";
-import { markReported, saveGame, setNoTimer, useDigStore } from "@/lib/dig/storage";
+import { clearRun, markReported, readRun, readStore, saveGame, saveRun, setNoTimer, useDigStore } from "@/lib/dig/storage";
 import { buildFinishEvent, sendDigEvent, sendFinish, sendLandOnce } from "@/lib/dig/client";
 import EndScreen, { announceDone } from "./EndScreen";
 import Intro from "./Intro";
@@ -39,11 +39,23 @@ export default function DigGame({ date }: { date?: string }) {
 function DigRun({ day, isToday }: { day: PreparedDay; isToday: boolean }) {
   const store = useDigStore();
   const reduce = useMemo(() => createReducer(day), [day]);
-  const [state, dispatch] = useReducer(reduce, undefined, initialGame);
+  // A refresh mid-dig picks up where it left off (lib/dig/game.ts SavedRun), unless the day is
+  // already finished. DigRun only mounts on the client, after the day has loaded, so reading
+  // localStorage here can't cause a hydration mismatch.
+  const [resumed] = useState(() => (readStore().games[day.date] ? null : resumeGame(readRun(), day.date, day.secrets.length)));
+  const [state, dispatch] = useReducer(reduce, undefined, () => resumed?.state ?? initialGame());
   const [claimed, setClaimed] = useState<Set<number>>(new Set());
-  const [passed, setPassed] = useState<Set<number>>(new Set());
+  const [passed, setPassed] = useState<Set<number>>(() => new Set(resumed?.passed ?? []));
   const saved = useRef(false);
   const finished = store.games[day.date];
+
+  // Save the run after every step (not every tick: the clock restarts on resume anyway).
+  const { phase, current, results, noTimer } = state;
+  useEffect(() => {
+    if (phase === "done") return clearRun();
+    const run = toSavedRun(day.date, { ...initialGame(), phase, current, results, noTimer }, passed);
+    if (run) saveRun(run);
+  }, [day.date, phase, current, results, noTimer, passed]);
 
   const ticking = !state.noTimer && (state.phase === "reading" || state.phase === "answering");
   useEffect(() => {
@@ -55,6 +67,8 @@ function DigRun({ day, isToday }: { day: PreparedDay; isToday: boolean }) {
   useEffect(() => {
     if (state.phase !== "done" || saved.current) return;
     saved.current = true;
+    // Another tab finished this day first: keep its game and its one report.
+    if (readStore().games[day.date]) return;
     const tiers = resultTiers(state);
     const score = scoreOf(tiers);
     saveGame(day.date, { answers: state.results.map((r) => r.answer), tiers, score, finishedAt: new Date().toISOString() });

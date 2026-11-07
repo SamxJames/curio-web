@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { healthReads, pastDates, readDay, readsRedis, recordFinish, writesRedis } from "./server";
+import { healthReads, isRateLimited, pastDates, readDay, readsRedis, recordFinish, writesRedis } from "./server";
 import { encodeDay } from "./payload";
 import { devDay } from "./devDay";
 
@@ -66,6 +66,12 @@ describe("environment gates", () => {
     expect(writesRedis()).toBe(false);
     vi.stubEnv("VERCEL_ENV", "production");
     expect(writesRedis()).toBe(true);
+  });
+  it("never rate-limits outside production or without an address", async () => {
+    vi.stubEnv("VERCEL_ENV", "");
+    expect(await isRateLimited("1.2.3.4", { kind: "story" }, "2026-11-07")).toBe(false);
+    vi.stubEnv("VERCEL_ENV", "production");
+    expect(await isRateLimited(null, { kind: "story" }, "2026-11-07")).toBe(false);
   });
 });
 

@@ -69,6 +69,7 @@ export default function PromptScreen({ index, total, prompt, phase, clock, noTim
         )}
         {feedback?.kind === "miss" && <p key={round}>Not on today&apos;s list. Try another.</p>}
         {feedback?.kind === "empty" && <p>Type a word first.</p>}
+        {feedback?.kind === "letters" && <p>Answers are English words: use the letters A to Z.</p>}
       </div>
       {/* The way out of a prompt with No timer on (and a shortcut with it on). The reducer
           only honours it while answering, so it is disabled during the read pause. */}

@@ -12,14 +12,16 @@ import { TIERS } from "@/lib/dig/types";
 import { sendDigEvent } from "@/lib/dig/client";
 import Strata from "./Strata";
 import { copyResult, shareImage } from "./shareImage";
+import { etymologyLink, presentableFact } from "@/lib/dig/fact";
 
 /** Answers with a Curio story first (the player's own), then every prompt's fossil. */
 export function wordsWorthKnowing(day: PreparedDay, answers: (string | null)[]) {
-  const mine = answers.flatMap((a, i) => {
+  const mine: { word: string; note: string | null; story?: string }[] = answers.flatMap((a, i) => {
     const story = a ? day.secrets[i].stories[a] : undefined;
     return a && story ? [{ word: a, note: `Your answer to “${day.prompts[i].text}”`, story }] : [];
   });
-  const fossils = day.secrets.map((s) => ({ word: s.fossil.word, note: s.fossil.fact, ...(s.fossil.story ? { story: s.fossil.story } : {}) }));
+  // A fossil whose fact is dictionary notation shows no note; the list links to its source instead.
+  const fossils = day.secrets.map((s) => ({ word: s.fossil.word, note: presentableFact(s.fossil), ...(s.fossil.story ? { story: s.fossil.story } : {}) }));
   // First occurrence of a word wins, so the player's own entry beats a fossil and a repeated
   // fossil word shows once.
   const seen = new Set<string>();
@@ -69,7 +71,7 @@ export default function EndScreen({ day, game, isToday, autoFocus = false }: { d
   return (
     <section className="mt-8">
       <Strata tiers={game.tiers} words={game.answers} label={`Your dig, day ${day.number}`} />
-      <h2 ref={depth} tabIndex={-1} className="mt-6 font-display text-5xl leading-display">{`${formatDepth(game.score)} down`}</h2>
+      <h2 ref={depth} tabIndex={-1} className="mt-6 font-display text-5xl leading-display outline-none">{`${formatDepth(game.score)} down`}</h2>
       {pct && <p className="mt-2 font-sans text-base text-ink-soft">{pct}</p>}
 
       <div className="mt-6 flex flex-wrap gap-3">
@@ -86,7 +88,13 @@ export default function EndScreen({ day, game, isToday, autoFocus = false }: { d
             <p className="font-display text-xl">
               {w.story ? <Link href={`/story/${w.story}`} prefetch={false} onClick={onStory} className="underline underline-offset-2">{w.word}</Link> : w.word}
             </p>
-            <p className="font-serif text-base leading-relaxed text-ink-soft">{w.note}</p>
+            {w.note ? (
+              <p className="font-serif text-base leading-relaxed text-ink-soft">{w.note}</p>
+            ) : !w.story && (
+              <a href={etymologyLink(w.word)} target="_blank" rel="noopener noreferrer" className="font-sans text-sm text-ink-soft underline underline-offset-2">
+                Where it came from (Wiktionary)
+              </a>
+            )}
           </li>
         ))}
       </ul>

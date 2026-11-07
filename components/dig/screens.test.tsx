@@ -90,6 +90,14 @@ describe("Reveal", () => {
     expect(html).toContain("/story/halyard");
     expect(html).toContain("Next prompt");
   });
+
+  it("hides a dictionary-notation fact and links to its source instead", () => {
+    const raw = { ...secret, fossil: { word: "phial", fact: "The noun is derived partly: * from Middle English fiole [and other forms]…" } };
+    const html = renderToStaticMarkup(<Reveal {...props} secret={raw} result={given} />);
+    expect(html).not.toContain("derived partly");
+    expect(html).toContain("https://en.wiktionary.org/wiki/phial#Etymology");
+    expect(html).toContain("Where phial came from");
+  });
   it("says Time's up, never 'missed', and offers a claim for a rejected guess", () => {
     const html = renderToStaticMarkup(<Reveal {...props} result={timedOut} isLast />);
     expect(html).toContain("Time&#x27;s up");
