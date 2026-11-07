@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { OG_DIG_TAGLINE, OG_DIG_TITLE } from "@/lib/dig/ogText";
 import { ogDigTheme } from "@/lib/ogDigTheme";
 
 export const alt = "curio dig: a daily word game";
@@ -14,8 +15,8 @@ export default async function Image() {
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: ogDigTheme.paper, color: ogDigTheme.ink }}>
         <div style={{ display: "flex", flexDirection: "column", padding: "64px 80px 0" }}>
-          <div style={{ display: "flex", fontFamily: "Caslon", fontSize: 104 }}>curio dig</div>
-          <div style={{ display: "flex", fontSize: 36, color: ogDigTheme.inkSoft, marginTop: 12 }}>Seven prompts a day. Rarer words dig deeper.</div>
+          <div style={{ display: "flex", fontFamily: "Caslon", fontSize: 104 }}>{OG_DIG_TITLE}</div>
+          <div style={{ display: "flex", fontSize: 36, color: ogDigTheme.inkSoft, marginTop: 12 }}>{OG_DIG_TAGLINE}</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", marginTop: "auto" }}>
           {ogDigTheme.strata.map((c) => <div key={c} style={{ display: "flex", height: 52, background: c }} />)}

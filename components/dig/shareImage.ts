@@ -7,6 +7,11 @@ import type { Tier } from "@/lib/dig/types";
 const SIZE = 1080;
 const INK = "#1C1A17", PAPER = "#F5F1E8";
 
+/** Every string the share card draws, in order: the card text is built here so the copy audit can read it. */
+export function shareImageLines(number: number, score: number): string[] {
+  return ["curio dig", `day ${number}`, `${formatDepth(score)} down`, ...STRATA];
+}
+
 const isAbort = (e: unknown) => (e as { name?: string } | null)?.name === "AbortError";
 
 /** "Copy result" does what it says: the text goes to the clipboard. Only if that write throws
@@ -45,11 +50,12 @@ export async function shareImage(input: { number: number; score: number; tiers: 
     ctx.fillRect(0, 0, SIZE, SIZE);
     ctx.fillStyle = INK;
     ctx.font = '700 64px "Libre Caslon Text", Georgia, serif';
-    ctx.fillText("curio dig", 80, 140);
+    const lines = shareImageLines(input.number, input.score);
+    ctx.fillText(lines[0], 80, 140);
     ctx.font = '400 40px "Work Sans", system-ui, sans-serif';
-    ctx.fillText(`day ${input.number}`, 80, 200);
+    ctx.fillText(lines[1], 80, 200);
     ctx.font = '700 96px "Libre Caslon Text", Georgia, serif';
-    ctx.fillText(`${formatDepth(input.score)} down`, 80, 330);
+    ctx.fillText(lines[2], 80, 330);
     const top = 400, h = 600, w = SIZE - 160;
     // Like components/dig/Strata: names in a left gutter, unanswered prompts as open rings.
     const gutter = 150;

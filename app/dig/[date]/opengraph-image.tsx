@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { dayNumber, digLaunchDate, isPastDay } from "@/lib/dig/clock";
 import { readDay } from "@/lib/dig/server";
+import { ogDayTitle } from "@/lib/dig/ogText";
 import { ogDigTheme } from "@/lib/ogDigTheme";
 
 export const alt = "curio dig answers";
@@ -18,7 +19,7 @@ export default async function Image({ params }: { params: Promise<{ date: string
   const { date } = await params;
   const launch = digLaunchDate();
   const day = launch && isPastDay(date, new Date(), launch) ? await readDay(date).catch(() => null) : null;
-  const title = day && launch ? `curio dig, day ${dayNumber(date, launch)}` : "curio dig";
+  const title = ogDayTitle(day && launch ? dayNumber(date, launch) : null);
   return new ImageResponse(
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: ogDigTheme.paper, color: ogDigTheme.ink }}>
