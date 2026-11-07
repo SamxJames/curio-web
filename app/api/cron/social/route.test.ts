@@ -21,11 +21,13 @@ const { fake, sharedWord } = vi.hoisted(() => {
 vi.mock("@/lib/redis", () => ({ redis: fake, usingUpstash: true }));
 vi.mock("@/lib/words", () => ({ resolveTodayWord: vi.fn(async () => sharedWord) }));
 vi.mock("@/lib/threads", () => ({ postDailyWordToThreads: vi.fn(async () => ({ posted: true })) }));
+vi.mock("@/lib/dig/digLine", () => ({ getDigLine: vi.fn(async () => ({ prompt: "P" })) }));
 vi.mock("@/lib/instagram", () => ({ postDailyCarouselToInstagram: vi.fn(async () => ({ posted: true })) }));
 
 const { GET, maxDuration } = await import("./route");
 const { postDailyWordToThreads } = await import("@/lib/threads");
 const { postDailyCarouselToInstagram } = await import("@/lib/instagram");
+const { getDigLine } = await import("@/lib/dig/digLine");
 
 function cronRequest() {
   return new NextRequest("http://localhost/api/cron/social", {
@@ -64,6 +66,27 @@ describe("GET /api/cron/social", () => {
     expect(vi.mocked(postDailyWordToThreads).mock.calls[0][0]).toBe(sharedWord);
     expect(vi.mocked(postDailyCarouselToInstagram).mock.calls[0][0]).toBe(sharedWord);
     expect(body).toEqual({ word: "custard", threads: true, instagram: true, alreadyRan: { threads: false, instagram: false } });
+  });
+
+  it("hands today's dig line to both channels, read once", async () => {
+    await GET(cronRequest());
+    expect(vi.mocked(postDailyWordToThreads).mock.calls[0][2]).toEqual({ prompt: "P" });
+    expect(vi.mocked(postDailyCarouselToInstagram).mock.calls[0][2]).toEqual({ prompt: "P" });
+    expect(getDigLine).toHaveBeenCalledTimes(1);
+  });
+
+  it("posts as before, with no dig, when there is none today or the lookup rejects", async () => {
+    vi.mocked(getDigLine).mockResolvedValueOnce(null);
+    expect((await (await GET(cronRequest())).json()).threads).toBe(true);
+    expect(vi.mocked(postDailyWordToThreads).mock.calls[0][2]).toBeNull();
+
+    fake.store.clear();
+    vi.clearAllMocks();
+    vi.mocked(getDigLine).mockRejectedValueOnce(new Error("redis"));
+    const body = await (await GET(cronRequest())).json();
+    expect(body).toMatchObject({ threads: true, instagram: true });
+    expect(vi.mocked(postDailyWordToThreads).mock.calls[0][2]).toBeNull();
+    expect(vi.mocked(postDailyCarouselToInstagram).mock.calls[0][2]).toBeNull();
   });
 
   it("a second run the same UTC day posts nothing", async () => {

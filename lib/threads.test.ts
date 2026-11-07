@@ -58,6 +58,13 @@ describe("postDailyWordToThreads", () => {
     expect(noSleep).toHaveBeenCalledWith(5000);
   });
 
+  it("posts the dig line, tagged for threads, when given one", async () => {
+    await postDailyWordToThreads(word, { sleep: noSleep }, { prompt: "Name a beverage" });
+    const body = new URLSearchParams(String(vi.mocked(fetch).mock.calls[0][1]?.body));
+    expect(body.get("text")).toContain("Today's dig starts with “Name a beverage”");
+    expect(body.get("text")).toContain("utm_source=threads");
+  });
+
   it("logs a success line, without the post text", async () => {
     await postDailyWordToThreads(word, { sleep: noSleep });
     const logged = log.mock.calls.flat().map(String).join(" ");

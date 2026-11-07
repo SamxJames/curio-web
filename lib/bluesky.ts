@@ -1,6 +1,7 @@
 import { AtpAgent, RichText } from "@atproto/api";
 import type { WordEntry } from "./words";
 import { buildBlueskyPost, buildStoryCard } from "./blueskyPost";
+import type { DigLine } from "./dig/digLineText";
 import { siteUrl } from "./siteUrl";
 
 // The pure post/card builders live in ./blueskyPost (no @atproto/api import,
@@ -41,11 +42,12 @@ async function uploadThumb(agent: AtpAgent, thumbUrl: string) {
  * Open Graph image uploaded as the card's thumbnail when that succeeds. */
 export async function postDailyWordToBluesky(
   word: WordEntry,
-  date: Date
+  date: Date,
+  dig?: DigLine | null
 ): Promise<{ posted: boolean; thumb: boolean }> {
   const identifier = process.env.BLUESKY_IDENTIFIER;
   const appPassword = process.env.BLUESKY_APP_PASSWORD;
-  const text = buildBlueskyPost(word);
+  const text = buildBlueskyPost(word, dig);
   const card = buildStoryCard(word);
 
   if (!identifier || !appPassword) {

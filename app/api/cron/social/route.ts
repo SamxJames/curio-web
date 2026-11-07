@@ -5,6 +5,7 @@ import { dayKey } from "@/lib/day";
 import { claimRun, releaseRun, type Channel } from "@/lib/digestRuns";
 import { postDailyWordToThreads } from "@/lib/threads";
 import { postDailyCarouselToInstagram } from "@/lib/instagram";
+import { getDigLine } from "@/lib/dig/digLine";
 
 /** Threads waits ~30s before publishing and Instagram up to 60s for its
  * carousel; 300s is the Hobby ceiling. */
@@ -59,11 +60,15 @@ export async function GET(req: NextRequest) {
     throw err;
   }
 
+  // Today's dig line, once per run: null (never an error) before launch or
+  // when the day isn't there, so the posts are then unchanged.
+  const dig = run.threads || run.instagram ? await getDigLine(now).catch(() => null) : null;
+
   // allSettled: the posters never throw today, but if one ever does the
   // other channel must still post and the response must still go out.
   const [threadsResult, instagramResult] = await Promise.allSettled([
-    run.threads ? postDailyWordToThreads(word) : Promise.resolve({ posted: false }),
-    run.instagram ? postDailyCarouselToInstagram(word) : Promise.resolve({ posted: false }),
+    run.threads ? postDailyWordToThreads(word, {}, dig) : Promise.resolve({ posted: false }),
+    run.instagram ? postDailyCarouselToInstagram(word, {}, dig) : Promise.resolve({ posted: false }),
   ]);
   const settle = (channel: SocialChannel, result: PromiseSettledResult<{ posted: boolean }>) => {
     if (result.status === "fulfilled") return result.value;

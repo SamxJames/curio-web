@@ -46,6 +46,7 @@ vi.mock("@/lib/email", () => ({
   ),
 }));
 vi.mock("@/lib/bluesky", () => ({ postDailyWordToBluesky: vi.fn(async () => ({ posted: true, thumb: true })) }));
+vi.mock("@/lib/dig/digLine", () => ({ getDigLine: vi.fn(async () => ({ prompt: "P" })) }));
 vi.mock("@/lib/indexNow", () => ({ submitDailyIndexNow: vi.fn(async () => "submitted") }));
 vi.mock("next/server", async (importOriginal) => ({
   ...(await importOriginal<typeof import("next/server")>()),
@@ -57,6 +58,7 @@ const { getAllSubscribers } = await import("@/lib/db");
 const { sendDailyDigests } = await import("@/lib/email");
 const { postDailyWordToBluesky } = await import("@/lib/bluesky");
 const { resolveTodayWord } = await import("@/lib/words");
+const { getDigLine } = await import("@/lib/dig/digLine");
 const { submitDailyIndexNow } = await import("@/lib/indexNow");
 const { claimRun, getFailures, seedPending } = await import("@/lib/digestRuns");
 
@@ -129,6 +131,29 @@ describe("GET /api/cron/send-daily", () => {
     const now = vi.mocked(resolveTodayWord).mock.calls[0][0];
     expect(vi.mocked(sendDailyDigests).mock.calls[0][2]).toBe(now);
     expect(vi.mocked(postDailyWordToBluesky).mock.calls[0][1]).toBe(now);
+  });
+
+  it("hands today's dig line to the digest and the Bluesky post", async () => {
+    await GET(cronRequest());
+    expect(vi.mocked(sendDailyDigests).mock.calls[0][3]).toMatchObject({ dig: { prompt: "P" } });
+    expect(vi.mocked(postDailyWordToBluesky).mock.calls[0][2]).toEqual({ prompt: "P" });
+    expect(vi.mocked(getDigLine).mock.calls[0][0]).toBe(vi.mocked(resolveTodayWord).mock.calls[0][0]);
+  });
+
+  it("sends and posts as before, with no dig, when there is none today", async () => {
+    vi.mocked(getDigLine).mockResolvedValueOnce(null);
+    const body = await (await GET(cronRequest())).json();
+    expect(vi.mocked(sendDailyDigests).mock.calls[0][3]).toMatchObject({ dig: null });
+    expect(vi.mocked(postDailyWordToBluesky).mock.calls[0][2]).toBeNull();
+    expect(body).toMatchObject({ attempted: 2, sent: 2, failed: 0, bluesky: true });
+  });
+
+  it("still completes the whole run when the dig lookup rejects", async () => {
+    vi.mocked(getDigLine).mockRejectedValueOnce(new Error("redis"));
+    const body = await (await GET(cronRequest())).json();
+    expect(vi.mocked(sendDailyDigests).mock.calls[0][3]).toMatchObject({ dig: null });
+    expect(vi.mocked(postDailyWordToBluesky).mock.calls[0][2]).toBeNull();
+    expect(body).toMatchObject({ attempted: 2, sent: 2, failed: 0, bluesky: true });
   });
 
   it("rejects a request without the cron secret", async () => {

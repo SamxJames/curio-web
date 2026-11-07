@@ -9,6 +9,7 @@ import { claimRun, getFailures, releaseRun, removeFailures, seedPending } from "
 import { redactAddresses } from "@/lib/digestSend";
 import { dayKey } from "@/lib/day";
 import { submitDailyIndexNow } from "@/lib/indexNow";
+import { getDigLine } from "@/lib/dig/digLine";
 
 /** Vercel Hobby with Fluid compute allows up to 300s (the project default
  * is also 300; pinned here so a dashboard change can't cut a retrying send
@@ -75,6 +76,9 @@ export async function GET(req: NextRequest) {
   const now = new Date();
   const day = dayKey(now);
   const word = await resolveTodayWord(now);
+  // Today's dig line for the digest and the Bluesky post: null (never an
+  // error) before launch or when the day isn't there, so the run is unchanged.
+  const dig = await getDigLine(now).catch(() => null);
 
   // Search-engine ping (Bing & co.) for today's pages. after(): it runs once
   // the response is decided and can't delay, fail or alter the digest or the
@@ -86,7 +90,7 @@ export async function GET(req: NextRequest) {
   // left alone, so this can never re-send a digest.
   if (repost === "bluesky") {
     await claimRun("bluesky", day, { force: true });
-    const { posted, thumb } = await postDailyWordToBluesky(word, now);
+    const { posted, thumb } = await postDailyWordToBluesky(word, now, dig);
     console.log(
       `[curio:digest] repost-bluesky ${day}: bluesky ${posted ? (thumb ? "posted" : "posted without image") : "failed"}`
     );
@@ -146,13 +150,14 @@ export async function GET(req: NextRequest) {
         secret: unsubscribe,
         runKey,
         deadline: started + SEND_BUDGET_MS,
+        dig,
         // Every mode forgets each address as its chunk is accepted, so the
         // set never holds anyone already sent — even if this run dies.
         onSent: (sent) => removeFailures(day, sent),
       })
     : Promise.resolve({ attempted: 0, sent: 0, failed: 0, errors: [], failedRecipients: [] });
   const blueskyPromise = postBluesky
-    ? postDailyWordToBluesky(word, now)
+    ? postDailyWordToBluesky(word, now, dig)
     : Promise.resolve({ posted: false, thumb: false });
   // Settled immediately (not just awaited later): otherwise a Bluesky
   // rejection while the email result is still being processed above would

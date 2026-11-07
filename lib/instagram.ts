@@ -1,4 +1,5 @@
 import type { WordEntry } from "./words";
+import type { DigLine } from "./dig/digLineText";
 import { buildCarouselSlides, buildInstagramCaption, carouselSlideUrl } from "./socialPost";
 import { getMetaToken } from "./metaTokens";
 import { siteUrl } from "./siteUrl";
@@ -31,14 +32,15 @@ async function warmSlides(urls: string[]): Promise<void> {
  * unattended. Unconfigured → logs. */
 export async function postDailyCarouselToInstagram(
   word: WordEntry,
-  opts: { sleep?: (ms: number) => Promise<void> } = {}
+  opts: { sleep?: (ms: number) => Promise<void> } = {},
+  dig?: DigLine | null
 ): Promise<{ posted: boolean }> {
   const sleep = opts.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
   let token: string | null = null;
 
   try {
     const slideUrls = Array.from(buildCarouselSlides(word).keys(), (i) => carouselSlideUrl(word, i + 1));
-    const caption = buildInstagramCaption(word);
+    const caption = buildInstagramCaption(word, dig);
     // Inside the try: getMetaToken rejects when Redis is unavailable.
     const userId = process.env.INSTAGRAM_USER_ID;
     token = await getMetaToken("instagram").catch((err) => {

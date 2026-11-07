@@ -5,6 +5,7 @@ import { absoluteUrl, siteUrl } from "./siteUrl";
 import { signUnsubscribeToken } from "./unsubscribeToken";
 import { signConfirmToken } from "./confirmToken";
 import type { SignupPlacement, TrafficSource } from "./traffic";
+import { digLineText, digLineUrl, type DigLine } from "./dig/digLineText";
 import { sendInBatches, type BatchResult, type SendOutcome } from "./digestSend";
 
 const resendApiKey = process.env.RESEND_API_KEY;
@@ -60,6 +61,21 @@ function buildShell(bodyHtml: string): string {
 </html>`;
 }
 
+const escapeHtml = (s: string) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
+/** The dig invitation block: the same two sentences for every recipient, then
+ * the link. The prompt is escaped; the URL is ours (same raw-href convention
+ * as the story link). Empty when there is no dig today. */
+function buildDigBlock(dig: DigLine | null | undefined, source: "email" | "sample"): string {
+  if (!dig) return "";
+  return `
+      <p style="font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.55;color:#24302b;margin:32px 0 0;">
+        ${escapeHtml(digLineText(dig.prompt))}<br>
+        <a href="${digLineUrl(source)}" style="color:#24302b;text-decoration:underline;">Play today&#39;s dig</a>
+      </p>`;
+}
+
 /** The daily digest body. Also served by /sample-email (with a dead
  * unsubscribe link and its own `storyUrl`, so a prospect clicking through
  * isn't mistaken for a subscriber arriving from the digest). */
@@ -68,6 +84,8 @@ export function buildDigestHtml(
   dateStr: string,
   unsubscribeUrl: string,
   storyUrl: string = digestStoryUrl(word.slug),
+  dig?: DigLine | null,
+  digSource: "email" | "sample" = "email",
 ) {
   // Absolute URL: email clients can't resolve relative paths. Alt text
   // matters because many clients block images by default.
@@ -88,7 +106,7 @@ export function buildDigestHtml(
       </p>
       <a href="${storyUrl}" style="display:inline-block;font-family:Helvetica,Arial,sans-serif;font-size:14px;color:#7a4f1e;text-decoration:none;border-bottom:1px solid #7a4f1e;padding-bottom:2px;">
         Read the full story &rarr;
-      </a>
+      </a>${buildDigBlock(dig, digSource)}
       <p style="font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#8a9089;margin-top:48px;border-top:1px solid #d8cfbc;padding-top:16px;">
         One word, once a day.
         <a href="${unsubscribeUrl}" style="color:#8a9089;">Unsubscribe</a>
@@ -219,8 +237,9 @@ export type DigestMessage = {
 /** One subscriber's digest. Always exactly one recipient: the unsubscribe
  * link and headers are specific to them, so a shared to/cc/bcc would let
  * one person unsubscribe another. */
-export function buildDigestMessage(email: string, word: WordEntry, date: Date, secret: string): DigestMessage {
+export function buildDigestMessage(email: string, word: WordEntry, date: Date, secret: string, dig?: DigLine | null): DigestMessage {
   const dateStr = formatDay(dayKey(date));
+  const digText = dig ? `${digLineText(dig.prompt)}\n${digLineUrl("email")}\n\n` : "";
   const storyUrl = digestStoryUrl(word.slug);
   const unsubscribe = unsubscribeUrl(email, secret);
   return {
@@ -230,9 +249,9 @@ export function buildDigestMessage(email: string, word: WordEntry, date: Date, s
     // first line); only the subject carries the teaser, so curiosity about it
     // survives long enough to get the email opened.
     subject: buildDigestSubject(word.teaser),
-    html: buildDigestHtml(word, dateStr, unsubscribe),
+    html: buildDigestHtml(word, dateStr, unsubscribe, storyUrl, dig),
     // HTML-only email is itself a spam signal most filters weigh directly.
-    text: `${word.word} (${word.respelling}, ${word.partOfSpeech})\n\n${word.origin}\n\nRead the full story: ${storyUrl}\n\nUnsubscribe: ${unsubscribe}`,
+    text: `${word.word} (${word.respelling}, ${word.partOfSpeech})\n\n${word.origin}\n\nRead the full story: ${storyUrl}\n\n${digText}Unsubscribe: ${unsubscribe}`,
     // RFC 2369 + RFC 8058: mailbox providers show their own unsubscribe
     // button from these and weigh them for inbox placement.
     headers: {
@@ -249,9 +268,9 @@ export async function sendDailyDigests(
   emails: string[],
   word: WordEntry,
   date: Date,
-  opts: { secret: string; runKey: string; deadline?: number; onSent?: (recipients: string[]) => Promise<void> }
+  opts: { secret: string; runKey: string; deadline?: number; onSent?: (recipients: string[]) => Promise<void>; dig?: DigLine | null }
 ): Promise<SendOutcome> {
-  const messages = emails.map((email) => buildDigestMessage(email, word, date, opts.secret));
+  const messages = emails.map((email) => buildDigestMessage(email, word, date, opts.secret, opts.dig));
 
   if (!resend) {
     // Local/dev fallback: no RESEND_API_KEY configured, so log instead of

@@ -97,6 +97,15 @@ describe("postDailyCarouselToInstagram", () => {
     expect(noSleep).toHaveBeenCalledWith(5000);
   });
 
+  it("posts the dig line in the caption, with no link, when given one", async () => {
+    await postDailyCarouselToInstagram(word, { sleep: noSleep }, { prompt: "Name a beverage" });
+    const caption = graphCalls()
+      .map(([, init]) => new URLSearchParams(String(init?.body)).get("caption"))
+      .find(Boolean);
+    expect(caption).toBe(buildInstagramCaption(word, { prompt: "Name a beverage" }));
+    expect(caption).toContain("Link in bio.");
+  });
+
   it("logs a success line, without the caption", async () => {
     await postDailyCarouselToInstagram(word, { sleep: noSleep });
     const logged = log.mock.calls.flat().map(String).join(" ");

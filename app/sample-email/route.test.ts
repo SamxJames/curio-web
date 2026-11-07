@@ -13,6 +13,9 @@ vi.mock("@/lib/words", () => ({
   resolveTodayWord: vi.fn(async () => WORD),
 }));
 
+vi.mock("@/lib/dig/digLine", () => ({ getDigLine: vi.fn(async () => ({ prompt: "Name a beverage" })) }));
+
+import { getDigLine } from "@/lib/dig/digLine";
 import { GET } from "./route";
 
 describe("GET /sample-email", () => {
@@ -30,5 +33,20 @@ describe("GET /sample-email", () => {
     const html = await (await GET()).text();
     expect(html).not.toContain("utm_source=email");
     expect(html).toMatch(/href="https?:\/\/[^"]+\/story\/tulip\?utm_source=sample"/);
+  });
+
+  it("shows today's dig line, tagged as the sample", async () => {
+    const html = await (await GET()).text();
+    expect(html).toContain("Play today");
+    expect(html).toContain("Name a beverage");
+    expect(html).toContain("utm_source=sample");
+    expect(html).not.toContain("utm_source=email");
+  });
+
+  it("omits the dig line when there is no dig today", async () => {
+    vi.mocked(getDigLine).mockResolvedValueOnce(null);
+    const html = await (await GET()).text();
+    expect(html).not.toContain("Play today");
+    expect(html).not.toContain("daily-dig");
   });
 });

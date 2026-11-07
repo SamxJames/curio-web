@@ -79,6 +79,46 @@ describe("buildBlueskyPost", () => {
     }
   });
 
+  describe("with today's dig line", () => {
+    const dig = { prompt: "Name a beverage" };
+
+    it("puts the quoted line and its tagged link before the hashtags", () => {
+      const post = buildBlueskyPost(word("A short teaser."), dig);
+      expect(post).toContain("Today's dig starts with “Name a beverage”. Seven prompts, about three minutes.");
+      expect(post).toMatch(/utm_source=bluesky/);
+      expect(post.indexOf("Today's dig")).toBeLessThan(post.indexOf("#etymology"));
+      expect(post.endsWith("#etymology #wordoftheday")).toBe(true);
+      expect(post.startsWith("A short teaser.\n\nquarantine · Latin → Italian → English")).toBe(true);
+    });
+
+    it("is byte for byte the current post with null or no dig", () => {
+      expect(buildBlueskyPost(word("A short teaser."), null)).toBe(buildBlueskyPost(word("A short teaser.")));
+      expect(buildBlueskyPost(word("A short teaser."), undefined)).toBe(buildBlueskyPost(word("A short teaser.")));
+    });
+
+    it("drops the second sentence when the full line would not fit", () => {
+      const post = buildBlueskyPost(word("T".repeat(80)), dig);
+      expect(graphemeLength(post)).toBeLessThanOrEqual(300);
+      expect(post).toContain("Today's dig starts with “Name a beverage”.");
+      expect(post).not.toContain("Seven prompts");
+    });
+
+    it("leaves the dig out rather than cut the word, when even the short line would not fit", () => {
+      const t = "T".repeat(230);
+      expect(buildBlueskyPost(word(t), dig)).toBe(buildBlueskyPost(word(t)));
+    });
+
+    it("never exceeds 300 graphemes and never cuts the teaser or lineage, for every word in the bank", () => {
+      for (const w of WORDS) {
+        const post = buildBlueskyPost(w, dig);
+        expect(graphemeLength(post)).toBeLessThanOrEqual(300);
+        expect(post.startsWith(w.teaser)).toBe(true);
+        expect(post).not.toContain("…");
+        expect(post).toContain(w.lineage.join(" → "));
+      }
+    });
+  });
+
   it("truncates only the teaser, by graphemes, if a teaser were ever too long", () => {
     const post = buildBlueskyPost(word("T".repeat(400)));
     expect(graphemeLength(post)).toBeLessThanOrEqual(300);
@@ -134,6 +174,11 @@ describe("postDailyWordToBluesky", () => {
   afterEach(() => {
     process.env = { ...ORIGINAL_ENV };
     vi.unstubAllGlobals();
+  });
+
+  it("posts the dig line when given one", async () => {
+    await postDailyWordToBluesky(word("A teaser."), new Date("2026-01-01T00:00:00Z"), { prompt: "Name a beverage" });
+    expect(mockPost.mock.calls[0][0].text).toContain("Today's dig starts with “Name a beverage”");
   });
 
   it("logs in, detects facets, posts, and reports success (and a thumbnail) when the client succeeds", async () => {
