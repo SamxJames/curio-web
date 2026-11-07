@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   buildConfirmMessage,
+  buildDigestHtml,
   buildDigestMessage,
   buildDigestSubject,
   confirmUrl,
@@ -8,6 +9,7 @@ import {
   sendDailyDigests,
   unsubscribeUrl,
 } from "./email";
+import { bannedHits } from "./dig/copyAudit";
 import { verifyConfirmToken } from "./confirmToken";
 import { verifyUnsubscribeToken } from "./unsubscribeToken";
 
@@ -138,5 +140,58 @@ describe("confirmation email", () => {
     expect(msg.text).toContain(link);
     expect(msg.text).toMatch(/didn.t ask for this/i);
     expect(msg.html + msg.text).not.toMatch(/streak|don.t miss/i);
+  });
+});
+
+describe("digest dig line", () => {
+  beforeEach(() => vi.stubEnv("CURIO_SITE_URL", "https://curio.example/"));
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("adds the dig block when a dig exists, escaped, first prompt only", () => {
+    const html = buildDigestHtml(word as never, "7 Nov 2026", "#", "https://x/y", { prompt: 'Name a "beverage" <b>' });
+    expect(html).toContain("Today&#39;s dig starts with");
+    expect(html).toContain("&lt;b&gt;");
+    expect(html).not.toContain("<b>");
+    expect(html).toContain("Play today");
+    expect(html).toContain("utm_source=email");
+    expect(html).toContain("One word, once a day.");
+  });
+
+  it("sits below the story link and above the footer", () => {
+    const html = buildDigestHtml(word as never, "d", "#", "https://x/y", { prompt: "Name a beverage" });
+    const story = html.indexOf("Read the full story");
+    const dig = html.indexOf("Play today");
+    const footer = html.indexOf("One word, once a day.");
+    expect(story).toBeLessThan(dig);
+    expect(dig).toBeLessThan(footer);
+  });
+
+  it("tags the link as the sample when asked, so a prospect still sees the offer", () => {
+    const html = buildDigestHtml(word as never, "d", "#", "https://x/y", { prompt: "P" }, "sample");
+    expect(html).toContain("utm_source=sample");
+    expect(html).not.toContain("utm_source=email");
+  });
+
+  it("leaves the email unchanged when there is no dig", () => {
+    expect(buildDigestHtml(word as never, "d", "#", "https://x/y", null)).toBe(buildDigestHtml(word as never, "d", "#", "https://x/y"));
+  });
+
+  it("puts the line and bare URL in the plain-text part, before Unsubscribe", () => {
+    const m = buildDigestMessage("a@b.co", word as never, new Date("2026-11-08T09:00:00Z"), "s", { prompt: "Name a beverage" });
+    expect(m.text).toContain("Today's dig starts with “Name a beverage”. Seven prompts, about three minutes.");
+    expect(m.text).toMatch(/\nhttps:\/\/[^\s]*\/dig\?[^\s]*utm_source=email/);
+    expect(m.text.indexOf("/dig?")).toBeLessThan(m.text.indexOf("Unsubscribe:"));
+    expect(bannedHits(m.text)).toEqual([]);
+    expect(bannedHits(m.html)).toEqual([]);
+  });
+
+  it("leaves the plain-text part unchanged without a dig", () => {
+    const d = new Date("2026-11-08T09:00:00Z");
+    expect(buildDigestMessage("a@b.co", word as never, d, "s", null).text).toBe(buildDigestMessage("a@b.co", word as never, d, "s").text);
+  });
+
+  it("sendDailyDigests threads the dig to every message (dev fallback logs, so check via the builder)", async () => {
+    const out = await sendDailyDigests(["a@example.com"], word as never, new Date(), { secret: "s", runKey: "k", dig: { prompt: "P" } });
+    expect(out.sent).toBe(1);
   });
 });

@@ -2,6 +2,7 @@ import { buildDigestHtml } from "@/lib/email";
 import { dayKey, formatDay } from "@/lib/day";
 import { absoluteUrl } from "@/lib/siteUrl";
 import { resolveTodayWord } from "@/lib/words";
+import { getDigLine } from "@/lib/dig/digLine";
 
 // Dynamic on purpose: resolving today's word can lock it in Redis, which must
 // never happen at build time.
@@ -13,11 +14,13 @@ export const dynamic = "force-dynamic";
  * email tag would mark the prospect as arriving from the digest (hiding
  * the offer from them) and count a visit:email. "sample" isn't a tagged
  * source (lib/traffic.ts), so from this page it counts as an internal
- * click, as it is. */
+ * click, as it is. The dig line below follows the same rule (its link is
+ * tagged "sample" too) and is omitted exactly when the real digest omits it. */
 export async function GET() {
   const word = await resolveTodayWord();
   const storyUrl = absoluteUrl(`/story/${word.slug}?utm_source=sample`);
-  const html = buildDigestHtml(word, formatDay(dayKey(new Date())), "#", storyUrl);
+  const dig = await getDigLine();
+  const html = buildDigestHtml(word, formatDay(dayKey(new Date())), "#", storyUrl, dig, "sample");
   return new Response(html, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
