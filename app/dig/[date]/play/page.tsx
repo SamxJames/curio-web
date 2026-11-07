@@ -16,9 +16,7 @@ export default async function PlayPastPage({ params }: PageProps<"/dig/[date]/pl
   if (!launch || !isPastDay(date, new Date(), launch)) notFound();
   return (
     <main className="mx-auto max-w-page px-6 py-10">
-      <h1 className="font-display text-4xl leading-display">curio dig, day {dayNumber(date, launch)}</h1>
-      <p className="mt-2 font-sans text-sm text-ink-faint">Past digs are scored on this device only.</p>
-      <DigGame date={date} />
+      <DigGame date={date} heading={`curio dig, day ${dayNumber(date, launch)}`} note="Past digs are scored on this device only." />
     </main>
   );
 }

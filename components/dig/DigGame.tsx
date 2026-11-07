@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { createReducer, initialGame, prepareDay, resultTiers, resumeGame, toSavedRun, type DigDayResponse, type PreparedDay } from "@/lib/dig/game";
+import { createReducer, initialGame, prepareDay, resultTiers, resumeGame, toSavedRun, type DigDayResponse, type GameState, type PreparedDay } from "@/lib/dig/game";
+import { priorSameTier } from "@/lib/dig/revealCopy";
+import { stripState } from "@/lib/dig/strip";
 import { scoreOf } from "@/lib/dig/score";
 import { clearRun, markReported, readRun, readStore, saveGame, saveRun, setNoTimer, useDigStore } from "@/lib/dig/storage";
 import { buildFinishEvent, buildStartEvent, sendDigEvent, sendFinish, sendLandOnce } from "@/lib/dig/client";
@@ -9,6 +11,25 @@ import EndScreen, { announceDone } from "./EndScreen";
 import Intro from "./Intro";
 import PromptScreen from "./PromptScreen";
 import Reveal, { announceReveal } from "./Reveal";
+import Strata, { StrataSkeleton } from "./Strata";
+
+/** The page heading is visible on the intro and while the day loads; on the play and end screens it
+ * stays for assistive tech only (the postcard carries the wordmark, and hiding it frees room above
+ * the on-screen keyboard). */
+export function headingClass(phase: GameState["phase"]): string {
+  return phase === "intro" ? "font-display text-4xl leading-display" : "sr-only";
+}
+
+function Heading({ heading, phase, note }: { heading?: string; phase: GameState["phase"]; note?: string }) {
+  if (!heading) return null;
+  const visible = phase === "intro";
+  return (
+    <>
+      <h1 className={headingClass(phase)}>{heading}</h1>
+      {visible && note && <p className="mt-2 font-sans text-sm text-ink-faint">{note}</p>}
+    </>
+  );
+}
 
 /** The load-failure line; only today's dig is called "Today's". */
 export function LoadFailed({ past }: { past: boolean }) {
@@ -19,7 +40,7 @@ export function LoadFailed({ past }: { past: boolean }) {
  * a past game records locally only and reports a single past:start. "Past" here is simply
  * "a date prop was given": lib/dig/clock.ts reads the server-only launch date, so it can't
  * be asked in the browser. */
-export default function DigGame({ date }: { date?: string }) {
+export default function DigGame({ date, heading, note }: { date?: string; heading?: string; note?: string }) {
   const [day, setDay] = useState<PreparedDay | null>(null);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
@@ -31,12 +52,20 @@ export default function DigGame({ date }: { date?: string }) {
     if (!date) sendLandOnce();
     return () => { alive = false; };
   }, [date]);
-  if (failed) return <LoadFailed past={!!date} />;
-  if (!day) return <p className="mt-8 font-sans text-ink-faint" aria-live="polite">Loading the dig…</p>;
-  return <DigRun day={day} isToday={!date} />;
+  if (failed) return <><Heading heading={heading} phase="intro" note={note} /><LoadFailed past={!!date} /></>;
+  if (!day) {
+    return (
+      <>
+        <Heading heading={heading} phase="intro" note={note} />
+        <div className="mt-6"><StrataSkeleton /></div>
+        <p className="mt-4 font-sans text-ink-faint" aria-live="polite">Loading the dig…</p>
+      </>
+    );
+  }
+  return <DigRun day={day} isToday={!date} heading={heading} note={note} />;
 }
 
-function DigRun({ day, isToday }: { day: PreparedDay; isToday: boolean }) {
+function DigRun({ day, isToday, heading, note }: { day: PreparedDay; isToday: boolean; heading?: string; note?: string }) {
   const store = useDigStore();
   const reduce = useMemo(() => createReducer(day), [day]);
   // A refresh mid-dig picks up where it left off (lib/dig/game.ts SavedRun), unless the day is
@@ -44,6 +73,9 @@ function DigRun({ day, isToday }: { day: PreparedDay; isToday: boolean }) {
   // localStorage here can't cause a hydration mismatch.
   const [resumed] = useState(() => (readStore().games[day.date] ? null : resumeGame(readRun(), day.date, day.secrets.length)));
   const [state, dispatch] = useReducer(reduce, undefined, () => resumed?.state ?? initialGame());
+  // A refresh into a reveal must not replay that reveal's drop: the strip skips the animation for
+  // this one column (lib/dig/strip.ts).
+  const [resumedReveal] = useState(() => (resumed?.state.phase === "reveal" ? resumed.state.current : -1));
   const [claimed, setClaimed] = useState<Set<number>>(new Set());
   const [passed, setPassed] = useState<Set<number>>(() => new Set(resumed?.passed ?? []));
   const saved = useRef(false);
@@ -84,14 +116,17 @@ function DigRun({ day, isToday }: { day: PreparedDay; isToday: boolean }) {
 
   if (state.phase === "intro" && !finished) {
     return (
-      <Intro
-        noTimer={store.settings.noTimer}
-        onToggleTimer={() => setNoTimer(!store.settings.noTimer)}
-        onStart={() => {
-          sendDigEvent(isToday ? buildStartEvent(day.date, readStore().games) : { kind: "past" });
-          dispatch({ type: "start", noTimer: store.settings.noTimer });
-        }}
-      />
+      <>
+        <Heading heading={heading} phase="intro" note={note} />
+        <Intro
+          noTimer={store.settings.noTimer}
+          onToggleTimer={() => setNoTimer(!store.settings.noTimer)}
+          onStart={() => {
+            sendDigEvent(isToday ? buildStartEvent(day.date, readStore().games) : { kind: "past" });
+            dispatch({ type: "start", noTimer: store.settings.noTimer });
+          }}
+        />
+      </>
     );
   }
   let screen: React.ReactNode;
@@ -112,6 +147,10 @@ function DigRun({ day, isToday }: { day: PreparedDay; isToday: boolean }) {
         claimed={claimed.has(state.current)}
         passed={passed.has(state.current)}
         canClaim={isToday}
+        variantIndex={priorSameTier(state.results, state.current)}
+        kind={day.prompts[state.current].kind}
+        promptText={day.prompts[state.current].text}
+        onStory={() => sendDigEvent({ kind: "story" })}
         onNext={() => dispatch({ type: "next" })}
         onClaim={(guess) => {
           if (!isToday) return;
@@ -132,6 +171,11 @@ function DigRun({ day, isToday }: { day: PreparedDay; isToday: boolean }) {
         noTimer={state.noTimer}
         feedback={state.feedback}
         onSubmit={(guess) => dispatch({ type: "submit", guess })}
+        onTimer={(off) => {
+          dispatch({ type: "timer", noTimer: off });
+          setNoTimer(off);
+          if (isToday) sendDigEvent({ kind: "timer" });
+        }}
         onPass={() => {
           setPassed(new Set(passed).add(state.current));
           dispatch({ type: "pass" });
@@ -145,8 +189,17 @@ function DigRun({ day, isToday }: { day: PreparedDay; isToday: boolean }) {
   const outcome = state.phase === "reveal"
     ? announceReveal(state.results[state.current], day.secrets[state.current], passed.has(state.current))
     : state.phase === "done" ? announceDone(scoreOf(resultTiers(state))) : "";
+  // The strip shows above the prompt and reveal screens only (not the intro, not the end screen).
+  const showStrip = state.phase === "reading" || state.phase === "answering" || state.phase === "reveal";
+  const shownPhase = finished && (state.phase === "intro" || state.phase === "done") ? "done" : state.phase;
   return (
     <>
+      <Heading heading={heading} phase={shownPhase} note={note} />
+      {showStrip && (
+        <div className="mt-4">
+          <Strata compact label="" {...stripState(state, resumedReveal)} />
+        </div>
+      )}
       {screen}
       <p role="status" aria-live="polite" className="sr-only">{outcome}</p>
     </>
