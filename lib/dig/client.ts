@@ -52,3 +52,26 @@ export function sendLandOnce(): void {
     // private mode: better to under-count
   }
 }
+
+export type ReturnBucket = "d1" | "d2_6" | "d7";
+const DAY = 86_400_000;
+const utcDay = (iso: string) => { const t = Date.parse(iso.slice(0, 10)); return Number.isNaN(t) ? null : t; };
+
+/** Coarse "this device finished a dig on an earlier UTC day" flag, bucketed by the gap. Read
+ * from the store already in memory; nothing is stored or sent about a person. */
+export function returningBucket(games: Record<string, { finishedAt: string }>, today: string): ReturnBucket | null {
+  const now = Date.parse(today);
+  let latest: number | null = null;
+  for (const g of Object.values(games)) {
+    const d = typeof g.finishedAt === "string" ? utcDay(g.finishedAt) : null;
+    if (d !== null && d < now && (latest === null || d > latest)) latest = d;
+  }
+  if (latest === null) return null;
+  const gap = Math.round((now - latest) / DAY);
+  return gap <= 1 ? "d1" : gap <= 6 ? "d2_6" : "d7";
+}
+
+export function buildStartEvent(date: string, games: Record<string, { finishedAt: string }>) {
+  const ret = returningBucket(games, date);
+  return ret ? { kind: "start" as const, date, ret } : { kind: "start" as const, date };
+}

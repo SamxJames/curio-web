@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { buildFinishEvent, sendDigEvent, sendFinish, sendLandOnce } from "./client";
+import { buildFinishEvent, buildStartEvent, returningBucket, sendDigEvent, sendFinish, sendLandOnce } from "./client";
 import { MAX_REJECTED_PER_FINISH, parseDigEvent } from "./events";
 import type { PromptResult } from "./game";
 
@@ -75,5 +75,33 @@ describe("browser senders", () => {
     expect(await sendFinish({ kind: "finish" })).toBeNull();
     fetchMock.mockRejectedValue(new Error("offline"));
     expect(await sendFinish({ kind: "finish" })).toBeNull();
+  });
+});
+
+const g = (finishedAt: string) => ({ finishedAt });
+describe("returningBucket", () => {
+  const today = "2026-11-10";
+  it("is null for an empty store", () => expect(returningBucket({}, today)).toBeNull());
+  it("is null when the only finish is today (even on an archive date)", () => {
+    expect(returningBucket({ "2026-11-01": g("2026-11-10T08:00:00.000Z") }, today)).toBeNull();
+  });
+  it.each([
+    ["2026-11-09T23:59:00.000Z", "d1"],
+    ["2026-11-08T00:00:00.000Z", "d2_6"],
+    ["2026-11-04T10:00:00.000Z", "d2_6"],
+    ["2026-11-03T10:00:00.000Z", "d7"],
+    ["2026-10-01T10:00:00.000Z", "d7"],
+  ])("finish at %s is %s", (at, want) => {
+    expect(returningBucket({ "2026-11-07": g(at) }, today)).toBe(want);
+  });
+  it("uses the most recent earlier finish and ignores junk dates", () => {
+    const games = { a: g("2026-11-01T00:00:00.000Z"), b: g("2026-11-09T05:00:00.000Z"), c: g("nope") };
+    expect(returningBucket(games, today)).toBe("d1");
+  });
+});
+describe("buildStartEvent", () => {
+  it("adds ret only when the device is returning", () => {
+    expect(buildStartEvent("2026-11-10", {})).toEqual({ kind: "start", date: "2026-11-10" });
+    expect(buildStartEvent("2026-11-10", { x: g("2026-11-09T01:00:00.000Z") })).toEqual({ kind: "start", date: "2026-11-10", ret: "d1" });
   });
 });
