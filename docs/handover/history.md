@@ -1127,3 +1127,14 @@ checks passed on curioword.com. Plan: `docs/superpowers/plans/2026-10-13-indexno
   `app/sharedDay.test.ts`) and reports bogus failures. Run from each worktree's root or exclude `.claude/**`.
 - Cleanup: `curio-web-growth` worktree and branch removed.
 - Next: check first IndexNow run in Vercel logs on 2026-10-15; merge `polish-oct13` (070f591).
+
+
+## 2026-11-07: dig opened, retention release 1, /play improvements
+- /play (67c94e8, 3ca0885): letter tiles, close guesses forgiven (2 free), Tried list, cross-link with dig.
+- Dig fixes (aa30b5e, 8e9e0e1). `DIG_LAUNCH_DATE` corrected to 2026-11-07; dig opened that day.
+- Retention release 1, built by an agent workflow (orchestrator, lane implementers and reviewers, final code/UX/principle panel).
+  Spec `docs/superpowers/specs/2026-11-07-dig-retention-design.md`, plan `docs/superpowers/plans/2026-11-07-dig-retention.md`.
+  Return counter deployed first (cabc06b); UI and email line deployed ~17:55 UTC (20e5333), verified in production.
+- Sam's calls: show the tomorrow hint (see decisions.md), add the email line, kill line on returning starts (read 2026-12-04).
+- Gotchas: unlayered :focus-visible beats outline-none; node_modules junction breaks Turbopack in worktrees; filtered build output can hide a type error.
+- Test plays left a /play solve (2026-11-06) and a dig finish (2026-11-07) in prod.

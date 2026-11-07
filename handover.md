@@ -1,6 +1,6 @@
 # Curio: Handover
 
-Last updated: 2026-10-19. Read this first; it's deliberately short. Open a file in `docs/handover/` only when the
+Last updated: 2026-11-07. Read this first; it's deliberately short. Open a file in `docs/handover/` only when the
 task touches that area. **Keep this file under ~200 lines:** current state, gotchas and pointers only. Put session
 detail in `docs/handover/history.md` and depth in the topic files.
 
@@ -23,14 +23,17 @@ every feature against it.
 - **Crons (UTC, Hobby fires anywhere in the hour):** 09:00 digest + Bluesky (`/api/cron/send-daily`), 10:00 Threads/IG
   (`/api/cron/social`). Mondays 06:00: demand report (GitHub Action → private `SamxJames/curio-reports`).
 
-## Current state (2026-10-25)
-- **curio dig (2026-10-25, merged into master locally, not pushed or deployed):** the daily word game at `/dig`.
-  Built and reviewed, and a 45-day local dry run built every day. Content supply is the constraint, and Sam loosened
-  the floors and repeat waits on 2026-10-24. Everything is in `docs/handover/dig.md`, including the launch checklist
-  (GitHub secrets, `DIG_ALERT_TO`, `DIG_LAUNCH_DATE`).
-  **Retention release 1 (2026-11-07, branch `feat/dig-retention-ui`, built and tested, not merged or deployed):** return
-  counter (`start:ret:*`), growing strata strip, postcard end screen, dig line in digest and social posts, play-screen
-  cleanup, kill line on returning starts. Details and the baseline readout plan are in `docs/handover/dig.md`.
+## Current state (2026-11-07)
+- **curio dig is OPEN (2026-11-07, master 20e5333, deployed and verified in production).** The daily word game at
+  `/dig`. `DIG_LAUNCH_DATE` is 2026-11-07 (it had been set to a July date by mistake; corrected). Fixes live (aa30b5e,
+  8e9e0e1): unreadable Wiktionary facts hidden behind a Wiktionary link, resume after refresh, event rate limiting,
+  "A to Z letters" feedback. **Retention release 1 live:** return counter (`start:ret:*`, d1/d2_6/d7), timer toggle,
+  two-tap Pass, intro explains the game, compact strata strip, varied reveals, postcard end screen, "Tomorrow: ..." hint,
+  "Today's dig starts with ..." line in the digest and Bluesky/Threads/IG posts. **Kill line:** stop if the median daily
+  returning starts over days 22-28 is under 5 (share target 30%+), read 2026-12-04. Details: `docs/handover/dig.md`.
+- **/play improvements (67c94e8, 3ca0885, live):** letter tiles, "close" guesses forgiven (up to 2 free), a "Tried" list;
+  /play and dig cross-link once dig is open.
+- **Prod side effects of testing:** my test plays left one /play solve on Sam's account (2026-11-06) and one dig finish (2026-11-07).
 - **Clear email offer (branch `feat/clear-email-offer`, 2026-10-19):** one `SignupOffer` everywhere ("Get tomorrow's
   word", promise line, `/sample-email`), a new offer on the returning homepage, one-tap subscribe for signed-in readers
   (no confirmation email, Sam's call), and signup counts per placement (`request-at:`/`signup-at:` in the traffic hash;
@@ -51,10 +54,12 @@ every feature against it.
   index, story lineage links, sitemap 1,210. Module `lib/languages/pages.ts`; view `components/LanguagePanelView.tsx`.
 - Homepage has WebSite + Organization JSON-LD and a canonical (`buildSiteJsonLd` in `lib/storyJsonLd.ts`).
 - Threads + Instagram ON since 2026-10-11 (Meta app "Curio Poster", @curio.word.daily); 10:00 UTC cron.
-- GSC daily impressions fell ~1,300 (09-30) to ~300 (10-09); watch it in the Monday demand report.
+- GSC: impressions fell ~1,300 (09-30) to ~300 (10-09). Page indexing shows 302 crawled-not-indexed and 170
+  discovered-not-indexed; advised NOT to click Validate fix. Watch in the Monday demand report.
 - Double opt-in and the 200/day confirmation cap are live. Weekly check-in state: `../checkins/state.md`.
 - Vercel: the MCP connector sees the team but not its projects; the **Vercel CLI** (logged in) works, including Web
   Analytics: `vercel api "/v1/query/web-analytics/visits/count?projectId=etymology-app&teamId=<team>&since=..&until=.."`.
+- Merged worktrees `.claude/worktrees/dig-*` can be removed.
 - Stale branch `brand-assets` (local + origin) has no commits beyond master; safe to delete.
 
 ## Gotchas (each one has bitten before)
@@ -73,6 +78,8 @@ every feature against it.
 - Redis keys must use an existing prefix: `curio:subscriber|hour|auth|user|wordoftheday|digest|social|traffic|confirm|dig*`.
 - Auth.js's default session has **no `user.id`**; `lib/auth.ts` adds it. `useShowArrival` must check resolved
   `"unauthenticated"`, not `!== "authenticated"`.
+- A global unlayered `:focus-visible` rule beats Tailwind's `outline-none`; script-focused headings (`tabindex=-1`) need the explicit fix (20e5333).
+- A `node_modules` junction breaks Turbopack builds in worktrees: use `npm ci`. Grep-filtered build output can hide a failed type check.
 - `:focus-visible` must use **longhand** outline properties (Lightning CSS drops `var()` in the shorthand). Verify with real Tab presses.
 - Cloudflare DNS records for Vercel/Resend must be **grey-cloud (DNS only)**.
 - Meta logging: never log raw fetch errors or Upstash error messages (they can contain tokens). See `architecture.md` → `lib/metaGraph.ts`.
@@ -91,13 +98,15 @@ every feature against it.
 - The demand report lives in a private repo and public Actions logs print counts only.
 
 ## Open threads
-- **2026-10-15:** verify the first IndexNow run in Vercel logs: look for `[curio:indexnow] 2026-10-15: submitted ~1214 URLs (HTTP 200|202)`.
+- **Dig:** test one dig on a real iPhone (keyboard fix). First email with the dig line goes out 2026-11-08 09:00 UTC; check it.
+  Kill-line reading 2026-12-04. The dig/health cron check is not done (needs `CRON_SECRET`).
+- **GSC:** 302 crawled-not-indexed, 170 discovered-not-indexed; watch, don't click Validate fix. Watch feed and language pages.
+- **2026-10-15:** verify the first IndexNow run in Vercel logs: `[curio:indexnow] 2026-10-15: submitted ~1214 URLs (HTTP 200|202)`.
 - Clue rewrite for the remaining 945 words (`clues:rewrite`, review sample + `tooHard`, `clues:apply -- --keep-today`).
   Revisit the clue rules if synced plays show most solves on clue 1 or failures above ~20%.
-- Watch GSC for the feed and language pages. Next language-sheet batch: `languages:facts -- --limit 30`, draft, review,
-  approve (Proto-West Germanic still has no usable source).
+- Next language-sheet batch: `languages:facts -- --limit 30`, draft, review, approve (Proto-West Germanic has no usable source).
 - Submit remaining launch-kit entries; "root word" phrasing in titles.
-- Small UX: "clue progression (clue 1 hardest)" is unclear, since clues already run hardest-first; ask Sam what was meant.
+- Small UX: "clue progression (clue 1 hardest)" is unclear; ask Sam what was meant.
 - Parked with reasons: `docs/handover/parked.md`.
 
 ## Waiting on Sam
