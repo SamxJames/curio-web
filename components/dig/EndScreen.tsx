@@ -95,7 +95,7 @@ export default function EndScreen({ day, game, isToday, autoFocus = false }: { d
         <h2 ref={depth} tabIndex={-1} className="mt-3 font-display text-5xl leading-display outline-none">{`${formatDepth(game.score)} down`}</h2>
         {pct && <p className="mt-2 font-sans text-base text-ink-soft">{pct}</p>}
         <p className="mt-1 font-sans text-sm text-ink-soft">{formatDigDate(day.date)}</p>
-        <div className="mt-4">
+        <div className="-mx-4 -mb-4 mt-4 overflow-hidden rounded-b-lg">
           <Strata tiers={game.tiers} words={game.answers} label={`Your dig, ${formatDigDate(day.date)}`} height={240} />
         </div>
       </div>
@@ -149,7 +149,7 @@ export default function EndScreen({ day, game, isToday, autoFocus = false }: { d
       </ul>
 
       <details className="mt-6 max-w-form">
-        <summary className="cursor-pointer font-display text-xl">Words worth knowing</summary>
+        <summary className="block cursor-pointer py-3 font-display text-xl">Words worth knowing</summary>
         <ul className="mt-3 space-y-3">
           {wordsWorthKnowing(day, game.answers).map((w) => (
             <li key={w.word}>
@@ -169,10 +169,10 @@ export default function EndScreen({ day, game, isToday, autoFocus = false }: { d
       </details>
 
       <details className="mt-4 max-w-form">
-        <summary className="cursor-pointer font-display text-xl">{isToday ? "Today's answers" : "The day's answers"}</summary>
+        <summary className="block cursor-pointer py-3 font-display text-xl">{isToday ? "Today's answers" : "The day's answers"}</summary>
         {day.prompts.map((p, i) => (
           <details key={p.id} className="mt-3 border-t border-line pt-3" onToggle={(e) => e.currentTarget.open && setOpen((o) => new Set(o).add(i))}>
-            <summary className="cursor-pointer font-sans text-base">{p.text}</summary>
+            <summary className="block cursor-pointer py-2 font-sans text-base">{p.text}</summary>
             {open.has(i) && TIERS.map((t) => {
               const words = day.secrets[i].answers.filter((a) => a[1] === t && a[2] === 1).map((a) => a[0]);
               return words.length ? (

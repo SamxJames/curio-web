@@ -50,3 +50,9 @@ describe("GET /sample-email", () => {
     expect(html).not.toContain("daily-dig");
   });
 });
+
+describe("GET /sample-email caching", () => {
+  it("lets the CDN cache it (s-maxage), so a public hit does not read the day from Redis each time", async () => {
+    expect((await GET()).headers.get("cache-control")).toMatch(/s-maxage=300/);
+  });
+});

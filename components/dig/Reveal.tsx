@@ -57,11 +57,11 @@ export default function Reveal({ result, secret, isLast, claimed, passed = false
   const line = answered ? layerLine(answered.tier, variantIndex) : null;
   const extra = answered ? revealFact({ answer: answered.answer, tier: answered.tier, kind, promptText, secret }) : null;
   return (
-    <section className="mt-8">
+    <section className="mt-5 short:mt-2">
       <h2 ref={heading} tabIndex={-1} className={result.answer ? "font-display text-4xl leading-display outline-none" : "font-display text-3xl outline-none"}>
         {result.answer ?? (passed ? "Passed" : "Time's up")}
       </h2>
-      {line && <p className="mt-2 font-sans text-base text-ink-soft">{line}</p>}
+      {line && answered && <p className="mt-2 font-sans text-base text-ink-soft">{`${line} ${TIER_POINTS[answered.tier]} points`}</p>}
       {extra && (
         <p className="mt-1 font-sans text-base text-ink-soft">
           {extra.text}
@@ -73,11 +73,10 @@ export default function Reveal({ result, secret, isLast, claimed, passed = false
           )}
         </p>
       )}
-      {answered && <p className="mt-1 font-sans text-base text-ink-soft">{`${TIER_POINTS[answered.tier]} points`}</p>}
-      <div className="mt-6 border-t border-line pt-4">
+      <div className="mt-4 border-t border-line pt-3">
         {foundFossil ? (
-          <p className="flex items-center gap-2 font-sans text-base">
-            <BoneMark />
+          <p className="flex items-center gap-2 font-display text-xl">
+            <BoneMark className="size-6" />
             {sameFossil ? "You found the fossil." : `You found a fossil. The fossil was ${secret.fossil.word}.`}
           </p>
         ) : (
@@ -88,12 +87,12 @@ export default function Reveal({ result, secret, isLast, claimed, passed = false
         )}
         {fact && <p className="mt-1 font-serif text-lg leading-relaxed text-ink-soft">{fact}</p>}
         {!fact && !secret.fossil.story && (
-          <a href={etymologyLink(secret.fossil.word)} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block font-sans text-sm underline underline-offset-2">
+          <a href={etymologyLink(secret.fossil.word)} target="_blank" rel="noopener noreferrer" className="inline-block py-2 font-sans text-sm underline underline-offset-2">
             Where {secret.fossil.word} came from (Wiktionary)
           </a>
         )}
         {secret.fossil.story && (
-          <Link href={`/story/${secret.fossil.story}`} onClick={onStory} className="mt-2 inline-block font-sans text-sm underline underline-offset-2">
+          <Link href={`/story/${secret.fossil.story}`} onClick={onStory} className="inline-block py-2 font-sans text-sm underline underline-offset-2">
             Read the story of {secret.fossil.word}
           </Link>
         )}
@@ -105,7 +104,7 @@ export default function Reveal({ result, secret, isLast, claimed, passed = false
           )}
         </p>
       )}
-      <div className="mt-8">
+      <div className="mt-5">
         <Button onClick={onNext} variant="secondary">{isLast ? "See your dig" : "Next prompt"}</Button>
       </div>
     </section>

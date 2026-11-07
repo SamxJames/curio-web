@@ -259,3 +259,15 @@ describe("shareImage", () => {
     expect(anchor.click).toHaveBeenCalled();
   });
 });
+
+describe("EndScreen touch targets and postcard", () => {
+  const src = readFileSync("components/dig/EndScreen.tsx", "utf8");
+  it("every disclosure summary is padded to a comfortable target", () => {
+    const summaries = src.match(/<summary [^>]*>/g) ?? [];
+    expect(summaries.length).toBe(3);
+    for (const s of summaries) expect(s).toMatch(/block [^"]*py-[23]/);
+  });
+  it("the drawing bleeds to the card's inner edge so its labels stay near 12px", () => {
+    expect(src).toContain("-mx-4 -mb-4 mt-4 overflow-hidden rounded-b-lg");
+  });
+});

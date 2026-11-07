@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { STRATUM } from "./score";
-import { bandOf, STRATA, STRATUM_DARK, STRATUM_HEX, strataLayout } from "./strata";
+import { bandOf, labelBaseline, STRATA, STRATUM_DARK, STRATUM_HEX, strataLayout } from "./strata";
 import { TIERS } from "./types";
 
 describe("strataLayout", () => {
@@ -64,5 +64,27 @@ describe("strip contrast (WCAG 1.4.11, non-text 3:1)", () => {
       const line = mix(markOn(i), band, GUIDE_OPACITY);
       expect(contrast(line, band), `band ${STRATA[i]}`).toBeGreaterThan(1.3);
     });
+  });
+});
+
+describe("labelBaseline", () => {
+  // cap height 9, descender 2 (the constants in strata.ts)
+  it.each([240, 360])("keeps every label inside its marker's own band at height %i", (height) => {
+    const { bands } = strataLayout(["fossil"], 360, height);
+    const bandH = height / 5;
+    for (const [i, b] of bands.entries()) {
+      const cy = b.y + bandH / 2;
+      for (const r of [11, Math.min(18, bandH * 0.27)]) {
+        for (const above of [false, true]) {
+          const y = labelBaseline(cy, r, above, b.y, bandH);
+          expect(y - 9, `band ${i} above=${above} r=${r} cap top`).toBeGreaterThanOrEqual(b.y);
+          expect(y + 2, `band ${i} above=${above} r=${r} descender`).toBeLessThanOrEqual(b.y + bandH);
+        }
+      }
+    }
+  });
+  it("leaves the tall-band offsets alone", () => {
+    expect(labelBaseline(36, 11, false, 0, 72)).toBe(61);
+    expect(labelBaseline(36, 11, true, 0, 72)).toBe(19);
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "@/components/ui/Button";
 import { ToggleGroup } from "@/components/ui/SegmentedControl";
 import TextField from "@/components/ui/TextField";
@@ -64,8 +64,13 @@ export default function PromptScreen({ index, total, prompt, phase, clock, noTim
     // it: pressing Enter again accepts the suggestion.
     if (feedback?.kind === "miss") setGuess("");
   }
+  // With the phone keyboard open, bring the input, the Dig button and the feedback line into view
+  // together (scrolling the input alone leaves the feedback under the keyboard).
+  const answerArea = useRef<HTMLDivElement>(null);
+  const showAnswerArea = () => answerArea.current?.scrollIntoView?.({ block: "nearest" });
+  useEffect(() => { if (round > 0) showAnswerArea(); }, [round]);
   return (
-    <section aria-labelledby="dig-prompt" className="mt-8">
+    <section aria-labelledby="dig-prompt" className="mt-8 short:mt-2">
       <p className="font-sans text-sm text-ink-faint">{`Prompt ${index + 1} of ${total}`}</p>
       <h2 id="dig-prompt" className="mt-2 font-display text-3xl leading-display">{prompt.text}</h2>
       <div className="mt-5 flex items-start justify-between gap-4">
@@ -98,12 +103,13 @@ export default function PromptScreen({ index, total, prompt, phase, clock, noTim
         )}
       </div>
       <p className="sr-only" aria-live="assertive">{announce}</p>
-      <form className="mt-6 flex gap-2" onSubmit={(e) => { e.preventDefault(); onSubmit(guess); }}>
+      <div ref={answerArea}>
+      <form className="mt-6 short:mt-3 flex gap-2" onSubmit={(e) => { e.preventDefault(); onSubmit(guess); }}>
         <div className="min-w-0 flex-1">
           {/* readOnly, not disabled, during the read pause: a disabled field can't hold the
               autoFocus, so the player would have to tap it again when the clock starts. */}
           <TextField aria-label="Your answer" value={guess} onChange={(e) => { setGuess(e.target.value); disarm("type"); }}
-            onFocus={(e) => e.currentTarget.scrollIntoView({ block: "nearest" })} readOnly={reading}
+            onFocus={showAnswerArea} readOnly={reading}
             autoFocus autoComplete="off" autoCapitalize="none" spellCheck={false} enterKeyHint="go" maxLength={40} />
         </div>
         <Button type="submit" variant="secondary" disabled={reading} className="shrink-0">Dig</Button>
@@ -118,6 +124,7 @@ export default function PromptScreen({ index, total, prompt, phase, clock, noTim
         {feedback?.kind === "miss" && <p key={round}>Not on today&apos;s list. Try another.</p>}
         {feedback?.kind === "empty" && <p>Type a word first.</p>}
         {feedback?.kind === "letters" && <p>Answers are English words: use the letters A to Z.</p>}
+      </div>
       </div>
       {/* The way out of a prompt with No timer on (and a shortcut with it on). The reducer
           only honours it while answering, so it is disabled during the read pause. Two taps: the

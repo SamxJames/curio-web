@@ -196,7 +196,7 @@ function DigRun({ day, isToday, heading, note }: { day: PreparedDay; isToday: bo
     <>
       <Heading heading={heading} phase={shownPhase} note={note} />
       {showStrip && (
-        <div className="mt-4">
+        <div className="mt-4 short:mt-2">
           <Strata compact label="" {...stripState(state, resumedReveal)} />
         </div>
       )}

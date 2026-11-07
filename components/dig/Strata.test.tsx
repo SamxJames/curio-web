@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import Strata, { StrataSkeleton } from "./Strata";
@@ -83,5 +84,16 @@ describe("StrataSkeleton", () => {
     expect(html).toContain('viewBox="0 0 360 80"');
     expect(html.match(/--stratum-\d/g)).toHaveLength(5);
     expect(html.match(/<line/g)).toHaveLength(7);
+  });
+});
+
+describe("Strata polish", () => {
+  it("the compact strip lets a pulse ring spill past the bottom edge", () => {
+    expect(renderToStaticMarkup(<Strata compact tiers={["fossil", ...rest6]} label="x" />)).toContain("overflow-visible");
+  });
+  it("the fossil pulse waits for the drop and ends smaller", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+    expect(css).toContain("animation: dig-found var(--duration-found) var(--ease-settle) var(--duration-drop) both");
+    expect(css).toContain("to { transform: scale(1.35)");
   });
 });

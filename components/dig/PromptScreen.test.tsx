@@ -90,3 +90,18 @@ describe("PromptScreen", () => {
     expect(readFileSync("components/dig/PromptScreen.tsx", "utf8")).not.toMatch(/setTimeout\([^)]*3000/);
   });
 });
+
+describe("PromptScreen on a phone with the keyboard open", () => {
+  const src = readFileSync("components/dig/PromptScreen.tsx", "utf8");
+  it("scrolls a wrapper holding the form and the feedback line, not the input alone", () => {
+    expect(src).toContain("ref={answerArea}");
+    expect(src).not.toContain("e.currentTarget.scrollIntoView");
+    expect(src).toContain("useEffect(() => { if (round > 0) showAnswerArea(); }, [round])");
+  });
+  it("drops the section and form gaps on short viewports", () => {
+    expect(src).toContain("mt-8 short:mt-2");
+    expect(src).toContain("short:mt-3");
+    expect(readFileSync("components/dig/DigGame.tsx", "utf8")).toContain("mt-4 short:mt-2");
+    expect(readFileSync("app/globals.css", "utf8")).toContain("@custom-variant short (@media (max-height: 700px))");
+  });
+});

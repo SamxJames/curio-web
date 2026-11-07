@@ -144,3 +144,6 @@ deploy claims every page changed) is worse than none. `PAGES_UPDATED` in `lib/se
 bumped by hand in the commit that changes that template. Pages that change daily (home, `/play`, `/history`) carry none:
 the sitemap is built once per deploy, so any date there is wrong by the next morning. Their freshness comes from
 `/feed.xml` (listed as a second sitemap) and the daily IndexNow ping. The same dates drive IndexNow's re-submission ledger.
+
+## 2026-11-07: The tomorrow hint is an open warm-up
+The end screen hints at tomorrow with the exact first prompt (minus "Name"), the same prompt the 09:00 UTC morning email shows. So prompt 1 is effectively public ahead of time: people who finish today get a night to think about it, a small head start that goes only to people who played. We accept that as a warm-up: the percentile line stays hidden under 100 finishers, so no ranking depends on it. Flagged by final review as brushing against "no rewards that carry across days". If we want no head start at all, swap the exact prompt for a looser category hint (lib/dig readTomorrow + TomorrowHint).

@@ -129,3 +129,19 @@ describe("announceReveal", () => {
     expect(announceReveal({ answer: null, tier: null, rejected: [], lastGuess: null }, secret, true)).toBe("Passed. Fossil: halyard.");
   });
 });
+
+describe("Reveal compactness and targets", () => {
+  const p = { secret, isLast: false, onNext: noop, onClaim: noop, claimed: false, canClaim: true };
+  it("puts the points on the layer line, so there is one line fewer above Next prompt", () => {
+    const html = renderToStaticMarkup(<Reveal {...p} result={{ answer: "keel", tier: "familiar" as const, rejected: [], lastGuess: null }} />);
+    expect(html).toContain("Loam. Familiar, and a little below the surface. 30 points");
+  });
+  it("a found fossil is a display-size line with a larger bone", () => {
+    const html = renderToStaticMarkup(<Reveal {...p} result={{ answer: "halyard", tier: "fossil" as const, rejected: [], lastGuess: null }} />);
+    expect(html).toMatch(/font-display text-xl[^>]*><svg[^>]*size-6/);
+  });
+  it("the story link is padded to a comfortable target", () => {
+    const html = renderToStaticMarkup(<Reveal {...p} result={{ answer: null, tier: null, rejected: [], lastGuess: null }} />);
+    expect(html).toMatch(/py-2[^>]*>s*Read the story of/);
+  });
+});

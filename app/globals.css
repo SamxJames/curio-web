@@ -5,6 +5,8 @@
    (see readSessionHint's doc comment in lib/storage.ts). Only for choosing
    between the two header nav variants before useSession() resolves — never
    for hiding anything security-relevant. */
+/* Short viewports (a phone with the keyboard open): the dig screens tighten their gaps. */
+@custom-variant short (@media (max-height: 700px));
 @custom-variant signed-in (&:where([data-signed-in] *));
 
 :root {
@@ -215,7 +217,7 @@
 }
 @keyframes dig-found {
   from { transform: scale(0.6); opacity: 1; }
-  to { transform: scale(1.8); opacity: 0; }
+  to { transform: scale(1.35); opacity: 0; }
 }
 @media (prefers-reduced-motion: no-preference) {
   .dig-drop {
@@ -224,7 +226,7 @@
     transform-origin: center;
   }
   .dig-found {
-    animation: dig-found var(--duration-found) var(--ease-settle) both;
+    animation: dig-found var(--duration-found) var(--ease-settle) var(--duration-drop) both;
     transform-box: fill-box;
     transform-origin: center;
   }

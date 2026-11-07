@@ -1,5 +1,5 @@
 import { STRATUM, TIER_LABEL } from "@/lib/dig/score";
-import { STRATA, STRATUM_DARK, strataLayout } from "@/lib/dig/strata";
+import { STRATA, STRATUM_DARK, labelBaseline, strataLayout } from "@/lib/dig/strata";
 import type { Tier } from "@/lib/dig/types";
 
 /** A narrow viewBox so 13-unit labels stay ~12px on a phone; max-w-form caps them near 16px. */
@@ -42,7 +42,9 @@ export default function Strata({ tiers, words, label, compact = false, height, c
   const { bands, markers: raw } = strataLayout(tiers.map((t) => t ?? null), W - gutter - right, H);
   const markers = raw.map((m) => ({ ...m, x: m.x + gutter }));
   const darkTop = bands[STRATUM_DARK.indexOf(true)].y;
-  const markR = compact ? 5.5 : 11, fossilR = compact ? 7.5 : 18, ringR = compact ? 5.5 : 5;
+  // Radii shrink with the band so a marker and its label fit inside one band (48 units at height 240).
+  const bandH = H / STRATA.length;
+  const markR = compact ? 5.5 : 11, fossilR = compact ? 7.5 : Math.min(18, bandH * 0.27), ringR = compact ? 5.5 : 5;
   const described = tiers
     .map((t, i) => (t ? `${words?.[i] ?? "Answer"}, ${TIER_LABEL[t]}, in the ${STRATUM[t]}` : "No answer"))
     .join("; ");
@@ -50,7 +52,7 @@ export default function Strata({ tiers, words, label, compact = false, height, c
   const svg = (
     <svg
       viewBox={`0 0 ${W} ${H}`}
-      {...(compact ? { "aria-hidden": true as const, className: "h-auto w-full max-w-form" } : { role: "img", "aria-label": `${label}: ${described}`, className: "h-auto w-full" })}
+      {...(compact ? { "aria-hidden": true as const, className: "h-auto w-full max-w-form overflow-visible" } : { role: "img", "aria-label": `${label}: ${described}`, className: "h-auto w-full" })}
     >
       {bands.map((b, i) => (
         <g key={b.name}>
@@ -81,7 +83,7 @@ export default function Strata({ tiers, words, label, compact = false, height, c
         const dropping = i === justDropped;
         // Neighbouring columns put their labels on opposite sides of the marker, so
         // longer words in the same band don't run into each other.
-        const labelY = i % 2 ? cy - r - 6 : cy + r + 14;
+        const labelY = labelBaseline(cy, r, i % 2 === 1, bands[m.band].y, bandH);
         return (
           <g key={i}>
             {!compact && (
