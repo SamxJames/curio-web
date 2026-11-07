@@ -42,6 +42,15 @@ const FEEDBACK_TEXT: Record<Exclude<Feedback, null>, string> = {
   repeat: "You've already tried that one.",
 };
 
+/** One-line rules under the heading, so a first-time visitor knows what the puzzle is. */
+export function PuzzleRules() {
+  return (
+    <p className="mt-2 font-sans text-base text-ink-soft">
+      Guess today&apos;s word in up to three clues. Each clue gives more away.
+    </p>
+  );
+}
+
 export default function PuzzleGame({
   word,
   puzzleNumber,
@@ -163,6 +172,7 @@ export default function PuzzleGame({
     <div className="mx-auto max-w-page px-6 py-16">
       <p className="font-sans text-xs tracking-wide text-ink-faint">Puzzle #{puzzleNumber}</p>
       <h1 className="mt-3 font-serif text-3xl">Guess the word</h1>
+      <PuzzleRules />
 
       {!isDone && (
         <div className="mt-8 space-y-4">
