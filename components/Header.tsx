@@ -10,7 +10,7 @@ import { writeSessionHint } from "@/lib/storage";
 import { loginHref } from "@/lib/returnPath";
 import ThemeToggle from "./ThemeToggle";
 
-export default function Header() {
+export default function Header({ digOpen = false }: { digOpen?: boolean }) {
   const pathname = usePathname();
   const { status } = useSession();
   const showArrival = useShowArrival();
@@ -57,6 +57,11 @@ export default function Header() {
           <Link href="/play" className={navLinkClass(puzzleActive)}>
             Puzzle
           </Link>
+          {digOpen && (
+            <Link href="/dig" className={navLinkClass(pathname.startsWith("/dig"))}>
+              Dig
+            </Link>
+          )}
 
           <Link href="/collection" className={navLinkClass(collectionActive)}>
             Collection

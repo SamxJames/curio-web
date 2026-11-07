@@ -19,15 +19,17 @@ import TodayHero from "./TodayHero";
 export default function HomeContent({
   word,
   date,
+  digOpen,
 }: {
   word: WordEntry;
   date: string;
+  digOpen: boolean;
 }) {
   const showArrival = useShowArrival();
 
   return showArrival ? (
-    <ArrivalHero word={word} date={date} />
+    <ArrivalHero word={word} date={date} digOpen={digOpen} />
   ) : (
-    <TodayHero word={word} date={date} />
+    <TodayHero word={word} date={date} digOpen={digOpen} />
   );
 }

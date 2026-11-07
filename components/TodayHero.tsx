@@ -1,4 +1,5 @@
 import Link from "next/link";
+import DigCard from "@/components/DigCard";
 import EtymologyLineage from "@/components/EtymologyLineage";
 import SignupOffer from "@/components/SignupOffer";
 import type { WordEntry } from "@/lib/words";
@@ -6,12 +7,15 @@ import type { WordEntry } from "@/lib/words";
 export default function TodayHero({
   word,
   date,
+  digOpen,
 }: {
   word: WordEntry;
   date: string;
+  digOpen: boolean;
 }) {
   return (
     <section className="mx-auto flex max-w-page flex-col items-start px-6 py-20">
+      {digOpen && <DigCard />}
       <p className="font-sans text-xs tracking-wide text-ink-faint">
         Today&apos;s word &middot; {date}
       </p>

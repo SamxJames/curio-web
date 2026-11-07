@@ -8,6 +8,7 @@ import ThemeInit from "@/components/ThemeInit";
 import SessionHintInit from "@/components/SessionHintInit";
 import AccountFavoritesSync from "@/components/AccountFavoritesSync";
 import TrafficBeacon from "@/components/TrafficBeacon";
+import { isDigOpen } from "@/lib/dig/clock";
 import { absoluteUrl, siteUrl } from "@/lib/siteUrl";
 import { FEED_PATH } from "@/lib/feed";
 // Self-hosted (not next/font/google) so the app builds without reaching
@@ -69,7 +70,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-full flex flex-col bg-paper text-ink">
         <SessionProvider>
-          <Header />
+          <Header digOpen={isDigOpen()} />
           <AccountFavoritesSync />
           <main className="flex-1">{children}</main>
           <Footer />

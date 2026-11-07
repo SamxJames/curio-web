@@ -7,6 +7,7 @@ import { markOnboarded } from "@/lib/storage";
 import { track } from "@/lib/analytics";
 import ThemeToggle from "./ThemeToggle";
 import SignupOffer from "./SignupOffer";
+import DigCard from "@/components/DigCard";
 import Eyebrow from "@/components/ui/Eyebrow";
 
 /** The merged first-look hero for anonymous, first-time visitors — replaces
@@ -15,7 +16,7 @@ import Eyebrow from "@/components/ui/Eyebrow";
  * submitting the email, or clicking through to the story — not on a bare
  * page view, so reloading mid-read doesn't prematurely swap to the normal
  * Today page. See components/HomeContent.tsx for how this is chosen. */
-export default function ArrivalHero({ word, date }: { word: WordEntry; date: string }) {
+export default function ArrivalHero({ word, date, digOpen }: { word: WordEntry; date: string; digOpen: boolean }) {
   useEffect(() => {
     track("arrival_view");
   }, []);
@@ -42,6 +43,7 @@ export default function ArrivalHero({ word, date }: { word: WordEntry; date: str
       </div>
 
       <div className="flex flex-1 flex-col pt-10 pb-10">
+        {digOpen && <DigCard />}
         <Eyebrow as="p" className="tracking-eyebrow-wider text-accent">
           Today&apos;s word &middot; {date}
         </Eyebrow>
