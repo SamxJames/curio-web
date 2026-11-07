@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { ANSWER_SECONDS, READ_SECONDS, initialGame, resumeGame, toSavedRun, type GameState } from "./game";
+import { ANSWER_SECONDS, READ_SECONDS, initialGame, resumeGame, toSavedRun, type GameState, type PromptResult } from "./game";
 
-const empty = () => ({ answer: null, tier: null, rejected: [], lastGuess: null });
-const results = () => Array.from({ length: 7 }, empty);
+const empty = (): PromptResult => ({ answer: null, tier: null, rejected: [], lastGuess: null });
+const results = (): PromptResult[] => Array.from({ length: 7 }, empty);
 
 function playing(over: Partial<GameState>): GameState {
   return { ...initialGame(), results: results(), ...over };
