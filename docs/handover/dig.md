@@ -4,7 +4,7 @@
 
 ## What it is
 
-A daily word game at `curioword.com/dig`, written "curio dig" in lowercase. Seven prompts a day ("a fruit", "a word English took from Arabic"). The player names a word that fits. Common words land in the topsoil; rarer ones dig deeper, and each prompt hides one fossil in the bedrock. The score becomes a depth in metres, and from 50 finishers the end screen shows a percentile. Free, no login, the same dig for everyone, a new one at midnight UTC. "No timer" is a setting. Past days are playable at `/dig/<date>/play`.
+A daily word game at `curioword.com/dig`, written "curio dig" in lowercase. Seven prompts a day ("a fruit", "a word English took from Arabic"). The player names a word that fits. Common words land in the topsoil; rarer ones dig deeper, and each prompt hides one fossil in the bedrock. The score becomes a depth in metres, and from 100 finishers today's end screen shows "Deeper than N% of today's diggers" (past days never do). Free, no login, one new dig a day at midnight UTC. "No timer" is a setting. Past days are playable at `/dig/<date>/play`.
 
 It does not touch the daily word. It does not push unread-ness: no counts of unplayed days, no streaks (see the product principle in `AGENTS.md`).
 
@@ -55,7 +55,7 @@ All under `curio:dig:`. Written only in production. Days are never re-drawn or r
 | `curio:dig:extras` | JSON | Pipeline (adjudication) | Prompt id to extra accepted-only words | none |
 | `curio:dig:adjudicated` | JSON | Pipeline | `promptId|word` marks mapped to the date judged (marks older than 40 days are dropped) | none |
 | `curio:dig:scores:<date>` | hash | `finish` event | Score bucket (score ÷ 10) to count | 35 d (set by the cron the day after) |
-| `curio:dig:funnel:<date>` | hash | Events | Funnel counters (`land:<source>`, `start`, `finish`, `share:*`, `story`, `signup`, `past:start`) | 90 d (same) |
+| `curio:dig:funnel:<date>` | hash | Events | Funnel counters (`land:<source>`, `start`, `start:ret:d1|d2_6|d7`, `finish`, `fossil`, `share:*`, `story`, `signup`, `past:start`, `row:play|past`, `timer:switch`) | 90 d (same) |
 | `curio:dig:rej:<date>:<0-6>` | hash | `finish` event | Rejected guess (normalised) to count | 35 d (same) |
 | `curio:dig:claim:<date>:<0-6>` | hash | `claim` event | "This should count" guess to count | 35 d (same) |
 | `curio:dig:health:last` | string | Health cron | Heartbeat (ISO time) the pipeline checks | none |
@@ -111,6 +111,26 @@ Expiries are set by the health cron on yesterday's keys, because `HINCRBY` sets 
 4. At launch: set `DIG_LAUNCH_DATE` in Vercel, then redeploy.
 5. Turn on Vercel usage notifications (Hobby emails you as you approach limits).
 6. Launch week: compare the health cron's edge-request estimate with Vercel's usage page.
+
+## Retention release 1 (2026-11-07)
+
+Five changes, all inside the dig scope. Spec `docs/superpowers/specs/2026-11-07-dig-retention-design.md`, plan `docs/superpowers/plans/2026-11-07-dig-retention.md`.
+
+- **Return counter.** A `start` from a device that finished a dig on an earlier UTC day also bumps `start:ret:d1` (finished yesterday), `start:ret:d2_6` or `start:ret:d7` (7+ days ago). The device flag is in `lib/dig/client.ts` (`returningBucket`); nothing new is saved in `lib/dig/storage.ts` and `DigStore.v` stays 1. The admin dig table has a Return % column and the kill line row judges returners.
+- **Strata strip and reveals.** A compact strata strip above the prompt and reveal screens grows one marker per answer (`lib/dig/strip.ts`, `Strata compact`), reveal lines vary by layer (`lib/dig/revealCopy.ts`), one fact per reveal, and a fossil hit is its own moment. Motion tokens are in `app/globals.css` and respect `prefers-reduced-motion`.
+- **Postcard end screen.** Depth first, then the drawing, Share (the only red button) and Save image, then a come-back row: tomorrow's hint (`lib/dig/tomorrow.ts`, from tomorrow's first prompt, today only), the `/play` and Past digs links (`row:play|past` events), the email offer, and two closed disclosures.
+- **Dig line in the digest and social posts.** One line, "Today's dig starts with ...", from `prompts[0].text` only (`lib/dig/digLineText.ts` pure, `lib/dig/digLine.ts` server lookup). It is in the 09:00 UTC digest, Bluesky, Threads and the Instagram caption, tagged `utm_source` email|bluesky|threads|instagram so the existing `land:<source>` field credits arrivals. It never blocks a send: a failed lookup means no line.
+- **Play-screen cleanup.** The intro explains the game (the always-on "How it works" is gone; the noscript fallback keeps it), a timer switch works mid-game (`timer:switch`), and Pass needs a second tap.
+
+**Copy audit.** The banned-word list lives only in `lib/dig/copyAudit.ts`. `lib/dig/copyAudit.test.tsx` renders every player-facing surface (intro, prompts, reveals for every tier and variant, postcard today and past, strata, digest, share text, share image, OG images, page metadata, social posts) against it. The share image and OG image words come from pure helpers (`shareImageLines`, `lib/dig/ogText.ts`) so the audit can read them. Add any new player-facing string to that test.
+
+### Reading the baseline
+
+- Read the returning-start share (returning starts divided by starts) daily from day 2. Review it at day 7 and day 14. Target: at least 30% over days 8 to 14, and a floor on the absolute number of returning starters (the share alone can look good on a handful of starts).
+- It undercounts. Safari clears script-written storage after 7 days without a visit, and private windows lose it. Do not read the `d7` bucket as retention: the device flag cannot tell a lapsed player from an evicted store.
+- The release check (task A5) wrote one fake returning start to production. It is excluded from the baseline. Record its day and bucket here when it is run: ______ (not yet recorded; the A5 check had not been run when this was written).
+- UTC rollover: a page loaded before 00:00 UTC and started after it gets a 400 from the event route, so that start is lost. Existing behaviour, unchanged.
+- Guardrail (spec): no random or surprise rewards that carry across days or are tied to coming back. The dig stays a pull, never a push (`AGENTS.md`).
 
 ## The kill line
 

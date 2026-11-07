@@ -28,6 +28,9 @@ every feature against it.
   Built and reviewed, and a 45-day local dry run built every day. Content supply is the constraint, and Sam loosened
   the floors and repeat waits on 2026-10-24. Everything is in `docs/handover/dig.md`, including the launch checklist
   (GitHub secrets, `DIG_ALERT_TO`, `DIG_LAUNCH_DATE`).
+  **Retention release 1 (2026-11-07, branch `feat/dig-retention-ui`, built and tested, not merged or deployed):** return
+  counter (`start:ret:*`), growing strata strip, postcard end screen, dig line in digest and social posts, play-screen
+  cleanup, kill line on returning starts. Details and the baseline readout plan are in `docs/handover/dig.md`.
 - **Clear email offer (branch `feat/clear-email-offer`, 2026-10-19):** one `SignupOffer` everywhere ("Get tomorrow's
   word", promise line, `/sample-email`), a new offer on the returning homepage, one-tap subscribe for signed-in readers
   (no confirmation email, Sam's call), and signup counts per placement (`request-at:`/`signup-at:` in the traffic hash;
