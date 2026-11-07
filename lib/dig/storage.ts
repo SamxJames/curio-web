@@ -141,7 +141,8 @@ export function useDigStore(): DigStore {
 }
 
 export function saveGame(date: string, game: StoredGame) { writeStore(withGame(readStore(), date, game)); }
-export function setNoTimer(on: boolean) { const s = readStore(); writeStore({ ...s, settings: { noTimer: on } }); }
+export function setNoTimer(on: boolean) { const s = readStore(); writeStore({ ...s, settings: { ...s.settings, noTimer: on } }); }
+export function markCoached() { const s = readStore(); if (!s.settings.coached) writeStore({ ...s, settings: { ...s.settings, coached: true } }); }
 export function markReported(date: string, spread: Record<string, number> | null) {
   const s = readStore();
   const g = s.games[date];
