@@ -1,4 +1,4 @@
-import type { DigFunnelSummary } from "@/lib/dig/funnel";
+import { killLineText, type DigFunnelSummary } from "@/lib/dig/funnel";
 
 const COLS = ["land", "start", "finish", "share", "story", "signup", "past", "returning"] as const;
 
@@ -8,9 +8,11 @@ export default function DigFunnelTable({ summary }: { summary: DigFunnelSummary 
   return (
     <div>
       <p className="font-serif text-[13.5px] leading-[1.5] text-ink-soft italic">
-        Daily players are starts. Kill line (median start, days 22–28 after launch):{" "}
-        {summary.killLine ?? "not yet"}; below 20 means stop. Share arrivals land as land:direct,
-        because chat apps strip the referrer, so read direct against the pre-launch baseline.
+        {killLineText(summary.killLine, summary.killReturnShare)} Returning = starts from a device that
+        finished a dig on an earlier day. It undercounts (Safari clears storage after 7 days, private
+        windows). Read from day 2; target 30% by days 8 to 14. With a small daily sample, read the trend,
+        not one day. Share arrivals land as land:direct, because chat apps strip the referrer, so read
+        direct against the pre-launch baseline.
       </p>
       {summary.rows.length === 0 ? (
         <p className="mt-3 font-serif text-[13.5px] text-ink-soft italic">No dig events yet.</p>

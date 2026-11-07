@@ -1,7 +1,7 @@
 import { DAY_MS, dayKey, dayStart } from "../day";
 
 export type DigFunnelRow = { date: string; land: number; start: number; finish: number; share: number; story: number; signup: number; past: number; returning: number; returnShare: number | null };
-export type DigFunnelSummary = { rows: DigFunnelRow[]; killLine: number | null };
+export type DigFunnelSummary = { rows: DigFunnelRow[]; killLine: number | null; killReturnShare: number | null };
 
 const sum = (h: Record<string, number>, prefix: string) => Object.entries(h).reduce((a, [f, n]) => (f.startsWith(prefix) ? a + n : a), 0);
 
@@ -33,12 +33,20 @@ export function summarizeDigFunnel(
     })
     .sort((a, b) => b.date.localeCompare(a.date));
   let killLine: number | null = null;
+  let killReturnShare: number | null = null;
   if (launch) {
     const dates = killLineDates(launch);
     if (dates[6] < dayKey(opts.now)) {
-      const starts = dates.map((d) => days[d]?.start ?? 0).sort((a, b) => a - b);
-      killLine = starts[3];
+      const returning = dates.map((d) => sum(days[d] ?? {}, "start:ret:"));
+      killLine = [...returning].sort((a, b) => a - b)[3];
+      const starts = dates.reduce((a, d) => a + (days[d]?.start ?? 0), 0);
+      killReturnShare = starts ? Math.round((returning.reduce((a, n) => a + n, 0) / starts) * 1000) / 10 : null;
     }
   }
-  return { rows, killLine };
+  return { rows, killLine, killReturnShare };
+}
+
+/** The admin kill-line sentence. The % belongs to admin only, not the player copy audit. */
+export function killLineText(killLine: number | null, killReturnShare: number | null): string {
+  return `Kill line (median daily returning starts, days 22–28 after launch): ${killLine ?? "not yet"}; below 5 means stop. Returning share of starts: ${killReturnShare === null ? "not yet" : `${killReturnShare}%`} (target 30% or more; informs the call, does not trigger it).`;
 }

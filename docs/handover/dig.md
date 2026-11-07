@@ -114,6 +114,8 @@ Expiries are set by the health cron on yesterday's keys, because `HINCRBY` sets 
 
 ## The kill line
 
-The median of daily `start` over days 22 to 28 after launch. **Below 20 means stop.** Daily players are the `start` count for that date.
+Judged on returners (Sam's decision, 2026-11-07). Read at day 28 (2026-12-04 for a 2026-11-07 launch): **stop if the median daily returning starts over days 22 to 28 is under 5.** A returning start is a `start` from a device that finished a dig on an earlier UTC day (the `start:ret:d1|d2_6|d7` funnel fields). The returning share of starts is shown next to it (target 30% or more); it informs the decision but does not trigger it alone. This replaces the old rule (median daily `start` under 20).
 
-Read it on the admin page, in the "curio dig" section (funnel table and kill-line row). It appears once all seven window days have passed, and a day with no events counts as 0 starts.
+Small sample: with about 25 visitors a day, read the trend, not one day. Returning undercounts (Safari clears storage after 7 days, private windows), so read it from day 2.
+
+Read it on the admin page, in the "curio dig" section (funnel table and kill-line row, plus a Return % column per day). It appears once all seven window days have passed, and a day with no events counts as 0 returning starts.
