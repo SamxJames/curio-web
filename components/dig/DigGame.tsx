@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { createReducer, initialGame, prepareDay, resultTiers, resumeGame, toSavedRun, type DigDayResponse, type GameState, type PreparedDay } from "@/lib/dig/game";
+import { coachIndex, createReducer, initialGame, prepareDay, resultTiers, resumeGame, toSavedRun, type DigDayResponse, type GameState, type PreparedDay } from "@/lib/dig/game";
 import { priorSameTier } from "@/lib/dig/revealCopy";
 import { stripState } from "@/lib/dig/strip";
 import { scoreOf } from "@/lib/dig/score";
 import { challengeLine, parseVs } from "@/lib/dig/challenge";
-import { clearRun, markReported, readRun, readStore, saveGame, saveRun, setNoTimer, useDigStore } from "@/lib/dig/storage";
+import { clearRun, effectiveNoTimer, markCoached, markReported, readRun, readStore, saveGame, saveRun, setNoTimer, useDigStore } from "@/lib/dig/storage";
 import { isNewPlayer } from "@/lib/dig/cohort";
-import { buildFinishEvent, buildStartEvent, sendDigEvent, sendFinish, sendLandOnce } from "@/lib/dig/client";
+import { buildFinishEvent, buildStartEvent, sendDigEvent, sendFinish, sendLandOnce, sendViaOnce } from "@/lib/dig/client";
 import EndScreen, { announceDone } from "./EndScreen";
 import Intro from "./Intro";
 import PromptScreen from "./PromptScreen";
@@ -56,7 +56,10 @@ export default function DigGame({ date, heading, note }: { date?: string; headin
         setDay(prepareDay(d));
       })
       .catch(() => alive && setFailed(true));
-    if (!date) sendLandOnce();
+    if (!date) {
+      sendLandOnce();
+      sendViaOnce();
+    }
     return () => { alive = false; };
   }, [date]);
   if (failed) return <><Heading heading={heading} phase="intro" note={note} /><LoadFailed past={!!date} /></>;
@@ -64,7 +67,8 @@ export default function DigGame({ date, heading, note }: { date?: string; headin
     return (
       <>
         <Heading heading={heading} phase="intro" note={note} />
-        <Intro noTimer={false} onToggleTimer={() => {}} onStart={() => {}} loading />
+        {/* noTimer matches the first-run default (effectiveNoTimer): the stored setting isn't readable before mount. */}
+        <Intro noTimer onToggleTimer={() => {}} onStart={() => {}} loading />
         <p className="sr-only" aria-live="polite">Loading the dig…</p>
       </>
     );
@@ -86,6 +90,11 @@ function DigRun({ day, isToday, vsRaw, heading, note }: { day: PreparedDay; isTo
   const [resumedReveal] = useState(() => (resumed?.state.phase === "reveal" ? resumed.state.current : -1));
   const [claimed, setClaimed] = useState<Set<number>>(new Set());
   const [passed, setPassed] = useState<Set<number>>(() => new Set(resumed?.passed ?? []));
+  // Coaching is decided once, at mount, so marking it seen doesn't hide the tip mid-reveal.
+  const [coachable] = useState(() => !readStore().settings.coached);
+  const coachAt = coachable ? coachIndex(state.results) : -1;
+  const coachNow = state.phase === "reveal" && coachAt === state.current;
+  useEffect(() => { if (coachNow) markCoached(); }, [coachNow]);
   const saved = useRef(false);
   const finished = store.games[day.date];
 
@@ -124,16 +133,17 @@ function DigRun({ day, isToday, vsRaw, heading, note }: { day: PreparedDay; isTo
   }, [state, day, isToday, store.games]);
 
   if (state.phase === "intro" && !finished) {
+    const noTimer = effectiveNoTimer(store.settings);
     return (
       <>
         <Heading heading={heading} phase="intro" note={note} />
         <Intro
           challenge={friend ? challengeLine(friend) : null}
-          noTimer={store.settings.noTimer}
-          onToggleTimer={() => setNoTimer(!store.settings.noTimer)}
+          noTimer={noTimer}
+          onToggleTimer={() => setNoTimer(!noTimer)}
           onStart={() => {
             sendDigEvent(isToday ? buildStartEvent(day.date, readStore().games) : { kind: "past" });
-            dispatch({ type: "start", noTimer: store.settings.noTimer });
+            dispatch({ type: "start", noTimer });
           }}
         />
       </>
@@ -143,7 +153,7 @@ function DigRun({ day, isToday, vsRaw, heading, note }: { day: PreparedDay; isTo
   if (finished && (state.phase === "intro" || state.phase === "done")) {
     // Already played, or just finished: their own result, never a countdown. Only a dig finished in
     // this session takes focus (a page load of a played day must not jump it).
-    screen = <EndScreen day={day} game={finished} isToday={isToday} friend={friend} autoFocus={state.phase === "done"} />;
+    screen = <EndScreen day={day} game={finished} isToday={isToday} friend={friend} autoFocus={state.phase === "done"} offerTimer={isToday && store.settings.noTimer === undefined} onAddTimer={() => setNoTimer(false)} />;
   } else if (state.phase === "done") {
     // The save is a render away: show nothing in the meantime. The live region below must still
     // render, so it persists from the last reveal through to the end screen.
@@ -158,6 +168,7 @@ function DigRun({ day, isToday, vsRaw, heading, note }: { day: PreparedDay; isTo
         passed={passed.has(state.current)}
         canClaim={isToday}
         variantIndex={priorSameTier(state.results, state.current)}
+        coach={coachNow}
         kind={day.prompts[state.current].kind}
         promptText={day.prompts[state.current].text}
         onStory={() => sendDigEvent({ kind: "story" })}
@@ -196,9 +207,10 @@ function DigRun({ day, isToday, vsRaw, heading, note }: { day: PreparedDay; isTo
   // One live region that outlives every screen change. Reveal mounts fresh when a prompt locks,
   // and a region that mounts with its text is not reliably announced, so the outcome is set
   // here, where the element persists.
+  const doneTiers = state.phase === "done" ? resultTiers(state) : [];
   const outcome = state.phase === "reveal"
     ? announceReveal(state.results[state.current], day.secrets[state.current], passed.has(state.current))
-    : state.phase === "done" ? announceDone(scoreOf(resultTiers(state))) : "";
+    : state.phase === "done" ? announceDone(scoreOf(doneTiers), doneTiers) : "";
   // The strip shows above the prompt and reveal screens only (not the intro, not the end screen).
   const showStrip = state.phase === "reading" || state.phase === "answering" || state.phase === "reveal";
   const shownPhase = finished && (state.phase === "intro" || state.phase === "done") ? "done" : state.phase;

@@ -111,9 +111,9 @@ describe("Reveal", () => {
     expect(html).not.toContain("aria-live");
     expect(html).not.toContain("focus:outline-none");
   });
-  it("heads a passed prompt 'Passed', not 'Time's up'", () => {
+  it("heads a skipped prompt 'Skipped', not 'Time's up'", () => {
     const html = renderToStaticMarkup(<Reveal {...props} result={timedOut} passed />);
-    expect(html).toMatch(/<h2[^>]*>Passed<\/h2>/);
+    expect(html).toMatch(/<h2[^>]*>Skipped<\/h2>/);
     expect(html).not.toContain("Time&#x27;s up");
   });
 });
@@ -126,7 +126,7 @@ describe("announceReveal", () => {
   it("says the outcome and the fossil word once, for the persistent live region", () => {
     expect(announceReveal({ answer: "keel", tier: "familiar", rejected: [], lastGuess: null }, secret, false)).toBe("keel, Familiar, 30 points. Fossil: halyard.");
     expect(announceReveal({ answer: null, tier: null, rejected: [], lastGuess: null }, secret, false)).toBe("Time's up. Fossil: halyard.");
-    expect(announceReveal({ answer: null, tier: null, rejected: [], lastGuess: null }, secret, true)).toBe("Passed. Fossil: halyard.");
+    expect(announceReveal({ answer: null, tier: null, rejected: [], lastGuess: null }, secret, true)).toBe("Skipped. Fossil: halyard.");
   });
 });
 
@@ -140,8 +140,24 @@ describe("Reveal compactness and targets", () => {
     const html = renderToStaticMarkup(<Reveal {...p} result={{ answer: "halyard", tier: "fossil" as const, rejected: [], lastGuess: null }} />);
     expect(html).toMatch(/font-display text-xl[^>]*><svg[^>]*size-6/);
   });
-  it("the story link is padded to a comfortable target", () => {
+  it("the story link is a 44px target", () => {
     const html = renderToStaticMarkup(<Reveal {...p} result={{ answer: null, tier: null, rejected: [], lastGuess: null }} />);
-    expect(html).toMatch(/py-2[^>]*>s*Read the story of/);
+    expect(html).toMatch(/min-h-11[^>]*>\s*Read the story of/);
+  });
+  it("the Wiktionary link and the 'should count' claim are 44px targets", () => {
+    // A dictionary-notation fact is hidden, so the reveal links to Wiktionary instead.
+    const bare = { ...secret, fossil: { word: "phial", fact: "The noun is derived partly: * from Middle English fiole [and other forms]…" } };
+    const html = renderToStaticMarkup(<Reveal {...p} secret={bare} result={{ answer: null, tier: null, rejected: [], lastGuess: "jib" }} />);
+    expect(html).toMatch(/<a[^>]*min-h-11[^>]*>\s*Where \w+ came from \(Wiktionary\)/);
+    expect(html).toMatch(/<button[^>]*min-h-11[^>]*>“jib” should count<\/button>/);
+  });
+});
+
+describe("Reveal coaching", () => {
+  it("shows the one-time tip only when coached", () => {
+    const tip = "Any word that fits counts. Rarer ones score more.";
+    const answeredProps = { secret, isLast: false, onNext: noop, onClaim: noop, claimed: false, canClaim: true, result: { answer: "keel", tier: "familiar" as const, rejected: [], lastGuess: null } };
+    expect(renderToStaticMarkup(<Reveal {...answeredProps} coach />)).toContain(tip);
+    expect(renderToStaticMarkup(<Reveal {...answeredProps} />)).not.toContain(tip);
   });
 });

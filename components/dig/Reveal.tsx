@@ -16,12 +16,14 @@ type Props = {
   secret: PromptSecret;
   isLast: boolean;
   claimed: boolean;
-  /** the player gave up with Pass (rather than running out of time) */
+  /** the player skipped it with Skip (rather than running out of time) */
   passed?: boolean;
   /** false on a past day, where a claim is never sent, so neither the button nor the thanks shows */
   canClaim: boolean;
   /** how many earlier results in this run landed in the same layer (picks the wording) */
   variantIndex?: number;
+  /** first answer this device has ever made: show the one-time tip */
+  coach?: boolean;
   kind?: PromptKind;
   promptText?: string;
   /** a Curio story link was followed */
@@ -36,7 +38,7 @@ type Props = {
 export function announceReveal(result: PromptResult, secret: PromptSecret, passed: boolean): string {
   const outcome = result.answer && result.tier
     ? `${result.answer}, ${TIER_LABEL[result.tier]}, ${TIER_POINTS[result.tier]} points.`
-    : passed ? "Passed." : "Time's up.";
+    : passed ? "Skipped." : "Time's up.";
   if (result.answer && result.tier === "fossil") return `${outcome} You found the fossil.`;
   return `${outcome} Fossil: ${secret.fossil.word}.`;
 }
@@ -44,7 +46,7 @@ export function announceReveal(result: PromptResult, secret: PromptSecret, passe
 /** After each prompt (mockup screen 3): where the answer landed, and the prompt's fossil.
  * The prompt's inputs have just unmounted, so focus would fall to <body>: it moves to the
  * heading instead, and Next prompt is the next tab stop. */
-export default function Reveal({ result, secret, isLast, claimed, passed = false, canClaim, variantIndex = 0, kind = "theme", promptText = "", onStory, onNext, onClaim }: Props) {
+export default function Reveal({ result, secret, isLast, claimed, passed = false, canClaim, variantIndex = 0, coach = false, kind = "theme", promptText = "", onStory, onNext, onClaim }: Props) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => { heading.current?.focus(); }, []);
   // Only a prompt that ended with no answer has anything to claim: the player's own most recent
@@ -59,9 +61,10 @@ export default function Reveal({ result, secret, isLast, claimed, passed = false
   return (
     <section className="mt-5 short:mt-2">
       <h2 ref={heading} tabIndex={-1} className={result.answer ? "font-display text-4xl leading-display outline-none" : "font-display text-3xl outline-none"}>
-        {result.answer ?? (passed ? "Passed" : "Time's up")}
+        {result.answer ?? (passed ? "Skipped" : "Time's up")}
       </h2>
       {line && answered && <p className="mt-2 font-sans text-base text-ink-soft">{`${line} ${TIER_POINTS[answered.tier]} points`}</p>}
+      {coach && answered && <p className="mt-2 font-sans text-base text-ink">Any word that fits counts. Rarer ones score more.</p>}
       {extra && (
         <p className="mt-1 font-sans text-base text-ink-soft">
           {extra.text}
@@ -87,12 +90,12 @@ export default function Reveal({ result, secret, isLast, claimed, passed = false
         )}
         {fact && <p className="mt-1 font-serif text-lg leading-relaxed text-ink-soft">{fact}</p>}
         {!fact && !secret.fossil.story && (
-          <a href={etymologyLink(secret.fossil.word)} target="_blank" rel="noopener noreferrer" className="inline-block py-2 font-sans text-sm underline underline-offset-2">
+          <a href={etymologyLink(secret.fossil.word)} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-sans text-sm underline underline-offset-2">
             Where {secret.fossil.word} came from (Wiktionary)
           </a>
         )}
         {secret.fossil.story && (
-          <Link href={`/story/${secret.fossil.story}`} onClick={onStory} className="inline-block py-2 font-sans text-sm underline underline-offset-2">
+          <Link href={`/story/${secret.fossil.story}`} onClick={onStory} className="inline-flex min-h-11 items-center font-sans text-sm underline underline-offset-2">
             Read the story of {secret.fossil.word}
           </Link>
         )}
@@ -100,7 +103,7 @@ export default function Reveal({ result, secret, isLast, claimed, passed = false
       {claimable && (
         <p className="mt-4 font-sans text-sm text-ink-soft">
           {claimed ? "Thanks. We look at these every week." : (
-            <Button variant="link" onClick={() => onClaim(claimable)}>{`“${claimable}” should count`}</Button>
+            <Button variant="link" className="min-h-11 text-left" onClick={() => onClaim(claimable)}>{`“${claimable}” should count`}</Button>
           )}
         </p>
       )}

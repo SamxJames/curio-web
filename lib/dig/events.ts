@@ -10,8 +10,13 @@ import { TIERS, type Tier } from "./types";
 /** Coarse return-interval buckets a start may carry. Duplicated from client.ts on purpose: that is a client module. */
 export const RETURN_BUCKETS = ["d1", "d2_6", "d7"] as const;
 
+/** Internal links into /dig carry ?from=<one of these> (lib/dig/client.ts sendViaOnce). */
+export const VIA_SOURCES = ["nav", "home", "arrival", "play", "story"] as const;
+export type ViaSource = (typeof VIA_SOURCES)[number];
+
 export type DigEvent =
   | { kind: "land"; source: TrafficSource }
+  | { kind: "via"; from: ViaSource }
   | { kind: "start"; date: string; ret?: (typeof RETURN_BUCKETS)[number]; first?: string }
   | { kind: "past" }
   | { kind: "share"; how: "text" | "image" }
@@ -54,6 +59,8 @@ export function parseDigEvent(body: unknown, today: string): DigEvent | null {
       const first = typeof b.first === "string" && cohortDay(b.first, today) !== null ? b.first : undefined;
       return { kind: "start", date: today, ...(ret ? { ret } : {}), ...(first ? { first } : {}) };
     }
+    case "via":
+      return (VIA_SOURCES as readonly unknown[]).includes(b.from) ? { kind: "via", from: b.from as ViaSource } : null;
     case "past":
     case "story":
     case "signup":
@@ -94,6 +101,7 @@ export function parseDigEvent(body: unknown, today: string): DigEvent | null {
 export function funnelField(ev: DigEvent): string | null {
   switch (ev.kind) {
     case "land": return `land:${ev.source}`;
+    case "via": return `via:${ev.from}`;
     case "start": return "start";
     case "past": return "past:start";
     case "share": return `share:${ev.how}`;

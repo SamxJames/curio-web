@@ -4,36 +4,57 @@ import { DIG_PITCH } from "@/lib/dig/pitch";
 import Button from "@/components/ui/Button";
 import { ToggleGroup } from "@/components/ui/SegmentedControl";
 
-/** The landing card (mockup screen 1): one line of rules, Start, and No timer. */
-export default function Intro({ noTimer, onToggleTimer, onStart, loading, challenge }: { noTimer: boolean; onToggleTimer: () => void; onStart: () => void; loading?: boolean; challenge?: string | null }) {
+export const NO_TIMER_LABEL = "Take your time (no timer)";
+
+/** The landing card: the pitch, two plain lines, an example, Start, and under it the no-timer
+ * toggle. The toggle's words never change (aria-pressed carries the state); a tick shows it is on.
+ * While the day loads the rules still show, Start reads "Loading…" and is disabled, and the
+ * toggle is hidden. A challenge link adds one line above the pitch. */
+export default function Intro({
+  noTimer,
+  onToggleTimer,
+  onStart,
+  loading,
+  challenge,
+}: {
+  noTimer: boolean;
+  onToggleTimer: () => void;
+  onStart: () => void;
+  loading?: boolean;
+  challenge?: string | null;
+}) {
   return (
     <div className="mt-8">
       {challenge && <p className="font-sans text-base text-ink">{challenge}</p>}
       <p className={challenge ? "mt-3 font-sans text-lg text-ink" : "font-sans text-lg text-ink"}>{DIG_PITCH}</p>
-      <p className="mt-2 font-sans text-lg text-ink-soft">Each prompt hides one word nobody expects. 7 prompts. 25 seconds each. Rarer answers dig deeper.</p>
-      <p className="mt-2 font-sans text-base text-ink-soft">Your answers build a cross-section as you go. The hidden word is the fossil, buried in the bedrock.</p>
+      <p className="mt-2 font-sans text-lg text-ink-soft">Name a word that fits each prompt. Any word that fits counts.</p>
       <div className="mt-4 border border-line p-4">
         <p className="font-serif text-lg text-ink">{"For example: Name a fruit"}</p>
         <p className="mt-1 font-serif text-base text-ink-soft">{"apple lands in the topsoil. quince digs down to the clay."}</p>
       </div>
-      <div className="mt-6 flex flex-wrap items-center gap-4">
+      <div className="mt-6 flex flex-col items-start gap-3">
         <Button onClick={onStart} disabled={loading}>{loading ? "Loading…" : "Start"}</Button>
         {!loading && (
-        <ToggleGroup
-          segments={["No timer"]}
-          getKey={(s) => s}
-          isActive={() => noTimer}
-          onToggle={onToggleTimer}
-          renderSegment={(s, active) => <span>{active ? `${s}: on` : s}</span>}
-          getButtonProps={(_, active) => ({
-            className: active
-              ? "min-h-11 rounded-full border border-ink px-3.5 font-sans text-sm text-ink"
-              : "min-h-11 rounded-full border border-line-strong px-3.5 font-sans text-sm text-ink-soft",
-          })}
-        />
+          <ToggleGroup
+            segments={[NO_TIMER_LABEL]}
+            getKey={(s) => s}
+            isActive={() => noTimer}
+            onToggle={onToggleTimer}
+            renderSegment={(s, active) => (
+              <span className="inline-flex items-center gap-2">
+                <span aria-hidden="true" className={active ? "inline-flex size-4 items-center justify-center rounded-full bg-ink text-xs text-paper" : "inline-block size-4 rounded-full border border-line-strong"}>{active ? "✓" : ""}</span>
+                {s}
+              </span>
+            )}
+            getButtonProps={(_, active) => ({
+              className: active
+                ? "min-h-11 rounded-full border border-ink px-3.5 font-sans text-sm text-ink"
+                : "min-h-11 rounded-full border border-line-strong px-3.5 font-sans text-sm text-ink-soft",
+            })}
+          />
         )}
       </div>
-      <p className="mt-3 font-sans text-sm text-ink-faint">No timer counts the same. Use it any time.</p>
+      <p className="mt-3 font-sans text-sm text-ink-faint">{noTimer ? "Seven prompts. No clock: take your time." : "Seven prompts, 25 seconds each."}</p>
     </div>
   );
 }

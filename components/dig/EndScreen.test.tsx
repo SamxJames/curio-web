@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
-import EndScreen, { announceDone, formatDigDate, rowEvent, wordsWorthKnowing } from "./EndScreen";
+import EndScreen, { announceDone, formatDigDate, foundLine, rowEvent, wordsWorthKnowing } from "./EndScreen";
 import { bannedHits } from "@/lib/dig/copyAudit";
 import { copyResult, shareImage } from "./shareImage";
 import { prepareDay } from "@/lib/dig/game";
@@ -15,6 +15,15 @@ const plain = devDay("2026-12-05");
 plain.prompts[0].stories = { apple: "apple" };
 const day = prepareDay({ ...encodeDay(plain), number: 5 });
 const game = { answers: ["apple", null, null, null, null, null, "gimlet"], tiers: ["common", null, null, null, null, null, "fossil"] as never, score: 110, finishedAt: "x", spread: { "1": 100 } };
+
+describe("timer offer", () => {
+  it("offers a timer once, as an opt-in, when the player never chose one", () => {
+    const html = renderToStaticMarkup(<EndScreen day={day} game={game} isToday offerTimer onAddTimer={() => {}} />);
+    expect(html).toContain("Want more of a challenge? Add a 25-second timer next time.");
+    expect(bannedHits(html)).toEqual([]);
+    expect(renderToStaticMarkup(<EndScreen day={day} game={game} isToday />)).not.toContain("Add a 25-second timer");
+  });
+});
 
 describe("wordsWorthKnowing", () => {
   it("lists the player's story words first, then each prompt's fossil", () => {
@@ -66,6 +75,7 @@ describe("EndScreen", () => {
   });
   it("today: midnight line, play row, no Today's dig row; past: the reverse, no percentile or midnight line", () => {
     const today = renderToStaticMarkup(<EndScreen day={day} game={game} isToday />);
+    // Server markup: the UTC wording. The browser swaps in the player's own time (lib/dig/rollover).
     expect(today).toContain("A new dig opens at midnight UTC.");
     expect(today).toContain("Cool down with a clue puzzle");
     expect(today).toContain("Guess the word from three clues.");
@@ -176,7 +186,7 @@ describe("postcard contrast (WCAG 1.4.3, text 4.5:1)", () => {
 
 describe("announceDone", () => {
   it("says the dig is complete and how deep, for the persistent live region", () => {
-    expect(announceDone(110)).toBe("Dig complete. 1.1 m down.");
+    expect(announceDone(110, ["common", null, null, null, null, null, null])).toBe("Dig complete. You found 1 word and reached the topsoil. 1.1 m down.");
   });
 });
 
@@ -277,4 +287,30 @@ describe("EndScreen touch targets and postcard", () => {
   it("the drawing bleeds to the card's inner edge so its labels stay near 12px", () => {
     expect(src).toContain("-mx-4 -mb-4 mt-4 overflow-hidden rounded-b-lg");
   });
+});
+
+describe("EndScreen today's-word link", () => {
+  it("links today's finished dig to today's word", () => {
+    const html = renderToStaticMarkup(<EndScreen day={day} game={game} isToday />);
+    expect(html).toContain("Today&#x27;s word on Curio");
+    expect(html).toContain("Read where today&#x27;s word came from.");
+    expect(bannedHits(html)).toEqual([]);
+  });
+  it("does not show the today's-word row on a past dig", () => {
+    expect(renderToStaticMarkup(<EndScreen day={day} game={game} isToday={false} />)).not.toContain("Today&#x27;s word on Curio");
+  });
+});
+
+describe("foundLine", () => {
+  it("leads with what was found and the deepest layer reached", () => {
+    expect(foundLine(["common", null, null, null, null, null, "fossil"])).toBe("You found 2 words and reached the bedrock.");
+    expect(foundLine(["familiar", null, null, null, null, null, null])).toBe("You found 1 word and reached the loam.");
+    expect(foundLine([null, null, null, null, null, null, null])).toBe("Hard ground today. Here's what was buried.");
+    expect(bannedHits(foundLine([null, null, null, null, null, null, null]))).toEqual([]);
+  });
+});
+it("shows the found line on the postcard and passes the copy audit", () => {
+  const html = renderToStaticMarkup(<EndScreen day={day} game={game} isToday />);
+  expect(html).toContain("You found 2 words and reached the bedrock.");
+  expect(bannedHits(html)).toEqual([]);
 });

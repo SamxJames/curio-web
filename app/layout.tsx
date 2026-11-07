@@ -3,12 +3,12 @@ import { SessionProvider } from "next-auth/react";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Header from "@/components/Header";
+import { isDigOpen } from "@/lib/dig/clock";
 import Footer from "@/components/Footer";
 import ThemeInit from "@/components/ThemeInit";
 import SessionHintInit from "@/components/SessionHintInit";
 import AccountFavoritesSync from "@/components/AccountFavoritesSync";
 import TrafficBeacon from "@/components/TrafficBeacon";
-import { isDigOpen } from "@/lib/dig/clock";
 import { absoluteUrl, siteUrl } from "@/lib/siteUrl";
 import { FEED_PATH } from "@/lib/feed";
 // Self-hosted (not next/font/google) so the app builds without reaching

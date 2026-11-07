@@ -283,7 +283,7 @@ export default function PuzzleGame({
           {digOpen && (
             <p className="mt-6 font-sans text-sm text-ink-soft">
               One more for today:{" "}
-              <Link href="/dig" className="text-ink underline underline-offset-2 hover:text-accent">
+              <Link href="/dig?from=play" className="text-ink underline underline-offset-2 hover:text-accent">
                 curio dig
               </Link>
               : name words that fit seven prompts and see how deep you dig.

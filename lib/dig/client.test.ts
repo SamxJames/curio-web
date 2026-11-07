@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { buildFinishEvent, buildStartEvent, returningBucket, sendDigEvent, sendFinish, sendLandOnce } from "./client";
+import { buildFinishEvent, buildStartEvent, returningBucket, sendDigEvent, sendFinish, sendLandOnce, viaFrom } from "./client";
 import { MAX_REJECTED_PER_FINISH, parseDigEvent } from "./events";
 import type { PromptResult } from "./game";
 
@@ -107,5 +107,16 @@ describe("buildStartEvent", () => {
   it("adds first (the earliest earlier finish day) for a returning device", () => {
     const games = { a: g("2026-11-03T01:00:00.000Z"), b: g("2026-11-09T01:00:00.000Z") };
     expect(buildStartEvent("2026-11-10", games)).toMatchObject({ ret: "d1", first: "2026-11-03" });
+  });
+});
+
+describe("viaFrom", () => {
+  it("reads a known from param", () => {
+    expect(viaFrom("?from=nav")).toBe("nav");
+    expect(viaFrom("?x=1&from=story")).toBe("story");
+  });
+  it("ignores unknown or missing values", () => {
+    expect(viaFrom("?from=evil")).toBeNull();
+    expect(viaFrom("")).toBeNull();
   });
 });

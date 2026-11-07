@@ -18,7 +18,7 @@ describe("Header", () => {
   });
 
   it("shows a Dig link only when the dig is open", () => {
-    expect(renderToStaticMarkup(<Header digOpen />)).toContain('href="/dig"');
-    expect(renderToStaticMarkup(<Header />)).not.toContain('href="/dig"');
+    expect(renderToStaticMarkup(<Header digOpen />)).toContain('href="/dig?from=nav"');
+    expect(renderToStaticMarkup(<Header />)).not.toContain('href="/dig?from=nav"');
   });
 });

@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Button from "@/components/ui/Button";
 import SignupOffer from "@/components/SignupOffer";
 import type { PreparedDay } from "@/lib/dig/game";
-import { formatDepth, scoreOf, TIER_LABEL } from "@/lib/dig/score";
+import { formatDepth, scoreOf, STRATUM, TIER_LABEL } from "@/lib/dig/score";
 import { percentileLine, shareText } from "@/lib/dig/share";
 import type { StoredGame } from "@/lib/dig/storage";
 import { TIERS, type Tier } from "@/lib/dig/types";
@@ -15,6 +15,13 @@ import Strata from "./Strata";
 import TomorrowHint from "./TomorrowHint";
 import { copyResult, shareImage } from "./shareImage";
 import { etymologyLink, presentableFact } from "@/lib/dig/fact";
+import { ROLLOVER_FALLBACK, rolloverLine } from "@/lib/dig/rollover";
+
+const noSubscribe = () => () => {};
+/** The rollover on the player's clock in the browser; the UTC wording on the server and at hydration. */
+function useRolloverLine(): string {
+  return useSyncExternalStore(noSubscribe, () => rolloverLine(), () => ROLLOVER_FALLBACK);
+}
 
 /** Answers with a Curio story first (the player's own), then every prompt's fossil. */
 export function wordsWorthKnowing(day: PreparedDay, answers: (string | null)[]) {
@@ -32,6 +39,14 @@ export function wordsWorthKnowing(day: PreparedDay, answers: (string | null)[]) 
 
 const STATUS_MS = 4000;
 
+/** The postcard's first line: what the player found, never what they didn't. */
+export function foundLine(tiers: (Tier | null)[]): string {
+  const found = tiers.filter((t): t is Tier => t !== null);
+  if (found.length === 0) return "Hard ground today. Here's what was buried.";
+  const deepest = found.reduce((a, t) => (TIERS.indexOf(t) > TIERS.indexOf(a) ? t : a));
+  return `You found ${found.length} ${found.length === 1 ? "word" : "words"} and reached the ${STRATUM[deepest]}.`;
+}
+
 /** "7 November 2026", always in UTC so a player's timezone can't shift the date. */
 export function formatDigDate(date: string): string {
   return new Date(date + "T00:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
@@ -43,14 +58,16 @@ export function rowEvent(to: "play" | "past", isToday: boolean): Extract<DigEven
 }
 
 /** What a screen reader hears when the dig finishes. DigRun sets it into its persistent live region. */
-export function announceDone(score: number): string {
-  return `Dig complete. ${formatDepth(score)} down.`;
+export function announceDone(score: number, tiers: (Tier | null)[]): string {
+  return `Dig complete. ${foundLine(tiers)} ${formatDepth(score)} down.`;
 }
 
 /** `autoFocus` is for a dig the player has just finished: focus moves to the depth line, because
  * the prompt screen they were typing in has gone. An already-played day passes nothing, so a
  * page load never jumps focus. */
-export default function EndScreen({ day, game, isToday, autoFocus = false, friend = null }: { day: PreparedDay; game: StoredGame; isToday: boolean; autoFocus?: boolean; friend?: (Tier | null)[] | null }) {
+export default function EndScreen({ day, game, isToday, autoFocus = false, offerTimer = false, onAddTimer, friend = null }: { day: PreparedDay; game: StoredGame; isToday: boolean; autoFocus?: boolean; offerTimer?: boolean; onAddTimer?: () => void; friend?: (Tier | null)[] | null }) {
+  const [timerAdded, setTimerAdded] = useState(false);
+  const rollover = useRolloverLine();
   const [status, setStatus] = useState("");
   const [open, setOpen] = useState<Set<number>>(new Set());
   const storySent = useRef(false);
@@ -92,7 +109,8 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, frien
           <p className="font-display text-lg">curio dig</p>
           <p className="font-sans text-sm text-ink-soft">{`Dig #${day.number}`}</p>
         </div>
-        <h2 ref={depth} tabIndex={-1} className="mt-3 font-display text-5xl leading-display outline-none">{`${formatDepth(game.score)} down`}</h2>
+        <p className="mt-3 font-sans text-base text-ink">{foundLine(game.tiers)}</p>
+        <h2 ref={depth} tabIndex={-1} className="mt-1 font-display text-5xl leading-display outline-none">{`${formatDepth(game.score)} down`}</h2>
         {pct && <p className="mt-2 font-sans text-base text-ink-soft">{pct}</p>}
         <p className="mt-1 font-sans text-sm text-ink-soft">{formatDigDate(day.date)}</p>
         <div className="-mx-4 -mb-4 mt-4 overflow-hidden rounded-b-lg">
@@ -117,9 +135,24 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, frien
       {/* Always mounted, so a screen reader announces the text when it changes. */}
       <p role="status" aria-live="polite" className="mt-3 min-h-6 font-sans text-sm text-ink-soft">{status}</p>
 
-      {isToday && <p className="mt-4 font-sans text-base text-ink-soft">A new dig opens at midnight UTC.</p>}
+      {isToday && <p className="mt-4 font-sans text-base text-ink-soft">{rollover}</p>}
+      {(offerTimer || timerAdded) && onAddTimer && (
+        <p className="mt-2 font-sans text-base text-ink-soft">
+          {timerAdded ? "Timer on for your next dig." : (
+            <Button variant="link" className="min-h-11 text-left" onClick={() => { onAddTimer(); setTimerAdded(true); say("Timer on for your next dig."); depth.current?.focus(); }}>Want more of a challenge? Add a 25-second timer next time.</Button>
+          )}
+        </p>
+      )}
 
       <ul className="mt-6 max-w-form border-b border-line">
+        {isToday && (
+          <li className="border-t border-line">
+            <Link href="/" prefetch={false} className={rowLink}>
+              <span className="underline underline-offset-2">Today&apos;s word on Curio</span>
+              <span className="block text-sm text-ink-soft">Read where today&apos;s word came from.</span>
+            </Link>
+          </li>
+        )}
         <li className="border-t border-line py-4 empty:hidden"><TomorrowHint isToday={isToday} hint={day.tomorrow} /></li>
         {/* SignupOffer hides itself, pitch included, for readers who already get the email; its li then
             has no children and closes up, with no stray rule. */}
@@ -169,7 +202,7 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, frien
               {w.note ? (
                 <p className="font-serif text-base leading-relaxed text-ink-soft">{w.note}</p>
               ) : !w.story && (
-                <a href={etymologyLink(w.word)} target="_blank" rel="noopener noreferrer" className="font-sans text-sm text-ink-soft underline underline-offset-2">
+                <a href={etymologyLink(w.word)} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-sans text-sm text-ink-soft underline underline-offset-2">
                   Where it came from (Wiktionary)
                 </a>
               )}

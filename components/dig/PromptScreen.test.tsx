@@ -24,11 +24,11 @@ describe("PromptScreen", () => {
     expect(near).toContain("Did you mean");
     expect(near).toContain("halyard");
     const miss = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={0} noTimer feedback={{ kind: "miss", guess: "zz" }} />);
-    expect(miss).toContain("Not on today&#x27;s list. Try another.");
+    expect(miss).toContain("That one isn&#x27;t in today&#x27;s answers. Try another word.");
   });
-  it("offers Pass while answering, as a text button that is not the red primary", () => {
+  it("offers Skip while answering, as a text button that is not the red primary", () => {
     const html = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={0} noTimer feedback={null} />);
-    const pass = html.match(/<button[^>]*>Pass<\/button>/);
+    const pass = html.match(/<button[^>]*>Skip<\/button>/);
     expect(pass).not.toBeNull();
     expect(pass![0]).toContain('type="button"');
     expect(pass![0]).not.toContain("bg-accent-button");
@@ -69,28 +69,30 @@ describe("PromptScreen", () => {
     expect(focusOnShow(media(false))).toBe(false);
     expect(focusOnShow(undefined)).toBe(false);
   });
-  it("disables Pass and Dig during the read pause", () => {
+  it("disables Skip and Dig during the read pause", () => {
     const html = renderToStaticMarkup(<PromptScreen {...base} phase="reading" clock={3} noTimer={false} feedback={null} />);
-    expect(html.match(/<button[^>]*disabled=""[^>]*>Pass<\/button>/)).not.toBeNull();
+    expect(html.match(/<button[^>]*disabled=""[^>]*>Skip<\/button>/)).not.toBeNull();
     expect(html.match(/<button[^>]*disabled=""[^>]*>Dig<\/button>/)).not.toBeNull();
   });
-  it("shows a fixed 'No timer' pill; aria-pressed carries the state", () => {
+  it("offers 'Turn off timer' only while the timer runs", () => {
     const timed = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={10} noTimer={false} feedback={null} onTimer={noop} />);
-    expect(timed).toContain('aria-pressed="false"');
-    expect(timed).toContain("No timer");
+    const button = timed.match(/<button[^>]*>Turn off timer<\/button>/);
+    expect(button).not.toBeNull();
+    expect(button![0]).toContain("min-h-11");
+    expect(button![0]).not.toContain("bg-accent-button");
     expect(timed).toContain('role="progressbar"');
     const off = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={0} noTimer feedback={null} onTimer={noop} />);
-    expect(off).toContain('aria-pressed="true"');
+    expect(off).not.toContain("Turn off timer");
     expect(off).toContain("Take your time.");
-    expect(off).not.toContain("No timer: on");
     expect(off).not.toContain('role="progressbar"');
+    expect(off).not.toContain("aria-pressed");
   });
-  it("renders no pill until onTimer is supplied", () => {
-    expect(renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={10} noTimer={false} feedback={null} />)).not.toContain("aria-pressed");
+  it("renders no timer control until onTimer is supplied", () => {
+    expect(renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={10} noTimer={false} feedback={null} />)).not.toContain("Turn off timer");
   });
-  it("Pass starts as 'Pass' and is disabled while reading", () => {
+  it("Skip starts as 'Skip' and is disabled while reading", () => {
     const html = renderToStaticMarkup(<PromptScreen {...base} phase="reading" clock={3} noTimer={false} feedback={null} onTimer={noop} />);
-    expect(html).toMatch(/<button[^>]*disabled[^>]*>Pass<\/button>/);
+    expect(html).toMatch(/<button[^>]*disabled[^>]*>Skip<\/button>/);
   });
   it("nextPassState: first tap arms, second fires; typing and blur disarm; nothing is timed", () => {
     expect(nextPassState("idle", "tap")).toEqual({ state: "armed", fire: false });
@@ -103,7 +105,7 @@ describe("PromptScreen", () => {
     const html = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={10} noTimer={false} feedback={null} onTimer={noop} />);
     expect(bannedHits(html)).toEqual([]);
   });
-  it("has no timeout tied to Pass", () => {
+  it("has no timeout tied to Skip", () => {
     expect(readFileSync("components/dig/PromptScreen.tsx", "utf8")).not.toMatch(/setTimeout\([^)]*3000/);
   });
 });

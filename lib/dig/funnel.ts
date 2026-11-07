@@ -1,6 +1,6 @@
 import { DAY_MS, dayKey, dayStart } from "../day";
 
-export type DigFunnelRow = { date: string; land: number; start: number; finish: number; share: number; story: number; signup: number; past: number; returning: number; returnShare: number | null };
+export type DigFunnelRow = { date: string; land: number; start: number; finish: number; share: number; story: number; signup: number; past: number; returning: number; returnShare: number | null; via: Record<string, number> };
 export type DigFunnelSummary = { rows: DigFunnelRow[]; killLine: number | null; killReturnShare: number | null };
 
 const sum = (h: Record<string, number>, prefix: string) => Object.entries(h).reduce((a, [f, n]) => (f.startsWith(prefix) ? a + n : a), 0);
@@ -29,6 +29,7 @@ export function summarizeDigFunnel(
         date, land: sum(h, "land:"), start, finish: h.finish ?? 0, share: sum(h, "share:"),
         story: h.story ?? 0, signup: h.signup ?? 0, past: h["past:start"] ?? 0,
         returning, returnShare: start ? Math.round((returning / start) * 1000) / 10 : null,
+        via: Object.fromEntries(Object.entries(h).filter(([f]) => f.startsWith("via:")).map(([f, n]) => [f.slice(4), n])),
       };
     })
     .sort((a, b) => b.date.localeCompare(a.date));

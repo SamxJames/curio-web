@@ -17,6 +17,6 @@ describe("copyAudit", () => {
     expect(bannedHits("<span>Don&#39;t break it</span>")).toEqual(["don't break"]);
   });
   it("leaves the planned copy alone", () => {
-    for (const t of ["A new dig opens at midnight UTC.", "Topsoil. Right on the surface.", "Today's dig starts with “Name a beverage”. Seven prompts, about three minutes.", "Take your time.", "Pass? Tap again"]) expect(bannedHits(t)).toEqual([]);
+    for (const t of ["A new dig opens at midnight UTC.", "Topsoil. Right on the surface.", "Today's dig starts with “Name a beverage”. Seven prompts, about three minutes.", "Take your time.", "Skip? Tap again", "Turn off timer", "Take your time (no timer)", "A new dig opens at 7:00 pm your time."]) expect(bannedHits(t)).toEqual([]);
   });
 });

@@ -28,7 +28,7 @@ export default function Header({ digOpen = false }: { digOpen?: boolean }) {
   // The arrival hero (app/page.tsx, first-time anonymous visitors only)
   // draws its own wordmark + theme toggle row as part of its layout — the
   // global header would otherwise duplicate that row and add nav links
-  // ("Today", "Puzzle", "Collection", "Sign in") that don't make sense before someone
+  // ("Today", "Puzzle", "Dig", "Collection", "Sign in") that don't make sense before someone
   // has read a single word yet. See components/HomeContent.tsx for the
   // exact same condition this mirrors (useShowArrival has no route
   // awareness of its own, hence the separate pathname check here).
@@ -37,6 +37,7 @@ export default function Header({ digOpen = false }: { digOpen?: boolean }) {
 
   const todayActive = pathname === "/";
   const puzzleActive = pathname === "/play";
+  const digActive = pathname.startsWith("/dig");
   const collectionActive = pathname.startsWith("/collection");
   const accountActive = pathname === "/account";
   const navLinkClass = (active: boolean) =>
@@ -51,14 +52,15 @@ export default function Header({ digOpen = false }: { digOpen?: boolean }) {
         {/* Wraps instead of overflowing: unwrapped, this row needs ~366px, and on a narrower
             phone (iPhone Display Zoom, larger Safari text) it widened every page. */}
         <nav className="flex min-w-0 flex-wrap items-center justify-end gap-x-2.5 gap-y-1 sm:gap-x-5">
-          <Link href="/" className={navLinkClass(todayActive)}>
+          {/* On phones the Curio wordmark is the way home; dropping Today keeps the row on one line at 375px with Dig added. */}
+          <Link href="/" className={clsx(navLinkClass(todayActive), "hidden sm:inline")}>
             Today
           </Link>
           <Link href="/play" className={navLinkClass(puzzleActive)}>
             Puzzle
           </Link>
           {digOpen && (
-            <Link href="/dig" className={navLinkClass(pathname.startsWith("/dig"))}>
+            <Link href="/dig?from=nav" className={navLinkClass(digActive)}>
               Dig
             </Link>
           )}

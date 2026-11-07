@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { ANSWER_SECONDS, createReducer, initialGame, prepareDay, resultTiers, type GameState } from "./game";
+import { ANSWER_SECONDS, coachIndex, createReducer, initialGame, prepareDay, resultTiers, type GameState } from "./game";
 import { parseDigEvent } from "./events";
 import { encodeDay } from "./payload";
 import { devDay } from "./devDay";
 import { scoreOf } from "./score";
-import { markReported, parseStore, readStore, saveGame, setNoTimer, withGame, type StoredGame } from "./storage";
+import { effectiveNoTimer, markCoached, markReported, parseStore, readStore, saveGame, setNoTimer, withGame, type StoredGame } from "./storage";
 
 const day = prepareDay({ ...encodeDay(devDay("2026-12-05")), number: 5 });
 const reduce = createReducer(day);
@@ -133,7 +133,7 @@ describe("game reducer", () => {
 
 describe("storage", () => {
   it("survives junk and keeps the newest 400 games", () => {
-    expect(parseStore("{nope")).toEqual({ v: 1, settings: { noTimer: false }, games: {} });
+    expect(parseStore("{nope")).toEqual({ v: 1, settings: {}, games: {} });
     let store = parseStore(null);
     for (let i = 0; i < 405; i++) {
       const date = new Date(Date.UTC(2026, 0, 1) + i * 86400000).toISOString().slice(0, 10);
@@ -141,6 +141,16 @@ describe("storage", () => {
     }
     expect(Object.keys(store.games)).toHaveLength(400);
     expect(store.games["2026-01-01"]).toBeUndefined();
+  });
+  it("keeps a stored timer choice, leaves an unchosen one absent, keeps coached", () => {
+    expect(parseStore(JSON.stringify({ v: 1, settings: { noTimer: false }, games: {} })).settings).toEqual({ noTimer: false });
+    expect(parseStore(JSON.stringify({ v: 1, settings: {}, games: {} })).settings).toEqual({});
+    expect(parseStore(JSON.stringify({ v: 1, settings: { noTimer: "x", coached: true }, games: {} })).settings).toEqual({ coached: true });
+  });
+  it("treats an unchosen timer as no timer", () => {
+    expect(effectiveNoTimer({})).toBe(true);
+    expect(effectiveNoTimer({ noTimer: false })).toBe(false);
+    expect(effectiveNoTimer({ noTimer: true })).toBe(true);
   });
   it("drops corrupted game entries and keeps the rest", () => {
     const NULLS = Array.from({ length: 7 }, () => null);
@@ -164,6 +174,21 @@ describe("storage", () => {
     expect(Object.keys(store.games)).toEqual(["2026-12-01", "2026-12-08"]);
     expect(store.games["2026-12-08"]).toEqual(good);
     expect(store.games["2026-12-08"]).not.toHaveProperty("spread");
+  });
+  it("markCoached persists, and a later timer choice keeps it", () => {
+    const data = new Map<string, string>();
+    vi.stubGlobal("window", {
+      localStorage: { getItem: (k: string) => data.get(k) ?? null, setItem: (k: string, v: string) => { data.set(k, v); } },
+    });
+    try {
+      markCoached();
+      expect(readStore().settings).toEqual({ coached: true });
+      setNoTimer(false);
+      expect(readStore().settings).toEqual({ coached: true, noTimer: false });
+      expect(JSON.parse([...data.values()][0]).settings).toEqual({ coached: true, noTimer: false });
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
   it("keeps in-session saves in memory when localStorage refuses them", () => {
     const NULLS = Array.from({ length: 7 }, () => null);
@@ -196,4 +221,10 @@ describe("letters feedback", () => {
     s = reduce(s, { type: "submit", guess: "   " });
     expect(s.feedback).toEqual({ kind: "empty" });
   });
+});
+
+it("coaches on the first answered prompt only", () => {
+  const r = (answer: string | null) => ({ answer, tier: answer ? ("common" as const) : null, rejected: [], lastGuess: null });
+  expect(coachIndex([r(null), r("apple"), r("pear")])).toBe(1);
+  expect(coachIndex([r(null)])).toBe(-1);
 });
