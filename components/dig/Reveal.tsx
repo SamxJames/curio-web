@@ -64,6 +64,7 @@ export default function Reveal({ result, secret, isLast, claimed, passed = false
         {result.answer ?? (passed ? "Passed" : "Time's up")}
       </h2>
       {line && answered && <p className="mt-2 font-sans text-base text-ink-soft">{`${line} ${TIER_POINTS[answered.tier]} points`}</p>}
+      {coach && answered && <p className="mt-2 font-sans text-base text-ink">Any word that fits counts. Rarer ones score more.</p>}
       {extra && (
         <p className="mt-1 font-sans text-base text-ink-soft">
           {extra.text}
@@ -75,7 +76,6 @@ export default function Reveal({ result, secret, isLast, claimed, passed = false
           )}
         </p>
       )}
-      {coach && answered && <p className="mt-2 font-sans text-base text-ink">Every word that fits counts. Rarer ones dig deeper.</p>}
       <div className="mt-4 border-t border-line pt-3">
         {foundFossil ? (
           <p className="flex items-center gap-2 font-display text-xl">

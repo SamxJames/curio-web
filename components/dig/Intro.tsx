@@ -8,7 +8,7 @@ export default function Intro({ noTimer, onToggleTimer, onStart }: { noTimer: bo
   return (
     <div className="mt-8">
       <p className="font-sans text-lg text-ink">Name a word that fits each prompt.</p>
-      <p className="mt-2 font-sans text-lg text-ink-soft">Everyday words count. Rarer ones dig deeper.</p>
+      <p className="mt-2 font-sans text-lg text-ink-soft">Any word that fits counts. Rarer words score more.</p>
       <div className="mt-4 border border-line p-4">
         <p className="font-serif text-lg text-ink">{"For example: Name a fruit"}</p>
         <p className="mt-1 font-serif text-base text-ink-soft">{"apple lands in the topsoil. quince digs down to the clay."}</p>

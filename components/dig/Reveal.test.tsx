@@ -148,7 +148,7 @@ describe("Reveal compactness and targets", () => {
 
 describe("Reveal coaching", () => {
   it("shows the one-time tip only when coached", () => {
-    const tip = "Every word that fits counts. Rarer ones dig deeper.";
+    const tip = "Any word that fits counts. Rarer ones score more.";
     const answeredProps = { secret, isLast: false, onNext: noop, onClaim: noop, claimed: false, canClaim: true, result: { answer: "keel", tier: "familiar" as const, rejected: [], lastGuess: null } };
     expect(renderToStaticMarkup(<Reveal {...answeredProps} coach />)).toContain(tip);
     expect(renderToStaticMarkup(<Reveal {...answeredProps} />)).not.toContain(tip);

@@ -8,7 +8,7 @@ describe("Intro", () => {
   it("says the rules in plain words, with the example and Start", () => {
     const html = renderToStaticMarkup(<Intro noTimer onToggleTimer={noop} onStart={noop} />);
     expect(html).toContain("Name a word that fits each prompt.");
-    expect(html).toContain("Everyday words count. Rarer ones dig deeper.");
+    expect(html).toContain("Any word that fits counts. Rarer words score more.");
     expect(html).toContain("For example: Name a fruit");
     expect(html).toContain("apple lands in the topsoil. quince digs down to the clay.");
     expect(html).not.toMatch(/fossil|bedrock|cross-section/);

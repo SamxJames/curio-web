@@ -133,7 +133,7 @@ export default function PromptScreen({ index, total, prompt, phase, clock, noTim
             <Button variant="link" onClick={() => onSubmit(feedback.guess)}>Yes, {feedback.suggestion}</Button>
           </p>
         )}
-        {feedback?.kind === "miss" && <p key={round}>Not on today&apos;s list. Try another.</p>}
+        {feedback?.kind === "miss" && <p key={round}>That one isn&apos;t in today&apos;s answers. Try another word.</p>}
         {feedback?.kind === "empty" && <p>Type a word first.</p>}
         {feedback?.kind === "letters" && <p>Answers are English words: use the letters A to Z.</p>}
       </div>

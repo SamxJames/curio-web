@@ -24,7 +24,7 @@ describe("PromptScreen", () => {
     expect(near).toContain("Did you mean");
     expect(near).toContain("halyard");
     const miss = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={0} noTimer feedback={{ kind: "miss", guess: "zz" }} />);
-    expect(miss).toContain("Not on today&#x27;s list. Try another.");
+    expect(miss).toContain("That one isn&#x27;t in today&#x27;s answers. Try another word.");
   });
   it("offers Pass while answering, as a text button that is not the red primary", () => {
     const html = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={0} noTimer feedback={null} />);
