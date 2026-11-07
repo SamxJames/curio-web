@@ -277,6 +277,13 @@ body {
   outline-offset: 2px;
 }
 
+/* A heading focused by script (tabindex="-1", so it can't be tabbed to) is a
+ * screen-reader landing point, not a control: no ring. This sits outside the
+ * utilities layer like the rule above, so `outline-none` alone can't win. */
+[tabindex="-1"]:focus-visible {
+  outline-style: none;
+}
+
 /* Hides the hour wheel's native scrollbar while keeping it scrollable */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
