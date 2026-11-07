@@ -3,6 +3,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { Redis } from "@upstash/redis";
 import { DAY_MS, dayKey, dayStart } from "../day";
+import { cohortDay } from "./cohort";
 import { digLaunchDate, isDateKey, isPastDay } from "./clock";
 import { devDay } from "./devDay";
 import { funnelFields, overRateLimit, planFinish, type DigEvent } from "./events";
@@ -77,12 +78,14 @@ export async function recordFunnel(date: string, ev: DigEvent): Promise<void> {
   const r = await digRedis();
   if (!r) return;
   const key = digKeys.funnel(date);
-  if (fields.length === 1) {
+  const n = ev.kind === "start" && ev.first ? cohortDay(ev.first, date) : null;
+  if (fields.length === 1 && n === null) {
     await r.hincrby(key, fields[0], 1);
     return;
   }
   const p = r.pipeline();
   for (const f of fields) p.hincrby(key, f, 1);
+  if (ev.kind === "start" && ev.first && n !== null) p.hincrby(digKeys.cohort(ev.first), `d${n}`, 1);
   await p.exec();
 }
 
@@ -188,6 +191,22 @@ export async function funnelDays(dates: string[]): Promise<Record<string, Record
   if (!r) return {};
   const p = r.pipeline();
   for (const d of dates) p.hgetall(digKeys.funnel(d));
+  const results = await p.exec();
+  const out: Record<string, Record<string, number>> = {};
+  dates.forEach((d, i) => {
+    const h = toCounts(results[i] as Record<string, unknown> | null);
+    if (Object.keys(h).length) out[d] = h;
+  });
+  return out;
+}
+
+/** Returning-start counts per first-play date (field d<days>), {} when Redis is absent. */
+export async function readCohorts(dates: string[]): Promise<Record<string, Record<string, number>>> {
+  if (!readsRedis() || !dates.length) return {};
+  const r = await digRedis();
+  if (!r) return {};
+  const p = r.pipeline();
+  for (const d of dates) p.hgetall(digKeys.cohort(d));
   const results = await p.exec();
   const out: Record<string, Record<string, number>> = {};
   dates.forEach((d, i) => {

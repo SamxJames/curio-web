@@ -14,7 +14,7 @@ describe("buildFinishEvent", () => {
   const tiers = results.map((r) => r.tier);
 
   it("sends display-form guesses with their prompt index, and the server accepts it", () => {
-    const ev = buildFinishEvent("2026-11-01", tiers, 30, results, true);
+    const ev = buildFinishEvent("2026-11-01", tiers, 30, results, true, false);
     expect(ev.rejected).toEqual([[0, "Jib"], [1, "Boom"], [1, "Gaff Rig"]]);
     expect(parseDigEvent(ev, "2026-11-01")).toEqual({
       kind: "finish", date: "2026-11-01", score: 30, tiers, rejected: [[0, "jib"], [1, "boom"], [1, "gaffrig"]],
@@ -22,12 +22,12 @@ describe("buildFinishEvent", () => {
   });
 
   it("sends no guesses when the day's sample skips them", () => {
-    expect(buildFinishEvent("2026-11-01", tiers, 30, results, false).rejected).toEqual([]);
+    expect(buildFinishEvent("2026-11-01", tiers, 30, results, false, false).rejected).toEqual([]);
   });
 
   it("caps the list at the server's limit so an over-long finish still parses", () => {
     const heavy: PromptResult[] = Array.from({ length: 7 }, () => ({ ...none, rejected: ["aa", "bb", "cc", "dd", "ee"], lastGuess: "ee" }));
-    const ev = buildFinishEvent("2026-11-01", heavy.map(() => null), 0, heavy, true);
+    const ev = buildFinishEvent("2026-11-01", heavy.map(() => null), 0, heavy, true, false);
     expect(ev.rejected).toHaveLength(MAX_REJECTED_PER_FINISH);
     expect(parseDigEvent(ev, "2026-11-01")).not.toBeNull();
   });
@@ -102,6 +102,10 @@ describe("returningBucket", () => {
 describe("buildStartEvent", () => {
   it("adds ret only when the device is returning", () => {
     expect(buildStartEvent("2026-11-10", {})).toEqual({ kind: "start", date: "2026-11-10" });
-    expect(buildStartEvent("2026-11-10", { x: g("2026-11-09T01:00:00.000Z") })).toEqual({ kind: "start", date: "2026-11-10", ret: "d1" });
+    expect(buildStartEvent("2026-11-10", { x: g("2026-11-09T01:00:00.000Z") })).toEqual({ kind: "start", date: "2026-11-10", ret: "d1", first: "2026-11-09" });
+  });
+  it("adds first (the earliest earlier finish day) for a returning device", () => {
+    const games = { a: g("2026-11-03T01:00:00.000Z"), b: g("2026-11-09T01:00:00.000Z") };
+    expect(buildStartEvent("2026-11-10", games)).toMatchObject({ ret: "d1", first: "2026-11-03" });
   });
 });

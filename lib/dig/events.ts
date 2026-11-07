@@ -1,4 +1,5 @@
 import { isTrafficSource, type TrafficSource } from "../traffic";
+import { cohortDay } from "./cohort";
 import { digKeys } from "./keys";
 import { normalizeKey } from "./normalize";
 import { isValidScore, scoreOf } from "./score";
@@ -11,14 +12,14 @@ export const RETURN_BUCKETS = ["d1", "d2_6", "d7"] as const;
 
 export type DigEvent =
   | { kind: "land"; source: TrafficSource }
-  | { kind: "start"; date: string; ret?: (typeof RETURN_BUCKETS)[number] }
+  | { kind: "start"; date: string; ret?: (typeof RETURN_BUCKETS)[number]; first?: string }
   | { kind: "past" }
   | { kind: "share"; how: "text" | "image" }
   | { kind: "story" }
   | { kind: "signup" }
   | { kind: "timer" }
   | { kind: "row"; to: "play" | "past" }
-  | { kind: "finish"; date: string; score: number; tiers: (Tier | null)[]; rejected: [number, string][] }
+  | { kind: "finish"; date: string; score: number; tiers: (Tier | null)[]; rejected: [number, string][]; isNew?: true }
   | { kind: "claim"; date: string; prompt: number; guess: string };
 
 /** Letters, apostrophes, spaces and hyphens: a word someone typed, nothing else. Non-Latin
@@ -49,7 +50,9 @@ export function parseDigEvent(body: unknown, today: string): DigEvent | null {
     {
       if (b.date !== today) return null;
       const ret = (RETURN_BUCKETS as readonly unknown[]).includes(b.ret) ? (b.ret as (typeof RETURN_BUCKETS)[number]) : undefined;
-      return ret ? { kind: "start", date: today, ret } : { kind: "start", date: today };
+      // The first-play date is only kept when it is a real date 1-60 days back: never trusted as sent.
+      const first = typeof b.first === "string" && cohortDay(b.first, today) !== null ? b.first : undefined;
+      return { kind: "start", date: today, ...(ret ? { ret } : {}), ...(first ? { first } : {}) };
     }
     case "past":
     case "story":
@@ -80,7 +83,7 @@ export function parseDigEvent(body: unknown, today: string): DigEvent | null {
         if (!g) continue;
         rejected.push([r[0], g]);
       }
-      return { kind: "finish", date: today, score: b.score, tiers, rejected };
+      return { kind: "finish", date: today, score: b.score, tiers, rejected, ...(b.isNew === true ? { isNew: true as const } : {}) };
     }
     default:
       return null;
@@ -132,6 +135,7 @@ export function planFinish(ev: Extract<DigEvent, { kind: "finish" }>): Incr[] {
   ];
   const fossils = ev.tiers.filter((t) => t === "fossil").length;
   if (fossils > 0) out.push([digKeys.funnel(ev.date), "fossil", fossils]);
+  if (ev.isNew) out.push([digKeys.funnel(ev.date), "finish:new", 1]);
   const rej = new Map<string, Incr>();
   for (const [i, g] of ev.rejected) {
     const key = `${i}|${g}`;

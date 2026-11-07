@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { funnelField, funnelFields, overRateLimit, parseDigEvent, planFinish, RATE_LIMITS } from "./events";
+import { funnelField, funnelFields, overRateLimit, parseDigEvent, planFinish, RATE_LIMITS, type DigEvent } from "./events";
+import { digKeys } from "./keys";
 import { devDay } from "./devDay";
 
 const today = "2026-12-05";
@@ -121,5 +122,28 @@ describe("return bucket on start", () => {
     expect(funnelFields({ kind: "start", date: today, ret: "d1" })).toEqual(["start", "start:ret:d1"]);
     expect(funnelFields({ kind: "start", date: today })).toEqual(["start"]);
     expect(funnelFields({ kind: "claim", date: today, prompt: 0, guess: "jib" })).toEqual([]);
+  });
+});
+
+describe("cohort fields", () => {
+  const daysBack = (n: number) => new Date(Date.parse(today) - n * 86_400_000).toISOString().slice(0, 10);
+  it("keeps a valid first-play date on a start", () => {
+    expect(parseDigEvent({ kind: "start", date: today, ret: "d7", first: daysBack(7) }, today)).toEqual({ kind: "start", date: today, ret: "d7", first: daysBack(7) });
+  });
+  it("drops first when it is today, over 60 days old, or junk, and the event still parses", () => {
+    for (const first of [today, daysBack(61), "nonsense", 5, { $: 1 }]) {
+      expect(parseDigEvent({ kind: "start", date: today, first }, today)).toEqual({ kind: "start", date: today });
+    }
+  });
+  it("funnel fields for a start with first are unchanged", () => {
+    expect(funnelFields({ kind: "start", date: today, ret: "d7", first: daysBack(7) })).toEqual(["start", "start:ret:d7"]);
+  });
+  it("a finish with isNew keeps it and plans finish:new", () => {
+    const tiers = Array(7).fill(null);
+    const ev = parseDigEvent({ kind: "finish", date: today, score: 0, tiers, rejected: [], isNew: true }, today);
+    expect(ev).toMatchObject({ kind: "finish", isNew: true });
+    expect(planFinish(ev as Extract<DigEvent, { kind: "finish" }>)).toContainEqual([digKeys.funnel(today), "finish:new", 1]);
+    const plain = parseDigEvent({ kind: "finish", date: today, score: 0, tiers, rejected: [], isNew: "yes" }, today);
+    expect(plain).not.toHaveProperty("isNew");
   });
 });

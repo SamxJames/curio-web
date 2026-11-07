@@ -113,6 +113,18 @@ describe("local reads", () => {
     await recordFunnel("2026-10-21", { kind: "start", date: "2026-10-21", ret: "d7" });
     expect(h.ops.hincrby).not.toHaveBeenCalled();
   });
+  it("a start with first also bumps the cohort hash, in production only", async () => {
+    vi.clearAllMocks();
+    vi.stubEnv("VERCEL_ENV", "production");
+    vi.stubEnv("DIG_REDIS_REST_URL", "https://dig.invalid");
+    vi.stubEnv("DIG_REDIS_REST_TOKEN", "dummy-token");
+    await recordFunnel("2026-10-21", { kind: "start", date: "2026-10-21", first: "2026-10-14" });
+    expect(h.ops.hincrby.mock.calls.map((c) => [c[0], c[1]])).toContainEqual(["curio:dig:cohort:2026-10-14", "d7"]);
+    vi.clearAllMocks();
+    vi.stubEnv("VERCEL_ENV", "preview");
+    await recordFunnel("2026-10-21", { kind: "start", date: "2026-10-21", first: "2026-10-14" });
+    expect(h.ops.hincrby).not.toHaveBeenCalled();
+  });
   it("reads no health data locally, even when Upstash variables are set", async () => {
     vi.stubEnv("VERCEL_ENV", "");
     vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://example.invalid");

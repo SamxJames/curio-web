@@ -10,6 +10,8 @@ export const digKeys = {
   funnel: (date: string) => `curio:dig:funnel:${date}`,
   rejected: (date: string, index: number) => `curio:dig:rej:${date}:${index}`,
   claims: (date: string, index: number) => `curio:dig:claim:${date}:${index}`,
+  /** returning starts by first-play date: field d<days since first> */
+  cohort: (first: string) => `curio:dig:cohort:${first}`,
   heartbeat: "curio:dig:health:last",
   /** event rate counter for one hashed sender in one window ("m<minute>" or "d<date>"), short TTL */
   rate: (who: string, window: string) => `curio:dig:rate:${who}:${window}`,

@@ -1,6 +1,7 @@
 "use client";
 
 import { getArrivalSource } from "../trafficClient";
+import { firstPlayDate } from "./cohort";
 import { MAX_REJECTED_PER_FINISH } from "./events";
 import type { PromptResult } from "./game";
 import type { Tier } from "./types";
@@ -32,11 +33,11 @@ export async function sendFinish(ev: object): Promise<Record<string, number> | n
 /** The finish event for today's game. Guesses go as the player typed them (the server
  * normalises), flattened to [prompt index, guess], and capped at what the server accepts:
  * a longer list would null the whole finish. `includeGuesses` is the day's sampling coin. */
-export function buildFinishEvent(date: string, tiers: (Tier | null)[], score: number, results: PromptResult[], includeGuesses: boolean) {
+export function buildFinishEvent(date: string, tiers: (Tier | null)[], score: number, results: PromptResult[], includeGuesses: boolean, isNew: boolean) {
   const rejected = includeGuesses
     ? results.flatMap((r, i) => r.rejected.map((g) => [i, g] as [number, string])).slice(0, MAX_REJECTED_PER_FINISH)
     : [];
-  return { kind: "finish" as const, date, score, tiers, rejected };
+  return { kind: "finish" as const, date, score, tiers, rejected, ...(isNew ? { isNew: true as const } : {}) };
 }
 
 const LANDED = "curio:dig:landed"; // sessionStorage: one land per tab session
@@ -73,5 +74,6 @@ export function returningBucket(games: Record<string, { finishedAt: string }>, t
 
 export function buildStartEvent(date: string, games: Record<string, { finishedAt: string }>) {
   const ret = returningBucket(games, date);
-  return ret ? { kind: "start" as const, date, ret } : { kind: "start" as const, date };
+  const first = firstPlayDate(games, date);
+  return { kind: "start" as const, date, ...(ret ? { ret } : {}), ...(first ? { first } : {}) };
 }

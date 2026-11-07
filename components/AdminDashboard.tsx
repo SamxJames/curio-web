@@ -3,6 +3,7 @@ import type { EmailMetricsTotals } from "@/lib/resendMetrics";
 import type { Subscriber } from "@/lib/db";
 import type { TrafficSummary } from "@/lib/traffic";
 import type { DigFunnelSummary } from "@/lib/dig/funnel";
+import type { summarizeCohorts } from "@/lib/dig/cohort";
 import DigFunnelTable from "@/components/dig/DigFunnelTable";
 import { pluralize, capitalize, WIDE_DOT, formatShortDate } from "@/lib/collection";
 
@@ -20,6 +21,7 @@ type Props = {
   emailMetrics30d: EmailMetricsTotals | null;
   traffic: TrafficSummary;
   dig: DigFunnelSummary;
+  cohorts: ReturnType<typeof summarizeCohorts>;
 };
 
 export default function AdminDashboard({
@@ -36,6 +38,7 @@ export default function AdminDashboard({
   emailMetrics30d,
   traffic,
   dig,
+  cohorts,
 }: Props) {
   return (
     <div className="mx-auto max-w-[720px] px-5 pt-[30px] pb-[60px]">
@@ -117,7 +120,7 @@ export default function AdminDashboard({
       </Section>
 
       <Section title="curio dig">
-        <DigFunnelTable summary={dig} />
+        <DigFunnelTable summary={dig} cohorts={cohorts} />
       </Section>
 
       <Section title="People">

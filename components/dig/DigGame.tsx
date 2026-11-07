@@ -7,6 +7,7 @@ import { stripState } from "@/lib/dig/strip";
 import { scoreOf } from "@/lib/dig/score";
 import { challengeLine, parseVs } from "@/lib/dig/challenge";
 import { clearRun, markReported, readRun, readStore, saveGame, saveRun, setNoTimer, useDigStore } from "@/lib/dig/storage";
+import { isNewPlayer } from "@/lib/dig/cohort";
 import { buildFinishEvent, buildStartEvent, sendDigEvent, sendFinish, sendLandOnce } from "@/lib/dig/client";
 import EndScreen, { announceDone } from "./EndScreen";
 import Intro from "./Intro";
@@ -108,12 +109,13 @@ function DigRun({ day, isToday, vsRaw, heading, note }: { day: PreparedDay; isTo
     saved.current = true;
     // Another tab finished this day first: keep its game and its one report.
     if (readStore().games[day.date]) return;
+    const isNew = isNewPlayer(readStore().games, day.date); // before saveGame, for clarity
     const tiers = resultTiers(state);
     const score = scoreOf(tiers);
     saveGame(day.date, { answers: state.results.map((r) => r.answer), tiers, score, finishedAt: new Date().toISOString() });
     // A past day never reports. Today's reports once per browser.
     if (!isToday || store.games[day.date]?.reported) return;
-    const event = buildFinishEvent(day.date, tiers, score, state.results, Math.random() < day.rejSample);
+    const event = buildFinishEvent(day.date, tiers, score, state.results, Math.random() < day.rejSample, isNew);
     // A null answer means the finish wasn't counted (refused, offline, or the game crossed UTC
     // midnight so it is no longer today's): no percentile line, and not marked as reported.
     void sendFinish(event).then((spread) => {

@@ -6,12 +6,15 @@ const row = { date: "2026-12-02", land: 1, start: 4, finish: 3, share: 0, story:
 
 describe("DigFunnelTable", () => {
   it("shows the returner kill line, the share and a Return % column", () => {
-    const html = renderToStaticMarkup(<DigFunnelTable summary={{ rows: [row], killLine: 6, killReturnShare: 28.5 }} />);
+    const html = renderToStaticMarkup(<DigFunnelTable summary={{ rows: [row], killLine: 6, killReturnShare: 28.5 }} cohorts={[{ date: "2026-12-01", newFinishers: 20, d1: 4, d7: 2, d8to13: 3 }]} />);
     expect(html).toContain("median daily returning starts");
     expect(html).toContain("below 5 means stop");
     expect(html).toContain("28.5%");
     expect(html).toContain("Return %");
     expect(html).toContain("25%");
     expect(html).not.toContain("below 20");
+    expect(html).toContain("Dig cohorts (first-play date)");
+    expect(html).toContain("Back days 8–13");
+    expect(html).toContain("2026-12-01");
   });
 });
