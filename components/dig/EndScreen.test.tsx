@@ -271,3 +271,15 @@ describe("EndScreen touch targets and postcard", () => {
     expect(src).toContain("-mx-4 -mb-4 mt-4 overflow-hidden rounded-b-lg");
   });
 });
+
+describe("EndScreen today's-word link", () => {
+  it("links today's finished dig to today's word", () => {
+    const html = renderToStaticMarkup(<EndScreen day={day} game={game} isToday />);
+    expect(html).toContain("Today&#x27;s word on Curio");
+    expect(html).toContain("Read where today&#x27;s word came from.");
+    expect(bannedHits(html)).toEqual([]);
+  });
+  it("does not show the today's-word row on a past dig", () => {
+    expect(renderToStaticMarkup(<EndScreen day={day} game={game} isToday={false} />)).not.toContain("Today&#x27;s word on Curio");
+  });
+});

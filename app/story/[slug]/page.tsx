@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import StoryView from "@/components/StoryView";
+import { isDigOpen } from "@/lib/dig/clock";
 import { WORDS, getWordBySlug } from "@/lib/words";
 import { buildStoryJsonLd, serializeJsonLd } from "@/lib/storyJsonLd";
 import { getRelatedWords } from "@/lib/relatedWords";
@@ -68,7 +69,7 @@ export default async function StoryPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildStoryJsonLd(word)) }}
       />
-      <StoryView word={word} related={getRelatedWords(slug)} lineageHrefs={lineageHrefs(word.lineage)} />
+      <StoryView word={word} related={getRelatedWords(slug)} lineageHrefs={lineageHrefs(word.lineage)} digOpen={isDigOpen()} />
     </>
   );
 }

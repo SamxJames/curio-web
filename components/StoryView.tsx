@@ -24,10 +24,12 @@ export default function StoryView({
   word,
   related,
   lineageHrefs,
+  digOpen = false,
 }: {
   word: WordEntry;
   related: RelatedWords;
   lineageHrefs?: Record<string, string>;
+  digOpen?: boolean;
 }) {
   const day = useStoryDay(word.slug);
 
@@ -204,6 +206,14 @@ export default function StoryView({
         >
           Play today&apos;s puzzle &rarr;
         </Link>
+        {digOpen && (
+          <Link
+            href="/dig?from=story"
+            className="block font-sans text-sm text-ink-soft transition-colors hover:text-ink"
+          >
+            Or play today&apos;s dig &rarr;
+          </Link>
+        )}
       </div>
     </article>
   );

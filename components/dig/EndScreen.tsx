@@ -110,6 +110,14 @@ export default function EndScreen({ day, game, isToday, autoFocus = false }: { d
       {isToday && <p className="mt-4 font-sans text-base text-ink-soft">A new dig opens at midnight UTC.</p>}
 
       <ul className="mt-6 max-w-form border-b border-line">
+        {isToday && (
+          <li className="border-t border-line">
+            <Link href="/" prefetch={false} className={rowLink}>
+              <span className="underline underline-offset-2">Today&apos;s word on Curio</span>
+              <span className="block text-sm text-ink-soft">Read where today&apos;s word came from.</span>
+            </Link>
+          </li>
+        )}
         <li className="border-t border-line py-4 empty:hidden"><TomorrowHint isToday={isToday} hint={day.tomorrow} /></li>
         {/* SignupOffer hides itself, pitch included, for readers who already get the email; its li then
             has no children and closes up, with no stray rule. */}

@@ -77,6 +77,15 @@ export default function ArrivalHero({
         >
           Or play today&apos;s puzzle &rarr;
         </Link>
+        {digOpen && (
+          <Link
+            href="/dig?from=arrival"
+            onClick={() => markOnboarded()}
+            className="mt-3 inline-flex w-fit font-sans text-sm text-ink-soft transition-colors hover:text-ink"
+          >
+            Or try curio dig, today&apos;s word game &rarr;
+          </Link>
+        )}
 
         <div className="flex-1" />
 
