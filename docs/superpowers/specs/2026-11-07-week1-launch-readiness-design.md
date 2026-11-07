@@ -4,7 +4,7 @@ Approved by Sam 2026-11-07. Source: `docs/strategy/2026-11-07-roadmap.md` (week 
 launch post, the dig makes sense at once, can be passed to a friend, and their return can be measured.
 
 **Pitch line** (one constant, `DIG_PITCH` in `lib/dig/pitch.ts`):
-"A daily word game where obscure answers win. No crowd, no streaks, and every answer comes with its origin story."
+"A daily word game where obscure answers win. No crowd needed, and every answer comes with its origin story."
 
 ## 1. Dig rules show on load
 - `DigGame`'s loading state renders `Intro` with `loading` (Start disabled and reading "Loading…", No-timer toggle

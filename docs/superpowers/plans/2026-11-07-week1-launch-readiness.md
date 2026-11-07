@@ -14,7 +14,7 @@
 - Work in the worktree `.claude/worktrees/week1` (branch `feat/week1-launch-readiness`). Run `npm ci` there once before the first test (never junction `node_modules`).
 - Commands: `npx vitest run <path>`, `npm run lint`, `npm run build`.
 - UI must use the `components/ui/` primitives and the tokens in `app/globals.css` (read `docs/design-system.md`). Add no new arbitrary Tailwind values. `components/dig/DigFunnelTable.tsx` (admin) is exempt.
-- Pitch line, verbatim: `A daily word game where obscure answers win. No crowd, no streaks, and every answer comes with its origin story.`
+- Pitch line, verbatim: `A daily word game where obscure answers win. No crowd needed, and every answer comes with its origin story.`
 - Archive, never backlog: no streaks, unread counts, "you missed" copy, or rankings.
 - Client components may only `import type` from `lib/words.ts`.
 - Redis keys must start with `curio:dig:` (for dig data). Writes happen only when `writesRedis()` is true (production).
@@ -68,7 +68,7 @@ describe("Intro", () => {
 ```ts
 /** The one-line pitch for curio dig: the intro, the /dig description and the homepage card. */
 export const DIG_PITCH =
-  "A daily word game where obscure answers win. No crowd, no streaks, and every answer comes with its origin story.";
+  "A daily word game where obscure answers win. No crowd needed, and every answer comes with its origin story.";
 ```
 
 `components/dig/Intro.tsx`: add the `loading` and `challenge` props.
