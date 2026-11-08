@@ -19,6 +19,9 @@ type Props = {
   /** Switch the timer off mid-prompt. "Turn off timer" shows only when this is passed and the
    * timer is running: once it is off, there is nothing to undo mid-run. */
   onTimer?: (noTimer: boolean) => void;
+  /** Offer "should count" beside a rejected guess. False on a past day, where a claim is never sent. */
+  canClaim?: boolean;
+  onClaim?: (guess: string) => void;
 };
 
 export type PassState = "idle" | "armed";
@@ -39,8 +42,11 @@ export function focusOnShow(matchMedia: ((query: string) => { matches: boolean }
 
 /** One prompt (mockup screen 2). Rendered with key={index} by DigGame, so the field resets.
  * Red is reserved for Start, Copy result and Join, so Dig and Skip are both quiet buttons. */
-export default function PromptScreen({ index, total, prompt, phase, clock, noTimer, feedback, onSubmit, onPass, onTimer }: Props) {
+export default function PromptScreen({ index, total, prompt, phase, clock, noTimer, feedback, onSubmit, onPass, onTimer, canClaim, onClaim }: Props) {
   const [guess, setGuess] = useState("");
+  // The server render has no window, so it gets the touch wording; a prompt only mounts after Start.
+  const [hasMouse] = useState(() => focusOnShow(typeof window === "undefined" ? undefined : (q) => window.matchMedia(q)));
+  const [claimedGuess, setClaimedGuess] = useState<string | null>(null);
   const [pass, setPass] = useState<PassState>("idle");
   const [passNote, setPassNote] = useState("");
   const [timerNote, setTimerNote] = useState("");
@@ -121,18 +127,26 @@ export default function PromptScreen({ index, total, prompt, phase, clock, noTim
               keyboard. Dig is disabled then, and the reducer ignores a submit until the clock starts. */}
           <TextField aria-label="Your answer" value={guess} onChange={(e) => { setGuess(e.target.value); disarm("type"); }}
             onFocus={showAnswerArea}
-            autoComplete="off" autoCapitalize="none" autoCorrect="off" spellCheck={false} enterKeyHint="go" maxLength={40} />
+            autoComplete="off" autoCapitalize="none" autoCorrect="off" spellCheck={false} enterKeyHint="go" maxLength={40}
+            placeholder={hasMouse ? undefined : "Tap to type"} />
         </div>
         <Button type="submit" variant="secondary" disabled={reading} className="shrink-0">Dig</Button>
       </form>
       <div aria-live="polite" className="mt-3 min-h-12 font-sans text-sm text-ink-soft">
         {feedback?.kind === "near" && (
           <p>
-            Did you mean <em className="font-display not-italic text-ink">{feedback.suggestion}</em>? Press Enter to accept.{" "}
+            Did you mean <em className="font-display not-italic text-ink">{feedback.suggestion}</em>? {hasMouse ? "Press Enter to accept." : "Tap Yes to accept."}{" "}
             <Button variant="link" onClick={() => onSubmit(feedback.guess)}>Yes, {feedback.suggestion}</Button>
           </p>
         )}
-        {feedback?.kind === "miss" && <p key={round}>That one isn&apos;t in today&apos;s answers. Try another word.</p>}
+        {feedback?.kind === "miss" && (
+          <p key={round}>
+            Not one we know yet. Try another, or Skip.{" "}
+            {canClaim && onClaim && (claimedGuess === feedback.guess ? "Thanks, we'll check it." : (
+              <Button variant="link" className="min-h-11 text-left" onClick={() => { onClaim(feedback.guess); setClaimedGuess(feedback.guess); }}>{`“${feedback.guess}” should count`}</Button>
+            ))}
+          </p>
+        )}
         {feedback?.kind === "empty" && <p>Type a word first.</p>}
         {feedback?.kind === "letters" && <p>Answers are English words: use the letters A to Z.</p>}
       </div>

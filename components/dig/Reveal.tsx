@@ -102,7 +102,7 @@ export default function Reveal({ result, secret, isLast, claimed, passed = false
       </div>
       {claimable && (
         <p className="mt-4 font-sans text-sm text-ink-soft">
-          {claimed ? "Thanks. We look at these every week." : (
+          {claimed ? "Thanks, we'll check it." : (
             <Button variant="link" className="min-h-11 text-left" onClick={() => onClaim(claimable)}>{`“${claimable}” should count`}</Button>
           )}
         </p>

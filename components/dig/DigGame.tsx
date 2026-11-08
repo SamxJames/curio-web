@@ -8,6 +8,7 @@ import { scoreOf } from "@/lib/dig/score";
 import { challengeLine, parseVs } from "@/lib/dig/challenge";
 import { clearRun, effectiveNoTimer, markCoached, markReported, readRun, readStore, saveGame, saveRun, setNoTimer, useDigStore } from "@/lib/dig/storage";
 import { isNewPlayer } from "@/lib/dig/cohort";
+import { normalizeKey } from "@/lib/dig/normalize";
 import { buildFinishEvent, buildStartEvent, sendDigEvent, sendFinish, sendLandOnce, sendViaOnce } from "@/lib/dig/client";
 import EndScreen, { announceDone } from "./EndScreen";
 import Intro from "./Intro";
@@ -88,7 +89,14 @@ function DigRun({ day, isToday, vsRaw, heading, note }: { day: PreparedDay; isTo
   // A refresh into a reveal must not replay that reveal's drop: the strip skips the animation for
   // this one column (lib/dig/strip.ts).
   const [resumedReveal] = useState(() => (resumed?.state.phase === "reveal" ? resumed.state.current : -1));
-  const [claimed, setClaimed] = useState<Set<number>>(new Set());
+  // The word claimed per prompt, so one claimed at the prompt isn't offered again on the reveal,
+  // while a different last guess still can be.
+  const [claimed, setClaimed] = useState<Record<number, string>>({});
+  const claim = (guess: string) => {
+    if (!isToday) return;
+    sendDigEvent({ kind: "claim", date: day.date, prompt: state.current, guess });
+    setClaimed((c) => ({ ...c, [state.current]: guess }));
+  };
   const [passed, setPassed] = useState<Set<number>>(() => new Set(resumed?.passed ?? []));
   // Coaching is decided once, at mount, so marking it seen doesn't hide the tip mid-reveal.
   const [coachable] = useState(() => !readStore().settings.coached);
@@ -173,7 +181,7 @@ function DigRun({ day, isToday, vsRaw, heading, note }: { day: PreparedDay; isTo
         result={state.results[state.current]}
         secret={day.secrets[state.current]}
         isLast={state.current === day.prompts.length - 1}
-        claimed={claimed.has(state.current)}
+        claimed={(() => { const last = state.results[state.current].lastGuess, c = claimed[state.current]; return !!last && !!c && normalizeKey(last) === normalizeKey(c); })()}
         passed={passed.has(state.current)}
         canClaim={isToday}
         variantIndex={priorSameTier(state.results, state.current)}
@@ -182,11 +190,7 @@ function DigRun({ day, isToday, vsRaw, heading, note }: { day: PreparedDay; isTo
         promptText={day.prompts[state.current].text}
         onStory={() => sendDigEvent({ kind: "story" })}
         onNext={() => dispatch({ type: "next" })}
-        onClaim={(guess) => {
-          if (!isToday) return;
-          sendDigEvent({ kind: "claim", date: day.date, prompt: state.current, guess });
-          setClaimed(new Set(claimed).add(state.current));
-        }}
+        onClaim={claim}
       />
     );
   } else {
@@ -201,6 +205,8 @@ function DigRun({ day, isToday, vsRaw, heading, note }: { day: PreparedDay; isTo
         noTimer={state.noTimer}
         feedback={state.feedback}
         onSubmit={(guess) => dispatch({ type: "submit", guess })}
+        canClaim={isToday}
+        onClaim={claim}
         onTimer={(off) => {
           dispatch({ type: "timer", noTimer: off });
           setNoTimer(off);

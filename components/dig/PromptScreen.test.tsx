@@ -24,7 +24,25 @@ describe("PromptScreen", () => {
     expect(near).toContain("Did you mean");
     expect(near).toContain("halyard");
     const miss = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={0} noTimer feedback={{ kind: "miss", guess: "zz" }} />);
-    expect(miss).toContain("That one isn&#x27;t in today&#x27;s answers. Try another word.");
+    expect(miss).toContain("Not one we know yet. Try another, or Skip.");
+  });
+  it("offers 'should count' at a miss only when claiming is possible", () => {
+    const feedback = { kind: "miss", guess: "medlar" } as const;
+    const open = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={0} noTimer feedback={feedback} canClaim onClaim={noop} />);
+    expect(open).toContain("should count");
+    expect(open).toContain("medlar");
+    const closed = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={0} noTimer feedback={feedback} />);
+    expect(closed).not.toContain("should count");
+    const past = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={0} noTimer feedback={feedback} canClaim={false} onClaim={noop} />);
+    expect(past).not.toContain("should count");
+  });
+  it("words the prompt for a phone until the client knows there is a mouse", () => {
+    // A server render has no pointer information, so it gets the touch wording.
+    const html = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={10} noTimer={false} feedback={null} />);
+    expect(html).toContain('placeholder="Tap to type"');
+    const near = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={0} noTimer feedback={{ kind: "near", guess: "halyrd", suggestion: "halyard", index: 0 }} />);
+    expect(near).toContain("Tap Yes to accept.");
+    expect(near).not.toContain("Press Enter");
   });
   it("offers Skip while answering, as a text button that is not the red primary", () => {
     const html = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={0} noTimer feedback={null} />);

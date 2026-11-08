@@ -85,7 +85,7 @@ describe("Reveal", () => {
   });
   it("thanks the player after a claim", () => {
     const html = renderToStaticMarkup(<Reveal {...props} result={timedOut} claimed />);
-    expect(html).toContain("Thanks. We look at these every week.");
+    expect(html).toContain("Thanks, we&#x27;ll check it.");
     expect(html).not.toContain("should count");
   });
   it("shows no claim button and no thanks line on a past day", () => {

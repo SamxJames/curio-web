@@ -77,6 +77,7 @@ for (const feedback of [
 ] as const) {
   prompts[`prompt feedback ${feedback.kind}`] = html(<PromptScreen {...promptBase} phase="answering" clock={10} noTimer={false} feedback={feedback as never} />);
 }
+prompts["prompt feedback miss claimable"] = html(<PromptScreen {...promptBase} phase="answering" clock={10} noTimer={false} feedback={{ kind: "miss", guess: "medlar" }} canClaim onClaim={noop} />);
 
 const surfaces: Record<string, string> = {
   intro: html(<Intro noTimer={false} onToggleTimer={noop} onStart={noop} />),
