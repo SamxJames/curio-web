@@ -97,7 +97,7 @@ const surfaces: Record<string, string> = {
   digLine: digLineText("Name a beverage"),
   digLineShort: digLineText("Name a beverage", { short: true }),
   share: shareText(5, 125, tiers),
-  shareImage: shareImageLines(5, 125).join("\n"),
+  shareImage: shareImageLines(5, 125, true).join("\n"),
   ogImage: [OG_DIG_TITLE, OG_DIG_TAGLINE, ogDayTitle(5), ogDayTitle(null)].join("\n"),
   digest: buildDigestHtml(word, "7 Nov 2026", "#", "https://curioword.com/story/ketchup", dig),
   digestSample: buildDigestHtml(word, "7 Nov 2026", "#", "https://curioword.com/story/ketchup", dig, "sample"),

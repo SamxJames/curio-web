@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
 import EndScreen, { announceDone, formatDigDate, foundLine, rowEvent, wordsWorthKnowing } from "./EndScreen";
 import { bannedHits } from "@/lib/dig/copyAudit";
-import { copyResult, shareImage } from "./shareImage";
+import { shareImage } from "./shareImage";
 import { prepareDay } from "@/lib/dig/game";
 import { encodeDay } from "@/lib/dig/payload";
 import { devDay } from "@/lib/dig/devDay";
@@ -187,43 +187,6 @@ describe("postcard contrast (WCAG 1.4.3, text 4.5:1)", () => {
 describe("announceDone", () => {
   it("says the dig is complete and how deep, for the persistent live region", () => {
     expect(announceDone(110, ["common", null, null, null, null, null, null])).toBe("Dig complete. You found 1 word and reached the topsoil. 1.1 m down.");
-  });
-});
-
-describe("copyResult", () => {
-  afterEach(() => vi.unstubAllGlobals());
-  const abort = () => Object.assign(new Error("dismissed"), { name: "AbortError" });
-
-  it("writes the text to the clipboard and never opens a share sheet when the write works", async () => {
-    const writeText = vi.fn().mockResolvedValue(undefined);
-    const share = vi.fn().mockResolvedValue(undefined);
-    vi.stubGlobal("navigator", { clipboard: { writeText }, share });
-    await expect(copyResult("hello")).resolves.toBe("copied");
-    expect(writeText).toHaveBeenCalledWith("hello");
-    expect(share).not.toHaveBeenCalled();
-  });
-  it("falls back to navigator.share when the clipboard write throws", async () => {
-    const share = vi.fn().mockResolvedValue(undefined);
-    vi.stubGlobal("navigator", { clipboard: { writeText: vi.fn().mockRejectedValue(new Error("denied")) }, share });
-    await expect(copyResult("hello")).resolves.toBe("shared");
-    expect(share).toHaveBeenCalledWith({ text: "hello" });
-  });
-  it("falls back to navigator.share when there is no clipboard at all", async () => {
-    const share = vi.fn().mockResolvedValue(undefined);
-    vi.stubGlobal("navigator", { share });
-    await expect(copyResult("hello")).resolves.toBe("shared");
-  });
-  it("reports a dismissed share sheet as dismissed, not shared and not failed", async () => {
-    vi.stubGlobal("navigator", { clipboard: { writeText: vi.fn().mockRejectedValue(new Error("denied")) }, share: vi.fn().mockRejectedValue(abort()) });
-    await expect(copyResult("hello")).resolves.toBe("dismissed");
-  });
-  it("reports failure when the share sheet errors for another reason", async () => {
-    vi.stubGlobal("navigator", { clipboard: { writeText: vi.fn().mockRejectedValue(new Error("denied")) }, share: vi.fn().mockRejectedValue(new Error("nope")) });
-    await expect(copyResult("hello")).resolves.toBe("failed");
-  });
-  it("reports failure when neither clipboard nor share is available", async () => {
-    vi.stubGlobal("navigator", {});
-    await expect(copyResult("hello")).resolves.toBe("failed");
   });
 });
 

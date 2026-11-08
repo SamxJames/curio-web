@@ -13,7 +13,8 @@ import { sendDigEvent } from "@/lib/dig/client";
 import type { DigEvent } from "@/lib/dig/events";
 import Strata from "./Strata";
 import TomorrowHint from "./TomorrowHint";
-import { copyResult, shareImage } from "./shareImage";
+import { renderShareImage, shareImage } from "./shareImage";
+import { prefersShareSheet, shareOrCopy } from "@/lib/shareOrCopy";
 import { etymologyLink, presentableFact } from "@/lib/dig/fact";
 import { ROLLOVER_FALLBACK, rolloverLine } from "@/lib/dig/rollover";
 
@@ -71,6 +72,16 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, offer
   const [status, setStatus] = useState("");
   const [open, setOpen] = useState<Set<number>>(new Set());
   const storySent = useRef(false);
+  const sheet = useSyncExternalStore(noSubscribe, prefersShareSheet, () => false);
+  const preparedImage = useRef<Blob | null>(null);
+  // Drawn ahead of the tap: a browser can refuse a share sheet opened after slow work.
+  useEffect(() => {
+    let alive = true;
+    renderShareImage({ number: day.number, score: game.score, tiers: game.tiers, challenge: isToday })
+      .then((b) => { if (alive) preparedImage.current = b; })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [day.number, game, isToday]);
   const depth = useRef<HTMLHeadingElement>(null);
   const clearTimer = useRef<number | undefined>(undefined);
   useEffect(() => { if (autoFocus) depth.current?.focus(); }, [autoFocus]);
@@ -87,13 +98,13 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, offer
     if (isToday && !storySent.current) { storySent.current = true; sendDigEvent({ kind: "story" }); }
   };
   const copy = async () => {
-    const how = await copyResult(text);
+    const how = await shareOrCopy(text);
     // The share text isn't on the page, so a failure can't point to it.
-    say(how === "shared" ? "Shared" : how === "copied" ? "Copied. Paste it anywhere." : how === "failed" ? "Couldn't copy." : "");
+    say(how === "shared" ? "Shared" : how === "copied" ? "Copied. Paste it anywhere." : how === "failed" ? "Couldn't share." : "");
     if (how === "copied" || how === "shared") sendDigEvent({ kind: "share", how: "text" });
   };
   const image = async () => {
-    const how = await shareImage({ number: day.number, score: game.score, tiers: game.tiers, text });
+    const how = await shareImage({ number: day.number, score: game.score, tiers: game.tiers, text, challenge: isToday }, preparedImage.current);
     say(how === "shared" ? "Shared" : how === "downloaded" ? "Image saved" : how === "failed" ? "Couldn't make the image." : "");
     if (how === "shared" || how === "downloaded") sendDigEvent({ kind: "share", how: "image" });
   };
@@ -130,7 +141,7 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, offer
 
       <div className="mt-6 flex max-w-form flex-col gap-3 sm:flex-row">
         <Button fullWidth className="sm:w-auto" onClick={copy}>Share</Button>
-        <Button fullWidth className="sm:w-auto" variant="secondary" onClick={image}>Save image</Button>
+        <Button fullWidth className="sm:w-auto" variant="secondary" onClick={image}>{sheet ? "Share image" : "Save image"}</Button>
       </div>
       {/* Always mounted, so a screen reader announces the text when it changes. */}
       <p role="status" aria-live="polite" className="mt-3 min-h-6 font-sans text-sm text-ink-soft">{status}</p>

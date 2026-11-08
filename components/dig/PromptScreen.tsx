@@ -121,7 +121,7 @@ export default function PromptScreen({ index, total, prompt, phase, clock, noTim
               keyboard. Dig is disabled then, and the reducer ignores a submit until the clock starts. */}
           <TextField aria-label="Your answer" value={guess} onChange={(e) => { setGuess(e.target.value); disarm("type"); }}
             onFocus={showAnswerArea}
-            autoComplete="off" autoCapitalize="none" spellCheck={false} enterKeyHint="go" maxLength={40} />
+            autoComplete="off" autoCapitalize="none" autoCorrect="off" spellCheck={false} enterKeyHint="go" maxLength={40} />
         </div>
         <Button type="submit" variant="secondary" disabled={reading} className="shrink-0">Dig</Button>
       </form>

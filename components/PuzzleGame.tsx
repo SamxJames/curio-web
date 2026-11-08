@@ -26,6 +26,7 @@ import SignupOffer from "./SignupOffer";
 import LetterTiles from "./LetterTiles";
 import Button from "@/components/ui/Button";
 import TextField from "@/components/ui/TextField";
+import { shareOrCopy } from "@/lib/shareOrCopy";
 
 const CLUE_LABELS = ["First clue", "Second clue", "Third clue"] as const;
 
@@ -143,25 +144,12 @@ export default function PuzzleGame({
   }
 
   async function handleShare() {
-    sendTrafficEvent({ kind: "share", what: "puzzle" });
-    const siteUrl = window.location.origin;
-    const text = buildPuzzleShareText(puzzleNumber, state.cluesUsedToSolve, siteUrl);
-    if (navigator.share) {
-      try {
-        await navigator.share({ text });
-      } catch {
-        // user dismissed the share sheet
-      }
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(text);
+    const text = buildPuzzleShareText(puzzleNumber, state.cluesUsedToSolve, window.location.origin);
+    const how = await shareOrCopy(text);
+    if (how === "shared" || how === "copied") sendTrafficEvent({ kind: "share", what: "puzzle" });
+    if (how === "copied") {
       setShareCopied(true);
       setTimeout(() => setShareCopied(false), 2000);
-    } catch {
-      // Clipboard access can reject in an insecure context or when
-      // permission is denied — leave shareCopied false rather than
-      // claiming a copy that didn't happen.
     }
   }
 
@@ -207,6 +195,11 @@ export default function PuzzleGame({
                   onChange={(e) => setGuess(e.target.value)}
                   placeholder="Type your guess…"
                   aria-label="Your guess"
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  enterKeyHint="go"
                 />
               </div>
               <Button type="submit">

@@ -5,7 +5,7 @@ import { percentileLine, shareText } from "./share";
 describe("shareText", () => {
   it("matches the agreed format exactly", () => {
     expect(shareText(14, 460, ["common", "familiar", "uncommon", "rare", "fossil", "familiar", null])).toBe(
-      "curio dig, day 14\n4.6 m down\n🌱🟫🟧🪨🦴🟫▫️\ncurioword.com/dig?vs=14.023452-&utm_source=challenge"
+      "curio dig, day 14\n4.6 m down\n🌱🟫🟧🪨🦴🟫▫️\nCan you go deeper?\nhttps://curioword.com/dig?vs=14.023452-&utm_source=challenge"
     );
   });
 });
@@ -13,7 +13,8 @@ describe("shareText", () => {
 describe("past digs", () => {
   it("end with the plain dig link, no challenge code", () => {
     const t = shareText(12, 100, ["common", null, null, null, null, null, null], false).split(String.fromCharCode(10));
-    expect(t[t.length - 1]).toBe("curioword.com/dig");
+    expect(t[t.length - 1]).toBe("https://curioword.com/dig");
+    expect(t).not.toContain("Can you go deeper?");
   });
 });
 
@@ -21,7 +22,7 @@ describe("challenge link", () => {
   it("ends with the spoiler-free link", () => {
     const t = ["common", "rare", null, "fossil", "popular", "familiar", "uncommon"] as const;
     const lines = shareText(12, scoreOf([...t]), [...t]).split(String.fromCharCode(10));
-    expect(lines[lines.length - 1]).toBe("curioword.com/dig?vs=12.04-5123&utm_source=challenge");
+    expect(lines.slice(-2)).toEqual(["Can you go deeper?", "https://curioword.com/dig?vs=12.04-5123&utm_source=challenge"]);
   });
 });
 
