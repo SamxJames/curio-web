@@ -11,6 +11,7 @@ import { shareImageLines } from "@/components/dig/shareImage";
 import { noop, promptBase, secret } from "@/components/dig/testFixtures";
 import { digLineText } from "./digLineText";
 import { shareText } from "./share";
+import { staleChallengeLine } from "./challenge";
 import { ogDayTitle, OG_DIG_TAGLINE, OG_DIG_TITLE } from "./ogText";
 import { devDay } from "./devDay";
 import { prepareDay } from "./game";
@@ -89,6 +90,7 @@ const surfaces: Record<string, string> = {
   endTodayHint: html(<EndScreen day={{ ...day, tomorrow: "a word English took from Japanese" }} game={many} isToday autoFocus />),
   endPast: html(<EndScreen day={day} game={many} isToday={false} />),
   announceDone: announceDone(125, tiers),
+  staleChallenge: staleChallengeLine("12.01234-0", 14) ?? "",
   strataFull: html(<Strata tiers={tiers} words={answers} label="Your dig" />),
   strataCompact: html(<Strata compact tiers={[...tiers.slice(0, 3), undefined, undefined, undefined, undefined]} label="" current={3} justDropped={2} />),
   pastList: html(<PastList days={[{ date: "2026-12-05", number: 5 }]} />),

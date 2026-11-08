@@ -5,7 +5,7 @@ import { coachIndex, createReducer, initialGame, prepareDay, resultTiers, resume
 import { priorSameTier } from "@/lib/dig/revealCopy";
 import { stripState } from "@/lib/dig/strip";
 import { scoreOf } from "@/lib/dig/score";
-import { challengeLine, parseVs } from "@/lib/dig/challenge";
+import { challengeLine, parseVs, staleChallengeLine } from "@/lib/dig/challenge";
 import { clearRun, effectiveNoTimer, markCoached, markReported, readRun, readStore, saveGame, saveRun, setNoTimer, useDigStore } from "@/lib/dig/storage";
 import { isNewPlayer } from "@/lib/dig/cohort";
 import { normalizeKey } from "@/lib/dig/normalize";
@@ -155,7 +155,7 @@ function DigRun({ day, isToday, vsRaw, heading, note }: { day: PreparedDay; isTo
       <>
         <Heading heading={heading} phase="intro" note={note} />
         <Intro
-          challenge={friend ? challengeLine(friend) : null}
+          challenge={friend ? challengeLine(friend) : isToday ? staleChallengeLine(vsRaw, day.number) : null}
           noTimer={noTimer}
           onToggleTimer={() => setNoTimer(!noTimer)}
           onStart={() => {

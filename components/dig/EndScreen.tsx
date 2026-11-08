@@ -24,6 +24,11 @@ function useRolloverLine(): string {
   return useSyncExternalStore(noSubscribe, () => rolloverLine(), () => ROLLOVER_FALLBACK);
 }
 
+/** Phone width (matches Tailwind's sm breakpoint). False on the server and at hydration. */
+function useNarrow(): boolean {
+  return useSyncExternalStore(noSubscribe, () => !!window.matchMedia?.("(max-width: 639px)").matches, () => false);
+}
+
 /** Answers with a Curio story first (the player's own), then every prompt's fossil. */
 export function wordsWorthKnowing(day: PreparedDay, answers: (string | null)[]) {
   const mine: { word: string; note: string | null; story?: string }[] = answers.flatMap((a, i) => {
@@ -69,6 +74,7 @@ export function announceDone(score: number, tiers: (Tier | null)[]): string {
 export default function EndScreen({ day, game, isToday, autoFocus = false, offerTimer = false, onAddTimer, friend = null }: { day: PreparedDay; game: StoredGame; isToday: boolean; autoFocus?: boolean; offerTimer?: boolean; onAddTimer?: () => void; friend?: (Tier | null)[] | null }) {
   const [timerAdded, setTimerAdded] = useState(false);
   const rollover = useRolloverLine();
+  const narrow = useNarrow();
   const [status, setStatus] = useState("");
   const [open, setOpen] = useState<Set<number>>(new Set());
   const storySent = useRef(false);
@@ -129,9 +135,11 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, offer
         <h2 ref={depth} tabIndex={-1} className="mt-1 font-display text-5xl leading-display outline-none">{`${formatDepth(game.score)} down`}</h2>
         {pct && <p className="mt-2 font-sans text-base text-ink-soft">{pct}</p>}
         <p className="mt-1 font-sans text-sm text-ink-soft">{formatDigDate(day.date)}</p>
-        <div className="-mx-4 -mb-4 mt-4 overflow-hidden rounded-b-lg">
-          <Strata tiers={game.tiers} words={game.answers} label={`Your dig, ${formatDigDate(day.date)}`} height={240} />
-        </div>
+        {!(narrow && friend) && (
+          <div className="-mx-4 -mb-4 mt-4 overflow-hidden rounded-b-lg">
+            <Strata tiers={game.tiers} words={game.answers} label={`Your dig, ${formatDigDate(day.date)}`} height={narrow ? 160 : 240} />
+          </div>
+        )}
       </div>
 
       {friend && (
@@ -152,6 +160,7 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, offer
       <p role="status" aria-live="polite" className="mt-3 min-h-6 font-sans text-sm text-ink-soft">{status}</p>
 
       {isToday && <p className="mt-4 font-sans text-base text-ink-soft">{rollover}</p>}
+      <div className="mt-2 empty:hidden"><TomorrowHint isToday={isToday} hint={day.tomorrow} /></div>
       {(offerTimer || timerAdded) && onAddTimer && (
         <p className="mt-2 font-sans text-base text-ink-soft">
           {timerAdded ? "Timer on for your next dig." : (
@@ -169,7 +178,6 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, offer
             </Link>
           </li>
         )}
-        <li className="border-t border-line py-4 empty:hidden"><TomorrowHint isToday={isToday} hint={day.tomorrow} /></li>
         {/* SignupOffer hides itself, pitch included, for readers who already get the email; its li then
             has no children and closes up, with no stray rule. */}
         <li className="empty:hidden">
@@ -179,8 +187,8 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, offer
             className="border-t border-line py-4"
             pitch={
               <>
-                <h2 className="font-display text-2xl">One word&apos;s story, every morning</h2>
-                <p className="mt-2 font-sans text-base text-ink-soft">Curio sends one word and where it came from.</p>
+                <h2 className="font-display text-2xl">Tomorrow&apos;s first prompt, by email</h2>
+                <p className="mt-2 font-sans text-base text-ink-soft">One short email each morning: the day&apos;s word, its story and the dig&apos;s first prompt.</p>
               </>
             }
             onSubscribed={() => sendDigEvent({ kind: "signup" })}

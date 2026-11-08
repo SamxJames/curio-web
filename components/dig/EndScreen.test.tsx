@@ -277,3 +277,9 @@ it("shows the found line on the postcard and passes the copy audit", () => {
   expect(html).toContain("You found 2 words and reached the bedrock.");
   expect(bannedHits(html)).toEqual([]);
 });
+
+it("offers tomorrow's first prompt by email, with the rollover line before the story row", () => {
+  const html = renderToStaticMarkup(<EndScreen day={day} game={game} isToday />);
+  expect(html).toContain("Tomorrow&#x27;s first prompt, by email");
+  expect(html.indexOf("A new dig opens at midnight UTC.")).toBeLessThan(html.indexOf("Today&#x27;s word on Curio"));
+});
