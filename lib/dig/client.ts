@@ -105,10 +105,11 @@ export function buildStartEvent(date: string, games: Record<string, { finishedAt
 }
 
 /** `real` means the player actually shared or copied today's dig (not a download, not a past dig).
- * Only the first real share of a dig is counted, so the 12-04 rate reads as people, not taps. */
-export function buildShareEvent(how: "text" | "image", date: string, games: Record<string, { finishedAt: string; shared?: boolean }>, real: boolean) {
+ * Only the first real share of a dig is counted, so the 12-04 rate reads as people, not taps.
+ * `sheet` means the system share sheet took it, as opposed to a copy to the clipboard. */
+export function buildShareEvent(how: "text" | "image", date: string, games: Record<string, { finishedAt: string; shared?: boolean }>, real: boolean, sheet: boolean) {
   const base = { kind: "share" as const, how };
   if (!real || !games[date] || games[date].shared) return base;
   const sharingDays = Object.values(games).filter((g) => g.shared).length + 1;
-  return { ...base, once: true as const, ...(isNewPlayer(games, date) ? { isNew: true as const } : {}), ...(sharingDays === 3 ? { third: true as const } : {}) };
+  return { ...base, once: true as const, ...(sheet ? { sheet: true as const } : {}), ...(isNewPlayer(games, date) ? { isNew: true as const } : {}), ...(sharingDays === 3 ? { third: true as const } : {}) };
 }

@@ -37,7 +37,7 @@ export function summarizeCohorts(
     const f = funnel[date] ?? {};
     return {
       date, newFinishers: f["finish:new"] ?? 0, d1: c.d1 ?? 0, d7: c.d7 ?? 0, d8to13,
-      sharedNew: f["shared:new"] ?? 0, finishVs: f["finish:vs"] ?? 0, finishVsNew: f["finish:vs:new"] ?? 0,
+      sharedNew: f["shared:new"] ?? 0, sharedNewSheet: f["shared:new:sheet"] ?? 0, finishVs: f["finish:vs"] ?? 0, finishVsNew: f["finish:vs:new"] ?? 0,
       reachedNew: f["reached:4:new"] ?? 0, repeatSharers: f["shared:third"] ?? 0,
     };
   });

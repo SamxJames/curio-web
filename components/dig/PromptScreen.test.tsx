@@ -36,6 +36,10 @@ describe("PromptScreen", () => {
     const past = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={0} noTimer feedback={feedback} canClaim={false} onClaim={noop} />);
     expect(past).not.toContain("should count");
   });
+  it("trims the claimed guess in the label", () => {
+    const html = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={0} noTimer feedback={{ kind: "miss", guess: "medlar " }} canClaim onClaim={noop} />);
+    expect(html).toContain("“medlar” should count");
+  });
   it("words the prompt for a phone until the client knows there is a mouse", () => {
     // A server render has no pointer information, so it gets the touch wording.
     const html = renderToStaticMarkup(<PromptScreen {...base} phase="answering" clock={10} noTimer={false} feedback={null} />);

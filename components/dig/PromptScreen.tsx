@@ -142,8 +142,14 @@ export default function PromptScreen({ index, total, prompt, phase, clock, noTim
         {feedback?.kind === "miss" && (
           <p key={round}>
             Not one we know yet. Try another, or Skip.{" "}
-            {canClaim && onClaim && (claimedGuess === feedback.guess ? "Thanks, we'll check it." : (
-              <Button variant="link" className="min-h-11 text-left" onClick={() => { onClaim(feedback.guess); setClaimedGuess(feedback.guess); }}>{`“${feedback.guess}” should count`}</Button>
+            {canClaim && onClaim && (claimedGuess === feedback.guess.trim() ? "Thanks, we'll check it." : (
+              <Button variant="link" className="min-h-11 text-left" onClick={() => {
+                const claimed = feedback.guess.trim();
+                onClaim(claimed);
+                setClaimedGuess(claimed);
+                // Not on touch: see focusOnShow for why scripted focus is wrong there.
+                if (hasMouse) answerArea.current?.querySelector("input")?.focus();
+              }}>{`“${feedback.guess.trim()}” should count`}</Button>
             ))}
           </p>
         )}

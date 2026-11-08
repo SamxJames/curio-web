@@ -125,17 +125,22 @@ describe("buildShareEvent", () => {
   const g = (finishedAt: string, shared?: boolean) => ({ finishedAt, ...(shared ? { shared } : {}) });
   const date = "2026-11-10";
   it("is uncounted when it isn't a real share of today's dig", () => {
-    expect(buildShareEvent("image", date, { [date]: g(`${date}T09:00:00Z`) }, false)).toEqual({ kind: "share", how: "image" });
+    expect(buildShareEvent("image", date, { [date]: g(`${date}T09:00:00Z`) }, false, false)).toEqual({ kind: "share", how: "image" });
   });
   it("counts a first-timer's first share once", () => {
-    expect(buildShareEvent("text", date, { [date]: g(`${date}T09:00:00Z`) }, true)).toEqual({ kind: "share", how: "text", once: true, isNew: true });
+    expect(buildShareEvent("text", date, { [date]: g(`${date}T09:00:00Z`) }, true, false)).toEqual({ kind: "share", how: "text", once: true, isNew: true });
+  });
+  it("marks a counted share that went through the share sheet, and only then", () => {
+    expect(buildShareEvent("text", date, { [date]: g(`${date}T09:00:00Z`) }, true, true)).toEqual({ kind: "share", how: "text", once: true, isNew: true, sheet: true });
+    expect(buildShareEvent("text", date, { [date]: g(`${date}T09:00:00Z`) }, true, false)).not.toHaveProperty("sheet");
+    expect(buildShareEvent("text", date, { [date]: g(`${date}T09:00:00Z`) }, false, true)).toEqual({ kind: "share", how: "text" });
   });
   it("does not count a second share of the same dig", () => {
-    expect(buildShareEvent("text", date, { [date]: g(`${date}T09:00:00Z`, true) }, true)).toEqual({ kind: "share", how: "text" });
+    expect(buildShareEvent("text", date, { [date]: g(`${date}T09:00:00Z`, true) }, true, true)).toEqual({ kind: "share", how: "text" });
   });
   it("flags the third sharing day and not first-timers", () => {
     const games = { "2026-11-08": g("2026-11-08T09:00:00Z", true), "2026-11-09": g("2026-11-09T09:00:00Z", true), [date]: g(`${date}T09:00:00Z`) };
-    expect(buildShareEvent("text", date, games, true)).toEqual({ kind: "share", how: "text", once: true, third: true });
+    expect(buildShareEvent("text", date, games, true, false)).toEqual({ kind: "share", how: "text", once: true, third: true });
   });
 });
 

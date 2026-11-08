@@ -45,6 +45,9 @@ export function wordsWorthKnowing(day: PreparedDay, answers: (string | null)[]) 
 
 const STATUS_MS = 4000;
 
+/** What a failed text share says. The share text is then shown below it, to copy by hand. */
+export const SHARE_FAILED = "Couldn't share. Select the text below and copy it.";
+
 /** The postcard's first line: what the player found, never what they didn't. */
 export function foundLine(tiers: (Tier | null)[]): string {
   const found = tiers.filter((t): t is Tier => t !== null);
@@ -80,14 +83,19 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, offer
   const storySent = useRef(false);
   const sheet = useSyncExternalStore(noSubscribe, prefersShareSheet, () => false);
   const preparedImage = useRef<Blob | null>(null);
+  const [shareFallback, setShareFallback] = useState<string | null>(null);
+  const tiersKey = game.tiers.join();
+  const score = game.score;
   // Drawn ahead of the tap: a browser can refuse a share sheet opened after slow work.
   useEffect(() => {
     let alive = true;
-    renderShareImage({ number: day.number, score: game.score, tiers: game.tiers, challenge: isToday })
+    // Rebuilt from the key, so the card is redrawn only when the dig changes, not on every store write.
+    const tiers = tiersKey.split(",").map((t) => (t || null) as Tier | null);
+    renderShareImage({ number: day.number, score, tiers, challenge: isToday })
       .then((b) => { if (alive) preparedImage.current = b; })
       .catch(() => {});
     return () => { alive = false; };
-  }, [day.number, game, isToday]);
+  }, [day.number, score, tiersKey, isToday]);
   const depth = useRef<HTMLHeadingElement>(null);
   const clearTimer = useRef<number | undefined>(undefined);
   useEffect(() => { if (autoFocus) depth.current?.focus(); }, [autoFocus]);
@@ -103,21 +111,23 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, offer
   const onStory = () => {
     if (isToday && !storySent.current) { storySent.current = true; sendDigEvent({ kind: "story" }); }
   };
-  const recordShare = (how: "text" | "image", real: boolean) => {
-    sendDigEvent(buildShareEvent(how, day.date, readStore().games, real && isToday));
+  const recordShare = (how: "text" | "image", real: boolean, sheet: boolean) => {
+    sendDigEvent(buildShareEvent(how, day.date, readStore().games, real && isToday, sheet));
     if (real && isToday) markShared(day.date);
   };
   const copy = async () => {
     const how = await shareOrCopy(text);
-    // The share text isn't on the page, so a failure can't point to it.
-    say(how === "shared" ? "Shared" : how === "copied" ? "Copied. Paste it anywhere." : how === "failed" ? "Couldn't share." : "");
-    if (how === "copied" || how === "shared") recordShare("text", true);
+    // On a failure the text is shown so the player can select it by hand. It stays until a later
+    // share succeeds or is dismissed, and is not tied to the status timer.
+    say(how === "shared" ? "Shared" : how === "copied" ? "Copied. Paste it anywhere." : how === "failed" ? SHARE_FAILED : "");
+    setShareFallback(how === "failed" ? text : null);
+    if (how === "copied" || how === "shared") recordShare("text", true, how === "shared");
   };
   const image = async () => {
     const how = await shareImage({ number: day.number, score: game.score, tiers: game.tiers, text, challenge: isToday }, preparedImage.current);
     say(how === "shared" ? "Shared" : how === "downloaded" ? "Image saved" : how === "failed" ? "Couldn't make the image." : "");
     // A download keeps its old counter but is not a share.
-    if (how === "shared" || how === "downloaded") recordShare("image", how === "shared");
+    if (how === "shared" || how === "downloaded") recordShare("image", how === "shared", how === "shared");
   };
   const rowLink = "block py-4 font-sans text-base";
   const followRow = (to: "play" | "past") => () => {
@@ -158,6 +168,7 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, offer
       </div>
       {/* Always mounted, so a screen reader announces the text when it changes. */}
       <p role="status" aria-live="polite" className="mt-3 min-h-6 font-sans text-sm text-ink-soft">{status}</p>
+      {shareFallback && <p className="mt-2 max-w-form select-all whitespace-pre-line rounded-lg border border-line p-3 font-sans text-sm text-ink">{shareFallback}</p>}
 
       {isToday && <p className="mt-4 font-sans text-base text-ink-soft">{rollover}</p>}
       <div className="mt-2 empty:hidden"><TomorrowHint isToday={isToday} hint={day.tomorrow} /></div>

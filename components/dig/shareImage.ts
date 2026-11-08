@@ -9,8 +9,11 @@ const SIZE = 1080;
 const INK = "#1C1A17", PAPER = "#F5F1E8";
 
 /** Every string the share card draws, in order: the card text is built here so the copy audit can read it. */
+/** The challenge card carries the address, so a screenshot of it can be found. */
+export const CHALLENGE_LINE = `${CHALLENGE_HOOK} curioword.com/dig`;
+
 export function shareImageLines(number: number, score: number, challenge = false): string[] {
-  return ["curio dig", `day ${number}`, `${formatDepth(score)} down`, ...STRATA, ...(challenge ? [CHALLENGE_HOOK] : [])];
+  return ["curio dig", `day ${number}`, `${formatDepth(score)} down`, ...STRATA, ...(challenge ? [CHALLENGE_LINE] : [])];
 }
 
 const isAbort = (e: unknown) => (e as { name?: string } | null)?.name === "AbortError";
@@ -69,7 +72,7 @@ export async function renderShareImage(input: Omit<ImageInput, "text">): Promise
   if (input.challenge) {
     ctx.fillStyle = INK;
     ctx.font = '400 40px "Work Sans", system-ui, sans-serif';
-    ctx.fillText(CHALLENGE_HOOK, 80, 1050);
+    ctx.fillText(CHALLENGE_LINE, 80, 1050);
   }
   return new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
 }

@@ -4,7 +4,7 @@ import { bannedHits } from "./copyAudit";
 import Intro from "@/components/dig/Intro";
 import PromptScreen from "@/components/dig/PromptScreen";
 import Reveal, { announceReveal } from "@/components/dig/Reveal";
-import EndScreen, { announceDone } from "@/components/dig/EndScreen";
+import EndScreen, { announceDone, SHARE_FAILED } from "@/components/dig/EndScreen";
 import Strata from "@/components/dig/Strata";
 import PastList from "@/components/dig/PastList";
 import { shareImageLines } from "@/components/dig/shareImage";
@@ -90,6 +90,9 @@ const surfaces: Record<string, string> = {
   endTodayHint: html(<EndScreen day={{ ...day, tomorrow: "a word English took from Japanese" }} game={many} isToday autoFocus />),
   endPast: html(<EndScreen day={day} game={many} isToday={false} />),
   announceDone: announceDone(125, tiers),
+  shareFailed: SHARE_FAILED,
+  shareImageButton: "Share image",
+  claimThanks: "Thanks, we'll check it.",
   staleChallenge: staleChallengeLine("12.01234-0", 14) ?? "",
   strataFull: html(<Strata tiers={tiers} words={answers} label="Your dig" />),
   strataCompact: html(<Strata compact tiers={[...tiers.slice(0, 3), undefined, undefined, undefined, undefined]} label="" current={3} justDropped={2} />),

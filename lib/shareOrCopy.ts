@@ -2,7 +2,9 @@
 
 export type ShareOutcome = "shared" | "copied" | "dismissed" | "failed";
 
-const isAbort = (e: unknown) => (e as { name?: string } | null)?.name === "AbortError";
+/** AbortError: the player cancelled. InvalidStateError: a sheet is already open (a double tap),
+ * so this tap did nothing and must not fall through to a copy that would be counted. */
+const isAbort = (e: unknown) => { const n = (e as { name?: string } | null)?.name; return n === "AbortError" || n === "InvalidStateError"; };
 
 /** Phones and tablets get the share sheet; a mouse or trackpad gets the clipboard. Pointer, not
  * user agent: iPadOS reports a desktop agent. */

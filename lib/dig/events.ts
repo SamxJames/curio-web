@@ -19,7 +19,7 @@ export type DigEvent =
   | { kind: "via"; from: ViaSource }
   | { kind: "start"; date: string; ret?: (typeof RETURN_BUCKETS)[number]; first?: string; vs?: true }
   | { kind: "past" }
-  | { kind: "share"; how: "text" | "image"; once?: true; isNew?: true; third?: true }
+  | { kind: "share"; how: "text" | "image"; once?: true; isNew?: true; third?: true; sheet?: true }
   | { kind: "reached"; isNew?: true }
   | { kind: "story" }
   | { kind: "signup" }
@@ -74,7 +74,7 @@ export function parseDigEvent(body: unknown, today: string): DigEvent | null {
       if (b.how !== "text" && b.how !== "image") return null;
       // isNew and third only mean something on a counted share, so they are ignored without once.
       if (b.once !== true) return { kind: "share", how: b.how };
-      return { kind: "share", how: b.how, once: true, ...(b.isNew === true ? { isNew: true as const } : {}), ...(b.third === true ? { third: true as const } : {}) };
+      return { kind: "share", how: b.how, once: true, ...(b.isNew === true ? { isNew: true as const } : {}), ...(b.third === true ? { third: true as const } : {}), ...(b.sheet === true ? { sheet: true as const } : {}) };
     }
     case "reached":
       return { kind: "reached", ...(b.isNew === true ? { isNew: true as const } : {}) };
@@ -127,7 +127,7 @@ export function funnelFields(ev: DigEvent): string[] {
   const f = funnelField(ev);
   if (!f) return [];
   if (ev.kind === "start") return [f, ...(ev.ret ? [`start:ret:${ev.ret}`] : []), ...(ev.vs ? ["start:vs"] : [])];
-  if (ev.kind === "share" && ev.once) return [f, "shared:once", ...(ev.isNew ? ["shared:new"] : []), ...(ev.third ? ["shared:third"] : [])];
+  if (ev.kind === "share" && ev.once) return [f, "shared:once", ...(ev.isNew ? ["shared:new", ...(ev.sheet ? ["shared:new:sheet"] : [])] : []), ...(ev.third ? ["shared:third"] : [])];
   if (ev.kind === "reached" && ev.isNew) return [f, "reached:4:new"];
   return [f];
 }

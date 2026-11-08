@@ -166,6 +166,15 @@ describe("new counters", () => {
     const ev = parseDigEvent({ kind: "share", how: "text", once: true, isNew: true }, day)!;
     expect(funnelFields(ev)).toEqual(["share:text", "shared:once", "shared:new"]);
   });
+  it("a counted first-timer share by sheet also writes shared:new:sheet", () => {
+    const ev = parseDigEvent({ kind: "share", how: "text", once: true, isNew: true, sheet: true }, day)!;
+    expect(funnelFields(ev)).toEqual(["share:text", "shared:once", "shared:new", "shared:new:sheet"]);
+  });
+  it("sheet is ignored without once", () => {
+    const ev = parseDigEvent({ kind: "share", how: "text", isNew: true, sheet: true }, day)!;
+    expect(ev).not.toHaveProperty("sheet");
+    expect(funnelFields(ev)).toEqual(["share:text"]);
+  });
   it("isNew and third are ignored without once", () => {
     const ev = parseDigEvent({ kind: "share", how: "image", isNew: true, third: true }, day)!;
     expect(funnelFields(ev)).toEqual(["share:image"]);

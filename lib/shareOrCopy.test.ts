@@ -23,6 +23,12 @@ describe("shareOrCopy", () => {
     await expect(shareOrCopy("hi")).resolves.toBe("dismissed");
     expect(writeText).not.toHaveBeenCalled();
   });
+  it("treats a sheet that is already open (double tap) as dismissed and does not copy", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    stub(true, vi.fn().mockRejectedValue(Object.assign(new Error("x"), { name: "InvalidStateError" })), writeText);
+    await expect(shareOrCopy("hi")).resolves.toBe("dismissed");
+    expect(writeText).not.toHaveBeenCalled();
+  });
   it("copies when the sheet errors on a touch device", async () => {
     stub(true, vi.fn().mockRejectedValue(new Error("nope")), vi.fn().mockResolvedValue(undefined));
     await expect(shareOrCopy("hi")).resolves.toBe("copied");
