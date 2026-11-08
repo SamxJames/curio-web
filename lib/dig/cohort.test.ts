@@ -21,6 +21,7 @@ describe("cohorts", () => {
     expect(cohortDay("2026-02-30", "2026-03-15")).toBeNull();
     expect(cohortDay("2026-11-31", "2026-12-05")).toBeNull();
   });
+  const ZERO = { sharedNew: 0, finishVs: 0, finishVsNew: 0, reachedNew: 0, repeatSharers: 0 };
   it("summarizes new finishers and returns", () => {
     const rows = summarizeCohorts(
       { "2026-11-08": { d1: 4, d7: 2, d8: 1, d12: 1 } },
@@ -28,9 +29,13 @@ describe("cohorts", () => {
       ["2026-11-08", "2026-11-09"],
     );
     expect(rows).toEqual([
-      { date: "2026-11-08", newFinishers: 20, d1: 4, d7: 2, d8to13: 2 },
-      { date: "2026-11-09", newFinishers: 0, d1: 0, d7: 0, d8to13: 0 },
+      { date: "2026-11-08", newFinishers: 20, d1: 4, d7: 2, d8to13: 2, ...ZERO },
+      { date: "2026-11-09", newFinishers: 0, d1: 0, d7: 0, d8to13: 0, ...ZERO },
     ]);
+  });
+  it("carries the share, challenge and prompt-4 counters", () => {
+    const row = summarizeCohorts({}, { "2026-11-10": { "finish:new": 10, "shared:new": 3, "finish:vs": 4, "finish:vs:new": 2, "reached:4:new": 12, "shared:third": 1 } }, ["2026-11-10"])[0];
+    expect(row).toMatchObject({ newFinishers: 10, sharedNew: 3, finishVs: 4, finishVsNew: 2, reachedNew: 12, repeatSharers: 1 });
   });
   it("hides dates before the cohort start", () => {
     const rows = summarizeCohorts({}, {}, ["2026-11-09", COHORT_START, "2026-11-07"]);

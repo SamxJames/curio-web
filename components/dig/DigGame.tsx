@@ -106,6 +106,15 @@ function DigRun({ day, isToday, vsRaw, heading, note }: { day: PreparedDay; isTo
     if (run) saveRun(run);
   }, [day.date, phase, current, results, noTimer, passed]);
 
+  // Sent once per run when the fourth prompt appears, so a drop-off can be told apart from a bounce.
+  // A resumed run already past it never sends again.
+  const reachedSent = useRef((resumed?.state.current ?? 0) >= 3);
+  useEffect(() => {
+    if (!isToday || reachedSent.current || current !== 3 || (phase !== "reading" && phase !== "answering")) return;
+    reachedSent.current = true;
+    sendDigEvent({ kind: "reached", ...(isNewPlayer(readStore().games, day.date) ? { isNew: true } : {}) });
+  }, [isToday, current, phase, day.date]);
+
   const ticking = !state.noTimer && (state.phase === "reading" || state.phase === "answering");
   useEffect(() => {
     if (!ticking) return;
@@ -124,7 +133,7 @@ function DigRun({ day, isToday, vsRaw, heading, note }: { day: PreparedDay; isTo
     saveGame(day.date, { answers: state.results.map((r) => r.answer), tiers, score, finishedAt: new Date().toISOString() });
     // A past day never reports. Today's reports once per browser.
     if (!isToday || store.games[day.date]?.reported) return;
-    const event = buildFinishEvent(day.date, tiers, score, state.results, Math.random() < day.rejSample, isNew);
+    const event = buildFinishEvent(day.date, tiers, score, state.results, Math.random() < day.rejSample, isNew, friend !== null);
     // A null answer means the finish wasn't counted (refused, offline, or the game crossed UTC
     // midnight so it is no longer today's): no percentile line, and not marked as reported.
     void sendFinish(event).then((spread) => {
@@ -142,7 +151,7 @@ function DigRun({ day, isToday, vsRaw, heading, note }: { day: PreparedDay; isTo
           noTimer={noTimer}
           onToggleTimer={() => setNoTimer(!noTimer)}
           onStart={() => {
-            sendDigEvent(isToday ? buildStartEvent(day.date, readStore().games) : { kind: "past" });
+            sendDigEvent(isToday ? buildStartEvent(day.date, readStore().games, friend !== null) : { kind: "past" });
             dispatch({ type: "start", noTimer });
           }}
         />

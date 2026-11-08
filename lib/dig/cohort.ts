@@ -34,6 +34,11 @@ export function summarizeCohorts(
     const c = cohorts[date] ?? {};
     let d8to13 = 0;
     for (let i = 8; i <= 13; i++) d8to13 += c[`d${i}`] ?? 0;
-    return { date, newFinishers: funnel[date]?.["finish:new"] ?? 0, d1: c.d1 ?? 0, d7: c.d7 ?? 0, d8to13 };
+    const f = funnel[date] ?? {};
+    return {
+      date, newFinishers: f["finish:new"] ?? 0, d1: c.d1 ?? 0, d7: c.d7 ?? 0, d8to13,
+      sharedNew: f["shared:new"] ?? 0, finishVs: f["finish:vs"] ?? 0, finishVsNew: f["finish:vs:new"] ?? 0,
+      reachedNew: f["reached:4:new"] ?? 0, repeatSharers: f["shared:third"] ?? 0,
+    };
   });
 }

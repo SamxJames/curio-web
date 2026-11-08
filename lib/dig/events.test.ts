@@ -159,3 +159,38 @@ describe("cohort fields", () => {
     expect(plain).not.toHaveProperty("isNew");
   });
 });
+
+describe("new counters", () => {
+  const day = "2026-11-10";
+  it("a counted first-timer share writes old and new fields", () => {
+    const ev = parseDigEvent({ kind: "share", how: "text", once: true, isNew: true }, day)!;
+    expect(funnelFields(ev)).toEqual(["share:text", "shared:once", "shared:new"]);
+  });
+  it("isNew and third are ignored without once", () => {
+    const ev = parseDigEvent({ kind: "share", how: "image", isNew: true, third: true }, day)!;
+    expect(funnelFields(ev)).toEqual(["share:image"]);
+  });
+  it("marks the third sharing day", () => {
+    const ev = parseDigEvent({ kind: "share", how: "text", once: true, third: true }, day)!;
+    expect(funnelFields(ev)).toContain("shared:third");
+  });
+  it("a challenge start adds start:vs", () => {
+    const ev = parseDigEvent({ kind: "start", date: day, vs: true }, day)!;
+    expect(funnelFields(ev)).toEqual(["start", "start:vs"]);
+  });
+  it("reached carries the first-timer split", () => {
+    expect(funnelFields(parseDigEvent({ kind: "reached" }, day)!)).toEqual(["reached:4"]);
+    expect(funnelFields(parseDigEvent({ kind: "reached", isNew: true }, day)!)).toEqual(["reached:4", "reached:4:new"]);
+  });
+  it("planFinish writes challenge fields", () => {
+    const t = Array(7).fill(null);
+    const fields = planFinish({ kind: "finish", date: day, score: 0, tiers: t, rejected: [], isNew: true, vs: true }).map((i) => i[1]);
+    expect(fields).toEqual(expect.arrayContaining(["finish:vs", "finish:vs:new"]));
+    expect(planFinish({ kind: "finish", date: day, score: 0, tiers: t, rejected: [], vs: true }).map((i) => i[1])).not.toContain("finish:vs:new");
+  });
+  it("parses vs on a finish only when it is exactly true", () => {
+    const body = { kind: "finish", date: day, score: 0, tiers: Array(7).fill(null), rejected: [] };
+    expect(parseDigEvent({ ...body, vs: true }, day)).toMatchObject({ vs: true });
+    expect(parseDigEvent({ ...body, vs: "yes" }, day)).not.toHaveProperty("vs");
+  });
+});

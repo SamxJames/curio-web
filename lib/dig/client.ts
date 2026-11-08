@@ -1,7 +1,7 @@
 "use client";
 
 import { getArrivalSource } from "../trafficClient";
-import { firstPlayDate } from "./cohort";
+import { firstPlayDate, isNewPlayer } from "./cohort";
 import { MAX_REJECTED_PER_FINISH, VIA_SOURCES, type ViaSource } from "./events";
 import type { PromptResult } from "./game";
 import type { Tier } from "./types";
@@ -33,11 +33,11 @@ export async function sendFinish(ev: object): Promise<Record<string, number> | n
 /** The finish event for today's game. Guesses go as the player typed them (the server
  * normalises), flattened to [prompt index, guess], and capped at what the server accepts:
  * a longer list would null the whole finish. `includeGuesses` is the day's sampling coin. */
-export function buildFinishEvent(date: string, tiers: (Tier | null)[], score: number, results: PromptResult[], includeGuesses: boolean, isNew: boolean) {
+export function buildFinishEvent(date: string, tiers: (Tier | null)[], score: number, results: PromptResult[], includeGuesses: boolean, isNew: boolean, vs = false) {
   const rejected = includeGuesses
     ? results.flatMap((r, i) => r.rejected.map((g) => [i, g] as [number, string])).slice(0, MAX_REJECTED_PER_FINISH)
     : [];
-  return { kind: "finish" as const, date, score, tiers, rejected, ...(isNew ? { isNew: true as const } : {}) };
+  return { kind: "finish" as const, date, score, tiers, rejected, ...(isNew ? { isNew: true as const } : {}), ...(vs ? { vs: true as const } : {}) };
 }
 
 const LANDED = "curio:dig:landed"; // sessionStorage: one land per tab session
@@ -98,8 +98,17 @@ export function returningBucket(games: Record<string, { finishedAt: string }>, t
   return gap <= 1 ? "d1" : gap <= 6 ? "d2_6" : "d7";
 }
 
-export function buildStartEvent(date: string, games: Record<string, { finishedAt: string }>) {
+export function buildStartEvent(date: string, games: Record<string, { finishedAt: string }>, vs = false) {
   const ret = returningBucket(games, date);
   const first = firstPlayDate(games, date);
-  return { kind: "start" as const, date, ...(ret ? { ret } : {}), ...(first ? { first } : {}) };
+  return { kind: "start" as const, date, ...(ret ? { ret } : {}), ...(first ? { first } : {}), ...(vs ? { vs: true as const } : {}) };
+}
+
+/** `real` means the player actually shared or copied today's dig (not a download, not a past dig).
+ * Only the first real share of a dig is counted, so the 12-04 rate reads as people, not taps. */
+export function buildShareEvent(how: "text" | "image", date: string, games: Record<string, { finishedAt: string; shared?: boolean }>, real: boolean) {
+  const base = { kind: "share" as const, how };
+  if (!real || !games[date] || games[date].shared) return base;
+  const sharingDays = Object.values(games).filter((g) => g.shared).length + 1;
+  return { ...base, once: true as const, ...(isNewPlayer(games, date) ? { isNew: true as const } : {}), ...(sharingDays === 3 ? { third: true as const } : {}) };
 }

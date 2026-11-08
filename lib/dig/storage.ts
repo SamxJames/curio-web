@@ -18,6 +18,8 @@ export type StoredGame = {
   spread?: Record<string, number>;
   /** the finish event has been sent (one per browser per day) */
   reported?: boolean;
+  /** the player really shared or copied this dig; only the first such share is counted */
+  shared?: boolean;
 };
 /** noTimer absent = never chosen = no timer (a new player's first digs have no clock).
  * Stores saved before 2026-11-07 always hold true or false, so returning players keep theirs.
@@ -53,6 +55,7 @@ function parseGame(v: unknown): StoredGame | null {
   const spread = parseSpread(g.spread);
   if (spread) game.spread = spread;
   if (typeof g.reported === "boolean") game.reported = g.reported;
+  if (g.shared === true) game.shared = true;
   return game;
 }
 
@@ -148,6 +151,12 @@ export function markReported(date: string, spread: Record<string, number> | null
   const s = readStore();
   const g = s.games[date];
   if (g) writeStore(withGame(s, date, { ...g, reported: true, ...(spread ? { spread } : {}) }));
+}
+
+export function markShared(date: string) {
+  const s = readStore();
+  const g = s.games[date];
+  if (g && !g.shared) writeStore(withGame(s, date, { ...g, shared: true }));
 }
 
 /** The unfinished run (lib/dig/game.ts SavedRun): one at a time, kept apart from finished games

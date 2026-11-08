@@ -44,7 +44,7 @@ export default function DigFunnelTable({ summary, cohorts }: { summary: DigFunne
         </div>
       )}
       <p className="mt-6 font-sans text-[9.5px] tracking-[0.18em] text-ink-soft uppercase">Dig cohorts (first-play date)</p>
-      <p className="mt-1 font-sans text-[11px] text-ink-soft">From 8 Nov 2026. &lsquo;Back&rsquo; counts starts per device, so it reads slightly high (a first finish on a past dig or an unsent report isn&rsquo;t counted as new).</p>
+      <p className="mt-1 font-sans text-[11px] text-ink-soft">From 8 Nov 2026. &lsquo;Back&rsquo; counts starts per device, so it reads slightly high (a first finish on a past dig or an unsent report isn&rsquo;t counted as new). Share rate for the 12-04 gate = Shared &divide; New finishers. Counts start at this release.</p>
       <div className="mt-1">
         <div className="flex items-baseline justify-between py-1.5 font-sans text-[9.5px] tracking-[0.18em] text-ink-soft uppercase">
           <span className="flex-1">Date</span>
@@ -52,6 +52,10 @@ export default function DigFunnelTable({ summary, cohorts }: { summary: DigFunne
           <span className="w-24 text-right">Back day 1</span>
           <span className="w-24 text-right">Back day 7</span>
           <span className="w-24 text-right">Back days 8–13</span>
+          <span className="w-24 text-right">Shared</span>
+          <span className="w-24 text-right">From challenge</span>
+          <span className="w-24 text-right">Reached prompt 4</span>
+          <span className="w-24 text-right">3rd-day sharers</span>
         </div>
         {cohorts.map((c) => (
           <div key={c.date} className="flex items-baseline justify-between border-t border-line py-1.5">
@@ -60,6 +64,10 @@ export default function DigFunnelTable({ summary, cohorts }: { summary: DigFunne
             <span className="w-24 text-right font-serif text-[13px] tabular-nums">{c.d1}</span>
             <span className="w-24 text-right font-serif text-[13px] tabular-nums">{c.d7}</span>
             <span className="w-24 text-right font-serif text-[13px] tabular-nums">{c.d8to13}</span>
+            <span className="w-24 text-right font-serif text-[13px] tabular-nums">{c.sharedNew}</span>
+            <span className="w-24 text-right font-serif text-[13px] tabular-nums">{c.finishVsNew}</span>
+            <span className="w-24 text-right font-serif text-[13px] tabular-nums">{c.reachedNew}</span>
+            <span className="w-24 text-right font-serif text-[13px] tabular-nums">{c.repeatSharers}</span>
           </div>
         ))}
       </div>

@@ -7,9 +7,9 @@ import SignupOffer from "@/components/SignupOffer";
 import type { PreparedDay } from "@/lib/dig/game";
 import { formatDepth, scoreOf, STRATUM, TIER_LABEL } from "@/lib/dig/score";
 import { percentileLine, shareText } from "@/lib/dig/share";
-import type { StoredGame } from "@/lib/dig/storage";
+import { markShared, readStore, type StoredGame } from "@/lib/dig/storage";
 import { TIERS, type Tier } from "@/lib/dig/types";
-import { sendDigEvent } from "@/lib/dig/client";
+import { buildShareEvent, sendDigEvent } from "@/lib/dig/client";
 import type { DigEvent } from "@/lib/dig/events";
 import Strata from "./Strata";
 import TomorrowHint from "./TomorrowHint";
@@ -97,16 +97,21 @@ export default function EndScreen({ day, game, isToday, autoFocus = false, offer
   const onStory = () => {
     if (isToday && !storySent.current) { storySent.current = true; sendDigEvent({ kind: "story" }); }
   };
+  const recordShare = (how: "text" | "image", real: boolean) => {
+    sendDigEvent(buildShareEvent(how, day.date, readStore().games, real && isToday));
+    if (real && isToday) markShared(day.date);
+  };
   const copy = async () => {
     const how = await shareOrCopy(text);
     // The share text isn't on the page, so a failure can't point to it.
     say(how === "shared" ? "Shared" : how === "copied" ? "Copied. Paste it anywhere." : how === "failed" ? "Couldn't share." : "");
-    if (how === "copied" || how === "shared") sendDigEvent({ kind: "share", how: "text" });
+    if (how === "copied" || how === "shared") recordShare("text", true);
   };
   const image = async () => {
     const how = await shareImage({ number: day.number, score: game.score, tiers: game.tiers, text, challenge: isToday }, preparedImage.current);
     say(how === "shared" ? "Shared" : how === "downloaded" ? "Image saved" : how === "failed" ? "Couldn't make the image." : "");
-    if (how === "shared" || how === "downloaded") sendDigEvent({ kind: "share", how: "image" });
+    // A download keeps its old counter but is not a share.
+    if (how === "shared" || how === "downloaded") recordShare("image", how === "shared");
   };
   const rowLink = "block py-4 font-sans text-base";
   const followRow = (to: "play" | "past") => () => {

@@ -17,14 +17,15 @@ export type ViaSource = (typeof VIA_SOURCES)[number];
 export type DigEvent =
   | { kind: "land"; source: TrafficSource }
   | { kind: "via"; from: ViaSource }
-  | { kind: "start"; date: string; ret?: (typeof RETURN_BUCKETS)[number]; first?: string }
+  | { kind: "start"; date: string; ret?: (typeof RETURN_BUCKETS)[number]; first?: string; vs?: true }
   | { kind: "past" }
-  | { kind: "share"; how: "text" | "image" }
+  | { kind: "share"; how: "text" | "image"; once?: true; isNew?: true; third?: true }
+  | { kind: "reached"; isNew?: true }
   | { kind: "story" }
   | { kind: "signup" }
   | { kind: "timer" }
   | { kind: "row"; to: "play" | "past" }
-  | { kind: "finish"; date: string; score: number; tiers: (Tier | null)[]; rejected: [number, string][]; isNew?: true }
+  | { kind: "finish"; date: string; score: number; tiers: (Tier | null)[]; rejected: [number, string][]; isNew?: true; vs?: true }
   | { kind: "claim"; date: string; prompt: number; guess: string };
 
 /** Letters, apostrophes, spaces and hyphens: a word someone typed, nothing else. Non-Latin
@@ -57,7 +58,7 @@ export function parseDigEvent(body: unknown, today: string): DigEvent | null {
       const ret = (RETURN_BUCKETS as readonly unknown[]).includes(b.ret) ? (b.ret as (typeof RETURN_BUCKETS)[number]) : undefined;
       // The first-play date is only kept when it is a real date 1-60 days back: never trusted as sent.
       const first = typeof b.first === "string" && cohortDay(b.first, today) !== null ? b.first : undefined;
-      return { kind: "start", date: today, ...(ret ? { ret } : {}), ...(first ? { first } : {}) };
+      return { kind: "start", date: today, ...(ret ? { ret } : {}), ...(first ? { first } : {}), ...(b.vs === true ? { vs: true as const } : {}) };
     }
     case "via":
       return (VIA_SOURCES as readonly unknown[]).includes(b.from) ? { kind: "via", from: b.from as ViaSource } : null;
@@ -69,8 +70,14 @@ export function parseDigEvent(body: unknown, today: string): DigEvent | null {
       return { kind: "timer" };
     case "row":
       return b.to === "play" || b.to === "past" ? { kind: "row", to: b.to } : null;
-    case "share":
-      return b.how === "text" || b.how === "image" ? { kind: "share", how: b.how } : null;
+    case "share": {
+      if (b.how !== "text" && b.how !== "image") return null;
+      // isNew and third only mean something on a counted share, so they are ignored without once.
+      if (b.once !== true) return { kind: "share", how: b.how };
+      return { kind: "share", how: b.how, once: true, ...(b.isNew === true ? { isNew: true as const } : {}), ...(b.third === true ? { third: true as const } : {}) };
+    }
+    case "reached":
+      return { kind: "reached", ...(b.isNew === true ? { isNew: true as const } : {}) };
     case "claim": {
       const guess = cleanGuess(b.guess);
       return b.date === today && isPromptIndex(b.prompt) && guess ? { kind: "claim", date: today, prompt: b.prompt, guess } : null;
@@ -90,7 +97,7 @@ export function parseDigEvent(body: unknown, today: string): DigEvent | null {
         if (!g) continue;
         rejected.push([r[0], g]);
       }
-      return { kind: "finish", date: today, score: b.score, tiers, rejected, ...(b.isNew === true ? { isNew: true as const } : {}) };
+      return { kind: "finish", date: today, score: b.score, tiers, rejected, ...(b.isNew === true ? { isNew: true as const } : {}), ...(b.vs === true ? { vs: true as const } : {}) };
     }
     default:
       return null;
@@ -105,6 +112,7 @@ export function funnelField(ev: DigEvent): string | null {
     case "start": return "start";
     case "past": return "past:start";
     case "share": return `share:${ev.how}`;
+    case "reached": return "reached:4";
     case "story": return "story";
     case "signup": return "signup";
     case "timer": return "timer:switch";
@@ -114,14 +122,19 @@ export function funnelField(ev: DigEvent): string | null {
   }
 }
 
-/** Events one sender may send: any kind per minute, and finishes or claims per day. Generous for
- * a household or office sharing an address, tight enough that a script can't skew the
- * percentile or grow the rejected-guess hashes without limit. */
+/** Every funnel field an event increments: its own, plus the cohort and challenge splits. */
 export function funnelFields(ev: DigEvent): string[] {
   const f = funnelField(ev);
   if (!f) return [];
-  return ev.kind === "start" && ev.ret ? [f, `start:ret:${ev.ret}`] : [f];
+  if (ev.kind === "start") return [f, ...(ev.ret ? [`start:ret:${ev.ret}`] : []), ...(ev.vs ? ["start:vs"] : [])];
+  if (ev.kind === "share" && ev.once) return [f, "shared:once", ...(ev.isNew ? ["shared:new"] : []), ...(ev.third ? ["shared:third"] : [])];
+  if (ev.kind === "reached" && ev.isNew) return [f, "reached:4:new"];
+  return [f];
 }
+
+/** Events one sender may send: any kind per minute, and finishes or claims per day. Generous for
+ * a household or office sharing an address, tight enough that a script can't skew the
+ * percentile or grow the rejected-guess hashes without limit. */
 
 export const RATE_LIMITS = { perMinute: 30, finishPerDay: 5, claimPerDay: 20 } as const;
 
@@ -144,6 +157,8 @@ export function planFinish(ev: Extract<DigEvent, { kind: "finish" }>): Incr[] {
   const fossils = ev.tiers.filter((t) => t === "fossil").length;
   if (fossils > 0) out.push([digKeys.funnel(ev.date), "fossil", fossils]);
   if (ev.isNew) out.push([digKeys.funnel(ev.date), "finish:new", 1]);
+  if (ev.vs) out.push([digKeys.funnel(ev.date), "finish:vs", 1]);
+  if (ev.vs && ev.isNew) out.push([digKeys.funnel(ev.date), "finish:vs:new", 1]);
   const rej = new Map<string, Incr>();
   for (const [i, g] of ev.rejected) {
     const key = `${i}|${g}`;
