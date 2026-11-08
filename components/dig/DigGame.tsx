@@ -8,6 +8,7 @@ import { scoreOf } from "@/lib/dig/score";
 import { challengeLine, parseVs, staleChallengeLine } from "@/lib/dig/challenge";
 import { clearRun, effectiveNoTimer, markCoached, markReported, readRun, readStore, saveGame, saveRun, setNoTimer, useDigStore } from "@/lib/dig/storage";
 import { isNewPlayer } from "@/lib/dig/cohort";
+import { fetchDayWithRetry } from "@/lib/dig/loadDay";
 import { normalizeKey } from "@/lib/dig/normalize";
 import { buildFinishEvent, buildStartEvent, sendDigEvent, sendFinish, sendLandOnce, sendViaOnce } from "@/lib/dig/client";
 import EndScreen, { announceDone } from "./EndScreen";
@@ -49,7 +50,8 @@ export default function DigGame({ date, heading, note }: { date?: string; headin
   const [vsRaw, setVsRaw] = useState<string | null>(null);
   useEffect(() => {
     let alive = true;
-    fetch(date ? `/api/dig/day/${date}` : "/api/dig/today")
+    const url = date ? `/api/dig/day/${date}` : "/api/dig/today";
+    fetchDayWithRetry(() => fetch(url), (ms) => new Promise((resolve) => setTimeout(resolve, ms)))
       .then((r) => (r.ok ? (r.json() as Promise<DigDayResponse>) : Promise.reject(new Error(String(r.status)))))
       .then((d) => {
         if (!alive) return;

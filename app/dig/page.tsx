@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { preload } from "react-dom";
 import DigGame from "@/components/dig/DigGame";
 import { DIG_PITCH } from "@/lib/dig/pitch";
 import { isDigOpen } from "@/lib/dig/clock";
@@ -16,6 +17,9 @@ export const revalidate = 3600;
 
 export default function DigPage() {
   if (!isDigOpen()) notFound();
+  // Start downloading today's game with the page instead of after hydration. crossOrigin must be
+  // "anonymous" or the browser won't match this to the later fetch() and downloads it twice.
+  preload("/api/dig/today", { as: "fetch", crossOrigin: "anonymous" });
   return (
     <main className="mx-auto max-w-page px-6 py-10">
       <DigGame heading="curio dig" />
