@@ -14,6 +14,7 @@ describe("design-token", () => {
     expect(rules("components/X.tsx", `<p className="text-micro tracking-wide max-w-[46ch] min-h-[calc(100vh-1px)] bg-paper">a</p>`)).toEqual([]);
     expect(rules("components/AdminDashboard.tsx", `<p className="text-[32px]">a</p>`)).toEqual([]);
     expect(rules("components/dig/DigFunnelTable.tsx", `<p className="tracking-[0.18em]">a</p>`)).toEqual([]);
+    expect(rules("components/dig/DigReviewTable.tsx", `<p className="text-[13.5px] tracking-[0.18em]">a</p>`)).toEqual([]);
     expect(rules("components/X.test.tsx", `<p className="text-[32px]">a</p>`)).toEqual([]);
   });
   it("ignores mentions inside comments", () => {
