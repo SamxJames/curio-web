@@ -26,6 +26,7 @@ The founder posts everything here by hand. Nothing in this file has been posted 
 4. Each post uses its own link: `https://curioword.com/dig?utm_source=reddit`, `https://curioword.com/dig?utm_source=hn` or `https://curioword.com/dig?utm_source=newsletter`.
 5. Open /admin and confirm the three sources show up as separate rows.
 6. Never ask anyone to upvote, and don't ask friends to. Reply to every comment.
+7. Before Show HN, confirm the Upstash plan's command cap and Vercel usage alerts. A player costs about 25 Redis commands, so 2,000 HN visitors is roughly 50,000 commands.
 
 **After each post, read in /admin** (filter by the source's UTM): visits, starts, "Reached prompt 4", finishes and Shared. Check at +3 hours and the next morning.
 - Visits high, starts low: the cold page is the problem. Reread the pitch and the Start button on a phone.
@@ -138,3 +139,13 @@ Call it a flop if, by the next morning, the post has little discussion and almos
 - **Fix first:** use whatever the first round showed, such as a confusing cold page or a rejected word people complained about. Don't change the pricing, login or scoring claims.
 - **Same rules:** link to `https://curioword.com/dig?utm_source=hn`, never ask for upvotes, and be there for the first 3 to 4 hours. Check the HN guidelines the morning before for anything about reposting.
 - **Keep going elsewhere:** emails and subreddit comments continue as planned. If the retry also flops, spend the next week on newsletters and communities instead of a third HN try.
+
+## 7. Extra candidates from the 2026-11-12 Gemini research (all unverified)
+
+Nothing here is scheduled. Gemini's claims about each channel's rules came from a model with no first-hand access, so read each channel's own rules before using it. Source: `docs/research/2026-11-12-gemini-prompts.md` prompts, answers reviewed in session.
+
+- **r/WebGames (best fit for dig).** A browser-game showcase. Gemini says it requires a title tag such as `[HTML5]` and bans plain promotion. Read the sidebar first. If it allows developer posts, reuse Post B's player angle with `utm_source=reddit`. Rehearse in r/SideProject first, as planned.
+- **Indie Hackers.** A short builder post about how rarity scoring works with no crowd. Low volume, good for early advocates and feedback. Reuse the Show HN first comment as the body.
+- **Daily-game directories.** Dle Hunt already lists Curio (the page carries a real user comment about the puzzle's first clue). Other aggregators seen in the research: Coolgamesfree, ZapGames, quordle-wordle. Cheap to submit, low value for search. Use the directory-submissions skill when ready.
+- **Dense Discovery (email 6).** Gemini says it sells 200-character classified ads rather than taking free tips. The email above assumes a free tip. Check its submission page before 11-23, and don't pay for an ad without deciding on a budget.
+- **Not worth doing now:** Product Hunt (needs 24 hours of constant presence for a game with a 4 Dec gate to read), Lobste.rs (invite-only), r/etymology (read-only claim is probably out of date; mods first, as above), Atlas Obscura pitch (needs a data story we don't have yet).

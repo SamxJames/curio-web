@@ -24,14 +24,30 @@ every feature against it.
   (`/api/cron/social`). Mondays 06:00: demand report (GitHub Action → private `SamxJames/curio-reports`).
 
 ## Current state (2026-11-12)
-- **Dig guess review deployed (master 543deee, 21:19 UTC; server verified in production, details in `docs/handover/dig.md`
-  "Guess review").** Wrong guesses now go out live as `miss` events (abandoned digs count); a blind AI reviewer of refused
-  words runs in shadow mode (changes no answer list) with an admin table. **Reviewer is OFF until Sam adds the
-  `ANTHROPIC_API_KEY` GitHub Actions secret.** Dig itself has been live since 2026-11-07 (check `/api/dig/today`).
-  Local master in the main checkout is diverged (old copy 80f8f00): reset it to origin/master when no other session is
-  using that checkout. Unverified: admin table render (needs sign-in), a real browser wrong guess on production.
+- **Git/deploy state (2026-11-12):** origin/master = local master = b10ce4e = production (deploy 21:21 UTC). CI green on
+  the last 4 pushes (`ci.yml` verified). Local master was hard-reset to origin; old head tagged
+  `backup/local-master-2026-11-12` (80f8f00, a redundant rebuild of 543deee). Merged worktrees and branches cleaned up.
+  Kept: worktree `worktree-search-watch` (8 UNMERGED commits: demand report Search Console trend, drop detection,
+  URL-inspection index sample). Empty `.claude/worktrees/dig-guess-review` is locked by an open process: delete after
+  closing the terminal. Old `stash@{0}` (task7-wip-check-preexisting, Sep) untouched.
+- **Dig pipeline workflow is INTERMITTENT.** Scheduled "Dig pipeline" failed 2026-11-09 and 2026-11-12: "Date
+  2026-12-22 salt 7: no usable fossil for prompt 1" (exit 1, ~15 min). The manual `workflow_dispatch` run on 11-12
+  passed on retry. Future date, so players are not affected (`/api/dig/today` serves dig #6). Watch the next scheduled
+  run; see `docs/handover/dig.md` for the pipeline.
+- **Dig guess review deployed (master 543deee, in production; details in `docs/handover/dig.md` "Guess review").**
+  Wrong guesses go out live as `miss` events (abandoned digs count); a blind AI reviewer of refused words runs in shadow
+  mode (changes no answer list) with an admin table. **`ANTHROPIC_API_KEY` Actions secret now exists (added 11-12 21:25
+  UTC), but the reviewer's 14 of 14 Anthropic calls fail with HTTP 400 (49d4511 logs the status; run 43313041176).
+  A 400 usually means the account behind the key is out of credit, but that is not yet confirmed: another session
+  is labelling it (`400:credit`) in uncommitted edits to `scripts/dig/review.ts`.** Dig itself has been live since 2026-11-07. Unverified: admin table render (needs sign-in), a real
+  browser wrong guess on production.
+- **Gemini research done and triaged (local, uncommitted):** prompts `docs/research/2026-11-12-gemini-prompts.md`,
+  triaged outcomes `docs/research/2026-11-12-gemini-outcomes.md`. Nothing needs building before launch (most was already
+  built, broke archive-never-backlog or the 11-07 no-mass-noindex decision, or assumed a premium tier / red accent).
+  Verified on a real iPhone (dark mode): etymology lineage wraps cleanly; homepage has one primary button and a quiet
+  "Also today" strip. Accent is amber; `--danger` is a separate token. Kept items are in Open threads.
 - **Signup measurement + guards shipped (origin/master a039145, 2026-11-12; offer-seen counter and story offer verified
-  in production, `ci.yml` first run unverified).** New `offer-at:<placement>` traffic event (once per placement per tab
+  in production).** New `offer-at:<placement>` traffic event (once per placement per tab
   session at >=50% visible: `SignupOffer` IntersectionObserver, `lib/signupOffer.offerIsShown`,
   `lib/trafficClient.claimOfferSeen`); `traffic:report` shows offers seen + requests per 100 offers seen. Story page
   `SignupOffer` now after the FIRST section (`StoryView`). Guard layer `scripts/guards` (`npm run guard`, 19 tests: tokens,
@@ -46,7 +62,9 @@ every feature against it.
   (`lib/dig/loadDay.ts`), new share/funnel counters and admin cohort columns (fields in `docs/handover/dig.md`).
   Share-rate for the 12-04 gate = Shared ÷ New finishers; counts start 2026-11-12.
 - **Launch kit:** `docs/launch/2026-11-dig-launch.md`: pre-flight Sun 11-15, r/SideProject 11-17, r/DailyWordGames 11-19,
-  Show HN Tue 11-24, retry 12-01 if needed. Plan: `docs/superpowers/plans/2026-11-08-dig-prelaunch-release.md`.
+  Show HN Tue 11-24, retry 12-01 if needed. Pre-flight item 7 (new): confirm Upstash plan command cap and Vercel alerts
+  (~25 Redis commands per player, so 2,000 visitors is ~50,000). New section 7: unverified extra channels (r/WebGames,
+  Indie Hackers, game directories; Dense Discovery may be a paid 200-character classified, check before 11-23). Plan: `docs/superpowers/plans/2026-11-08-dig-prelaunch-release.md`.
 - **Week 1 launch readiness is live (master 4432331, deployed and verified in production 2026-11-07).** Merged with
   another session's 15 dig placement/first-run commits. `/dig` rules + pitch are in the server HTML; challenge links
   (`?vs=<day>.<tiers>&utm_source=challenge`, nothing stored, friend comparison on the end screen); pipeline
@@ -90,8 +108,6 @@ every feature against it.
 - Double opt-in and the 200/day confirmation cap are live. Weekly check-in state: `../checkins/state.md`.
 - Vercel: the MCP connector sees the team but not its projects; the **Vercel CLI** (logged in) works, including Web
   Analytics: `vercel api "/v1/query/web-analytics/visits/count?projectId=etymology-app&teamId=<team>&since=..&until=.."`.
-- Merged worktrees `.claude/worktrees/dig-*` can be removed.
-- Stale branch `brand-assets` (local + origin) has no commits beyond master; safe to delete.
 
 ## Gotchas (each one has bitten before)
 - `vercel link --project <name>` **silently creates a new empty project** if the name is wrong. Run `vercel project ls` first.
@@ -123,6 +139,7 @@ every feature against it.
 - vitest and eslint skip `.claude/**` (worktrees), so the main checkout's suite no longer sweeps them.
 - No Python on this machine; write scripts in Node/tsx.
 - `tsc` fails on a clean checkout without `.next` types (PageProps/LayoutProps/RouteContext): use `npm run typecheck` (`next typegen` first).
+- On Windows, `git worktree remove` can leave a directory locked by an open terminal/session; delete it after closing. The auto-mode classifier blocks `git reset --hard` and worktree deletion until Sam approves in chat.
 - `.claude/` is gitignored (local only): Stop hook runs the guard (not yet seen firing live), deny rules for `.env*`, force-push, upstash.io.
   `curio-guest-test` launch entry + `.claude/guest-dev.cjs` = dev on :3010 with Redis and Resend blanked, for clean-guest browser tests.
 
@@ -137,14 +154,20 @@ every feature against it.
 - The demand report lives in a private repo and public Actions logs print counts only.
 
 ## Open threads
-- **Git state:** local master holds the 3 signup/guard commits under old hashes (43e64dc, eb56846, e3a9195); origin has
-  bdb88b2, f3f109e, a039145. Do NOT push local master. `git pull --rebase` will conflict with uncommitted dig edits
-  (`scripts/dig/*`, `handover.md`, docs): settle those first.
-- **Signup:** read offer-seen numbers (`npm run traffic:report -- 7`) after 1-2 days; verify the first `ci.yml` run.
+- **Dig pipeline workflow:** intermittent "no usable fossil for prompt 1" (date 2026-12-22 salt 7); manual run passed on
+  retry. Find the cause before that date arrives.
+- **Dig reviewer:** 14 of 14 Anthropic calls fail with HTTP 400 (key in place). Likely out of credit on the Anthropic
+  account; confirm from the `400:credit` label once the other session's `scripts/dig/review.ts` edits are pushed.
+- **After the 12-18 GSC read and freeze end:** related-word links ("Down the rabbit hole") on story pages (pull, not push).
+- **Parked until after the 12-04 gate:** dig prominence on the homepage, embeddable widget, sibling products.
+- **Git housekeeping:** decide merge-or-park for `worktree-search-watch` (8 unmerged commits); delete the locked empty
+  `dig-guess-review` folder; open SEO weekly PRs #2/#3/#4 (small `lib/words.ts` teaser edits): recommend hold under the
+  6-week story-text freeze.
+- **Signup:** read offer-seen numbers (`npm run traffic:report -- 7`) after 1-2 days.
 - **Tooling candidates not installed:** cc-safety-net, ccusage, mcp-gsc (needs uvx/Python + Google OAuth). Rejected: ravenseat,
   open-design-agent-kit, OpenSpec, Spec Kit, Claude Squad, Vibe Kanban, Postiz (`decisions.md`).
 - **Dig:** real iPhone + Android test. Read the kill line 2026-12-04. The dig/health cron check is not done (needs
-  `CRON_SECRET`). Remove worktree `.claude/worktrees/dig-prelaunch` and the `dig-prelaunch-prod` entry in `.claude/launch.json`.
+  `CRON_SECRET`). Remove the `dig-prelaunch-prod` entry in `.claude/launch.json` (worktree already gone).
 - **Dig minors (deferred):** cohort hashes never expire; caption hardcodes 8 Nov; "back" counts read slightly high;
   `useNarrow` ignores rotation; `markShared` may over-count if storage is blocked.
 - **Dig deferred:** personalised previews, returning-player intro, sticky Next, other Puzzle items, scoring page.
@@ -152,8 +175,8 @@ every feature against it.
   ~50 stories; read GSC 2026-12-18. Don't click Validate fix.
 - **Pause Threads/IG auto-posts** (roadmap item, not done).
 - **2026-10-15:** verify the first IndexNow run in Vercel logs: `[curio:indexnow] 2026-10-15: submitted ~1214 URLs (HTTP 200|202)`.
-- Clue rewrite for the remaining 945 words (`clues:rewrite`, review sample + `tooHard`, `clues:apply -- --keep-today`).
-  Revisit the clue rules if synced plays show most solves on clue 1 or failures above ~20%.
+- Clue rewrite for the remaining 945 words (`clues:rewrite`, review sample + `tooHard`, `clues:apply -- --keep-today`);
+  a real Dle Hunt user comment says clue 1 gives the word away. Revisit the clue rules if synced plays show most solves on clue 1 or failures above ~20%.
 - Next language-sheet batch: `languages:facts -- --limit 30`, draft, review, approve (Proto-West Germanic has no usable source).
 - Submit remaining launch-kit entries; "root word" phrasing in titles.
 - Small UX: "clue progression (clue 1 hardest)" is unclear; ask Sam what was meant.
@@ -161,10 +184,13 @@ every feature against it.
 
 ## Waiting on Sam
 - Real phone signup in a private tab with your own email (email arrives, confirm link works), then re-run `traffic:report`.
-- Decide whether to install the 3 tooling candidates; decide the uncommitted dig edits before any `git pull --rebase`.
+- Check credit and billing on the Anthropic account behind `ANTHROPIC_API_KEY`: every reviewer call returns HTTP 400,
+  most likely "credit balance too low". The secret itself is added.
+- Decide whether to install the 3 tooling candidates; merge-or-park `worktree-search-watch`; SEO PRs #2/#3/#4 (hold?).
+- Launch pre-flight Sun 11-15 (Reddit 11-17/11-19, Show HN 11-24).
 - Real iPhone + Android test (tell me the date; finishes add test players to the counts).
 - Confirm Upstash plan + Vercel usage notifications (~25 Redis cmds/player).
-- Five-stranger test before Show HN · launch-kit pre-flight (subreddit rules, 5 unverified newsletter targets,
+- Five-stranger test before Show HN (add: "what do you think 'rarer ones dig deeper' means?") · launch-kit pre-flight (subreddit rules, 5 unverified newsletter targets,
   free/no-login wording, your own answer to "is this AI?") · weeks 2-3 hand launch.
 - Add curioword.com to Bluesky/Threads/IG bios · submit remaining
   launch-kit entries · tighten `_dmarc` to `quarantine` later ·
