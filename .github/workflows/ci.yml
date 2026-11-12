@@ -1,0 +1,39 @@
+# Source guards, lint, typecheck and tests on every PR and master push.
+# Note: Vercel deploys master independently, so this reports a problem after
+# the push rather than blocking the deploy. Run `npm run check` before pushing.
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Design-token, raw-control and "archive, never backlog" copy rules.
+      - run: npm run guard
+
+      - run: npm run lint
+
+      - run: npm run typecheck
+
+      - run: npm test
