@@ -24,6 +24,12 @@ every feature against it.
   (`/api/cron/social`). Mondays 06:00: demand report (GitHub Action → private `SamxJames/curio-reports`).
 
 ## Current state (2026-11-12)
+- **Dig guess review deployed (master 543deee, 21:19 UTC; server verified in production, details in `docs/handover/dig.md`
+  "Guess review").** Wrong guesses now go out live as `miss` events (abandoned digs count); a blind AI reviewer of refused
+  words runs in shadow mode (changes no answer list) with an admin table. **Reviewer is OFF until Sam adds the
+  `ANTHROPIC_API_KEY` GitHub Actions secret.** Dig itself has been live since 2026-11-07 (check `/api/dig/today`).
+  Local master in the main checkout is diverged (old copy 80f8f00): reset it to origin/master when no other session is
+  using that checkout. Unverified: admin table render (needs sign-in), a real browser wrong guess on production.
 - **Signup measurement + guards shipped (origin/master a039145, 2026-11-12; offer-seen counter and story offer verified
   in production, `ci.yml` first run unverified).** New `offer-at:<placement>` traffic event (once per placement per tab
   session at >=50% visible: `SignupOffer` IntersectionObserver, `lib/signupOffer.offerIsShown`,
