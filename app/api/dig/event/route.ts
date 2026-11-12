@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { dayKey } from "@/lib/day";
 import { digLaunchDate, isDigOpen } from "@/lib/dig/clock";
 import { parseDigEvent } from "@/lib/dig/events";
-import { isRateLimited, recordClaim, recordFinish, recordFunnel } from "@/lib/dig/server";
+import { isRateLimited, recordClaim, recordFinish, recordFunnel, recordMiss } from "@/lib/dig/server";
 import { isLikelyBot } from "@/lib/traffic";
 
 /** Largest body a dig event can legitimately need (a finish with 21 rejected guesses is well under this). */
@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
   try {
     if (ev.kind === "finish") return NextResponse.json({ spread: await recordFinish(ev) });
     if (ev.kind === "claim") await recordClaim(ev);
+    else if (ev.kind === "miss") await recordMiss(ev);
     else await recordFunnel(today, ev);
   } catch (err) {
     console.error("dig: event failed", err instanceof Error ? err.name : "unknown");

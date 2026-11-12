@@ -15,7 +15,7 @@ export function hasBlockedWord(w: string, blocked: Set<string>): boolean {
 
 export function dropBlocked(c: Candidate, blocked: Set<string>): Candidate {
   const ok = (w: string) => !hasBlockedWord(w, blocked);
-  return { ...c, core: c.core.filter(ok), accepted: c.accepted.filter(ok) };
+  return { ...c, core: c.core.filter(ok), accepted: c.accepted.filter(ok), ...(c.obvious ? { obvious: c.obvious.filter(ok) } : {}) };
 }
 
 /** One spelling per normalised key ("ice rink" / "ice-rink" would otherwise be two answers sharing a key, possibly
@@ -52,7 +52,7 @@ export function fossilCandidates(c: Candidate, { wn, index, zipf }: Ctx): string
     if (z !== undefined && z >= 2.3) return false;
     if (!/^[a-z]{4,14}$/.test(w)) return false;
     const info = index.info.get(w);
-    if (!info || info.obsolete || info.offensive) return false;
+    if (!info || info.strictObsolete || info.strictOffensive) return false;
     if (c.senseIds) {
       const first = wn.synsetsOf.get(w)?.[0];
       if (!first || !c.senseIds.has(first)) return false;
@@ -77,6 +77,12 @@ export function floorProblems(c: Candidate, ctx: Ctx): string[] {
   if (n.rare < minRare) problems.push(`rare ${n.rare} < ${minRare}`);
   if (c.kind === "origin" && n.common > 300) problems.push(`common ${n.common} > 300`);
   if (fossilCandidates(c, ctx).length === 0) problems.push("no fossil");
+  // The answers people type first must count ("mother" for a family member). Counts only: words would name future answers.
+  if (c.obvious?.length) {
+    const keys = new Set(c.accepted.map(normalizeKey));
+    const missing = c.obvious.filter((w) => !keys.has(normalizeKey(w))).length;
+    if (missing) problems.push(`obvious ${missing} missing`);
+  }
   return problems;
 }
 

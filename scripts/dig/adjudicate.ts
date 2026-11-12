@@ -4,6 +4,7 @@ import { decodeDay, encodeDay } from "../../lib/dig/payload";
 import { tierFromZipf } from "../../lib/dig/score";
 import { historyFromManifest } from "../../lib/dig/keys";
 import type { DigDayPlain } from "../../lib/dig/types";
+import type { JudgeReason } from "../../lib/dig/verdicts";
 import { daysBetween } from "./assemble";
 import { buildGuard, hasBlockedWord } from "./answers";
 import type { DigSink } from "./sink";
@@ -15,15 +16,51 @@ type JudgeCtx = { lexicon: Set<string>; usable: (w: string) => boolean; blocked:
 /** pipeline-design §11: a person proposed it, so one strong source is enough, but it must
  * be a real, usable, unblocked English word. Returns the source's spelling. */
 export function judge(guess: string, c: Candidate, ctx: JudgeCtx): string | null {
+  return explainJudge(guess, c, ctx).word;
+}
+
+/** Why `judge` said no (or "accepted"): "not-a-word" is outside the lexicon, "blocked" is on the
+ * blocklist, "unusable" is a source word the game won't take (too obscure or unsuitable), and
+ * "not-in-sources" is a real word no source places in this prompt. */
+export function explainJudge(guess: string, c: Candidate, ctx: JudgeCtx): { word: string | null; reason: JudgeReason } {
   const key = normalizeKey(guess);
-  if (!key || !ctx.lexicon.has(key) || hasBlockedWord(key, ctx.blocked)) return null;
+  if (!key || !ctx.lexicon.has(key)) return { word: null, reason: "not-a-word" };
+  if (hasBlockedWord(key, ctx.blocked)) return { word: null, reason: "blocked" };
+  let sawUnusable = false;
   for (const source of c.sources) for (const w of source) {
-    if (normalizeKey(w) === key && ctx.usable(w) && !hasBlockedWord(w, ctx.blocked)) return w;
+    if (normalizeKey(w) !== key) continue;
+    if (ctx.usable(w) && !hasBlockedWord(w, ctx.blocked)) return { word: w, reason: "accepted" };
+    sawUnusable = true;
   }
-  return null;
+  return { word: null, reason: sawUnusable ? "unusable" : "not-in-sources" };
 }
 
 const LOG_DAYS = 35;
+
+type Tally = Map<string, Map<string, { rej: number; claim: number }>>;
+
+/** Wrong guesses (rej) and claims, summed per prompt id then per guess, over the last LOG_DAYS
+ * days of already-played days (today's and future days are never read). */
+export async function tallyGuesses(sink: DigSink, today: string): Promise<Tally> {
+  const history = historyFromManifest(await sink.readManifest());
+  const tallies: Tally = new Map();
+  for (const h of history) {
+    const age = daysBetween(h.date, today);
+    if (age <= 0 || age > LOG_DAYS) continue;
+    for (const [index, p] of h.prompts.entries()) {
+      for (const kind of ["rej", "claim"] as const) {
+        for (const [guess, n] of Object.entries(await sink.readLog(kind, h.date, index))) {
+          const byGuess = tallies.get(p.id) ?? new Map();
+          const t = byGuess.get(guess) ?? { rej: 0, claim: 0 };
+          t[kind] += n;
+          byGuess.set(guess, t);
+          tallies.set(p.id, byGuess);
+        }
+      }
+    }
+  }
+  return tallies;
+}
 /** At most this many guesses are judged per prompt per run (the top-ranked); the rest wait for the next run. */
 export const JUDGE_PER_PROMPT = 20;
 /** Judged marks older than this are dropped on write. Re-judging is harmless: judge() is deterministic. */
@@ -49,22 +86,7 @@ export async function adjudicate(
   const done = await sink.readAdjudicated(ctx.today);
   const extras = await sink.readExtras();
   // Aggregate rejected (count ≥ 2) and claimed (any) guesses per prompt id.
-  const tallies = new Map<string, Map<string, { rej: number; claim: number }>>();
-  for (const h of history) {
-    const age = daysBetween(h.date, ctx.today);
-    if (age <= 0 || age > LOG_DAYS) continue;
-    for (const [index, p] of h.prompts.entries()) {
-      for (const kind of ["rej", "claim"] as const) {
-        for (const [guess, n] of Object.entries(await sink.readLog(kind, h.date, index))) {
-          const byGuess = tallies.get(p.id) ?? new Map();
-          const t = byGuess.get(guess) ?? { rej: 0, claim: 0 };
-          t[kind] += n;
-          byGuess.set(guess, t);
-          tallies.set(p.id, byGuess);
-        }
-      }
-    }
-  }
+  const tallies = await tallyGuesses(sink, ctx.today);
   let judged = 0, accepted = 0;
   const newlyAccepted = new Map<string, string[]>();
   for (const [promptId, byGuess] of tallies) {

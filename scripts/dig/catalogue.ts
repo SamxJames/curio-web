@@ -11,7 +11,17 @@ export type Catalogue = {
   originGroups: OriginGroup[];
   originExclude: string[];
   langCodes: Record<string, string>;
+  /** Hand-picked answers neither source lists, by base prompt id ("water" is not a beverage in
+   * WordNet or Wiktionary's category). Accepted like adjudication extras; the blocklist still applies. */
+  extraAnswers?: Record<string, string[]>;
 };
+
+/** A prompt's hand-picked answers. A letter variant ("theme:x:w") gets only its letter's words. */
+export function curatedAnswers(cat: Pick<Catalogue, "extraAnswers">, c: { id: string; base: string }): string[] {
+  const words = cat.extraAnswers?.[c.base] ?? [];
+  const letter = c.id === c.base ? null : c.id.split(":").at(-1)!;
+  return letter ? words.filter((w) => w[0] === letter) : words;
+}
 
 export const CATALOGUE_PATH = path.join("content", "dig", "catalogue.json");
 

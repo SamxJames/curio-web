@@ -25,6 +25,20 @@ describe("counts and floor", () => {
   });
 });
 
+describe("obvious answers floor", () => {
+  it("rejects a prompt missing an obvious answer, and says how many without naming them", async () => {
+    const index = await indexWiktionary([], new Set());
+    const c = cand(["apple", "lemon"], { obvious: ["apple", "pear"] });
+    expect(floorProblems(c, { wn, index, zipf: new Map() })).toContain("obvious 1 missing");
+    const ok = cand(["apple", "lemon"], { obvious: ["apple"] });
+    expect(floorProblems(ok, { wn, index, zipf: new Map() }).some((p) => p.startsWith("obvious"))).toBe(false);
+  });
+  it("lets the blocklist remove an obvious word without failing the floor", () => {
+    const c = dropBlocked(cand(["apple", "lemon"], { obvious: ["apple", "pear"], accepted: ["apple", "lemon"] }), new Set(["pear"]));
+    expect(c.obvious).toEqual(["apple"]);
+  });
+});
+
 describe("fossilCandidates", () => {
   it("needs a rare single word of 4–14 letters whose first sense is the theme sense", async () => {
     const index = await indexWiktionary(
@@ -33,6 +47,14 @@ describe("fossilCandidates", () => {
     );
     const zipf = new Map([["apple", 4.5], ["lemon", 2.0], ["keel", 1.9]]);
     expect(fossilCandidates(cand(["apple", "lemon", "keel"]), { wn, index, zipf })).toEqual(["lemon"]);
+  });
+  it("stays strict for fossils: any offensive sense rules a word out, even one usable as an answer", async () => {
+    // The fossil is shown to every player, so the lenient answer rule doesn't apply to it.
+    const index = await indexWiktionary(
+      [{ w: "lemon", pos: "noun", t: [], c: [], g: ["offensive", "slang"], e: [], f: [], n: 5, k: 4, b: 1, l: 4, et: "" }],
+      new Set()
+    );
+    expect(fossilCandidates(cand(["lemon"]), { wn, index, zipf: new Map([["lemon", 2.0]]) })).toEqual([]);
   });
 });
 

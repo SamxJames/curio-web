@@ -26,7 +26,9 @@ export type DigEvent =
   | { kind: "timer" }
   | { kind: "row"; to: "play" | "past" }
   | { kind: "finish"; date: string; score: number; tiers: (Tier | null)[]; rejected: [number, string][]; isNew?: true; vs?: true }
-  | { kind: "claim"; date: string; prompt: number; guess: string };
+  | { kind: "claim"; date: string; prompt: number; guess: string }
+  /** One wrong guess, sent as it happens so a player who walks away mid-game still counts. */
+  | { kind: "miss"; date: string; prompt: number; guess: string };
 
 /** Letters, apostrophes, spaces and hyphens: a word someone typed, nothing else. Non-Latin
  * letters pass this check but normalise to nothing, so cleanGuess drops them. */
@@ -78,9 +80,10 @@ export function parseDigEvent(body: unknown, today: string): DigEvent | null {
     }
     case "reached":
       return { kind: "reached", ...(b.isNew === true ? { isNew: true as const } : {}) };
-    case "claim": {
+    case "claim":
+    case "miss": {
       const guess = cleanGuess(b.guess);
-      return b.date === today && isPromptIndex(b.prompt) && guess ? { kind: "claim", date: today, prompt: b.prompt, guess } : null;
+      return b.date === today && isPromptIndex(b.prompt) && guess ? { kind: b.kind, date: today, prompt: b.prompt, guess } : null;
     }
     case "finish": {
       if (b.date !== today || !isValidScore(b.score)) return null;
@@ -118,7 +121,8 @@ export function funnelField(ev: DigEvent): string | null {
     case "timer": return "timer:switch";
     case "row": return `row:${ev.to}`;
     case "finish": return "finish";
-    case "claim": return null;
+    case "claim":
+    case "miss": return null;
   }
 }
 
@@ -132,17 +136,21 @@ export function funnelFields(ev: DigEvent): string[] {
   return [f];
 }
 
-/** Events one sender may send: any kind per minute, and finishes or claims per day. Generous for
+/** Events one sender may send: any kind per minute, and finishes, claims or misses per day. Generous for
  * a household or office sharing an address, tight enough that a script can't skew the
  * percentile or grow the rejected-guess hashes without limit. */
 
-export const RATE_LIMITS = { perMinute: 30, finishPerDay: 5, claimPerDay: 20 } as const;
+export const RATE_LIMITS = { perMinute: 30, finishPerDay: 5, claimPerDay: 20, missPerDay: 120 } as const;
+
+/** True for the events that also carry a per-day limit. */
+export const hasDailyLimit = (kind: DigEvent["kind"]): boolean => kind === "finish" || kind === "claim" || kind === "miss";
 
 /** True when a sender's counts (after this event) go over a limit. */
 export function overRateLimit(kind: DigEvent["kind"], minuteCount: number, dayCount: number | null): boolean {
   if (minuteCount > RATE_LIMITS.perMinute) return true;
   if (kind === "finish") return (dayCount ?? 0) > RATE_LIMITS.finishPerDay;
   if (kind === "claim") return (dayCount ?? 0) > RATE_LIMITS.claimPerDay;
+  if (kind === "miss") return (dayCount ?? 0) > RATE_LIMITS.missPerDay;
   return false;
 }
 

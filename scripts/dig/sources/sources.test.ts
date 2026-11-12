@@ -53,9 +53,22 @@ describe("compactEntry", () => {
     expect(compactEntry(raw)).toEqual({
       w: "halyard", pos: "noun", t: ["nautical"],
       c: ["en:Nautical", "English terms derived from Middle English", "en:Ropes"],
-      g: [], e: ["inh:enm"], f: ["halyards"], n: 1,
+      g: [], e: ["inh:enm"], f: ["halyards"], n: 1, k: 1, b: 0, l: 1,
       et: "From Middle English halier, from halen (“to haul”).",
     });
+  });
+  it("counts senses one by one, so one slang or form-of sense doesn't stand for the whole entry", () => {
+    // "potato": many plain senses and one derogatory one. The tag union `g` has "offensive";
+    // the counts show the entry is mostly clean.
+    const raw = {
+      word: "potato", lang_code: "en", pos: "noun",
+      senses: [{ tags: [] }, { tags: ["countable"] }, { tags: ["derogatory", "offensive", "slang"] }, { tags: ["obsolete"] }, { tags: ["alt-of"] }],
+    };
+    const c = compactEntry(raw)!;
+    expect(c.g).toEqual(expect.arrayContaining(["offensive", "obsolete", "alt-of"]));
+    expect(c.k).toBe(3); // usable: plain, plain, obsolete
+    expect(c.b).toBe(1); // tagged vulgar, offensive or derogatory
+    expect(c.l).toBe(2); // usable and current
   });
   it("drops non-English entries", () => {
     expect(compactEntry({ word: "haar", lang_code: "nl", pos: "noun" })).toBeNull();

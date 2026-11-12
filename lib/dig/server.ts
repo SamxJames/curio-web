@@ -6,10 +6,11 @@ import { DAY_MS, dayKey, dayStart } from "../day";
 import { cohortDay } from "./cohort";
 import { digLaunchDate, isDateKey, isPastDay } from "./clock";
 import { devDay } from "./devDay";
-import { funnelFields, overRateLimit, planFinish, type DigEvent } from "./events";
+import { funnelFields, hasDailyLimit, overRateLimit, planFinish, type DigEvent } from "./events";
 import { digKeys, type DigManifest } from "./keys";
 import { encodeDay } from "./payload";
 import type { DigDay } from "./types";
+import { parseVerdictLog, type VerdictLog } from "./verdicts";
 
 /** Server-only. Reads use Upstash in production and preview; writes only in production
  * (local dev can share production's Upstash, and must never read or write it). Locally,
@@ -112,7 +113,7 @@ export async function isRateLimited(ip: string | null, ev: DigEvent, today: stri
     if (!r) return false;
     const who = createHash("sha256").update(`${ip}|${today}`).digest("hex").slice(0, 16);
     const minuteKey = digKeys.rate(who, `m${Math.floor(now.getTime() / 60_000)}`);
-    const daily = ev.kind === "finish" || ev.kind === "claim";
+    const daily = hasDailyLimit(ev.kind);
     const dayKey = digKeys.rate(who, `d${today}:${ev.kind}`);
     const p = r.pipeline();
     p.incr(minuteKey);
@@ -134,6 +135,13 @@ export async function recordClaim(ev: Extract<DigEvent, { kind: "claim" }>): Pro
   if (!writesRedis()) return;
   const r = await digRedis();
   if (r) await r.hincrby(digKeys.claims(ev.date, ev.prompt), ev.guess, 1);
+}
+
+/** One wrong guess, counted in the same hash a finish's rejected guesses go to. */
+export async function recordMiss(ev: Extract<DigEvent, { kind: "miss" }>): Promise<void> {
+  if (!writesRedis()) return;
+  const r = await digRedis();
+  if (r) await r.hincrby(digKeys.rejected(ev.date, ev.prompt), ev.guess, 1);
 }
 
 /** Everything the health cron reads, in one pipelined round trip. */
@@ -201,6 +209,14 @@ export async function funnelDays(dates: string[]): Promise<Record<string, Record
 }
 
 /** Returning-start counts per first-play date (field d<days>), {} when Redis is absent. */
+/** The AI review's verdict log (scripts/dig/review.ts), for the admin page. Empty before the first review. */
+export async function readVerdicts(): Promise<VerdictLog> {
+  if (!readsRedis()) return {};
+  const r = await digRedis();
+  if (!r) return {};
+  return parseVerdictLog(await r.get<unknown>(digKeys.verdicts));
+}
+
 export async function readCohorts(dates: string[]): Promise<Record<string, Record<string, number>>> {
   if (!readsRedis() || !dates.length) return {};
   const r = await digRedis();

@@ -10,7 +10,7 @@ import { clearRun, effectiveNoTimer, markCoached, markReported, readRun, readSto
 import { isNewPlayer } from "@/lib/dig/cohort";
 import { fetchDayWithRetry } from "@/lib/dig/loadDay";
 import { normalizeKey } from "@/lib/dig/normalize";
-import { buildFinishEvent, buildStartEvent, sendDigEvent, sendFinish, sendLandOnce, sendViaOnce } from "@/lib/dig/client";
+import { buildFinishEvent, buildStartEvent, newMisses, sendDigEvent, sendFinish, sendLandOnce, sendViaOnce } from "@/lib/dig/client";
 import EndScreen, { announceDone } from "./EndScreen";
 import Intro from "./Intro";
 import PromptScreen from "./PromptScreen";
@@ -108,6 +108,20 @@ function DigRun({ day, isToday, vsRaw, heading, note }: { day: PreparedDay; isTo
   const saved = useRef(false);
   const finished = store.games[day.date];
 
+  // Each new wrong guess goes out as it is made (lib/dig/client.ts newMisses), so a player who leaves
+  // mid-dig still counts. The day's sampling coin is flipped once per dig, not per guess. A resumed
+  // dig starts with its earlier misses marked sent, so a refresh doesn't count them twice.
+  const [reportMisses] = useState(() => Math.random() < day.rejSample);
+  const [sentMisses] = useState(() => {
+    const sent = new Set<string>();
+    newMisses(day.date, resumed?.state.results ?? [], sent);
+    return sent;
+  });
+  useEffect(() => {
+    if (!isToday || !reportMisses) return;
+    for (const ev of newMisses(day.date, state.results, sentMisses)) sendDigEvent(ev);
+  }, [isToday, reportMisses, day.date, state.results, sentMisses]);
+
   // Save the run after every step (not every tick: the clock restarts on resume anyway).
   const { phase, current, results, noTimer } = state;
   useEffect(() => {
@@ -143,7 +157,7 @@ function DigRun({ day, isToday, vsRaw, heading, note }: { day: PreparedDay; isTo
     saveGame(day.date, { answers: state.results.map((r) => r.answer), tiers, score, finishedAt: new Date().toISOString() });
     // A past day never reports. Today's reports once per browser.
     if (!isToday || store.games[day.date]?.reported) return;
-    const event = buildFinishEvent(day.date, tiers, score, state.results, Math.random() < day.rejSample, isNew, friend !== null);
+    const event = buildFinishEvent(day.date, tiers, score, isNew, friend !== null);
     // A null answer means the finish wasn't counted (refused, offline, or the game crossed UTC
     // midnight so it is no longer today's): no percentile line, and not marked as reported.
     void sendFinish(event).then((spread) => {

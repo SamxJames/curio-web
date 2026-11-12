@@ -147,3 +147,17 @@ the sitemap is built once per deploy, so any date there is wrong by the next mor
 
 ## 2026-11-07: The tomorrow hint is an open warm-up
 The end screen hints at tomorrow with the exact first prompt (minus "Name"), the same prompt the 09:00 UTC morning email shows. So prompt 1 is effectively public ahead of time: people who finish today get a night to think about it, a small head start that goes only to people who played. We accept that as a warm-up: the percentile line stays hidden under 100 finishers, so no ranking depends on it. Flagged by final review as brushing against "no rewards that carry across days". If we want no head start at all, swap the exact prompt for a looser category hint (lib/dig readTomorrow + TomorrowHint).
+
+
+### 2026-11-07 — Lead with dig, hand launch, judge retention not visits
+**Why:** retention is the question. New dig kill line for 2026-12-04: >=200 first-time finishers, day-7 return >=15%, share/challenge >=15%. Under 200 = launch failed, re-launch; low return = Curio on autopilot, build Same Brain.
+
+### 2026-11-07 — Do not mass-noindex stories; freeze and deepen instead
+**Why:** the suppression looks site-wide (see history 2026-11-07), so noindexing would not fix it. Freeze story titles/descriptions/template 6 weeks, deepen ~50 pages, earn links, read 2026-12-18 (impressions >500/week, 472 not-indexed falling).
+
+
+### 2026-11-12 — "Dug", not "played"; no Redis change for launch; defer extras
+**Why:** the copy audit bans "played". Load is ~25 Redis commands per player, so no Redis change before launch. Deferred: personalised previews, returning-player intro, sticky Next, other Puzzle items, scoring page.
+
+### 2026-11-12 — Enforce rules with scripts and hooks, not prose; reject ravenseat and open-design-agent-kit
+**Why:** failing guards beat more instructions (the marmelab idea). Rejected: ravenseat (duplicates superpowers, 13 stars, public late Oct 2026) and open-design-agent-kit (198 brand systems conflict with Curio's design system, tool bloat). Skip OpenSpec, Spec Kit, Claude Squad, Vibe Kanban, Postiz. Candidates not installed: cc-safety-net, ccusage, mcp-gsc (needs Python via uvx plus Google OAuth).

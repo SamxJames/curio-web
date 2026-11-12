@@ -19,7 +19,7 @@ import { readCompact } from "./sources/compact";
 import { fetchWikidataLabels } from "./sources/wikidata";
 import { indexWiktionary, usableWord } from "./wiktionary";
 import { buildLexicon } from "./lexicon";
-import { loadCatalogue } from "./catalogue";
+import { curatedAnswers, loadCatalogue } from "./catalogue";
 import { letterVariants, wikidataThemeCandidates, wordnetThemes, type Candidate } from "./themes";
 import { originCandidates } from "./origins";
 import { buildAliases, buildGuard, dedupeByKey, dropBlocked, floorProblems, fossilCandidates } from "./answers";
@@ -28,6 +28,8 @@ import { assignTiers, chooseFossil, toPlainPrompt, viewWordsFor } from "./fossil
 import { assignFamilies, daysBetween, isEligible, pickDay, type HistoryDay } from "./assemble";
 import { fossilTypoCollides, validateDay } from "./validate";
 import { adjudicate } from "./adjudicate";
+import { repairDays } from "./repair";
+import { anthropicReviewer, reviewFailures, type ReviewResult } from "./review";
 import { FileSink, RedisSink, type DigSink } from "./sink";
 
 export type BuildStats = {
@@ -35,6 +37,9 @@ export type BuildStats = {
   bufferDays: number; poolThemes: number; poolOrigins: number;
   wikidata: Record<"fresh" | "cached" | "stale" | "missing" | "label-mismatch", number>;
   adjudication: { judged: number; accepted: number; amendedDays: number } | "failed";
+  repair: { amendedDays: number; added: number; removed: number; skippedOversize: number } | "failed";
+  /** Shadow-mode AI review of refused guesses: "off" means no API key was set. Absent in older stats. */
+  review?: ReviewResult | "failed" | "off";
 };
 
 const GUARD_MIN_ZIPF = 2;
@@ -68,6 +73,14 @@ export function summaryLines(s: BuildStats): string[] {
     s.adjudication === "failed"
       ? "Adjudication: failed"
       : `Adjudication: ${s.adjudication.judged} judged, ${s.adjudication.accepted} accepted, ${s.adjudication.amendedDays} days amended`,
+    s.repair === "failed"
+      ? "Repair: failed"
+      : `Repair: ${s.repair.amendedDays} days amended, ${s.repair.added} words added, ${s.repair.removed} stray senses removed, ${s.repair.skippedOversize} skipped for size`,
+    ...(s.review === undefined || s.review === "off"
+      ? []
+      : [s.review === "failed"
+        ? "Review: failed"
+        : `Review (shadow): ${s.review.considered} refused guesses, ${s.review.reviewed} newly reviewed, ${s.review.shouldAccept} the reviewer would accept, ${s.review.failedCalls} calls failed`]),
     `Built: ${s.built} days (${s.retries} retries, ${s.failedDates} dates failed)`,
     `Buffer: ${s.bufferDays} days. Spare pool: ${s.poolThemes} themes, ${s.poolOrigins} origins`,
   ];
@@ -86,7 +99,7 @@ export function resolveSeedSalt(publish: boolean, value: string | undefined): st
 
 /** Only messages built word-free are printed; anything else could quote content, so just its name. */
 export function safeErrorText(err: unknown): string {
-  const safe = err instanceof Error && /^(pageviews failed|adjudicate:|day |DIG_SEED_SALT )/.test(err.message);
+  const safe = err instanceof Error && /^(pageviews failed|adjudicate:|repair:|review:|day |DIG_SEED_SALT )/.test(err.message);
   return safe ? (err as Error).message : err instanceof Error ? err.name : "unknown";
 }
 
@@ -151,7 +164,9 @@ async function main() {
   }
   let extras = await sink.readExtras();
   // Every candidate passes through here, so this is also where blocked words go and spellings that share a key are collapsed.
-  const withExtras = (c: Candidate): Candidate => dedupeByKey(dropBlocked({ ...c, accepted: [...new Set([...c.accepted, ...(extras[c.id] ?? [])])] }, blocked));
+  // Hand-picked catalogue answers join the adjudication extras.
+  const withExtras = (c: Candidate): Candidate =>
+    dedupeByKey(dropBlocked({ ...c, accepted: [...new Set([...c.accepted, ...(extras[c.id] ?? []), ...curatedAnswers(cat, c)])] }, blocked));
   const fctx = { wn, index, zipf };
   const baseThemes = assignFamilies([...wordnetThemes(wn, index, zipf, cat), ...wikidataThemeCandidates(wdThemes, index, zipf)].map(withExtras));
   const letters = baseThemes.flatMap((t) => letterVariants(t, zipf)).map(withExtras);
@@ -172,6 +187,30 @@ async function main() {
   try { extras = await sink.readExtras(); } catch { /* keep the extras read before adjudication */ }
   themes = themes.map(withExtras);
   origins = origins.map(withExtras);
+
+  // Shadow-mode blind AI review of the guesses the game refused (scripts/dig/review.ts): it records
+  // verdicts for the admin page and changes no answer list. Secondary like adjudication: a failure
+  // never stops days being built or fails the run, and with no ANTHROPIC_API_KEY it is skipped.
+  let review: BuildStats["review"] = "off";
+  const reviewKey = process.env.ANTHROPIC_API_KEY;
+  if (reviewKey) {
+    try {
+      review = await reviewFailures(sink, new Map([...themes, ...origins].map((c) => [c.id, c])), { today, lexicon, usable, blocked }, anthropicReviewer(reviewKey));
+    } catch (err) {
+      console.error(`dig:build: review failed (${safeErrorText(err)})`);
+      review = "failed";
+    }
+  }
+
+  // Built days get the words today's lists accept (and lose stray senses if unplayed). Like
+  // adjudication, a failure here never stops days being built; the run still exits 1 at the end.
+  let repair: BuildStats["repair"] = "failed";
+  try {
+    repair = await repairDays(sink, new Map([...themes, ...origins].map((c) => [c.id, c])), { today, zipf, guardLexicon });
+  } catch (err) {
+    console.error(`dig:build: repair failed (${safeErrorText(err)})`);
+    failures.push("repair failed");
+  }
 
   const manifest: DigManifest = (await sink.readManifest()) ?? { v: 1, lastRun: "", days: {}, poolThemes: 0, poolOrigins: 0 };
   const history: HistoryDay[] = historyFromManifest(manifest);
@@ -257,7 +296,7 @@ async function main() {
   manifest.lastRun = new Date().toISOString();
   await sink.writeManifest(manifest);
 
-  const stats: BuildStats = { themes: themes.length, origins: origins.length, letterVariants: letterCount, built, retries, failedDates, bufferDays, poolThemes: manifest.poolThemes, poolOrigins: manifest.poolOrigins, wikidata, adjudication };
+  const stats: BuildStats = { themes: themes.length, origins: origins.length, letterVariants: letterCount, built, retries, failedDates, bufferDays, poolThemes: manifest.poolThemes, poolOrigins: manifest.poolOrigins, wikidata, adjudication, repair, review };
   const lines = summaryLines(stats);
   console.log(lines.join("\n"));
   if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.map((l) => `- ${l}`).join("\n") + "\n");

@@ -2,8 +2,9 @@
 
 import { getArrivalSource } from "../trafficClient";
 import { firstPlayDate, isNewPlayer } from "./cohort";
-import { MAX_REJECTED_PER_FINISH, VIA_SOURCES, type ViaSource } from "./events";
+import { VIA_SOURCES, type ViaSource } from "./events";
 import type { PromptResult } from "./game";
+import { normalizeKey } from "./normalize";
 import type { Tier } from "./types";
 
 /** Browser side of /api/dig/event: fire-and-forget like lib/trafficClient.ts. Analytics
@@ -30,14 +31,31 @@ export async function sendFinish(ev: object): Promise<Record<string, number> | n
   }
 }
 
-/** The finish event for today's game. Guesses go as the player typed them (the server
- * normalises), flattened to [prompt index, guess], and capped at what the server accepts:
- * a longer list would null the whole finish. `includeGuesses` is the day's sampling coin. */
-export function buildFinishEvent(date: string, tiers: (Tier | null)[], score: number, results: PromptResult[], includeGuesses: boolean, isNew: boolean, vs = false) {
-  const rejected = includeGuesses
-    ? results.flatMap((r, i) => r.rejected.map((g) => [i, g] as [number, string])).slice(0, MAX_REJECTED_PER_FINISH)
-    : [];
-  return { kind: "finish" as const, date, score, tiers, rejected, ...(isNew ? { isNew: true as const } : {}), ...(vs ? { vs: true as const } : {}) };
+/** The finish event for today's game. Wrong guesses are not on it: each goes out as its own
+ * `miss` event the moment it is made (missKey / newMisses), so a game left unfinished still
+ * counts. The empty `rejected` list is the shape the server expects. */
+export function buildFinishEvent(date: string, tiers: (Tier | null)[], score: number, isNew: boolean, vs = false) {
+  return { kind: "finish" as const, date, score, tiers, rejected: [] as [number, string][], ...(isNew ? { isNew: true as const } : {}), ...(vs ? { vs: true as const } : {}) };
+}
+
+/** A wrong guess's identity for "already sent": the prompt and the guess's normalised key, so
+ * "ZZZZ" and "z z z z" are one miss, as in the reducer's own dedupe. */
+export const missKey = (prompt: number, guess: string): string => `${prompt}|${normalizeKey(guess)}`;
+
+/** The wrong guesses in `results` not yet in `sent`, as miss events in the order they were made.
+ * Adds each to `sent`, so calling it again with the same results returns nothing. Guesses go as
+ * typed (the server normalises). */
+export function newMisses(date: string, results: PromptResult[], sent: Set<string>) {
+  const out: { kind: "miss"; date: string; prompt: number; guess: string }[] = [];
+  results.forEach((r, prompt) => {
+    for (const guess of r.rejected) {
+      const k = missKey(prompt, guess);
+      if (sent.has(k)) continue;
+      sent.add(k);
+      out.push({ kind: "miss", date, prompt, guess });
+    }
+  });
+  return out;
 }
 
 const LANDED = "curio:dig:landed"; // sessionStorage: one land per tab session

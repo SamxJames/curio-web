@@ -6,6 +6,8 @@ export const digKeys = {
   extras: "curio:dig:extras",
   /** "promptId|word" decisions already made, so a guess is judged once */
   adjudicated: "curio:dig:adjudicated",
+  /** "promptId|guess" → what the judge and the blind AI reviewer made of a wrong guess (lib/dig/verdicts.ts) */
+  verdicts: "curio:dig:verdicts",
   scores: (date: string) => `curio:dig:scores:${date}`,
   funnel: (date: string) => `curio:dig:funnel:${date}`,
   rejected: (date: string, index: number) => `curio:dig:rej:${date}:${index}`,

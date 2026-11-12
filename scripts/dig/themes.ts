@@ -17,6 +17,11 @@ export type Candidate = {
   senseIds: Set<string> | null;
   ancestors: Set<string>;
   languages: string[];
+  /** Category words dropped as stray senses (isHomograph). Repair takes them out of unplayed days. */
+  homographs?: Set<string>;
+  /** Everyday members of a kind-of theme ("potato" for vegetables): always accepted unless
+   * blocklisted, and the floor rejects a prompt that is missing one. */
+  obvious?: string[];
 };
 
 export const ACCEPTED_CAP = 1200;
@@ -102,6 +107,32 @@ export function anchorCategory(wn: Wordnet, name: string, words: Set<string>, ov
   return fallback && fallback.size >= 2 ? fallback : null;
 }
 
+/** At or above this Zipf, a category word WordNet doesn't place in the theme is an everyday word
+ * with a stray sense ("more" in Vegetables, an obsolete word for a root), not an answer. */
+export const HOMOGRAPH_ZIPF = 4;
+
+/** Wiktionary categories hold entries, not senses, so a word joins "Vegetables" or "Birds" on the
+ * strength of one obscure sense ("name", "chat", "brilliant"). Such a word is dropped from a
+ * kind-of theme when WordNet knows it as a noun but files every noun sense elsewhere, or when it
+ * is an everyday word that WordNet doesn't place under the theme at all. */
+export function isHomograph(wn: Wordnet, w: string, senseIds: Set<string>, zipf: Map<string, number>): boolean {
+  const nounSenses = (wn.synsetsOf.get(w) ?? []).filter((id) => wn.synsets.get(id)?.pos === "n");
+  if (nounSenses.length && !nounSenses.some((id) => senseIds.has(id))) return true;
+  return (zipf.get(w) ?? 0) >= HOMOGRAPH_ZIPF;
+}
+
+/** The words most people would type first: single words in the theme's WordNet subtree whose
+ * first noun sense is the theme sense, and that are everyday words (Zipf ≥ HOMOGRAPH_ZIPF).
+ * They skip the Wiktionary tag filter, whose entry-level tags have hidden "potato" and "mother"
+ * before; the blocklist still applies (dropBlocked). */
+export function obviousMembers(wn: Wordnet, index: WiktionaryIndex, zipf: Map<string, number>, wnSet: Set<string>, senseIds: Set<string>): string[] {
+  return [...wnSet].filter((w) => {
+    if (!/^[a-z]+$/.test(w) || (zipf.get(w) ?? 0) < HOMOGRAPH_ZIPF || !index.info.has(w)) return false;
+    const first = (wn.synsetsOf.get(w) ?? []).find((id) => wn.synsets.get(id)?.pos === "n");
+    return !!first && senseIds.has(first);
+  }).sort();
+}
+
 function capAccepted(core: string[], others: Iterable<string>, zipf: Map<string, number>): string[] {
   const coreSet = new Set(core);
   const rest = [...new Set(others)].filter((w) => !coreSet.has(w)).sort((a, b) => (zipf.get(b) ?? 0) - (zipf.get(a) ?? 0));
@@ -140,11 +171,17 @@ export function wordnetThemes(
     const core = [...wiktionary].filter((w) => wnSet.has(w) && usable(w)).sort();
     if (core.length > OVER_BROAD) continue;
     // Every animal is not a baby animal: a broad theme accepts only its category's words.
-    const others = [...wiktionary, ...(a.broad ? [] : [...wnSet].filter((w) => index.info.has(w)))].filter(usable);
+    const kindOf = a.via === "kind-of";
+    const homographs = new Set(kindOf ? [...wiktionary].filter((w) => !wnSet.has(w) && isHomograph(wn, w, senseIds, zipf)) : []);
+    const fromCategory = [...wiktionary].filter((w) => !homographs.has(w));
+    const others = [...fromCategory, ...(a.broad ? [] : [...wnSet].filter((w) => index.info.has(w)))].filter(usable);
+    // A broad theme accepts only its category's words, so it has no WordNet-wide obvious list.
+    const obvious = kindOf && !a.broad ? obviousMembers(wn, index, zipf, wnSet, senseIds) : [];
     const c: Candidate = {
       id: `theme:${slugify(name)}`, base: `theme:${slugify(name)}`, kind: "theme",
-      text: themeText(name, a.via, cat.renames), core, accepted: capAccepted(core, others, zipf),
+      text: themeText(name, a.via, cat.renames), core, accepted: capAccepted(core, [...others, ...obvious], zipf),
       sources: [wiktionary, wnSet], anchor: a.id, senseIds, ancestors: ancestors(wn, a.id), languages: [],
+      homographs, obvious,
     };
     // Two names for one sense ("Fish" and "Fishes") keep the shorter; a broad-anchored subset
     // is its own theme, and assignFamilies keeps it apart from its parent.
@@ -173,6 +210,7 @@ export function letterVariants(theme: Candidate, zipf: Map<string, number>, opts
       core,
       accepted: theme.accepted.filter(inLetter),
       sources: theme.sources.map((s) => new Set([...s].filter(inLetter))),
+      obvious: theme.obvious?.filter(inLetter),
     });
   }
   return out;

@@ -5,6 +5,8 @@ import type { TrafficSummary } from "@/lib/traffic";
 import type { DigFunnelSummary } from "@/lib/dig/funnel";
 import type { summarizeCohorts } from "@/lib/dig/cohort";
 import DigFunnelTable from "@/components/dig/DigFunnelTable";
+import DigReviewTable from "@/components/dig/DigReviewTable";
+import type { VerdictLog } from "@/lib/dig/verdicts";
 import { pluralize, capitalize, WIDE_DOT, formatShortDate } from "@/lib/collection";
 
 type Props = {
@@ -22,6 +24,7 @@ type Props = {
   traffic: TrafficSummary;
   dig: DigFunnelSummary;
   cohorts: ReturnType<typeof summarizeCohorts>;
+  digReview?: VerdictLog;
 };
 
 export default function AdminDashboard({
@@ -39,6 +42,7 @@ export default function AdminDashboard({
   traffic,
   dig,
   cohorts,
+  digReview,
 }: Props) {
   return (
     <div className="mx-auto max-w-[720px] px-5 pt-[30px] pb-[60px]">
@@ -121,6 +125,11 @@ export default function AdminDashboard({
 
       <Section title="curio dig">
         <DigFunnelTable summary={dig} cohorts={cohorts} />
+        {digReview && (
+          <div className="mt-8">
+            <DigReviewTable log={digReview} />
+          </div>
+        )}
       </Section>
 
       <Section title="People">

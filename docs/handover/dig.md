@@ -1,5 +1,7 @@
 # Curio: curio dig (the daily word game)
 
+> **STATUS: LIVE and public since 2026-11-07 (dig #1).** Verified in production 2026-11-12: `/api/dig/today` returned 200 for 2026-11-12 as dig #6, and `/api/dig/event` answered 400 to a bad event (closed would be 404). Real players' guesses are already being recorded. Re-check any time with `https://curioword.com/api/dig/today`: 200 plus a `number` means live; 404 means closed. The "Launch sequence" and "Post-deploy checklist" below are the original pre-launch plan, kept for reference; they do not describe the current state.
+
 > Written 2026-10-24 at the end of the Phase 6 build. Design: `docs/rarity-game/architecture.md` (its two "Changes made" lists override the sections below them). How days are made: `docs/rarity-game/pipeline-design.md`. Plan: `docs/superpowers/plans/2026-10-24-dig-game.md`.
 
 ## What it is
@@ -42,6 +44,7 @@ Locally, with no `VERCEL_ENV`, the game reads days from `.dig-out/days/` (or `DI
 | `DIG_ALERT_TO` | Vercel | Where the health cron emails problems. Must be set, or a problem day only shows as a 500 in Vercel logs. |
 | `DIG_REDIS_REST_URL`, `DIG_REDIS_REST_TOKEN` | GitHub Actions secrets (always); Vercel (only for a separate database) | The pipeline reads only these two. On Vercel they are optional: without them the site uses its normal `UPSTASH_REDIS_REST_*` client. Both sides must point at the same database: the pipeline fails if it can't see the health cron's heartbeat. |
 | `DIG_SEED_SALT` | GitHub Actions secret | Secret seed for the daily draw. Required (16+ characters) with `--publish`; local runs use a fixed dev string. |
+| `ANTHROPIC_API_KEY` | GitHub Actions secret (optional) | Turns on the blind AI review of refused guesses (shadow mode, see "Guess review"). Absent means the step is skipped and nothing else changes. |
 | `DIG_LOCAL_DIR` | Local only | Folder of pipeline output for local dev. Default `.dig-out`. |
 
 ## Redis keys
@@ -56,10 +59,11 @@ All under `curio:dig:`. Written only in production. Days are never re-drawn or r
 | `curio:dig:adjudicated` | JSON | Pipeline | `promptId|word` marks mapped to the date judged (marks older than 40 days are dropped) | none |
 | `curio:dig:scores:<date>` | hash | `finish` event | Score bucket (score ÷ 10) to count | 35 d (set by the cron the day after) |
 | `curio:dig:funnel:<date>` | hash | Events | Funnel counters (`land:<source>`, `start`, `start:ret:d1|d2_6|d7`, `finish`, `fossil`, `share:*`, `story`, `signup`, `past:start`, `row:play|past`, `timer:switch`) | 90 d (same) |
-| `curio:dig:rej:<date>:<0-6>` | hash | `finish` event | Rejected guess (normalised) to count | 35 d (same) |
+| `curio:dig:rej:<date>:<0-6>` | hash | `miss` event (one per new wrong guess, as it happens) | Rejected guess (normalised) to count | 35 d (same) |
+| `curio:dig:verdicts` | JSON | Pipeline (review) | `promptId|guess` to our reason plus the blind reviewer's verdict (`lib/dig/verdicts.ts`); read by the admin page. Entries older than 40 days dropped, capped at 2,000 | none |
 | `curio:dig:claim:<date>:<0-6>` | hash | `claim` event | "This should count" guess to count | 35 d (same) |
 | `curio:dig:health:last` | string | Health cron | Heartbeat (ISO time) the pipeline checks | none |
-| `curio:dig:rate:<hash>:m<minute>` / `:d<date>:<kind>` | string | `event` route | Per-sender event counters for the rate limit (`RATE_LIMITS` in `lib/dig/events.ts`: 30 events a minute, 5 finishes and 20 claims a day). `<hash>` is 16 hex of sha256(address + day), never the address | 120 s / 2 d |
+| `curio:dig:rate:<hash>:m<minute>` / `:d<date>:<kind>` | string | `event` route | Per-sender event counters for the rate limit (`RATE_LIMITS` in `lib/dig/events.ts`: 30 events a minute, 5 finishes, 20 claims and 120 misses a day). `<hash>` is 16 hex of sha256(address + day), never the address | 120 s / 2 d |
 | `curio:dig:health:usage:<yyyy-mm>` | string | Health cron | Highest usage alert already sent this month (50 or 70) | 40 d |
 
 Expiries are set by the health cron on yesterday's keys, because `HINCRBY` sets none. If the cron stops, those hashes live forever until it runs again.
@@ -134,8 +138,27 @@ Five changes, all inside the dig scope. Spec `docs/superpowers/specs/2026-11-07-
 
 ## The kill line
 
+**Replaced 2026-11-07 (read 2026-12-04):** >=200 first-time finishers, day-7 return >=15%, share/challenge >=15%. Under 200 = launch failed, re-launch; low return = Curio on autopilot, build Same Brain. Cohorts are in `/admin` "Dig cohorts" (`curio:dig:cohort:<first>`, `COHORT_START` 2026-11-08). The older returning-starts rule below is superseded.
+
 Judged on returners (Sam's decision, 2026-11-07). Read at day 28 (2026-12-04 for a 2026-11-07 launch): **stop if the median daily returning starts over days 22 to 28 is under 5.** A returning start is a `start` from a device that finished a dig on an earlier UTC day (the `start:ret:d1|d2_6|d7` funnel fields). The returning share of starts is shown next to it (target 30% or more); it informs the decision but does not trigger it alone. This replaces the old rule (median daily `start` under 20).
 
 Small sample: with about 25 visitors a day, read the trend, not one day. Returning undercounts (Safari clears storage after 7 days, private windows), so read it from day 2.
 
 Read it on the admin page, in the "curio dig" section (funnel table and kill-line row, plus a Return % column per day). It appears once all seven window days have passed, and a day with no events counts as 0 returning starts.
+
+
+## Pre-launch release (2026-11-12)
+
+New fields in `curio:dig:funnel:<date>` (counts start 2026-11-12): `shared:once`, `shared:new`, `shared:new:sheet`, `shared:third`, `start:vs`, `finish:vs`, `finish:vs:new`, `reached:4`, `reached:4:new`.
+Admin cohort columns: Shared, Shared by sheet, From challenge, Reached prompt 4, 3rd-day sharers (by share date).
+12-04 gate share rate = Shared ÷ New finishers. Shared already includes challenge sends; Shared by sheet is the stricter number.
+Launch kit: `docs/launch/2026-11-dig-launch.md` (pre-flight Sun 11-15, r/SideProject 11-17, r/DailyWordGames 11-19, Show HN Tue 11-24, retry 12-01).
+
+## Guess review (2026-11-12, shadow mode, built but NOT yet committed or deployed)
+
+Dig is live, so this deploys onto real players: the browser starts sending `miss` events once it ships, and until then production still records guesses only on `finish`. Verify after deploy: play one wrong guess on production and check `curio:dig:rej:<date>:<i>` gains it (a test play leaves a real count, so note it).
+
+Wrong guesses now go out as they are made (`miss` event, `newMisses` in `lib/dig/client.ts`), not on `finish`, so a player who walks away mid-dig still counts. `finish` carries an empty `rejected` list (the server still accepts old clients' lists). The day's `rejSample` coin is flipped once per dig. Same-key spellings and a refresh mid-dig are not double-counted.
+After adjudication, `scripts/dig/review.ts` sends each refused real word (most typed first, 20 a prompt, 60 calls a run, claude-haiku-5-5) to a reviewer that sees only the prompt text and the word, never our verdict or sources. Our reason (`not-a-word`, `blocked`, `unusable`, `not-in-sources`) and its verdict go in `curio:dig:verdicts`. Blocked words and single-typed non-words are logged without asking. **Nothing here changes an answer list.** The admin page ("Refused guesses, reviewed blind") lists the words it would accept, most confident first.
+Public logs: the run prints counts only (`Review (shadow): …`). Words appear only on the admin page.
+Next (not built): auto-accept. It would let a confident reviewer "yes" replace the "must be in a source list" rule in `adjudicate.ts`, keeping the lexicon, blocklist, `usable` and cap checks. Turn it on only after reading a week or two of admin verdicts and agreeing the reviewer is right.

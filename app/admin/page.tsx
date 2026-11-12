@@ -12,7 +12,7 @@ import {
 } from "@/lib/adminStats";
 import { getTrafficDays } from "@/lib/trafficStats";
 import { summarizeTraffic } from "@/lib/traffic";
-import { funnelDays, readCohorts } from "@/lib/dig/server";
+import { funnelDays, readCohorts, readVerdicts } from "@/lib/dig/server";
 import { summarizeCohorts } from "@/lib/dig/cohort";
 import { digLaunchDate } from "@/lib/dig/clock";
 import { killLineDates, summarizeDigFunnel } from "@/lib/dig/funnel";
@@ -37,7 +37,7 @@ export default async function AdminPage() {
   const launch = digLaunchDate();
   const digDates = launch ? [...new Set([...last28, ...killLineDates(launch)])] : [];
   const last21 = launch ? last28.slice(0, 21) : [];
-  const [subscribers, userActivity, favorites, playStates, emailMetrics7d, emailMetrics30d, trafficDays, digDays, cohorts] =
+  const [subscribers, userActivity, favorites, playStates, emailMetrics7d, emailMetrics30d, trafficDays, digDays, cohorts, digVerdicts] =
     await Promise.all([
       getAllSubscriberRecords(),
       getAllUserActivity(),
@@ -48,6 +48,7 @@ export default async function AdminPage() {
       getTrafficDays(28, now),
       funnelDays(digDates),
       readCohorts(last21),
+      readVerdicts().catch(() => ({})),
     ]);
 
   const subscriberGrowth = cumulativeGrowth(
@@ -93,6 +94,7 @@ export default async function AdminPage() {
       traffic={summarizeTraffic(trafficDays)}
       dig={summarizeDigFunnel(digDays, launch, { now, rowDates: last28 })}
       cohorts={summarizeCohorts(cohorts, digDays, last21)}
+      digReview={digVerdicts}
     />
   );
 }

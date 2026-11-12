@@ -116,6 +116,20 @@ describe("overRateLimit", () => {
     expect(overRateLimit("land", RATE_LIMITS.perMinute + 1, null)).toBe(true);
   });
 
+  it("parses a miss like a claim: today only, a real prompt, a clean guess", () => {
+    expect(parseDigEvent({ kind: "miss", date: today, prompt: 4, guess: "Ice Cream" }, today)).toEqual({ kind: "miss", date: today, prompt: 4, guess: "icecream" });
+    expect(parseDigEvent({ kind: "miss", date: "2026-12-04", prompt: 4, guess: "jib" }, today)).toBeNull();
+    expect(parseDigEvent({ kind: "miss", date: today, prompt: 7, guess: "jib" }, today)).toBeNull();
+    expect(parseDigEvent({ kind: "miss", date: today, prompt: 0, guess: "<script>" }, today)).toBeNull();
+    expect(funnelField({ kind: "miss", date: today, prompt: 1, guess: "jib" })).toBeNull();
+  });
+
+  it("caps misses per sender per day, well above a finish's worth", () => {
+    expect(overRateLimit("miss", 1, RATE_LIMITS.missPerDay)).toBe(false);
+    expect(overRateLimit("miss", 1, RATE_LIMITS.missPerDay + 1)).toBe(true);
+    expect(RATE_LIMITS.missPerDay).toBeGreaterThanOrEqual(5 * 21);
+  });
+
   it("caps finishes and claims per sender per day", () => {
     expect(overRateLimit("finish", 1, RATE_LIMITS.finishPerDay)).toBe(false);
     expect(overRateLimit("finish", 1, RATE_LIMITS.finishPerDay + 1)).toBe(true);

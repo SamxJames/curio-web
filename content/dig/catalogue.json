@@ -122,5 +122,8 @@
     "Taino": "tnq",
     "Xhosa": "xh",
     "Yoruba": "yo"
+  },
+  "extraAnswers": {
+    "theme:beverages": ["water"]
   }
 }

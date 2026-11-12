@@ -1,35 +1,54 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { buildFinishEvent, buildShareEvent, buildStartEvent, returningBucket, sendDigEvent, sendFinish, sendLandOnce, viaFrom } from "./client";
-import { MAX_REJECTED_PER_FINISH, parseDigEvent } from "./events";
+import { buildFinishEvent, buildShareEvent, buildStartEvent, missKey, newMisses, returningBucket, sendDigEvent, sendFinish, sendLandOnce, viaFrom } from "./client";
+import { parseDigEvent } from "./events";
 import type { PromptResult } from "./game";
 
 const none: PromptResult = { answer: null, tier: null, rejected: [], lastGuess: null };
 
 describe("buildFinishEvent", () => {
+  const tiers = Array.from({ length: 7 }, () => null);
+
+  it("carries no guesses (they went as miss events), and the server accepts it", () => {
+    const ev = buildFinishEvent("2026-11-01", tiers, 0, false);
+    expect(ev.rejected).toEqual([]);
+    expect(parseDigEvent(ev, "2026-11-01")).toEqual({ kind: "finish", date: "2026-11-01", score: 0, tiers, rejected: [] });
+  });
+
+  it("marks a new player", () => {
+    expect(buildFinishEvent("2026-11-01", tiers, 0, true).isNew).toBe(true);
+  });
+});
+
+describe("newMisses", () => {
   const results: PromptResult[] = [
     { answer: "keel", tier: "familiar", rejected: ["Jib"], lastGuess: "Jib" },
     { ...none, rejected: ["Boom", "Gaff Rig"], lastGuess: "Gaff Rig" },
     ...Array.from({ length: 5 }, () => ({ ...none })),
   ];
-  const tiers = results.map((r) => r.tier);
 
-  it("sends display-form guesses with their prompt index, and the server accepts it", () => {
-    const ev = buildFinishEvent("2026-11-01", tiers, 30, results, true, false);
-    expect(ev.rejected).toEqual([[0, "Jib"], [1, "Boom"], [1, "Gaff Rig"]]);
-    expect(parseDigEvent(ev, "2026-11-01")).toEqual({
-      kind: "finish", date: "2026-11-01", score: 30, tiers, rejected: [[0, "jib"], [1, "boom"], [1, "gaffrig"]],
-    });
+  it("returns each wrong guess once, with its prompt index and the typed form, and the server accepts it", () => {
+    const sent = new Set<string>();
+    const evs = newMisses("2026-11-01", results, sent);
+    expect(evs).toEqual([
+      { kind: "miss", date: "2026-11-01", prompt: 0, guess: "Jib" },
+      { kind: "miss", date: "2026-11-01", prompt: 1, guess: "Boom" },
+      { kind: "miss", date: "2026-11-01", prompt: 1, guess: "Gaff Rig" },
+    ]);
+    expect(parseDigEvent(evs[2], "2026-11-01")).toEqual({ kind: "miss", date: "2026-11-01", prompt: 1, guess: "gaffrig" });
   });
 
-  it("sends no guesses when the day's sample skips them", () => {
-    expect(buildFinishEvent("2026-11-01", tiers, 30, results, false, false).rejected).toEqual([]);
+  it("returns only what is new on the next call", () => {
+    const sent = new Set<string>();
+    newMisses("2026-11-01", results, sent);
+    expect(newMisses("2026-11-01", results, sent)).toEqual([]);
+    const more = results.map((r, i) => (i === 0 ? { ...r, rejected: [...r.rejected, "Mast"] } : r));
+    expect(newMisses("2026-11-01", more, sent)).toEqual([{ kind: "miss", date: "2026-11-01", prompt: 0, guess: "Mast" }]);
   });
 
-  it("caps the list at the server's limit so an over-long finish still parses", () => {
-    const heavy: PromptResult[] = Array.from({ length: 7 }, () => ({ ...none, rejected: ["aa", "bb", "cc", "dd", "ee"], lastGuess: "ee" }));
-    const ev = buildFinishEvent("2026-11-01", heavy.map(() => null), 0, heavy, true, false);
-    expect(ev.rejected).toHaveLength(MAX_REJECTED_PER_FINISH);
-    expect(parseDigEvent(ev, "2026-11-01")).not.toBeNull();
+  it("treats spellings that share a key as one miss, and skips ones already sent before a refresh", () => {
+    const sent = new Set<string>([missKey(0, "jib")]);
+    const r: PromptResult[] = [{ ...none, rejected: ["JIB", "Z Z"], lastGuess: "Z Z" }, { ...none, rejected: ["zz"], lastGuess: "zz" }];
+    expect(newMisses("2026-11-01", r, sent).map((e) => [e.prompt, e.guess])).toEqual([[0, "Z Z"], [1, "zz"]]);
   });
 });
 
@@ -147,5 +166,6 @@ describe("buildShareEvent", () => {
 it("buildStartEvent and buildFinishEvent carry vs only when true", () => {
   expect(buildStartEvent("2026-11-10", {}, true)).toMatchObject({ vs: true });
   expect(buildStartEvent("2026-11-10", {})).not.toHaveProperty("vs");
-  expect(buildFinishEvent("2026-11-10", Array(7).fill(null), 0, [], false, true, true)).toMatchObject({ isNew: true, vs: true });
+  expect(buildFinishEvent("2026-11-10", Array(7).fill(null), 0, true, true)).toMatchObject({ isNew: true, vs: true });
+  expect(buildFinishEvent("2026-11-10", Array(7).fill(null), 0, false)).not.toHaveProperty("vs");
 });

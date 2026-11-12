@@ -4,7 +4,17 @@ import { createReadStream, createWriteStream } from "node:fs";
 import { createGunzip } from "node:zlib";
 import { createInterface } from "node:readline";
 
-export type CompactEntry = { w: string; pos: string; t: string[]; c: string[]; g: string[]; e: string[]; f: string[]; n: number; et: string };
+/** `g` is the union of every sense's tags, so one slang sense tags the whole entry. The counts
+ * (format 2) judge sense by sense: `k` senses usable as an answer (not offensive, not a form-of,
+ * misspelling or abbreviation), `b` senses tagged vulgar, offensive or derogatory, and `l` usable
+ * senses that are also current (not obsolete or archaic). Format 1 files have no counts. */
+export type CompactEntry = { w: string; pos: string; t: string[]; c: string[]; g: string[]; e: string[]; f: string[]; n: number; k?: number; b?: number; l?: number; et: string };
+
+/** Bumped when the compact format changes, so dig:fetch re-derives the file from the dump. */
+export const COMPACT_VERSION = 2;
+export const BAD_TAGS = new Set(["vulgar", "offensive", "derogatory"]);
+export const NOT_ANSWER_TAGS = new Set(["misspelling", "abbreviation", "initialism", "form-of", "alt-of"]);
+const OLD_TAGS = new Set(["obsolete", "archaic"]);
 
 type RawCategory = string | { name?: string };
 type RawEntry = {
@@ -27,10 +37,18 @@ export function compactEntry(raw: unknown): CompactEntry | null {
   if (!e || e.lang_code !== "en" || !e.word) return null;
   const topics = new Set<string>(), cats = new Set<string>(), tags = new Set<string>();
   for (const c of e.categories ?? []) { const n = catName(c); if (keepCat(n)) cats.add(n); }
+  let k = 0, b = 0, l = 0;
   for (const s of e.senses ?? []) {
     (s.topics ?? []).forEach((t) => topics.add(t));
     (s.tags ?? []).forEach((t) => tags.add(t));
     for (const c of s.categories ?? []) { const n = catName(c); if (keepCat(n)) cats.add(n); }
+    const st = s.tags ?? [];
+    const bad = st.some((t) => BAD_TAGS.has(t));
+    if (bad) b++;
+    if (!bad && !st.some((t) => NOT_ANSWER_TAGS.has(t))) {
+      k++;
+      if (!st.some((t) => OLD_TAGS.has(t))) l++;
+    }
   }
   const ety: string[] = [];
   for (const t of e.etymology_templates ?? []) {
@@ -42,7 +60,7 @@ export function compactEntry(raw: unknown): CompactEntry | null {
     .slice(0, 6);
   return {
     w: e.word, pos: e.pos ?? "", t: [...topics], c: [...cats], g: [...tags].filter((x) => KEEP_TAGS.has(x)),
-    e: ety, f: forms, n: (e.senses ?? []).length, et: (e.etymology_text ?? "").slice(0, ETYMOLOGY_CHARS),
+    e: ety, f: forms, n: (e.senses ?? []).length, k, b, l, et: (e.etymology_text ?? "").slice(0, ETYMOLOGY_CHARS),
   };
 }
 

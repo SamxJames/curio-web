@@ -7,7 +7,7 @@ import { digKeys, historyFromManifest } from "../../lib/dig/keys";
 
 describe("digKeys", () => {
   it("keeps every key under curio:dig:", () => {
-    const keys = [digKeys.day("2026-12-01"), digKeys.manifest, digKeys.extras, digKeys.adjudicated, digKeys.scores("d"), digKeys.funnel("d"), digKeys.rejected("d", 3), digKeys.claims("d", 3), digKeys.heartbeat, digKeys.usageAlert("2026-12")];
+    const keys = [digKeys.day("2026-12-01"), digKeys.manifest, digKeys.extras, digKeys.adjudicated, digKeys.verdicts, digKeys.scores("d"), digKeys.funnel("d"), digKeys.rejected("d", 3), digKeys.claims("d", 3), digKeys.heartbeat, digKeys.usageAlert("2026-12")];
     for (const k of keys) expect(k.startsWith("curio:dig:")).toBe(true);
     expect(digKeys.rejected("2026-12-01", 3)).toBe("curio:dig:rej:2026-12-01:3");
   });
@@ -25,6 +25,17 @@ describe("FileSink", () => {
     await sink.writeExtras({ "theme:a": ["x"] });
     expect(await sink.readExtras()).toEqual({ "theme:a": ["x"] });
     expect(await sink.readLog("rej", "2026-12-01", 0)).toEqual({});
+  });
+
+  it("round-trips the verdict log, and reads a missing or malformed one as empty", async () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "dig-"));
+    const sink = new FileSink(dir);
+    expect(await sink.readVerdicts()).toEqual({});
+    const log = { "theme:a|x": { date: "2026-12-01", text: "t", n: 3, ours: "not-in-sources" as const, ai: { ok: true, conf: "high" as const, reason: "fits" } } };
+    await sink.writeVerdicts(log);
+    expect(await sink.readVerdicts()).toEqual(log);
+    writeFileSync(path.join(dir, "verdicts.json"), JSON.stringify([1, 2]));
+    expect(await sink.readVerdicts()).toEqual({});
   });
 
   it("round-trips adjudicated marks with their judged date, and reads the old array shape as judged today", async () => {

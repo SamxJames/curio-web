@@ -27,6 +27,40 @@ describe("indexWiktionary", () => {
     expect(usableWord(idx, new Map(), "apple")).toBe(true);
     expect(usableWord(idx, new Map(), "rude")).toBe(false);
   });
+
+  it("judges offensive and obsolete by sense counts when the compact file has them", async () => {
+    const idx = await indexWiktionary(
+      [
+        // One derogatory sense among many plain ones: an ordinary word.
+        entry("potato", ["Vegetables"], { g: ["offensive", "slang"], n: 6, k: 5, b: 1, l: 5 }),
+        // A clean entry plus a separate vulgar-only entry: still an ordinary word.
+        entry("mother", ["Female family members"], { n: 4, k: 4, b: 0, l: 4 }),
+        entry("mother", ["Female family members"], { g: ["vulgar", "slang"], n: 2, k: 0, b: 2, l: 0 }),
+        // Mostly bad senses: kept out.
+        entry("sluricle", ["Vegetables"], { g: ["offensive"], n: 4, k: 1, b: 3, l: 1 }),
+        // One abbreviation and one obsolete sense don't make the noun unusable or obsolete.
+        entry("onion", ["Vegetables"], { g: ["alt-of", "abbreviation", "obsolete"], n: 8, k: 6, b: 0, l: 5 }),
+        // Every usable sense obsolete: obsolete.
+        entry("more", ["Vegetables"], { g: ["obsolete"], n: 2, k: 2, b: 0, l: 0 }),
+      ],
+      new Set(["blockedword"])
+    );
+    const z = new Map<string, number>();
+    expect(usableWord(idx, z, "potato")).toBe(true);
+    expect(usableWord(idx, z, "mother")).toBe(true);
+    expect(usableWord(idx, z, "onion")).toBe(true);
+    expect(usableWord(idx, z, "sluricle")).toBe(false);
+    expect(idx.info.get("more")?.obsolete).toBe(true);
+    // Fossils stay strict: any offensive sense or obsolete tag rules a word out.
+    expect(idx.info.get("potato")?.strictOffensive).toBe(true);
+    expect(idx.info.get("mother")?.strictOffensive).toBe(true);
+    expect(idx.info.get("onion")?.strictObsolete).toBe(true);
+  });
+
+  it("keeps the blocklist absolute, whatever the sense counts say", async () => {
+    const idx = await indexWiktionary([entry("blockedword", ["Fruits"], { n: 3, k: 3, b: 0, l: 3 })], new Set(["blockedword"]));
+    expect(usableWord(idx, new Map(), "blockedword")).toBe(false);
+  });
 });
 
 describe("wording and ids", () => {
@@ -82,6 +116,35 @@ describe("wordnetThemes", () => {
     expect(driedTheme.core).toEqual(["apple"]); // not lemon, which only the parent rolls up
     expect(driedTheme.accepted).not.toContain("lemon"); // nor every fruit WordNet knows
     expect(themes.find((t) => t.id === "theme:fruits")!.core.sort()).toEqual(["apple", "lemon"]);
+  });
+});
+
+describe("wordnetThemes homographs", () => {
+  it("drops a category-only word that WordNet files under another sense, or that is a very common word", async () => {
+    // Wiktionary categories are per entry, not per sense: "colour" (an attribute in WordNet)
+    // and a very common word like "more" (an obsolete word for a root) land in "Fruits".
+    const fruits = ["apple", "fig", "pear", "plum", "date", "colour", "more"].map((w) => entry(w, ["Fruits"]));
+    const idx = await indexWiktionary(fruits, new Set());
+    const zipf = new Map([["more", 6.4], ["fig", 3.6]]);
+    const fruit = wordnetThemes(wn, idx, zipf, cat, { minOwnWords: 1, minAnchor: 1 }).find((t) => t.id === "theme:fruits")!;
+    expect(fruit.accepted).not.toContain("colour");
+    expect(fruit.accepted).not.toContain("more");
+    // Words WordNet doesn't know, and that aren't everyday words, still count.
+    expect(fruit.accepted).toEqual(expect.arrayContaining(["apple", "fig", "pear", "plum", "date"]));
+  });
+});
+
+describe("obvious members", () => {
+  it("always accepts an everyday member whose first sense is the theme, whatever Wiktionary's tags say", async () => {
+    // Tagged badly enough to fail the answer filter, yet "apple"'s first WordNet sense is the fruit.
+    const fruits = [entry("apple", ["Fruits"], { g: ["offensive"], n: 3, k: 1, b: 2, l: 1 }), ...["fig", "pear", "plum", "date"].map((w) => entry(w, ["Fruits"]))];
+    const idx = await indexWiktionary(fruits, new Set());
+    expect(usableWord(idx, new Map(), "apple")).toBe(false);
+    const zipf = new Map([["apple", 4.5], ["lemon", 3.2]]);
+    const fruit = wordnetThemes(wn, idx, zipf, cat, { minOwnWords: 1, minAnchor: 1 }).find((t) => t.id === "theme:fruits")!;
+    expect(fruit.obvious).toEqual(["apple"]); // lemon is in WordNet's fruit tree but not an everyday word
+    expect(fruit.accepted).toContain("apple");
+    expect(fruit.homographs).toEqual(new Set());
   });
 });
 

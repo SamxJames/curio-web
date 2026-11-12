@@ -6,7 +6,7 @@ import path from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { flagValue } from "../languages/cli";
-import { compactDump } from "./sources/compact";
+import { COMPACT_VERSION, compactDump } from "./sources/compact";
 import { DIG_USER_AGENT } from "./sources/wikidata";
 
 const SOURCES = {
@@ -33,14 +33,15 @@ async function main() {
   const head = await fetch(SOURCES.dump, { method: "HEAD", headers: { "User-Agent": DIG_USER_AGENT } });
   const lastModified = head.headers.get("last-modified") ?? "";
   const meta = existsSync(metaFile) ? JSON.parse(readFileSync(metaFile, "utf8")) : {};
-  if (!existsSync(compactFile) || meta.lastModified !== lastModified) {
+  // A new compact format (COMPACT_VERSION) needs the dump again: the cache keeps only the compact file.
+  if (!existsSync(compactFile) || meta.lastModified !== lastModified || meta.compact !== COMPACT_VERSION) {
     console.log("Wiktextract dump changed: downloading");
     await download(SOURCES.dump, dumpFile);
     mkdirSync(path.dirname(compactFile), { recursive: true });
     const { lines, kept } = await compactDump(dumpFile, compactFile);
     console.log(`Compacted ${lines} lines to ${kept} English entries`);
     rmSync(dumpFile); // the cache keeps only the compact file
-    writeFileSync(metaFile, JSON.stringify({ lastModified }));
+    writeFileSync(metaFile, JSON.stringify({ lastModified, compact: COMPACT_VERSION }));
   } else console.log("Wiktextract dump unchanged");
   const files: [keyof typeof SOURCES, string][] = [
     ["oewn", path.join(data, "oewn", "english-wordnet-2025.xml.gz")],

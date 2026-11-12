@@ -3,6 +3,7 @@ import path from "node:path";
 import { Redis } from "@upstash/redis";
 import { digKeys, type DigManifest } from "../../lib/dig/keys";
 import type { DigDay } from "../../lib/dig/types";
+import { parseVerdictLog, type VerdictLog } from "../../lib/dig/verdicts";
 
 /** curio:dig:adjudicated maps "promptId|word" to the YYYY-MM-DD it was judged. The first version
  * stored a bare array of marks: each of those counts as judged `today`. */
@@ -24,6 +25,8 @@ export interface DigSink {
   readAdjudicated(today: string): Promise<AdjudicatedMarks>;
   writeAdjudicated(marks: AdjudicatedMarks): Promise<void>;
   readLog(kind: "rej" | "claim", date: string, index: number): Promise<Record<string, number>>;
+  readVerdicts(): Promise<VerdictLog>;
+  writeVerdicts(log: VerdictLog): Promise<void>;
   readHeartbeat(): Promise<string | null>;
 }
 
@@ -50,6 +53,8 @@ export class FileSink implements DigSink {
   async readAdjudicated(today: string) { return toAdjudicatedMarks(this.read<unknown>("adjudicated.json", {}), today); }
   async writeAdjudicated(marks: AdjudicatedMarks) { this.write("adjudicated.json", marks); }
   async readLog(kind: "rej" | "claim", date: string, index: number) { return this.read<Record<string, number>>(`logs/${kind}-${date}-${index}.json`, {}); }
+  async readVerdicts() { return parseVerdictLog(this.read<unknown>("verdicts.json", {})); }
+  async writeVerdicts(log: VerdictLog) { this.write("verdicts.json", log); }
   async readHeartbeat() { return this.read<string | null>("heartbeat.json", null); }
 }
 
@@ -77,5 +82,7 @@ export class RedisSink implements DigSink {
     const h = (await this.redis.hgetall<Record<string, unknown>>(key)) ?? {};
     return Object.fromEntries(Object.entries(h).map(([k, v]) => [k, Number(v) || 0]));
   }
+  async readVerdicts() { return parseVerdictLog(await this.redis.get<unknown>(digKeys.verdicts)); }
+  async writeVerdicts(log: VerdictLog) { await this.redis.set(digKeys.verdicts, log); }
   async readHeartbeat() { return (await this.redis.get<string>(digKeys.heartbeat)) ?? null; }
 }

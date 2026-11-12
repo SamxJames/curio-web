@@ -1,6 +1,13 @@
-import type { CompactEntry } from "./sources/compact";
+import { BAD_TAGS, NOT_ANSWER_TAGS, type CompactEntry } from "./sources/compact";
 
-export type WordInfo = { ok: boolean; noun: boolean; offensive: boolean; obsolete: boolean; aliases: string[]; etymology: string };
+/** `offensive` and `obsolete` judge the word by its senses (answers): a word is offensive if it is
+ * blocklisted or at least as many senses are offensive as are usable, and obsolete if no usable
+ * sense is current. The strict pair (fossils, shown to every player) is the older rule: any
+ * entry with an offensive sense, and every entry carrying an obsolete tag. */
+export type WordInfo = {
+  ok: boolean; noun: boolean; offensive: boolean; obsolete: boolean;
+  strictOffensive: boolean; strictObsolete: boolean; aliases: string[]; etymology: string;
+};
 export type WiktionaryIndex = {
   info: Map<string, WordInfo>;
   /** "Fruits" (from "en:Fruits") → words */
@@ -13,8 +20,8 @@ export type WiktionaryIndex = {
 
 const SHAPE = /^[a-z][a-z' -]*[a-z]$/;
 const OK_POS = new Set(["noun", "verb", "adj", "adv"]);
-const BAD = new Set(["vulgar", "offensive", "derogatory"]);
-const NOT_ANSWER = new Set(["misspelling", "abbreviation", "initialism", "form-of", "alt-of"]);
+const BAD = BAD_TAGS;
+const NOT_ANSWER = NOT_ANSWER_TAGS;
 
 function add(map: Map<string, Set<string>>, key: string, w: string) {
   const set = map.get(key) ?? new Set<string>();
@@ -28,17 +35,31 @@ export async function indexWiktionary(
   badWords: Set<string>
 ): Promise<WiktionaryIndex> {
   const idx: WiktionaryIndex = { info: new Map(), categories: new Map(), originCategory: new Map(), originTemplate: new Map() };
+  // Sense counts summed over a word's entries (format 2 compact files only).
+  const senses = new Map<string, { usable: number; bad: number; live: number }>();
   for await (const e of entries as AsyncIterable<CompactEntry>) {
     const w = e.w;
     if (!SHAPE.test(w) || w.length > 24 || w.split(" ").length > 2) continue;
     const prev = idx.info.get(w);
-    const passes = OK_POS.has(e.pos) && !e.g.some((t) => NOT_ANSWER.has(t));
-    const obsolete = e.g.includes("obsolete") || e.g.includes("archaic");
+    const counted = e.k !== undefined;
+    const strictPasses = OK_POS.has(e.pos) && !e.g.some((t) => NOT_ANSWER.has(t));
+    const passes = counted ? OK_POS.has(e.pos) && e.k! > 0 : strictPasses;
+    const obsoleteEntry = e.g.includes("obsolete") || e.g.includes("archaic");
+    const strictOffensive = (prev?.strictOffensive ?? false) || e.g.some((t) => BAD.has(t)) || badWords.has(w);
+    const strictObsolete = prev ? prev.strictObsolete && obsoleteEntry : obsoleteEntry;
+    let offensive = strictOffensive, obsolete = strictObsolete;
+    if (counted) {
+      const s = senses.get(w) ?? { usable: 0, bad: 0, live: 0 };
+      if (OK_POS.has(e.pos)) { s.usable += e.k!; s.live += e.l ?? 0; }
+      s.bad += e.b ?? 0;
+      senses.set(w, s);
+      offensive = badWords.has(w) || (s.bad > 0 && s.bad >= s.usable);
+      obsolete = s.live === 0;
+    }
     idx.info.set(w, {
       ok: (prev?.ok ?? false) || passes,
       noun: (prev?.noun ?? false) || (passes && e.pos === "noun"),
-      offensive: (prev?.offensive ?? false) || e.g.some((t) => BAD.has(t)) || badWords.has(w),
-      obsolete: prev ? prev.obsolete && obsolete : obsolete,
+      offensive, obsolete, strictOffensive, strictObsolete,
       aliases: [...new Set([...(prev?.aliases ?? []), ...e.f])].slice(0, 8),
       etymology: prev?.etymology || e.et,
     });

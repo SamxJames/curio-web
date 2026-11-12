@@ -9,6 +9,7 @@ vi.mock("@/lib/dig/server", () => ({
   recordFunnel: vi.fn(async () => {}),
   recordFinish: vi.fn(async () => ({ "39": 4 })),
   recordClaim: vi.fn(async () => {}),
+  recordMiss: vi.fn(async () => {}),
   isRateLimited: vi.fn(async () => false),
 }));
 import * as server from "@/lib/dig/server";
@@ -89,6 +90,12 @@ describe("/api/dig/event", () => {
     const res = await event(post({ kind: "finish", date: "2026-12-10", score: 390, tiers: ["fossil", "fossil", "fossil", "uncommon", "familiar", null, null], rejected: [] }));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ spread: { "39": 4 } });
+  });
+  it("records a wrong guess as it happens, with the normalised word and no funnel count", async () => {
+    expect((await event(post({ kind: "miss", date: "2026-12-10", prompt: 2, guess: "Ice Cream" }))).status).toBe(204);
+    expect(server.recordMiss).toHaveBeenCalledWith({ kind: "miss", date: "2026-12-10", prompt: 2, guess: "icecream" });
+    expect(server.recordFunnel).not.toHaveBeenCalled();
+    expect((await event(post({ kind: "miss", date: "2026-12-10", prompt: 2, guess: "<b>" }))).status).toBe(400);
   });
   it("applies the /api/traffic safeguards", async () => {
     expect((await event(new NextRequest("http://localhost/api/dig/event", { method: "POST", body: "x", headers: { "content-type": "text/plain" } }))).status).toBe(415);

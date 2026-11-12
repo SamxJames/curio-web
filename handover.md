@@ -1,6 +1,6 @@
 # Curio: Handover
 
-Last updated: 2026-11-07. Read this first; it's deliberately short. Open a file in `docs/handover/` only when the
+Last updated: 2026-11-12. Read this first; it's deliberately short. Open a file in `docs/handover/` only when the
 task touches that area. **Keep this file under ~200 lines:** current state, gotchas and pointers only. Put session
 detail in `docs/handover/history.md` and depth in the topic files.
 
@@ -23,14 +23,39 @@ every feature against it.
 - **Crons (UTC, Hobby fires anywhere in the hour):** 09:00 digest + Bluesky (`/api/cron/send-daily`), 10:00 Threads/IG
   (`/api/cron/social`). Mondays 06:00: demand report (GitHub Action → private `SamxJames/curio-reports`).
 
-## Current state (2026-11-07)
-- **curio dig is OPEN (2026-11-07, master 20e5333, deployed and verified in production).** The daily word game at
-  `/dig`. `DIG_LAUNCH_DATE` is 2026-11-07 (it had been set to a July date by mistake; corrected). Fixes live (aa30b5e,
-  8e9e0e1): unreadable Wiktionary facts hidden behind a Wiktionary link, resume after refresh, event rate limiting,
-  "A to Z letters" feedback. **Retention release 1 live:** return counter (`start:ret:*`, d1/d2_6/d7), timer toggle,
-  two-tap Pass, intro explains the game, compact strata strip, varied reveals, postcard end screen, "Tomorrow: ..." hint,
-  "Today's dig starts with ..." line in the digest and Bluesky/Threads/IG posts. **Kill line:** stop if the median daily
-  returning starts over days 22-28 is under 5 (share target 30%+), read 2026-12-04. Details: `docs/handover/dig.md`.
+## Current state (2026-11-12)
+- **Signup measurement + guards shipped (origin/master a039145, 2026-11-12; offer-seen counter and story offer verified
+  in production, `ci.yml` first run unverified).** New `offer-at:<placement>` traffic event (once per placement per tab
+  session at >=50% visible: `SignupOffer` IntersectionObserver, `lib/signupOffer.offerIsShown`,
+  `lib/trafficClient.claimOfferSeen`); `traffic:report` shows offers seen + requests per 100 offers seen. Story page
+  `SignupOffer` now after the FIRST section (`StoryView`). Guard layer `scripts/guards` (`npm run guard`, 19 tests: tokens,
+  no raw button/input outside `components/ui`, archive-never-backlog copy), `npm run typecheck`, `npm run check`.
+  Zero-signup finding: signup is NOT broken (`confirmsends` counts pre-send; form submits fine on a fresh phone-size
+  guest); the gap was no denominator. 0 of ~250 visits is ~8% likely at a true 1%, so "probably a leak" is unproven.
+  Untested: real end-to-end signup (email + confirm link) and the signing-secret 503 path. Detail: `history.md` 2026-11-12.
+- **Dig pre-launch release is live (master 1df6b26, 8 commits from `feat/dig-prelaunch`, Vercel production verified
+  2026-11-12: deploy ready, new strings served, no errors for 30 min).** Native share sheet (`lib/shareOrCopy.ts`),
+  challenge copy "Can you go deeper?" + `utm_source=challenge` + expired-link message, fairer rejection wording with an
+  inline "should count" claim, tighter phone end screen, `/dig` preloads `/api/dig/today` with one 800ms retry
+  (`lib/dig/loadDay.ts`), new share/funnel counters and admin cohort columns (fields in `docs/handover/dig.md`).
+  Share-rate for the 12-04 gate = Shared ÷ New finishers; counts start 2026-11-12.
+- **Launch kit:** `docs/launch/2026-11-dig-launch.md`: pre-flight Sun 11-15, r/SideProject 11-17, r/DailyWordGames 11-19,
+  Show HN Tue 11-24, retry 12-01 if needed. Plan: `docs/superpowers/plans/2026-11-08-dig-prelaunch-release.md`.
+- **Week 1 launch readiness is live (master 4432331, deployed and verified in production 2026-11-07).** Merged with
+  another session's 15 dig placement/first-run commits. `/dig` rules + pitch are in the server HTML; challenge links
+  (`?vs=<day>.<tiers>&utm_source=challenge`, nothing stored, friend comparison on the end screen); pipeline
+  disclaimers removed at render by `lib/storyText.ts` (story pages, email, RSS, OG image, social carousel, Collection;
+  `lib/words.ts` untouched); `/play` rules line; utm_source reddit/hn/newsletter/challenge; `/admin` "Dig cohorts"
+  (start `first`, finish `isNew`, key `curio:dig:cohort:<first>`, `COHORT_START` 2026-11-08).
+- **Strategy:** `docs/strategy/2026-11-07-roadmap.md` (lead with dig, hand launch, judge retention). Plan
+  `docs/superpowers/plans/2026-11-07-week1-launch-readiness.md`; spec `.../specs/2026-11-07-week1-launch-readiness-design.md`.
+- **Dig kill line REPLACED, read 2026-12-04:** >=200 first-time finishers, day-7 return >=15%, share/challenge >=15%.
+  Under 200 = launch failed, re-launch; low return = Curio on autopilot, build Same Brain. Details: `docs/handover/dig.md`.
+- **Google: do NOT mass-noindex.** Freeze story titles/descriptions/template for 6 weeks, deepen ~50 pages, earn links,
+  read 2026-12-18 (impressions >500/week, 472 not-indexed falling, 748 indexed on 11-08). Manual actions and Security issues both clear (11-08). Evidence in `docs/handover/history.md` (2026-11-07).
+- **Not yet done (roadmap items):** pause daily Threads/IG auto-posts; the content freeze.
+- **curio dig is open since 2026-11-07** (`DIG_LAUNCH_DATE`), retention release 1 live (return counter, postcard end
+  screen, "Tomorrow" hint, dig line in email and posts). Rival to differentiate from: Wonderhop.
 - **/play improvements (67c94e8, 3ca0885, live):** letter tiles, "close" guesses forgiven (up to 2 free), a "Tried" list;
   /play and dig cross-link once dig is open.
 - **Prod side effects of testing:** my test plays left one /play solve on Sam's account (2026-11-06) and one dig finish (2026-11-07).
@@ -83,9 +108,17 @@ every feature against it.
 - `:focus-visible` must use **longhand** outline properties (Lightning CSS drops `var()` in the shorthand). Verify with real Tab presses.
 - Cloudflare DNS records for Vercel/Resend must be **grey-cloud (DNS only)**.
 - Meta logging: never log raw fetch errors or Upstash error messages (they can contain tokens). See `architecture.md` → `lib/metaGraph.ts`.
+- Two sessions can ship to master in parallel: `git fetch` before finishing a branch.
+- The dig copy audit bans "streak" and "played", even negated: say "dug".
+- jsdom isn't installed, so component tests run on node. Gemini CLI 0.67 never returned a reply (503/fetch failed).
+- The preview tool reads the **main checkout's** `.claude/launch.json`.
+- Story text in the RSC payload is still raw (disclaimers stripped at render only; not visible to readers).
 - Clean up after verifying: stop dev servers, `rm -rf .next`, remove merged worktrees (they confuse lint/vitest).
 - vitest and eslint skip `.claude/**` (worktrees), so the main checkout's suite no longer sweeps them.
 - No Python on this machine; write scripts in Node/tsx.
+- `tsc` fails on a clean checkout without `.next` types (PageProps/LayoutProps/RouteContext): use `npm run typecheck` (`next typegen` first).
+- `.claude/` is gitignored (local only): Stop hook runs the guard (not yet seen firing live), deny rules for `.env*`, force-push, upstash.io.
+  `curio-guest-test` launch entry + `.claude/guest-dev.cjs` = dev on :3010 with Redis and Resend blanked, for clean-guest browser tests.
 
 ## Decisions in force (full reasoning: `docs/handover/decisions.md`)
 - **One shared daily word for everyone** (2026-09-26). Revisit ~4 weeks after F&F launch.
@@ -98,9 +131,20 @@ every feature against it.
 - The demand report lives in a private repo and public Actions logs print counts only.
 
 ## Open threads
-- **Dig:** test one dig on a real iPhone (keyboard fix). First email with the dig line goes out 2026-11-08 09:00 UTC; check it.
-  Kill-line reading 2026-12-04. The dig/health cron check is not done (needs `CRON_SECRET`).
-- **GSC:** 302 crawled-not-indexed, 170 discovered-not-indexed; watch, don't click Validate fix. Watch feed and language pages.
+- **Git state:** local master holds the 3 signup/guard commits under old hashes (43e64dc, eb56846, e3a9195); origin has
+  bdb88b2, f3f109e, a039145. Do NOT push local master. `git pull --rebase` will conflict with uncommitted dig edits
+  (`scripts/dig/*`, `handover.md`, docs): settle those first.
+- **Signup:** read offer-seen numbers (`npm run traffic:report -- 7`) after 1-2 days; verify the first `ci.yml` run.
+- **Tooling candidates not installed:** cc-safety-net, ccusage, mcp-gsc (needs uvx/Python + Google OAuth). Rejected: ravenseat,
+  open-design-agent-kit, OpenSpec, Spec Kit, Claude Squad, Vibe Kanban, Postiz (`decisions.md`).
+- **Dig:** real iPhone + Android test. Read the kill line 2026-12-04. The dig/health cron check is not done (needs
+  `CRON_SECRET`). Remove worktree `.claude/worktrees/dig-prelaunch` and the `dig-prelaunch-prod` entry in `.claude/launch.json`.
+- **Dig minors (deferred):** cohort hashes never expire; caption hardcodes 8 Nov; "back" counts read slightly high;
+  `useNarrow` ignores rotation; `markShared` may over-count if storage is blocked.
+- **Dig deferred:** personalised previews, returning-player intro, sticky Next, other Puzzle items, scoring page.
+- **SEO:** IndexNow should send only new/changed URLs; narrow noindex candidates (127 never-crawled stories); deepen
+  ~50 stories; read GSC 2026-12-18. Don't click Validate fix.
+- **Pause Threads/IG auto-posts** (roadmap item, not done).
 - **2026-10-15:** verify the first IndexNow run in Vercel logs: `[curio:indexnow] 2026-10-15: submitted ~1214 URLs (HTTP 200|202)`.
 - Clue rewrite for the remaining 945 words (`clues:rewrite`, review sample + `tooHard`, `clues:apply -- --keep-today`).
   Revisit the clue rules if synced plays show most solves on clue 1 or failures above ~20%.
@@ -110,6 +154,12 @@ every feature against it.
 - Parked with reasons: `docs/handover/parked.md`.
 
 ## Waiting on Sam
+- Real phone signup in a private tab with your own email (email arrives, confirm link works), then re-run `traffic:report`.
+- Decide whether to install the 3 tooling candidates; decide the uncommitted dig edits before any `git pull --rebase`.
+- Real iPhone + Android test (tell me the date; finishes add test players to the counts).
+- Confirm Upstash plan + Vercel usage notifications (~25 Redis cmds/player).
+- Five-stranger test before Show HN · launch-kit pre-flight (subreddit rules, 5 unverified newsletter targets,
+  free/no-login wording, your own answer to "is this AI?") · weeks 2-3 hand launch.
 - Add curioword.com to Bluesky/Threads/IG bios · submit remaining
   launch-kit entries · tighten `_dmarc` to `quarantine` later ·
   `REPORTS_REPO_TOKEN` expires ~2027-10-04.

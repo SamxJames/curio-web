@@ -1138,3 +1138,32 @@ checks passed on curioword.com. Plan: `docs/superpowers/plans/2026-10-13-indexno
 - Sam's calls: show the tomorrow hint (see decisions.md), add the email line, kill line on returning starts (read 2026-12-04).
 - Gotchas: unlayered :focus-visible beats outline-none; node_modules junction breaks Turbopack in worktrees; filtered build output can hide a type error.
 - Test plays left a /play solve (2026-11-06) and a dig finish (2026-11-07) in prod.
+
+
+## Session 2026-11-07: week 1 launch readiness
+
+- Shipped (master 4432331, merged with another session's 15 dig placement/first-run commits; deployed, verified): /dig rules + pitch in server HTML; challenge links (`?vs=<day>.<tiers>&utm_source=challenge`, nothing stored); `lib/storyText.ts` strips pipeline disclaimers at render on story pages, email, RSS, OG image, social carousel, Collection (408 passages changed, 194 sections hidden); /play rules line; utm_source reddit/hn/newsletter/challenge; /admin "Dig cohorts".
+- Strategy: `docs/strategy/2026-11-07-roadmap.md` (CEO review with CPO/CMO/design agents plus a blind competing-founder critique). Plan and spec under `docs/superpowers/`.
+- Google evidence: GSC exports show crawled-not-indexed jumping 33 to 292 in one step on 10-13; 118 of those not recrawled since September; ~745 still-indexed stories also get ~0 impressions, i.e. site-wide suppression. So no mass-noindex.
+- Pitch: "A daily word game where obscure answers win. No crowd needed, and every answer comes with its origin story."
+- DigCard dropped in favour of the other session's Also today strip (dig less prominent than the roadmap's "front door"; revisit if wanted).
+
+
+## Session 2026-11-12: dig pre-launch release
+
+- Shipped: master fast-forwarded to 1df6b26 (8 commits from `feat/dig-prelaunch`); Vercel production verified (deploy ready, new strings served, no errors 30 min). Plan: `docs/superpowers/plans/2026-11-08-dig-prelaunch-release.md`.
+- Native share (`lib/shareOrCopy.ts`, used by Dig EndScreen and Puzzle): share sheet first on coarse pointer, clipboard first on desktop, cancel counts nothing, failed share shows selectable text.
+- Challenge link/card "Can you go deeper?" + `utm_source=challenge`; expired link: "A friend dug this on day N. Today's dig is ready."
+- Rejection wording "Not one we know yet. Try another, or Skip." + inline "should count" claim; smaller phone end-screen drawing; email pitch sells tomorrow's first prompt; Puzzle input no autocap/autocorrect.
+- `/dig` preloads `/api/dig/today`; client retries once after 800ms on error/5xx (`lib/dig/loadDay.ts`).
+- Launch kit: `docs/launch/2026-11-dig-launch.md`.
+- Gotchas: Gemini CLI 0.67 never replied (503/fetch failed); preview tool reads the main checkout's `.claude/launch.json` (`dig-prelaunch-prod` entry added, removable); jsdom not installed.
+- Known minor gaps: `useNarrow` ignores rotation; `markShared` may over-count if storage is blocked.
+
+## Session 2026-11-12: offer-seen counter, story offer placement, guard layer
+
+- Shipped (origin/master a039145; production verified for the counter and the story offer): `offer-at:<placement>` event (`SignupOffer` IntersectionObserver, `lib/signupOffer.offerIsShown`, `lib/trafficClient.claimOfferSeen`); `traffic:report` adds offers seen and requests per 100 offers seen. Story `SignupOffer` moved after the first section. `scripts/guards` (`npm run guard`, 19 tests), `npm run typecheck`, `npm run check`, `.github/workflows/ci.yml` (first run unverified).
+- Local only (`.claude/` gitignored): Stop hook running the guard, deny rules (`.env*`, force-push, upstash.io), `curio-guest-test` launch entry + `.claude/guest-dev.cjs` (dev on :3010, Redis and Resend blanked).
+- Zero-signup investigation: signup is not broken. `confirmsends` was 0 for 7 days because it counts every valid submission pre-send; `/api/subscribe` healthy; form hydrates and submits on a fresh phone-size guest. Real gap: no denominator, and the offer sat late (story: after the whole story; dig: end screen). 0 of ~250 visits is ~8% likely at a true 1% rate, so the 11-12 "probably a leak" call is unproven. Not tested: real end-to-end signup, signing-secret 503 path.
+- Weaknesses ranked by the strategist (partly unproven): 1 no audience/distribution, 2 zero signup/share conversion, 3 Google suppression (cause unproven), 4 thin templated content, 5 Sam as bottleneck (~8 manual items), 6 weak measurement/bots, 7 verification gaps (no jsdom/mobile tests), 8 single-bet dependence, no monetisation plan.
+- Gotchas: `tsc` fails on a clean checkout without `.next` types (fixed by `next typegen`); Stop hook not yet seen firing live. No superpowers plan file written.

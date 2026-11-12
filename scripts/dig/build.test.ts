@@ -37,13 +37,23 @@ describe("bufferDaysFrom", () => {
 
 describe("summaryLines", () => {
   it("prints counts only", () => {
-    const lines = summaryLines({ themes: 210, origins: 33, letterVariants: 40, built: 7, retries: 2, failedDates: 0, bufferDays: 45, poolThemes: 120, poolOrigins: 20, wikidata: { fresh: 6, cached: 1, stale: 0, missing: 1, "label-mismatch": 0 }, adjudication: { judged: 3, accepted: 1, amendedDays: 2 } });
+    const lines = summaryLines({ themes: 210, origins: 33, letterVariants: 40, built: 7, retries: 2, failedDates: 0, bufferDays: 45, poolThemes: 120, poolOrigins: 20, wikidata: { fresh: 6, cached: 1, stale: 0, missing: 1, "label-mismatch": 0 }, adjudication: { judged: 3, accepted: 1, amendedDays: 2 }, repair: { amendedDays: 40, added: 900, removed: 30, skippedOversize: 0 } });
     expect(lines.join("\n")).toMatch(/Buffer: 45 days/);
+    expect(lines.join("\n")).toMatch(/Repair: 40 days amended, 900 words added, 30 stray senses removed, 0 skipped for size/);
     expect(lines.join("\n")).not.toMatch(/[a-z]+:[a-z-]+:/);
   });
+  it("reports the shadow review as counts only, and says nothing when it is off", () => {
+    const base = { themes: 1, origins: 1, letterVariants: 0, built: 0, retries: 0, failedDates: 0, bufferDays: 45, poolThemes: 1, poolOrigins: 1, wikidata: { fresh: 0, cached: 0, stale: 0, missing: 0, "label-mismatch": 0 }, adjudication: "failed" as const, repair: "failed" as const };
+    const on = summaryLines({ ...base, review: { considered: 12, reviewed: 5, shouldAccept: 2, failedCalls: 1 } }).join("\n");
+    expect(on).toMatch(/Review \(shadow\): 12 refused guesses, 5 newly reviewed, 2 the reviewer would accept, 1 calls failed/);
+    expect(summaryLines({ ...base, review: "failed" }).join("\n")).toMatch(/Review: failed/);
+    expect(summaryLines({ ...base, review: "off" }).join("\n")).not.toMatch(/Review/);
+    expect(summaryLines(base).join("\n")).not.toMatch(/Review/);
+  });
   it("shows a failed adjudication as failed", () => {
-    const lines = summaryLines({ themes: 1, origins: 1, letterVariants: 0, built: 0, retries: 0, failedDates: 0, bufferDays: 45, poolThemes: 1, poolOrigins: 1, wikidata: { fresh: 0, cached: 0, stale: 0, missing: 0, "label-mismatch": 0 }, adjudication: "failed" });
+    const lines = summaryLines({ themes: 1, origins: 1, letterVariants: 0, built: 0, retries: 0, failedDates: 0, bufferDays: 45, poolThemes: 1, poolOrigins: 1, wikidata: { fresh: 0, cached: 0, stale: 0, missing: 0, "label-mismatch": 0 }, adjudication: "failed", repair: "failed" });
     expect(lines.join("\n")).toMatch(/Adjudication: failed/);
+    expect(lines.join("\n")).toMatch(/Repair: failed/);
   });
 });
 
