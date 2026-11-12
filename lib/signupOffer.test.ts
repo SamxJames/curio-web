@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { offerMode } from "./signupOffer";
+import { offerIsShown, offerMode } from "./signupOffer";
+
+describe("offerIsShown", () => {
+  it("is true only when a visible form or one-tap button is on screen", () => {
+    expect(offerIsShown("form")).toBe(true);
+    expect(offerIsShown("one-tap")).toBe(true);
+  });
+  it("is false while the session loads (hidden pre-paint for signed-in readers) and when there is no offer", () => {
+    expect(offerIsShown("form-unless-signed-in")).toBe(false);
+    expect(offerIsShown("none")).toBe(false);
+  });
+});
 
 const base = { session: "unauthenticated", subscribedHere: false, arrivedFromEmail: false, me: "unknown" } as const;
 

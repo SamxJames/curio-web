@@ -38,9 +38,12 @@ async function main() {
   );
   console.log(`share taps: story ${s.shares.story}, puzzle ${s.shares.puzzle}`);
   if (s.placements.length > 0) {
-    console.log("\nby placement   requests  signups");
+    console.log("\nby placement   offer seen  requests  signups");
     for (const p of s.placements) {
-      console.log(`  ${p.placement.padEnd(12)} ${String(p.requests).padStart(8)}  ${String(p.signups).padStart(7)}`);
+      const per100 = p.offers > 0 ? ` (${((p.requests / p.offers) * 100).toFixed(1)} per 100 offers seen)` : "";
+      console.log(
+        `  ${p.placement.padEnd(12)} ${String(p.offers).padStart(6)} seen  ${String(p.requests).padStart(8)}  ${String(p.signups).padStart(7)}${per100}`
+      );
     }
   }
   console.log("\nby day (visits):");

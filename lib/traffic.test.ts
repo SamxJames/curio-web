@@ -174,7 +174,7 @@ describe("signup placements", () => {
     expect(eventField({ kind: "request-at", placement: "today" })).toBe("request-at:today");
     expect(eventField({ kind: "signup-at", placement: "account" })).toBe("signup-at:account");
   });
-  it("parseTrafficEvent rejects placement kinds from the browser", () => {
+  it("parseTrafficEvent rejects server-side placement kinds from the browser", () => {
     expect(parseTrafficEvent({ kind: "signup-at", placement: "story" })).toBeNull();
     expect(parseTrafficEvent({ kind: "request-at", placement: "story" })).toBeNull();
   });
@@ -184,9 +184,33 @@ describe("signup placements", () => {
       "2026-10-19": { "request-at:story": 1, "request-at:bogus": 9 },
     });
     expect(s.placements).toEqual([
-      { placement: "arrival", requests: 0, signups: 1 },
-      { placement: "story", requests: 3, signups: 1 },
+      { placement: "arrival", offers: 0, requests: 0, signups: 1 },
+      { placement: "story", offers: 0, requests: 3, signups: 1 },
     ]);
     expect(s.totals.visits).toBe(5);
+  });
+});
+
+describe("offer-seen counter (offer-at)", () => {
+  it("eventField names the field offer-at:<placement>", () => {
+    expect(eventField({ kind: "offer-at", placement: "story" })).toBe("offer-at:story");
+  });
+  it("parseTrafficEvent accepts a known placement from the browser", () => {
+    expect(parseTrafficEvent({ kind: "offer-at", placement: "story" })).toEqual({ kind: "offer-at", placement: "story" });
+  });
+  it("parseTrafficEvent rejects unknown or missing placements", () => {
+    expect(parseTrafficEvent({ kind: "offer-at", placement: "homepage" })).toBeNull();
+    expect(parseTrafficEvent({ kind: "offer-at" })).toBeNull();
+    expect(parseTrafficEvent({ kind: "offer-at", placement: "__proto__" })).toBeNull();
+  });
+  it("summarizeTraffic counts offers per placement, including placements with offers but no requests", () => {
+    const s = summarizeTraffic({
+      "2026-11-13": { "offer-at:story": 40, "offer-at:dig": 3, "request-at:story": 1, "offer-at:bogus": 9 },
+      "2026-11-14": { "offer-at:story": 10 },
+    });
+    expect(s.placements).toEqual([
+      { placement: "story", offers: 50, requests: 1, signups: 0 },
+      { placement: "dig", offers: 3, requests: 0, signups: 0 },
+    ]);
   });
 });

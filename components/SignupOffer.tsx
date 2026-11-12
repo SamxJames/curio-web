@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import clsx from "clsx";
 import Link from "next/link";
@@ -9,9 +9,9 @@ import EmailSignupInline from "./EmailSignupInline";
 import SignupPromise from "./SignupPromise";
 import Button from "@/components/ui/Button";
 import { track } from "@/lib/analytics";
-import { offerMode, type OfferInput } from "@/lib/signupOffer";
+import { offerIsShown, offerMode, type OfferInput } from "@/lib/signupOffer";
 import { markSubscribedHere, useHasArrivedFromEmailThisSession, useHasSubscribedHere } from "@/lib/storage";
-import { getArrivalSource } from "@/lib/trafficClient";
+import { claimOfferSeen, getArrivalSource, sendTrafficEvent } from "@/lib/trafficClient";
 import type { SignupPlacement } from "@/lib/traffic";
 
 type OneTapStatus = "idle" | "pending" | "success" | "error";
@@ -72,6 +72,26 @@ export default function SignupOffer({
   }, [session]);
 
   const mode = offerMode({ session, subscribedHere, arrivedFromEmail, me });
+
+  // Counts the offer as "shown" once per tab session, the first time at least
+  // half of it is on screen (the denominator for requests per offer shown, see
+  // lib/traffic.ts). Only for an offer a reader can actually see.
+  const offerRef = useRef<HTMLDivElement>(null);
+  const shown = offerIsShown(mode);
+  useEffect(() => {
+    const el = offerRef.current;
+    if (!shown || !el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        if (claimOfferSeen(placement)) sendTrafficEvent({ kind: "offer-at", placement });
+      },
+      { threshold: 0.5 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [shown, placement]);
 
   async function handleOneTap() {
     setOneTap("pending");
@@ -148,10 +168,10 @@ export default function SignupOffer({
   );
 
   return ariaLabel ? (
-    <section aria-label={ariaLabel} className={wrapperClass}>
+    <section ref={offerRef} aria-label={ariaLabel} className={wrapperClass}>
       {content}
     </section>
   ) : (
-    <div className={wrapperClass}>{content}</div>
+    <div ref={offerRef} className={wrapperClass}>{content}</div>
   );
 }

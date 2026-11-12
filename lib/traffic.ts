@@ -81,12 +81,17 @@ export type TrafficEvent =
   | { kind: "request"; source: TrafficSource }
   | { kind: "share"; what: ShareKind }
   | { kind: "request-at"; placement: SignupPlacement }
-  | { kind: "signup-at"; placement: SignupPlacement };
+  | { kind: "signup-at"; placement: SignupPlacement }
+  /** The email offer scrolled into view at this placement (once per tab
+   * session). The denominator for "requests per offer shown". A count of
+   * offers seen, never of anything unread. */
+  | { kind: "offer-at"; placement: SignupPlacement };
 
 /** The only gate between a PUBLIC request body and a Redis field name. It
- * accepts only what the browser sends (visit, share): signup and request
- * are recorded server-side by /api/subscribe and /api/subscribe/confirm, so
- * nobody can inflate them by POSTing to /api/traffic. */
+ * accepts only what the browser sends (visit, share, offer-at): signup and
+ * request are recorded server-side by /api/subscribe and
+ * /api/subscribe/confirm, so nobody can inflate them by POSTing to
+ * /api/traffic. */
 export function parseTrafficEvent(body: unknown): TrafficEvent | null {
   if (typeof body !== "object" || body === null) return null;
   const b = body as Record<string, unknown>;
@@ -94,12 +99,13 @@ export function parseTrafficEvent(body: unknown): TrafficEvent | null {
   if (b.kind === "share" && (b.what === "story" || b.what === "puzzle")) {
     return { kind: "share", what: b.what };
   }
+  if (b.kind === "offer-at" && isSignupPlacement(b.placement)) return { kind: "offer-at", placement: b.placement };
   return null;
 }
 
 export function eventField(ev: TrafficEvent): string {
   if (ev.kind === "share") return `share:${ev.what}`;
-  if (ev.kind === "request-at" || ev.kind === "signup-at") return `${ev.kind}:${ev.placement}`;
+  if (ev.kind === "request-at" || ev.kind === "signup-at" || ev.kind === "offer-at") return `${ev.kind}:${ev.placement}`;
   return `${ev.kind}:${ev.source}`;
 }
 
@@ -115,7 +121,7 @@ export type TrafficSummary = {
   totals: { visits: number; requests: number; signups: number };
   shares: { story: number; puzzle: number };
   /** Only placements with any count, in SIGNUP_PLACEMENTS order. */
-  placements: { placement: SignupPlacement; requests: number; signups: number }[];
+  placements: { placement: SignupPlacement; offers: number; requests: number; signups: number }[];
 };
 
 /** Folds per-day counter hashes into one row per source (only sources with
@@ -128,6 +134,7 @@ export function summarizeTraffic(days: Record<string, Record<string, number>>): 
   const requests = new Map<TrafficSource, number>();
   const signups = new Map<TrafficSource, number>();
   const shares = { story: 0, puzzle: 0 };
+  const placeOffers = new Map<SignupPlacement, number>();
   const placeRequests = new Map<SignupPlacement, number>();
   const placeSignups = new Map<SignupPlacement, number>();
   for (const fields of Object.values(days)) {
@@ -138,6 +145,7 @@ export function summarizeTraffic(days: Record<string, Record<string, number>>): 
       else if (kind === "visit" && isTrafficSource(name)) visits.set(name, (visits.get(name) ?? 0) + n);
       else if (kind === "request" && isTrafficSource(name)) requests.set(name, (requests.get(name) ?? 0) + n);
       else if (kind === "signup" && isTrafficSource(name)) signups.set(name, (signups.get(name) ?? 0) + n);
+      else if (kind === "offer-at" && isSignupPlacement(name)) placeOffers.set(name, (placeOffers.get(name) ?? 0) + n);
       else if (kind === "request-at" && isSignupPlacement(name)) placeRequests.set(name, (placeRequests.get(name) ?? 0) + n);
       else if (kind === "signup-at" && isSignupPlacement(name)) placeSignups.set(name, (placeSignups.get(name) ?? 0) + n);
     }
@@ -159,8 +167,9 @@ export function summarizeTraffic(days: Record<string, Record<string, number>>): 
       signups: rows.reduce((t, r) => t + r.signups, 0),
     },
     shares,
-    placements: SIGNUP_PLACEMENTS.filter((p) => placeRequests.has(p) || placeSignups.has(p)).map((p) => ({
+    placements: SIGNUP_PLACEMENTS.filter((p) => placeOffers.has(p) || placeRequests.has(p) || placeSignups.has(p)).map((p) => ({
       placement: p,
+      offers: placeOffers.get(p) ?? 0,
       requests: placeRequests.get(p) ?? 0,
       signups: placeSignups.get(p) ?? 0,
     })),

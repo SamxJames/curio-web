@@ -27,6 +27,14 @@ describe("POST /api/traffic", () => {
     expect(recordTrafficEvent).toHaveBeenCalledWith({ kind: "visit", source: "search" });
   });
 
+  it("records an offer-seen event for a known placement, and rejects an unknown one", async () => {
+    expect((await POST(post({ kind: "offer-at", placement: "story" }))).status).toBe(204);
+    expect(recordTrafficEvent).toHaveBeenCalledWith({ kind: "offer-at", placement: "story" });
+    vi.clearAllMocks();
+    expect((await POST(post({ kind: "offer-at", placement: "nowhere" }))).status).toBe(400);
+    expect(recordTrafficEvent).not.toHaveBeenCalled();
+  });
+
   it("rejects an off-allowlist event with 400 and no write", async () => {
     const res = await POST(post({ kind: "visit", source: "myspace" }));
     expect(res.status).toBe(400);

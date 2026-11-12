@@ -14,6 +14,13 @@ export type OfferMode = "none" | "form" | "form-unless-signed-in" | "one-tap";
  * it with the pre-paint `signed-in:` variant (app/globals.css), so a
  * signed-in reader never sees it flash. Signed in, it waits for the
  * subscription status and then shows the one tap or nothing. */
+/** Whether a reader can actually see an offer in this mode, so counting it as
+ * "shown" is honest: not while the session loads (a signed-in reader never
+ * sees that form), and not when there is no offer at all. */
+export function offerIsShown(mode: OfferMode): boolean {
+  return mode === "form" || mode === "one-tap";
+}
+
 export function offerMode(i: OfferInput): OfferMode {
   if (i.subscribedHere || i.arrivedFromEmail) return "none";
   if (i.session === "loading") return "form-unless-signed-in";

@@ -1,4 +1,4 @@
-import { classifySource, isTrafficSource, type TrafficEvent, type TrafficSource } from "./traffic";
+import { classifySource, isTrafficSource, type SignupPlacement, type TrafficEvent, type TrafficSource } from "./traffic";
 
 const ARRIVAL_KEY = "curio:arrivalSource"; // sessionStorage: one arrival per tab session
 
@@ -32,6 +32,20 @@ export function rememberArrivalSource(): TrafficSource | null {
     return source;
   } catch {
     return null;
+  }
+}
+
+/** True only the first time this tab session sees the offer at `placement`,
+ * so a reload or a scroll back and forth counts once. False when storage is
+ * unavailable: better to under-count than double-count. */
+export function claimOfferSeen(placement: SignupPlacement): boolean {
+  try {
+    const key = `curio:offerSeen:${placement}`;
+    if (window.sessionStorage.getItem(key)) return false;
+    window.sessionStorage.setItem(key, "1");
+    return true;
+  } catch {
+    return false;
   }
 }
 

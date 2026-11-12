@@ -35,6 +35,16 @@ export default function StoryView({
   const day = useStoryDay(word.slug);
   // Pipeline disclaimers are stripped at render; a section left empty is hidden.
   const sections = SECTIONS.map(({ key, label }) => ({ key, label, text: cleanStoryText(word[key]) })).filter((s) => s.text);
+  const [firstSection, ...laterSections] = sections;
+  const renderSection = ({ key, label, text }: (typeof sections)[number]) => (
+    <section key={key}>
+      <div className="mb-3 flex items-center gap-3">
+        <h2 className="font-sans text-xs tracking-wide text-ink-faint">{label}</h2>
+        <div className="h-px flex-1 bg-line" />
+      </div>
+      <p className="font-serif text-lg leading-relaxed text-ink">{text}</p>
+    </section>
+  );
 
   useEffect(() => {
     track("story_view");
@@ -128,19 +138,14 @@ export default function StoryView({
         </Button>
       </div>
 
-      <div className="mt-12 space-y-10">
-        {sections.map(({ key, label, text }) => (
-          <section key={key}>
-            <div className="mb-3 flex items-center gap-3">
-              <h2 className="font-sans text-xs tracking-wide text-ink-faint">{label}</h2>
-              <div className="h-px flex-1 bg-line" />
-            </div>
-            <p className="font-serif text-lg leading-relaxed text-ink">{text}</p>
-          </section>
-        ))}
-      </div>
+      <div className="mt-12 space-y-10">{firstSection && renderSection(firstSection)}</div>
 
+      {/* After the first section, not the last: a reader arriving from search
+       * has read enough to know what Curio is, and most never reach the foot
+       * of the page (the offer-seen counter in lib/traffic.ts measures it). */}
       <StoryFrontDoor />
+
+      {laterSections.length > 0 && <div className="mt-12 space-y-10">{laterSections.map(renderSection)}</div>}
 
       {related.peers.length + related.neighbours.length > 0 && (
         <section className="mt-12">
