@@ -4,7 +4,8 @@ import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { disagreements, parseVerdictLog, summarizeVerdicts } from "../../lib/dig/verdicts";
 import { explainJudge } from "./adjudicate";
-import { buildReviewPrompt, parseReviewResponse, REVIEW_PER_PROMPT, reviewFailures, type Reviewer } from "./review";
+import { AnthropicApiError } from "../rewriteEtymology";
+import { buildReviewPrompt, failureLabel, parseReviewResponse, REVIEW_PER_PROMPT, reviewFailures, type Reviewer } from "./review";
 import { FileSink } from "./sink";
 import type { Candidate } from "./themes";
 
@@ -80,7 +81,7 @@ describe("reviewFailures", () => {
     const r = await reviewFailures(sink, new Map([["theme:sailing", theme]]), ctx, reviewer);
     // jib is accepted by our judge (adjudicate's job) and keel is already an answer: neither is a failure.
     expect(vi.mocked(reviewer).mock.calls).toEqual([["Name a word from sailing", ["banana", "cleat", "qqqq"]]]);
-    expect(r).toEqual({ considered: 5, reviewed: 3, shouldAccept: 1, failedCalls: 0 });
+    expect(r).toEqual({ considered: 5, reviewed: 3, shouldAccept: 1, failedCalls: 0, failures: {} });
     const log = await sink.readVerdicts();
     expect(log["theme:sailing|cleat"]).toEqual({ date: "2026-12-03", text: "Name a word from sailing", n: 3, ours: "unusable", ai: yes("a cleat is a sailing fitting") });
     expect(log["theme:sailing|banana"].ours).toBe("not-in-sources");
@@ -114,7 +115,7 @@ describe("reviewFailures", () => {
     const { sink } = fixture({ banana: 4 });
     await sink.writeManifest(manifest);
     const failing: Reviewer = async () => { throw new Error("network"); };
-    expect(await reviewFailures(sink, new Map([["theme:sailing", theme]]), ctx, failing)).toMatchObject({ reviewed: 0, failedCalls: 1 });
+    expect(await reviewFailures(sink, new Map([["theme:sailing", theme]]), ctx, failing)).toMatchObject({ reviewed: 0, failedCalls: 1, failures: { response: 1 } });
     expect(await sink.readVerdicts()).toEqual({});
     const reviewer = ok({ banana: no() });
     await reviewFailures(sink, new Map([["theme:sailing", theme]]), ctx, reviewer);
@@ -142,6 +143,15 @@ describe("reviewFailures", () => {
     });
     await reviewFailures(sink, new Map(), ctx, ok({}));
     expect(Object.keys(await sink.readVerdicts())).toEqual(["theme:sailing|new"]);
+  });
+});
+
+describe("failureLabel", () => {
+  it("names a failure by status, network or response, never by content", () => {
+    expect(failureLabel(new AnthropicApiError("review: API request failed (401)", 401))).toBe("401");
+    expect(failureLabel(new Error("review: network error"))).toBe("network");
+    expect(failureLabel(new Error("response hit max_tokens"))).toBe("response");
+    expect(failureLabel("x")).toBe("response");
   });
 });
 

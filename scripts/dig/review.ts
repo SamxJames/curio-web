@@ -93,7 +93,17 @@ export function anthropicReviewer(apiKey: string): Reviewer {
 }
 
 type Ctx = { lexicon: Set<string>; usable: (w: string) => boolean; blocked: Set<string>; today: string };
-export type ReviewResult = { considered: number; reviewed: number; shouldAccept: number; failedCalls: number };
+export type ReviewResult = {
+  considered: number; reviewed: number; shouldAccept: number; failedCalls: number;
+  /** Failed calls by cause: an HTTP status ("401"), "network", or "response" (an unusable reply). Never words. */
+  failures: Record<string, number>;
+};
+
+/** A call's failure as a label that is safe for a public log. */
+export function failureLabel(err: unknown): string {
+  if (err instanceof AnthropicApiError) return String(err.status);
+  return err instanceof Error && err.message === "review: network error" ? "network" : "response";
+}
 
 /** Writes a verdict for every guess the game refused that people kept typing. Real words we refused
  * go to the reviewer; likely typos typed once and blocked words are logged without asking. */
@@ -101,6 +111,7 @@ export async function reviewFailures(sink: DigSink, candidates: Map<string, Cand
   const tallies = await tallyGuesses(sink, ctx.today);
   const log: VerdictLog = await sink.readVerdicts();
   let considered = 0, reviewed = 0, shouldAccept = 0, failedCalls = 0, calls = 0;
+  const failures: Record<string, number> = {};
 
   for (const [promptId, byGuess] of tallies) {
     const c = candidates.get(promptId);
@@ -134,8 +145,10 @@ export async function reviewFailures(sink: DigSink, candidates: Map<string, Cand
     let answers: Map<string, AiVerdict>;
     try {
       answers = await reviewer(c.text, ask);
-    } catch {
+    } catch (err) {
       failedCalls++; // nothing is recorded, so the batch is asked again next run
+      const label = failureLabel(err);
+      failures[label] = (failures[label] ?? 0) + 1;
       continue;
     }
     for (const [guess, { n, ours }] of pending) {
@@ -152,5 +165,5 @@ export async function reviewFailures(sink: DigSink, candidates: Map<string, Cand
     .sort(([, a], [, b]) => b.n - a.n)
     .slice(0, VERDICT_CAP);
   await sink.writeVerdicts(Object.fromEntries(kept));
-  return { considered, reviewed, shouldAccept, failedCalls };
+  return { considered, reviewed, shouldAccept, failedCalls, failures };
 }

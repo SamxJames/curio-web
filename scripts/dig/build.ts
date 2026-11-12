@@ -80,7 +80,7 @@ export function summaryLines(s: BuildStats): string[] {
       ? []
       : [s.review === "failed"
         ? "Review: failed"
-        : `Review (shadow): ${s.review.considered} refused guesses, ${s.review.reviewed} newly reviewed, ${s.review.shouldAccept} the reviewer would accept, ${s.review.failedCalls} calls failed`]),
+        : `Review (shadow): ${s.review.considered} refused guesses, ${s.review.reviewed} newly reviewed, ${s.review.shouldAccept} the reviewer would accept, ${s.review.failedCalls} calls failed${s.review.failedCalls ? ` (${Object.entries(s.review.failures).map(([k, n]) => `${k} x${n}`).join(", ")})` : ""}`]),
     `Built: ${s.built} days (${s.retries} retries, ${s.failedDates} dates failed)`,
     `Buffer: ${s.bufferDays} days. Spare pool: ${s.poolThemes} themes, ${s.poolOrigins} origins`,
   ];

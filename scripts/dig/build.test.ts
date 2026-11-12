@@ -44,8 +44,10 @@ describe("summaryLines", () => {
   });
   it("reports the shadow review as counts only, and says nothing when it is off", () => {
     const base = { themes: 1, origins: 1, letterVariants: 0, built: 0, retries: 0, failedDates: 0, bufferDays: 45, poolThemes: 1, poolOrigins: 1, wikidata: { fresh: 0, cached: 0, stale: 0, missing: 0, "label-mismatch": 0 }, adjudication: "failed" as const, repair: "failed" as const };
-    const on = summaryLines({ ...base, review: { considered: 12, reviewed: 5, shouldAccept: 2, failedCalls: 1 } }).join("\n");
-    expect(on).toMatch(/Review \(shadow\): 12 refused guesses, 5 newly reviewed, 2 the reviewer would accept, 1 calls failed/);
+    const on = summaryLines({ ...base, review: { considered: 12, reviewed: 5, shouldAccept: 2, failedCalls: 3, failures: { "401": 2, network: 1 } } }).join("\n");
+    expect(on).toMatch(/Review \(shadow\): 12 refused guesses, 5 newly reviewed, 2 the reviewer would accept, 3 calls failed \(401 x2, network x1\)/);
+    const clean = summaryLines({ ...base, review: { considered: 1, reviewed: 1, shouldAccept: 0, failedCalls: 0, failures: {} } }).join("\n");
+    expect(clean).toMatch(/0 the reviewer would accept, 0 calls failed$/m);
     expect(summaryLines({ ...base, review: "failed" }).join("\n")).toMatch(/Review: failed/);
     expect(summaryLines({ ...base, review: "off" }).join("\n")).not.toMatch(/Review/);
     expect(summaryLines(base).join("\n")).not.toMatch(/Review/);
