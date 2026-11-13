@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { disagreements, parseVerdictLog, summarizeVerdicts } from "../../lib/dig/verdicts";
 import { explainJudge } from "./adjudicate";
 import { AnthropicApiError } from "../rewriteEtymology";
-import { buildReviewPrompt, failureLabel, parseReviewResponse, REVIEW_PER_PROMPT, reviewFailures, type Reviewer } from "./review";
+import { anthropicReviewer, buildReviewPrompt, failureLabel, parseReviewResponse, REVIEW_PER_PROMPT, reviewFailures, type Reviewer } from "./review";
 import { FileSink } from "./sink";
 import type { Candidate } from "./themes";
 
@@ -143,6 +143,38 @@ describe("reviewFailures", () => {
     });
     await reviewFailures(sink, new Map(), ctx, ok({}));
     expect(Object.keys(await sink.readVerdicts())).toEqual(["theme:sailing|new"]);
+  });
+});
+
+describe("anthropicReviewer failures", () => {
+  const refuse = (status: number, body: unknown) =>
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } })));
+  const labelOf = async () => {
+    try {
+      await anthropicReviewer("k")("Name a fruit", ["banana"]);
+      return "no error";
+    } catch (err) {
+      return { label: failureLabel(err), message: (err as Error).message };
+    }
+  };
+
+  it("labels an out-of-credit refusal as credit, and keeps none of the message", async () => {
+    refuse(400, { type: "error", error: { type: "invalid_request_error", message: "Your credit balance is too low to access the API. banana" } });
+    const r = await labelOf();
+    expect(r).toEqual({ label: "400:credit", message: "review: API request failed (400)" });
+    vi.unstubAllGlobals();
+  });
+
+  it("keeps only a plain error type for any other refusal, and drops the message", async () => {
+    refuse(400, { error: { type: "invalid_request_error", message: "messages.0: banana is not allowed" } });
+    expect(await labelOf()).toEqual({ label: "400:invalid_request_error", message: "review: API request failed (400)" });
+    refuse(401, { error: { type: "authentication_error", message: "invalid x-api-key" } });
+    expect((await labelOf() as { label: string }).label).toBe("401:authentication_error");
+    refuse(400, { error: { type: "Bad Type With Spaces!", message: "x" } });
+    expect((await labelOf() as { label: string }).label).toBe("400");
+    refuse(400, "not an object");
+    expect((await labelOf() as { label: string }).label).toBe("400");
+    vi.unstubAllGlobals();
   });
 });
 

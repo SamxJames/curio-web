@@ -67,6 +67,27 @@ export function parseReviewResponse(text: string, asked: string[]): Map<string, 
   return out;
 }
 
+/** An API refusal. `detail` is only ever Anthropic's fixed error type or "credit": never message text. */
+export class ReviewApiError extends AnthropicApiError {
+  constructor(status: number, readonly detail: string) {
+    super(`review: API request failed (${status})`, status);
+  }
+}
+
+/** What a failed response may say in a public log: its error type if it is a plain identifier
+ * (e.g. "invalid_request_error"), or "credit" for the out-of-credit message. The rest of the body is
+ * dropped, since it could echo the request. */
+export async function safeErrorDetail(res: Response): Promise<string> {
+  try {
+    const body = (await res.json()) as { error?: { type?: unknown; message?: unknown } };
+    if (typeof body?.error?.message === "string" && /credit balance/i.test(body.error.message)) return "credit";
+    const type = body?.error?.type;
+    return typeof type === "string" && /^[a-z_]{1,40}$/.test(type) ? type : "";
+  } catch {
+    return "";
+  }
+}
+
 /** The production reviewer: one Messages API call per batch, retried on rate limits and server errors. */
 export function anthropicReviewer(apiKey: string): Reviewer {
   return async (promptText, guesses) => {
@@ -84,8 +105,7 @@ export function anthropicReviewer(apiKey: string): Reviewer {
         continue;
       }
       if (res.ok) return parseReviewResponse(extractResponseText((await res.json()) as MessageResponse), guesses);
-      // The response body is never kept: it could echo the request.
-      const err = new AnthropicApiError(`review: API request failed (${res.status})`, res.status);
+      const err = new ReviewApiError(res.status, await safeErrorDetail(res));
       if (!shouldRetryStatus(res.status, attempt, 3)) throw err;
       await new Promise((r) => setTimeout(r, backoffDelayMs(attempt, 2000)));
     }
@@ -101,6 +121,7 @@ export type ReviewResult = {
 
 /** A call's failure as a label that is safe for a public log. */
 export function failureLabel(err: unknown): string {
+  if (err instanceof ReviewApiError) return err.detail ? `${err.status}:${err.detail}` : String(err.status);
   if (err instanceof AnthropicApiError) return String(err.status);
   return err instanceof Error && err.message === "review: network error" ? "network" : "response";
 }
