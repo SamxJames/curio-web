@@ -34,13 +34,13 @@ every feature against it.
   2026-12-22 salt 7: no usable fossil for prompt 1" (exit 1, ~15 min). The manual `workflow_dispatch` run on 11-12
   passed on retry. Future date, so players are not affected (`/api/dig/today` serves dig #6). Watch the next scheduled
   run; see `docs/handover/dig.md` for the pipeline.
-- **Dig guess review deployed (master 543deee, in production; details in `docs/handover/dig.md` "Guess review").**
+- **Dig guess review deployed (master 543deee; labels d1c5a12; details in `docs/handover/dig.md` "Guess review").**
   Wrong guesses go out live as `miss` events (abandoned digs count); a blind AI reviewer of refused words runs in shadow
-  mode (changes no answer list) with an admin table. **`ANTHROPIC_API_KEY` Actions secret now exists (added 11-12 21:25
-  UTC), but the reviewer's 14 of 14 Anthropic calls fail with HTTP 400 (49d4511 logs the status; run 43313041176).
-  A 400 usually means the account behind the key is out of credit, but that is not yet confirmed: another session
-  is labelling it (`400:credit`) in uncommitted edits to `scripts/dig/review.ts`.** Dig itself has been live since 2026-11-07. Unverified: admin table render (needs sign-in), a real
-  browser wrong guess on production.
+  mode (changes no answer list) with an admin table. **Reviewer is blocked on Anthropic credit:** the `ANTHROPIC_API_KEY`
+  Actions secret exists (added 11-12 21:25 UTC) but run 43474499665 (11-13) logged `18 calls failed (400:credit x18)`.
+  **Sam: add credit to the key's Anthropic workspace, then rerun the Dig pipeline** (no code change needed). Pipeline builds
+  are green (buffer 45 days, 0 dates failed); 49 refused guesses found so far, so real players are guessing. Dig has been
+  live since 2026-11-07. Unverified: admin table render (needs sign-in), a real browser wrong guess on production.
 - **Gemini research done and triaged (local, uncommitted):** prompts `docs/research/2026-11-12-gemini-prompts.md`,
   triaged outcomes `docs/research/2026-11-12-gemini-outcomes.md`. Nothing needs building before launch (most was already
   built, broke archive-never-backlog or the 11-07 no-mass-noindex decision, or assumed a premium tier / red accent).
