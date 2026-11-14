@@ -1,0 +1,58 @@
+# Dig word audit: HOLD-OUT guesses. Written before any fix or hand-picked answer list existed, and never
+# used to choose what to add. They measure how well the fixes generalise beyond guesses.txt. Same format.
+theme:buildings-and-structures | chalet, hostel, embassy, courthouse, observatory, clinic, pagoda, shrine, farmhouse, bakery, nightclub, car park, boathouse, treehouse, town house, monastery
+theme:birds:p | puffins, pelicans, pigeon, peafowl, pheasants, prairie chicken, purple martin, phalarope, pintail, parrotlet
+origin:arabic | sheikh, sahara, tariff, mohair, muslin, nadir, safflower, tamarind, vizier, caliph, bedouin, burka, fatwa, kohl, lute, massage
+theme:golf | bogey, green fee, clubface, wedge, caddie, round, shank, scorecard, tee shot, tee box, flagstick, hazard, yips, driving, fairway wood
+theme:footwear | brogues, pumps, moccasins, wellington boot, flip flop, slingback, platform, clodhopper, sabot, overshoe, bootee, ugg boot, court shoe, sandal, plimsolls, kitten heel
+origin:japanese | bonsai, sayonara, yakuza, hara-kiri, ikebana, shinto, kabuki, gyoza, satsuma, tatami, nori, shiatsu, daikon, tempura, mikado, banzai
+theme:canids | wolfhound, bloodhound, schnauzer, basset, setter, pointer, akita, shiba inu, samoyed, malamute, lurcher, pomeranian, bull terrier, sheepdog, cocker spaniel, coyotes
+theme:beverages | bourbon, absinthe, ginger beer, root beer, cream soda, punch, eggnog, mulled wine, shandy, perry, chai, oolong, macchiato, tonic water, mineral water, slush
+theme:family-members | stepbrother, stepson, stepdaughter, half-sister, sister-in-law, son-in-law, daughter-in-law, great-aunt, great-uncle, forefather, ancestor, descendant, kin, kid, offspring, firstborn
+theme:vegetables | shallot, watercress, bok choy, pak choi, fennel, mangetout, endive, kohlrabi, celeriac, marrow, gherkin, cress, lentil, chickpea, horseradish, scallion
+theme:birds | lark, nightingale, partridge, moorhen, coot, lapwing, curlew, osprey, buzzard, kite, toucan, macaw, cockatoo, pheasant, quail, grouse
+theme:condiments | soy, ketchup, vinaigrette, ranch, harissa, miso, chimichurri, marmite, vegemite, tzatziki, gravy, bbq, duck sauce, fish sauce, oyster sauce, mint jelly
+theme:flowers | aster, zinnia, anemone, cowslip, delphinium, lupin, snapdragon, verbena, wisteria, clover, edelweiss, gladioli, narcissus, camellia, rhododendron, bluebells
+theme:rooms | scullery, mudroom, storeroom, guestroom, gym, sauna, cinema room, games room, office, sunroom, anteroom, staffroom, bedsit, cell, chamber, lounge room
+theme:games | pictionary, yahtzee, battleships, connect four, operation, trivial pursuit, quoits, skittles, shuffleboard, lacrosse, polo, pinball, pacman, cribbage, whist, canasta
+theme:herbs | lemon thyme, bergamot, rue, yarrow, valerian, stevia, shiso, epazote, fenugreek, caraway, anise, mustard, chicory, dandelion, bay laurel, oregano
+theme:cuts-of-meat | saddle, scrag, knuckle, trotter, liver, kidney, rib roast, fore rib, pork loin, lamb shank, chicken breast, wing tip, entrecote, porterhouse, tomahawk, flat iron
+theme:body-parts | abdomen, armpit, groin, pelvis, scalp, temple, jaw, gum, gums, nostril, earlobe, knuckle, palm, sole, instep, buttocks
+theme:emotions | optimism, nostalgia, sympathy, empathy, panic, horror, outrage, irritation, resentment, bitterness, melancholy, euphoria, serenity, amusement, curiosity, gratitude
+theme:dance | minuet, gavotte, mazurka, fandango, tarantella, hornpipe, two-step, shimmy, hustle, vogue, krump, pogo, bossa nova, merengue, bachata, kizomba
+theme:containers | hamper, punnet, caddy, tote, satchel, coffin, casket, tankard, decanter, carafe, thermos, cistern, vat, hopper, silo, bin bag
+theme:musicians | lyricist, arranger, cantor, choirboy, chanteuse, balladeer, jazzman, bluesman, folk singer, session musician, timpanist, violist, cornetist, harmonica player, piper, one-man band
+theme:meteorology | anticyclone, depression, trough, ridge, millibar, weather front, dew point, wind chill, cloud cover, visibility, air mass, convection, thermal, hailstone, snowflake, raindrop
+theme:baseball | knuckleball, changeup, screwball, sinker, backstop, baserunner, pinch runner, relief pitcher, closer, lineup, on deck, walk-off, shutout, no-hitter, perfect game, sacrifice fly
+theme:symbols | caduceus, ankh, fleur-de-lis, hammer and sickle, star of david, trident, rune, hieroglyph, glyph, pictogram, ideogram, monogram, watermark, hallmark, barcode, bullet point
+theme:art | fresco, gouache, tempera, lithograph, woodcut, silhouette, miniature, triptych, diptych, installation, readymade, chiaroscuro, sfumato, impasto, pointillism, fauvism
+theme:architecture | rotunda, cupola, minaret, ziggurat, parapet, balustrade, architrave, capital, plinth, mullion, transom, clerestory, apse, transept, narthex, loggia
+theme:nautical | fo'c'sle, forecastle, bowsprit, halyard, sheet, cleat, gunwale, bilge, ballast, bulkhead, porthole, hatch, capstan, windlass, davit, fathom
+theme:firearms | repeater, breechloader, muzzleloader, pepperbox, fowling piece, elephant gun, scattergun, pump-action, bolt-action, zip gun, hand cannon, matchlock, wheellock, snub nose, long gun, sten
+theme:tools:s | scriber, scutch, sash clamp, spud, swage, slasher, scalpels, seam ripper, soldering gun, spade bit, stylus, strop, shave, spoke wrench, slip stone, snow shovel
+theme:clothing:c | choker, chiton, cheongsam, caftan, cagoul, capelet, cardie, catsuits, chasuble, cloche, coatee, combat trousers, cossie, cowboy hat, crop tops, cycling shorts
+theme:vehicles:s | sulky, surrey, shay, steam engine, snowcat, swamp buggy, stretch limo, stock car, soapbox, shooting brake, scow, skiff, sampan, smack, sloop, steamboat
+theme:numbers:t | twelve hundred, twenty-four, twenty-seven, thirty-six, thirty-two, thirteen hundred, tenfold, threescore, tetrad, triad, ten million, two million, twentieth, thirtieth, thousandth, trillionth
+theme:transport:s | sedan chair, sidecar, skidoo, shanks's pony, stretcher, steam locomotive, scull, sleeper, shuttlecraft, starship, space capsule, space station, submersible, sea plane, seaplane, streetcar
+theme:mammals:d | dik-dik, dingoes, dromedaries, douc, dunnart, dibbler, duiker, dhole, drill, dobermann, deerhound, dachshunds, dalmatians, deer mouse, desert rat, dairy cow
+theme:music:c | clavichord, concertina, cor anglais, contrabassoon, celesta, cantor, chorale, capriccio, cavatina, chanson, cadenza, cantabile, col legno, con brio, common time, cut time
+theme:fish:s | scad, sild, sprats, smolt, sea perch, spiny dogfish, sturgeons, sablefish, sheepshead, surgeonfish, sweetlips, spadefish, sea robin, snakehead, snook, sardine
+origin:italian | allegro, adagio, crescendo, fresco, gondola, grotto, lagoon, lava, manifesto, pergola, piazza, portfolio, regatta, stucco, terracotta, zucchini
+origin:german | blitzkrieg, bratwurst, dachshund, dirndl, edelweiss, ersatz, flak, hausfrau, lederhosen, leitmotif, pumpernickel, realpolitik, schnauzer, stein, verboten, wurst
+origin:hebrew | abbot, cabal, golem, hallelujah, jubilee, kibbutznik, mitzvah, pharisee, rabbi, sabbath, schmuck, seraphim, shekel, sodom, yeshiva, zion
+origin:russian | babushka, beluga, borzoi, dacha, duma, kopek, knout, mammoth, politburo, samizdat, shashlik, sputnik, steppe, troika, tsarina, ushanka
+theme:fruits | loganberry, boysenberry, mulberry, elderberry, kumquat, pomelo, plantain, jackfruit, durian, starfruit, physalis, greengage, sloe, medlar, crab apple, honeydew
+theme:colors | vermilion, cerise, taupe, puce, sepia, russet, auburn, chartreuse, aquamarine, periwinkle, burgundy, terracotta, jade, cobalt, sienna, off-white
+theme:mammals | wombat, armadillo, anteater, aardvark, meerkat, mongoose, weasel, stoat, ferret, lemur, gibbon, baboon, manatee, narwhal, porcupine, chipmunk
+theme:furniture | divan, chaise, loveseat, tallboy, lowboy, credenza, sofa bed, daybed, vanity, hat stand, coat rack, bookstand, workbench, trestle table, card table, escritoire
+theme:trees | hornbeam, sweet chestnut, crab apple, laburnum, acacia, sequoia, monkey puzzle, hemlock, tamarack, catalpa, ginkgo, kauri, jacaranda, mangrove, rubber tree, cork oak
+theme:sports | javelin, discus, hurdles, relay, dribble, volley, backhand, forehand, innings, scrum, lineout, free kick, corner, throw-in, slam dunk, home run
+theme:musical-instruments | euphonium, flugelhorn, sousaphone, clavichord, dulcimer, zither, balalaika, bouzouki, pan pipes, panpipes, ocarina, tin whistle, penny whistle, steel drum, tabla, gong
+theme:weather | squall, haze, smog, whirlwind, waterspout, dust storm, sandstorm, hailstorm, snowstorm, cold snap, heat haze, black ice, hoarfrost, gust, zephyr, sirocco
+theme:shapes | annulus, lozenge, chevron, crescent moon, ovoid, spheroid, ellipsoid, frustum, isosceles triangle, scalene triangle, octahedron, icosahedron, hexagram, pentagram, teardrop, wedge
+theme:clothing | pullover, turtleneck, polo neck, tank top, camisole, petticoat, pinafore, smock, tunic, poncho, cape, shawl, stole, bow tie, cravat, long johns
+theme:insects | sawfly, hoverfly, thrip, froghopper, leafhopper, pond skater, water boatman, dung beetle, scarab, tsetse fly, blowfly, botfly, sandfly, katydid, mole cricket, antlion
+theme:kitchenware | ramekin, tureen, gravy boat, egg cup, pepper mill, salt cellar, nutcracker, pestle, mortar, garlic press, potato masher, pie dish, cake tin, muffin tin, cooling rack, bread bin
+theme:landforms | escarpment, knoll, hillock, tor, crag, scree, bluff, cove, sound, strait, sandbar, spit, shoal, sinkhole, geyser, hot spring
+origin:spanish | aficionado, bodega, bolero, bronco, burro, caldera, chaparral, conquistador, desperado, hacienda, incommunicado, junta, mesa, peon, sierra, stampede
+origin:hindi | bandanna, chit, choky, coolie, dacoit, dekko, ghee, lac, lakh, pukka, purdah, rupee, shikar, tom-tom, topee, wallah

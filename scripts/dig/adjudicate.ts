@@ -26,6 +26,8 @@ export function explainJudge(guess: string, c: Candidate, ctx: JudgeCtx): { word
   const key = normalizeKey(guess);
   if (!key || !ctx.lexicon.has(key)) return { word: null, reason: "not-a-word" };
   if (hasBlockedWord(key, ctx.blocked)) return { word: null, reason: "blocked" };
+  // The catalogue rules it out for this prompt ("hyena" as a canid): no number of guesses votes it back in.
+  if (c.excluded?.has(key)) return { word: null, reason: "unusable" };
   let sawUnusable = false;
   for (const source of c.sources) for (const w of source) {
     if (normalizeKey(w) !== key) continue;

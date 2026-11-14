@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { parseOewn } from "./sources/oewn";
 import type { CompactEntry } from "./sources/compact";
 import { indexWiktionary, usableWord } from "./wiktionary";
-import { letterVariants, slugify, themeText, wordnetThemes, type Candidate } from "./themes";
+import { letterVariants, slugify, themeText, unknownExtraCategories, wordnetThemes, type Candidate } from "./themes";
 import type { Catalogue } from "./catalogue";
 
 const wn = parseOewn(readFileSync(path.join(__dirname, "fixtures/oewn-mini.xml"), "utf8"));
@@ -119,18 +119,57 @@ describe("wordnetThemes", () => {
   });
 });
 
-describe("wordnetThemes homographs", () => {
-  it("drops a category-only word that WordNet files under another sense, or that is a very common word", async () => {
-    // Wiktionary categories are per entry, not per sense: "colour" (an attribute in WordNet)
-    // and a very common word like "more" (an obsolete word for a root) land in "Fruits".
+describe("jargonCategories", () => {
+  // "Poker" anchors under card game, so its vocabulary (river, flop, bluff) used to roll up into "Name a card game".
+  const entries = [...["apple", "fig", "pear", "plum", "date"].map((w) => entry(w, ["Fruits"])), entry("lemon", ["Citrus fruits"]), entry("zest", ["Citrus fruits"])];
+  it("rolls a sub-category up into its parent by default", async () => {
+    const idx = await indexWiktionary(entries, new Set());
+    const fruit = wordnetThemes(wn, idx, new Map(), cat, { minOwnWords: 1, minAnchor: 1 }).find((t) => t.id === "theme:fruits")!;
+    expect(fruit.accepted).toContain("zest");
+  });
+  it("keeps a category of jargon out of its parent", async () => {
+    const idx = await indexWiktionary(entries, new Set());
+    const fruit = wordnetThemes(wn, idx, new Map(), { ...cat, jargonCategories: ["Citrus fruits"] }, { minOwnWords: 1, minAnchor: 1 }).find((t) => t.id === "theme:fruits")!;
+    expect(fruit.accepted).not.toContain("zest");
+    expect(fruit.accepted).toContain("lemon"); // WordNet still places lemon under fruit
+  });
+});
+
+describe("category words WordNet files elsewhere (audit fix 1)", () => {
+  it("keeps them: tulip is a flower though WordNet files it under lilies, and sad is an emotion though it is a very common word", async () => {
+    // The fixture's stand-ins: "colour" is a noun WordNet files elsewhere (like tulip, museum, juice);
+    // "more" is a very common word WordNet does not place at all (like sad, hope, river).
     const fruits = ["apple", "fig", "pear", "plum", "date", "colour", "more"].map((w) => entry(w, ["Fruits"]));
     const idx = await indexWiktionary(fruits, new Set());
     const zipf = new Map([["more", 6.4], ["fig", 3.6]]);
     const fruit = wordnetThemes(wn, idx, zipf, cat, { minOwnWords: 1, minAnchor: 1 }).find((t) => t.id === "theme:fruits")!;
-    expect(fruit.accepted).not.toContain("colour");
-    expect(fruit.accepted).not.toContain("more");
-    // Words WordNet doesn't know, and that aren't everyday words, still count.
-    expect(fruit.accepted).toEqual(expect.arrayContaining(["apple", "fig", "pear", "plum", "date"]));
+    // Wiktionary tags a category on the whole page, so no rule can tell a stray sense from a real one.
+    // Real strays ("more" as a vegetable) are named in the catalogue's excludeAnswers (finishCandidate).
+    expect(fruit.accepted).toEqual(expect.arrayContaining(["apple", "fig", "pear", "plum", "date", "colour", "more"]));
+    expect(fruit.core).not.toContain("colour"); // accepted-only: the shown list still needs both sources
+  });
+});
+
+describe("extraCategories (audit fix 2)", () => {
+  const entries = [
+    ...["apple", "fig", "pear", "plum", "date"].map((w) => entry(w, ["Fruits"])),
+    // Wiktionary files black under "Blacks", not "Colors", and knife under "Cutlery", not "Kitchenware".
+    entry("lemon", ["Sour things"]), entry("sloe", ["Sour things"]),
+  ];
+  it("refuses a sub-category's words until the catalogue joins it to the theme", async () => {
+    const idx = await indexWiktionary(entries, new Set());
+    const fruit = wordnetThemes(wn, idx, new Map(), cat, { minOwnWords: 1, minAnchor: 1 }).find((t) => t.id === "theme:fruits")!;
+    expect(fruit.accepted).not.toContain("sloe");
+  });
+  it("accepts them once joined, and shows the ones WordNet agrees on", async () => {
+    const idx = await indexWiktionary(entries, new Set());
+    const joined = { ...cat, extraCategories: { Fruits: ["Sour things", "No such category"] } };
+    const fruit = wordnetThemes(wn, idx, new Map(), joined, { minOwnWords: 1, minAnchor: 1 }).find((t) => t.id === "theme:fruits")!;
+    expect(fruit.accepted).toEqual(expect.arrayContaining(["sloe", "lemon"]));
+    expect(fruit.core).toContain("lemon"); // in WordNet's fruit tree too
+    expect(fruit.core).not.toContain("sloe");
+    expect(fruit.sources[0].has("sloe")).toBe(true); // so adjudication can accept from it
+    expect(unknownExtraCategories(joined, idx)).toEqual(["No such category"]);
   });
 });
 
@@ -144,7 +183,6 @@ describe("obvious members", () => {
     const fruit = wordnetThemes(wn, idx, zipf, cat, { minOwnWords: 1, minAnchor: 1 }).find((t) => t.id === "theme:fruits")!;
     expect(fruit.obvious).toEqual(["apple"]); // lemon is in WordNet's fruit tree but not an everyday word
     expect(fruit.accepted).toContain("apple");
-    expect(fruit.homographs).toEqual(new Set());
   });
 });
 

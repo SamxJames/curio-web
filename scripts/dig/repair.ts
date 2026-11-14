@@ -12,22 +12,28 @@ import { fossilTypoCollides, MAX_DAY_CHARS } from "./validate";
  *
  * Days are frozen once built: never re-drawn, never re-tiered. A repair only appends accepted-only
  * answers (tiered by frequency, exactly as adjudication does) and, on days nobody has played yet,
- * takes out stray-sense words ("more" as a vegetable). Core answers and the fossil are never
- * touched, and today's day is left alone because it is CDN-cached until rollover. */
+ * takes out the words the prompt now excludes ("more" as a vegetable, "hyena" as a canid) and
+ * stops showing the ones it now hides. The fossil is never touched, no word is re-tiered, and
+ * today's day is left alone because it is CDN-cached until rollover. */
 
-type PromptCtx = { zipf: Map<string, number>; guardLexicon: Set<string>; removeHomographs: boolean };
+type PromptCtx = { zipf: Map<string, number>; guardLexicon: Set<string>; unplayed: boolean };
 
 /** A typo of the fossil can only land on a word within a few edits of it (one typo, then one
  * more for a near miss, or a plural ending), so only those words need the full check. */
 const NEAR_FOSSIL_EDITS = 3;
 
-export function repairPrompt(original: DigPromptPlain, c: Candidate, ctx: PromptCtx): { prompt: DigPromptPlain; added: string[]; removed: string[] } {
+export function repairPrompt(original: DigPromptPlain, c: Candidate, ctx: PromptCtx): { prompt: DigPromptPlain; added: string[]; removed: string[]; hidden: string[] } {
   const p: DigPromptPlain = structuredClone(original);
-  const removed: string[] = [];
-  if (ctx.removeHomographs && c.homographs?.size) {
+  const removed: string[] = [], hidden: string[] = [];
+  if (ctx.unplayed && c.hidden?.size) {
+    for (const a of p.answers) {
+      if (a[2] === 1 && a[0] !== p.fossil.word && c.hidden.has(normalizeKey(a[0]))) { a[2] = 0; hidden.push(a[0]); }
+    }
+  }
+  if (ctx.unplayed && c.excluded?.size) {
     const drop = new Set<number>();
-    p.answers.forEach(([w, , core], i) => {
-      if (core === 0 && w !== p.fossil.word && c.homographs!.has(w)) drop.add(i);
+    p.answers.forEach(([w], i) => {
+      if (w !== p.fossil.word && c.excluded!.has(normalizeKey(w))) drop.add(i);
     });
     if (drop.size) {
       const remap = new Map<number, number>();
@@ -58,17 +64,17 @@ export function repairPrompt(original: DigPromptPlain, c: Candidate, ctx: Prompt
     added.push(w);
   }
   if (added.length || removed.length) p.guard = buildGuard(p.answers.map((a) => a[0]), p.aliases, ctx.guardLexicon);
-  return { prompt: p, added, removed };
+  return { prompt: p, added, removed, hidden };
 }
 
 export async function repairDays(
   sink: DigSink,
   candidates: Map<string, Candidate>,
   ctx: { today: string; zipf: Map<string, number>; guardLexicon: Set<string>; maxDayChars?: number }
-): Promise<{ amendedDays: number; added: number; removed: number; skippedOversize: number }> {
+): Promise<{ amendedDays: number; added: number; removed: number; hidden: number; skippedOversize: number }> {
   const cap = ctx.maxDayChars ?? MAX_DAY_CHARS;
   const manifest = await sink.readManifest();
-  let amendedDays = 0, added = 0, removed = 0, skippedOversize = 0;
+  let amendedDays = 0, added = 0, removed = 0, hidden = 0, skippedOversize = 0;
   for (const date of Object.keys(manifest?.days ?? {}).sort()) {
     if (date === ctx.today) continue;
     const stored = await sink.readDay(date);
@@ -76,16 +82,17 @@ export async function repairDays(
     let plain;
     try { plain = decodeDay(stored); } catch { throw new Error(`repair: day ${date} unreadable`); }
     const additions: { prompt: number; word: string }[] = [];
-    let removedHere = 0;
+    let removedHere = 0, hiddenHere = 0;
     plain.prompts = plain.prompts.map((p, i) => {
       const c = candidates.get(p.id);
       if (!c) return p;
-      const r = repairPrompt(p, c, { zipf: ctx.zipf, guardLexicon: ctx.guardLexicon, removeHomographs: date > ctx.today });
+      const r = repairPrompt(p, c, { zipf: ctx.zipf, guardLexicon: ctx.guardLexicon, unplayed: date > ctx.today });
       r.added.forEach((word) => additions.push({ prompt: i, word }));
       removedHere += r.removed.length;
+      hiddenHere += r.hidden.length;
       return r.prompt;
     });
-    if (!additions.length && !removedHere) continue;
+    if (!additions.length && !removedHere && !hiddenHere) continue;
     // Over the cap: take out the rarest additions first (they sit at the end of their prompt's list).
     additions.sort((a, b) => (ctx.zipf.get(b.word) ?? 0) - (ctx.zipf.get(a.word) ?? 0));
     let encoded = encodeDay(plain);
@@ -98,11 +105,12 @@ export async function repairDays(
       encoded = encodeDay(plain);
     }
     if (JSON.stringify(encoded).length > cap) { skippedOversize++; continue; }
-    if (!additions.length && !removedHere) continue;
+    if (!additions.length && !removedHere && !hiddenHere) continue;
     await sink.writeDay(encoded);
     amendedDays++;
     added += additions.length;
     removed += removedHere;
+    hidden += hiddenHere;
   }
-  return { amendedDays, added, removed, skippedOversize };
+  return { amendedDays, added, removed, hidden, skippedOversize };
 }

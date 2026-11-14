@@ -39,7 +39,7 @@ describe("summaryLines", () => {
   it("prints counts only", () => {
     const lines = summaryLines({ themes: 210, origins: 33, letterVariants: 40, built: 7, retries: 2, failedDates: 0, bufferDays: 45, poolThemes: 120, poolOrigins: 20, wikidata: { fresh: 6, cached: 1, stale: 0, missing: 1, "label-mismatch": 0 }, adjudication: { judged: 3, accepted: 1, amendedDays: 2 }, repair: { amendedDays: 40, added: 900, removed: 30, skippedOversize: 0 } });
     expect(lines.join("\n")).toMatch(/Buffer: 45 days/);
-    expect(lines.join("\n")).toMatch(/Repair: 40 days amended, 900 words added, 30 stray senses removed, 0 skipped for size/);
+    expect(lines.join("\n")).toMatch(/Repair: 40 days amended, 900 words added, 30 excluded words removed, 0 hidden from reveals, 0 skipped for size/);
     expect(lines.join("\n")).not.toMatch(/[a-z]+:[a-z-]+:/);
   });
   it("reports the shadow review as counts only, and says nothing when it is off", () => {
