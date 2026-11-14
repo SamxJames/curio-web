@@ -3,6 +3,8 @@
 Date: 14 November 2026. Branch: `dig-word-audit`. Sam approved fixes 1, 2 and 4 from the audit, plus
 "rude words on the reveal lists" and "junk accepts". Fix 3 ("___ word" prompts) is measure-only.
 
+**Status: done, in a PR for review.** Results and deviations are in `docs/dig-word-audit.md` ("What was fixed"). Two later changes to this plan: filler words are a catalogue list (task 5's part-of-speech rule removed real answers), and `jargonCategories` was added so vocabulary lists such as "Poker" stop counting as kinds of card game.
+
 **Goal:** stop refusing answers a typical player would try, without changing any existing score.
 
 **Rules that hold throughout**

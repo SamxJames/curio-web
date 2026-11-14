@@ -132,6 +132,63 @@ Less harmful than refusals, because a junk word only scores the lowest 10 points
 | 5–7 Small fixes | about 14% | → about 75% |
 | **1 to 4 together** | | **about 90%** |
 
+## What was fixed (14 November 2026)
+
+Sam approved fixes 1, 2 and 4, plus the rude words on shown lists and the junk accepts. Fix 3 was measured only. Plan: `docs/superpowers/plans/2026-11-14-dig-word-fixes.md`.
+
+### What changed from the plan
+
+- **Fix 1 could not be built as proposed.** The dictionary dump tags a theme on the whole word page, not on one meaning (the verb entry for *bank* carries "Buildings" too). So nothing in the data says that *more* is only a vegetable in an obsolete sense. The stray-sense filter is removed, and the catalogue now names the stray words each prompt must refuse. I reviewed every category-only word down to mid-frequency (Zipf 3.5). Rarer strays are unreviewed: they still score, at the lowest tiers.
+- **Fix 4 is wider than "immediate or original source".** A word counts when its etymology names the language anywhere in the chain. The data cannot separate a middle step from the original source, and *sugar* (Sanskrit, then Persian, then Arabic, then Latin, then French) needs this to count as Arabic. Sam agreed. Shown lists keep the strict rule.
+- **Filler words are a list, not a rule.** Wiktionary calls *cross*, *hit* and *man* prepositions or pronouns, so part of speech removed real answers.
+- **No count-based rule finds rude words.** *Turkey*, *monkey* and *coconut* have a higher share of rude senses than *minge*. Hidden words are a short hand-kept list.
+
+### What is in the catalogue now (`content/dig/catalogue.json`)
+
+| List | What it does | Size |
+|---|---|---|
+| `extraCategories` | Joins Wiktionary sub-categories to a theme (Colors + Blacks, Whites…) | 19 themes |
+| `extraAnswers` | Hand-picked answers no source lists (gun, airport, labrador, tetris) | 367 entries |
+| `excludeAnswers` | Words a prompt never accepts (more as a vegetable, hyena as a canid) | 2,127 entries, 81 prompts |
+| `hiddenAnswers` | Accepted, never shown, never the fossil (minge, nazi, dyke) | 20 words |
+| `fillerWords` | Never an accepted-only answer (to, in, on) | 74 words |
+| `jargonCategories` | Vocabulary lists that are not kinds of the thing (Poker for card games) | 12 categories |
+| `originVariants` | Dialects that count as the language (Neapolitan for Italian) | 12 languages |
+
+### Before and after
+
+Share of fair guesses accepted, on freshly built lists.
+
+| | Before | After |
+|---|---|---|
+| Original guesses (59 prompts, 3,034 guesses) | 70.9% | 88.9% |
+| Ordinary themes | 73.7% | 95.8% |
+| "Came from" prompts | 69.1% | 92.8% |
+| "___ word" prompts (untouched) | 63.0% | 63.8% |
+| **Hold-out guesses** (843, written before any fix) | 68.1% | 77.0% |
+| Ordinary themes | 69.2% | 78.4% |
+| "Came from" prompts | 72.9% | 86.0% |
+| The eight real live days, after the repair step | 76.4% | 89.0% |
+
+The hold-out rows are the honest measure: the hand-picked list was built from the original guesses, so those rows flatter the fix. No guess that was accepted before is refused now.
+
+Wrong accepts: *hyena* is no longer a canid, and *to*, *in*, *on* are no longer sailing words. *Frog* (mammal) and *carrot* (fruit) appeared when the filter came off and are refused again. *Spoon* as a container and *chair* as a music word remain; both are defensible.
+
+### Checks
+
+- All 1,684 tests in the repo pass. Each fix has a test that names the refused words and failed before the change.
+- **Repair on real days.** The real repair step, run on copies of the eight live day files, changed no fossil and no tier. As unplayed days: 3,404 words added, 625 excluded words removed, 1 hidden. As played days: 3,171 added, nothing removed. Every day stayed under the 400,000-character limit (232 of the rarest additions were dropped to fit).
+- **Day size.** Assembling 40 days with the real picker, lists and validator: all 40 built. Median day size rose from 268,000 to 312,000 characters. 17% of draws went over the limit and were redrawn (2% before), so a pipeline run takes longer.
+- **Not done.** The real day-builder could not finish in the test sandbox, because the page-view service rate-limited it. Page views only decide which rare word becomes the fossil.
+
+### What the first pipeline run after merge will do
+
+Repair rewrites most buffered days: it adds the newly accepted words to every day except today, and on unplayed days removes the excluded words and hides the hidden ones. It never changes a fossil, a tier, or today's day.
+
+### Fix 3, measured only
+
+Eight "___ word" prompts score under 75% and would be paused: phonetics 39%, weather 43%, logic 52%, architecture 53%, art 54%, sports 59%, meteorology 64%, nautical 74%. Music (78%), golf (90%) and baseball (93%) pass. None of the eight has letter variants, so pausing leaves 142 of 150 theme prompts. Pausing them brings the supply run-out forward by about a month (see the next section). Sam's decision: pause nothing.
+
 ## How to re-run this audit
 
 ```
@@ -140,6 +197,12 @@ npx tsx scripts/dig/audit/probe.ts --days <folder of day files>
 
 # 2. Why each guess is refused (needs the pipeline data: npm run dig:fetch -- --data <dir>)
 npx tsx --max-old-space-size=8192 scripts/dig/audit/diagnose.ts --data <dir> --out <dir outside the repo>
+#    add --guesses scripts/dig/audit/holdout.txt for the hold-out set, --catalogue <file> to try a draft catalogue
+
+# 3. Supply: how long the prompt pool lasts
+npx tsx --max-old-space-size=8192 scripts/dig/audit/supply.ts --data <dir> --days 365
 ```
 
-The guesses live in `scripts/dig/audit/guesses.txt`. Output files contain answers, so keep them out of the repo.
+Outside GitHub Actions, Node needs `NODE_USE_ENV_PROXY=1` to use a proxy.
+
+The guesses live in `scripts/dig/audit/guesses.txt`. `holdout.txt` is the hold-out set: never use its misses to choose what to add, or it stops being a fair test. Output files contain answers, so keep them out of the repo.

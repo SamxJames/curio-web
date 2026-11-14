@@ -17,9 +17,31 @@ There is less content than the spec expected. The Phase 6 re-measure found about
 - Origins need 5 easy ones.
 - An exact theme prompt can return after 14 days, a theme family after 5, an origin language after 4. Origins have no exact-prompt rule: an origin can return as soon as its languages are out of their 4-day window.
 
-The numbers live in one place each: `floorFor` in `scripts/dig/answers.ts` and `COOLDOWNS` in `scripts/dig/assemble.ts`. To grow supply, add `anchorOverrides` or `wikidataThemes` in `content/dig/catalogue.json`. The local supply simulation that produced these numbers is not in the repo.
+The numbers live in one place each: `floorFor` in `scripts/dig/answers.ts` and `COOLDOWNS` in `scripts/dig/assemble.ts`. To grow supply, add `anchorOverrides` or `wikidataThemes` in `content/dig/catalogue.json`. A supply simulation is now in the repo: `scripts/dig/audit/supply.ts` (see "Word lists" below).
 
 A local dry run on 2026-10-25 (`npm run dig:build -- --data <data dir> --out .dig-out --days 45`, which writes files and never touches Redis) built all 45 days with none failing. It left 35 themes and 15 origins spare and used 129 different prompts. A cold run spends about 10 minutes loading data, then takes about a minute per day once the pageview cache is warm. The cache is kept between Actions runs.
+
+## Word lists: which answers count (2026-11-14)
+
+Full story, numbers and how to re-run: `docs/dig-word-audit.md`. In short, an audit found 29% of answers a typical player would try were refused; after these fixes it is about 11% on the audit's guesses and 23% on a hold-out set.
+
+How a list is made now: Wiktionary category words plus WordNet's "kind of" tree, as before, then `finishCandidate` (`scripts/dig/answers.ts`) applies the hand-kept lists in `content/dig/catalogue.json`:
+
+| List | Use it when |
+|---|---|
+| `extraAnswers` | A plainly right answer is refused and no source has it ("gun" for firearms). Keyed by base prompt id. |
+| `extraCategories` | A whole Wiktionary sub-category belongs to a theme ("Blacks" for Colors). Keyed by the theme's category name. |
+| `excludeAnswers` | A wrong word is accepted ("more" as a vegetable). Keyed by base prompt id, or `*`. |
+| `hiddenAnswers` | A word should count but never be shown or be the fossil. Keyed by base prompt id, or `*`. |
+| `fillerWords` | A very common word should never be an accepted-only answer anywhere ("to"). |
+| `jargonCategories` | A category holds the vocabulary of a thing, not kinds of it ("Poker"). |
+| `originVariants` | A dialect label should count as a language ("Neapolitan" for Italian). |
+
+There is no stray-sense filter any more (it refused "tulip" and "sad"): strays are named in `excludeAnswers`. The twice-weekly repair step applies list changes to days already built: it adds words to every day but today, and on unplayed days removes excluded words and hides hidden ones. It never changes a fossil or a tier. Adjudication never votes an excluded word back in.
+
+When a player reports a refused or wrong word, the fix is usually one line in the catalogue. `scripts/dig/catalogue.test.ts` checks the file's shape. To try a change locally: `npm run dig:build -- --data <dir> --catalogue <draft file>` (refused with `--publish`).
+
+Known limits: day files are bigger (about 17% of draws now exceed the size limit and are redrawn); "___ word" prompts (art, weather, sports…) were left alone and still refuse about a third of fair guesses; the pool runs out of fossils in roughly four to five months (`docs/dig-word-audit.md`, "Supply runway").
 
 ## Where the code lives
 
