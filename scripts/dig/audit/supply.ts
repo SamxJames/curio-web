@@ -1,6 +1,7 @@
 // Dig supply measurement (docs/dig-word-audit.md, fix 3): how many days the prompt pool can fill if some
 // prompts are paused. Draws days with the real picker and cooldowns (assemble.ts). It does not choose
-// fossils, so it is an upper bound: it also reports how often a prompt would need a new fossil.
+// fossils, but a prompt drops out once it has run as many times as it has fossil candidates (each run needs a
+// new one), so the count of candidates is an upper bound on how long it lasts.
 //   npx tsx --max-old-space-size=8192 scripts/dig/audit/supply.ts --data <dig-data> [--catalogue <file>] [--pause id,id] [--days 180] [--seeds 5]
 // A paused base prompt takes its letter variants with it. Prints counts and ids: keep the output out of public logs.
 import { readFileSync } from "node:fs";
@@ -56,16 +57,19 @@ async function main() {
       for (let i = 0; i < days; i++) {
         const date = addDays("2026-12-01", i);
         let picks: Candidate[] | null = null;
-        for (let salt = 0; salt < MAX_SALTS && !picks; salt++) { picks = pickDay(date, { themes: pool, origins }, history, zipf, `supply-${seed}`, salt); if (!picks) retries++; }
+        const left = (c: Candidate) => (uses.get(c.id) ?? 0) < (fossils.get(c.id) ?? 0);
+        const live = pool.filter(left), liveOrigins = origins.filter(left);
+        for (let salt = 0; salt < MAX_SALTS && !picks; salt++) { picks = pickDay(date, { themes: live, origins: liveOrigins }, history, zipf, `supply-${seed}`, salt); if (!picks) retries++; }
         if (!picks) { failed++; firstFail ||= i + 1; continue; }
         history.push({ date, prompts: picks.map((c) => ({ id: c.id, base: c.base, fossil: `${c.id}#${uses.get(c.id) ?? 0}`, ...(c.languages.length ? { languages: c.languages } : {}) })) });
         for (const c of picks) uses.set(c.id, (uses.get(c.id) ?? 0) + 1);
         // The pipeline's own health rule: the day after the newest built day must still have 20 themes and 6 origins free.
-        if (i >= BUFFER) spare.push(pool.filter((c) => isEligible(c, addDays(date, 1), history)).length);
+        if (i >= BUFFER) spare.push(live.filter((c) => left(c) && isEligible(c, addDays(date, 1), history)).length);
       }
-      const outOfFossils = [...uses].filter(([id, n]) => n > (fossils.get(id) ?? 0)).length;
+      const outOfFossils = [...uses].filter(([id, n]) => n >= (fossils.get(id) ?? 0)).length;
       const sorted = [...spare].sort((a, b) => a - b);
-      console.log(`  seed ${seed}: ${days - failed}/${days} days drawn${failed ? ` (first failure on day ${firstFail})` : ""}, ${retries} retries; spare themes after each day: min ${sorted[0]}, median ${sorted[Math.floor(sorted.length / 2)]}; most uses of one prompt ${Math.max(...uses.values())}; prompts needing more fossils than they have: ${outOfFossils}`);
+      const firstLow = spare.findIndex((n) => n < 20);
+      console.log(`  seed ${seed}: ${days - failed}/${days} days drawn${failed ? ` (first failure on day ${firstFail})` : ""}, ${retries} retries; spare themes: min ${sorted[0]}, median ${sorted[Math.floor(sorted.length / 2)]}, under 20 on ${spare.filter((n) => n < 20).length} days${firstLow >= 0 ? ` (first on day ${firstLow + BUFFER + 1})` : ""}; prompts out of fossils by the end: ${outOfFossils}`);
     }
   };
   run("All prompts", themes);
