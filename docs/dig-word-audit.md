@@ -187,7 +187,73 @@ Repair rewrites most buffered days: it adds the newly accepted words to every da
 
 ### Fix 3, measured only
 
-Eight "___ word" prompts score under 75% and would be paused: phonetics 39%, weather 43%, logic 52%, architecture 53%, art 54%, sports 59%, meteorology 64%, nautical 74%. Music (78%), golf (90%) and baseball (93%) pass. None of the eight has letter variants, so pausing leaves 142 of 150 theme prompts. Pausing them brings the supply run-out forward by about a month (see the next section). Sam's decision: pause nothing.
+Eight "___ word" prompts score under 75% and would be paused: phonetics 39%, weather 43%, logic 52%, architecture 53%, art 54%, sports 59%, meteorology 64%, nautical 74%. Music (78%), golf (90%) and baseball (93%) pass. None of the eight has letter variants, so pausing leaves 142 of 150 theme prompts. Pausing them brings the supply run-out forward by about a month, from about day 131–151 to day 106–118 (see the next section). Sam's decision: pause nothing.
+
+## Supply runway: when the game runs out of fossils
+
+Measured only. Nothing in this section is built.
+
+### The problem
+
+Every prompt needs a **new fossil each time it runs**: the validator refuses a day that repeats one. A fossil must be a rare word (Zipf under 2.3) of 4 to 14 letters, on the shown list, not obsolete or rude, and the theme must be the word's first meaning in WordNet.
+
+"Came from" prompts have plenty (the smallest has 44, the middle one 385). Theme prompts do not:
+
+| Fossil candidates per theme prompt | |
+|---|---|
+| Fewest | 1 |
+| A quarter of prompts have at most | 6 |
+| Middle prompt | 11 |
+| Most | 184 |
+
+A theme prompt runs about once a month, so a prompt with 6 fossils is spent in about six months, and the pool thins well before that.
+
+### How it was measured
+
+`scripts/dig/audit/supply.ts --runway` draws days with the real picker and cooldowns for three simulated years, three times over, from a fresh start. A prompt drops out when it has no unused fossil left.
+
+It is a **best case**. It counts fossil candidates before the page-view, fact and typo rules cut them further, so the real run-out comes sooner. Days count from a fresh start: the live game began on 7 November 2026, so "day 131–151" is mid-March to early April 2027 at the latest.
+
+"Alarm" is the pipeline's own health rule: a run fails, and emails, when fewer than 20 theme prompts are spare.
+
+### Options
+
+| Option | Theme prompts | First day that cannot be filled | Alarm first fires | Days filled in 3 years |
+|---|---|---|---|---|
+| **Today's rules** | 150 | day 131–151 | day 78–90 | about 500 of 1,095 |
+| **A. Fossils may repeat** after 12 months | 150 | day 131–151 (no change) | day 78–90 | about 880 |
+| A. after 6 months | 150 | day 131–151 (no change) | day 78–90 | about 1,080 |
+| A. after 4 months | 150 | **never** | day 78–90 | all |
+| A. after 3 months | 150 | **never** | day 78–90 | all |
+| **B. More letter variants**: 20 shown answers instead of 25 | 178 | day 158–172 | day 91–96 | about 515 |
+| B. 15 shown answers | 198 | day 165–176 | day 125–131 | about 525 |
+| **C. Commoner fossils**: up to Zipf 2.8 instead of 2.3 | 150 | day 197–205 | day 109–129 | about 606 |
+| C. up to Zipf 3.0 | 150 | day 214–230 | day 118–150 | about 637 |
+| **D. Fossil need not be the word's first meaning** | 150 | day 171–178 | day 107–116 | about 555 |
+| A (4 months) + C (2.8) | 150 | **never** | day 109–474 | all |
+| A (6 months) + B (20) + C (2.8) | 178 | **never** | day 134–162 | all |
+| A (12 months) + B (20) | 178 | day 158–172 | day 91–96 | about 900 |
+
+### What this shows
+
+- **Only repeating fossils removes the run-out, and only if they come back within about four months.** The pool empties at about four and a half months, so a 6- or 12-month wait leaves a gap before the first fossils return.
+- More letter variants, commoner fossils and the looser meaning rule each buy one to three months, then the pool empties anyway.
+- Under option A the alarm still fires from about day 80, because the pool sits near the 20-prompt line. The line would need lowering, or A needs pairing with C.
+
+### Effect on scoring
+
+| Option | Scoring | Other effects |
+|---|---|---|
+| A. Fossils repeat | None. Points and tiers are unchanged. | A regular could remember a fossil from four months ago, so that 100-point answer gets easier for them. Old fossils are already visible on the past-day pages. The fossil's fact repeats too. |
+| B. More letter variants | None to the rules. | Letter prompts are harder: on the audit they accept fewer fair guesses than ordinary themes, so more new players would draw a blank. Shown lists are shorter. |
+| C. Commoner fossils | **Yes.** A fossil scores 100. At Zipf 2.8 it can be a word that scores 60 on any other day; at 3.0, a word that scores 30. Scores drift up and the fossil is less of a find. | The same word could be worth 60 one day and 100 another. |
+| D. Not the first meaning | None. | The fossil's fact comes from the word's main dictionary entry, which may describe a different meaning from the theme's. Risk of a fact that looks wrong. |
+
+### Recommendation
+
+**A at four months**, on its own or with C at 2.8 to quieten the alarm. It is the only option that solves the problem, it leaves scoring alone, and it is a small change (the validator's "repeats a previous fossil" rule and the builder's list of used fossils). B and D trade quality for a few months. C changes what a fossil is.
+
+A separate route, not measured here: more themes. The eight Wikidata themes in the catalogue (cheeses, pasta, cocktails…) currently fail the publishing floor, so adding more of that kind would not help without loosening it.
 
 ## How to re-run this audit
 
@@ -201,6 +267,7 @@ npx tsx --max-old-space-size=8192 scripts/dig/audit/diagnose.ts --data <dir> --o
 
 # 3. Supply: how long the prompt pool lasts
 npx tsx --max-old-space-size=8192 scripts/dig/audit/supply.ts --data <dir> --days 365
+#    add --runway to compare the supply-runway options (slow: about 40 minutes for three simulated years)
 ```
 
 Outside GitHub Actions, Node needs `NODE_USE_ENV_PROXY=1` to use a proxy.

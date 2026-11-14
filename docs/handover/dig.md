@@ -41,7 +41,7 @@ There is no stray-sense filter any more (it refused "tulip" and "sad"): strays a
 
 When a player reports a refused or wrong word, the fix is usually one line in the catalogue. `scripts/dig/catalogue.test.ts` checks the file's shape. To try a change locally: `npm run dig:build -- --data <dir> --catalogue <draft file>` (refused with `--publish`).
 
-Known limits: day files are bigger (about 17% of draws now exceed the size limit and are redrawn); "___ word" prompts (art, weather, sports…) were left alone and still refuse about a third of fair guesses; the pool runs out of fossils in roughly four to five months (`docs/dig-word-audit.md`, "Supply runway").
+Known limits: day files are bigger (about 17% of draws now exceed the size limit and are redrawn); "___ word" prompts (art, weather, sports…) were left alone and still refuse about a third of fair guesses; the pool runs out of fossils in roughly four to five months from launch, mid-March to early April 2027 at the latest (`docs/dig-word-audit.md`, "Supply runway", with options; none is built).
 
 ## Where the code lives
 

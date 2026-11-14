@@ -2,7 +2,8 @@
 // prompts are paused. Draws days with the real picker and cooldowns (assemble.ts). It does not choose
 // fossils, but a prompt drops out once it has run as many times as it has fossil candidates (each run needs a
 // new one), so the count of candidates is an upper bound on how long it lasts.
-//   npx tsx --max-old-space-size=8192 scripts/dig/audit/supply.ts --data <dig-data> [--catalogue <file>] [--pause id,id] [--days 180] [--seeds 5]
+//   npx tsx --max-old-space-size=8192 scripts/dig/audit/supply.ts --data <dig-data> [--catalogue <file>] [--pause id,id] [--days 180] [--seeds 5] [--runway]
+// --runway compares options for making the pool last longer (fossils repeating, more letter variants, commoner fossils).
 // A paused base prompt takes its letter variants with it. Prints counts and ids: keep the output out of public logs.
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -47,36 +48,72 @@ async function main() {
   const origins = originCandidates(index, zipf, cat, new Map(WORDS.map((w) => [w.word.toLowerCase(), w.lineage]))).map(finish).filter(ok);
   const fossils = new Map([...themes, ...origins].map((c) => [c.id, fossilCandidates(c, fctx).length]));
 
-  const run = (label: string, pool: Candidate[]) => {
-    console.log(`\n${label}: ${pool.length} theme prompts (${pool.filter((c) => c.id === rootId(c)).length} base, ${pool.filter((c) => c.id !== rootId(c)).length} letter), ${origins.length} origin prompts`);
+  type Scenario = { label: string; pool: Candidate[]; fossils: Map<string, number>; repeatDays?: number };
+  const only = flag(args, "--only");
+  const run = ({ label, pool, fossils: have, repeatDays }: Scenario) => {
+    if (only && !label.includes(only)) return;
+    const firstFails: number[] = [], firstLows: number[] = [], drawn: number[] = [];
     for (let seed = 0; seed < seeds; seed++) {
       const history: HistoryDay[] = [];
-      const uses = new Map<string, number>();
+      const used = new Map<string, number[]>(); // day numbers on which a prompt ran
       const spare: number[] = [];
-      let failed = 0, firstFail = 0, retries = 0;
+      let failed = 0, firstFail = 0;
       for (let i = 0; i < days; i++) {
         const date = addDays("2026-12-01", i);
-        let picks: Candidate[] | null = null;
-        const left = (c: Candidate) => (uses.get(c.id) ?? 0) < (fossils.get(c.id) ?? 0);
+        // A prompt needs a fossil it has not used (or, with repeatDays, not used in that long).
+        const left = (c: Candidate) => (used.get(c.id) ?? []).filter((d) => repeatDays === undefined || i - d < repeatDays).length < (have.get(c.id) ?? 0);
         const live = pool.filter(left), liveOrigins = origins.filter(left);
-        for (let salt = 0; salt < MAX_SALTS && !picks; salt++) { picks = pickDay(date, { themes: live, origins: liveOrigins }, history, zipf, `supply-${seed}`, salt); if (!picks) retries++; }
+        let picks: Candidate[] | null = null;
+        for (let salt = 0; salt < MAX_SALTS && !picks; salt++) picks = pickDay(date, { themes: live, origins: liveOrigins }, history, zipf, `supply-${seed}`, salt);
         if (!picks) { failed++; firstFail ||= i + 1; continue; }
-        history.push({ date, prompts: picks.map((c) => ({ id: c.id, base: c.base, fossil: `${c.id}#${uses.get(c.id) ?? 0}`, ...(c.languages.length ? { languages: c.languages } : {}) })) });
-        for (const c of picks) uses.set(c.id, (uses.get(c.id) ?? 0) + 1);
-        // The pipeline's own health rule: the day after the newest built day must still have 20 themes and 6 origins free.
+        history.push({ date, prompts: picks.map((c) => ({ id: c.id, base: c.base, fossil: `${c.id}#${i}`, ...(c.languages.length ? { languages: c.languages } : {}) })) });
+        for (const c of picks) used.set(c.id, [...(used.get(c.id) ?? []), i]);
+        // The pipeline's own health rule: the day after the newest built day must still have 20 themes free.
         if (i >= BUFFER) spare.push(live.filter((c) => left(c) && isEligible(c, addDays(date, 1), history)).length);
       }
-      const outOfFossils = [...uses].filter(([id, n]) => n >= (fossils.get(id) ?? 0)).length;
-      const sorted = [...spare].sort((a, b) => a - b);
-      const firstLow = spare.findIndex((n) => n < 20);
-      console.log(`  seed ${seed}: ${days - failed}/${days} days drawn${failed ? ` (first failure on day ${firstFail})` : ""}, ${retries} retries; spare themes: min ${sorted[0]}, median ${sorted[Math.floor(sorted.length / 2)]}, under 20 on ${spare.filter((n) => n < 20).length} days${firstLow >= 0 ? ` (first on day ${firstLow + BUFFER + 1})` : ""}; prompts out of fossils by the end: ${outOfFossils}`);
+      const low = spare.findIndex((n) => n < 20);
+      firstFails.push(firstFail); firstLows.push(low < 0 ? 0 : low + BUFFER + 1); drawn.push(days - failed);
     }
+    const range = (xs: number[]) => (xs.every((x) => x === 0) ? `never in ${days} days` : xs.some((x) => x === 0) ? `day ${Math.min(...xs.filter(Boolean))} at the earliest, never in some runs` : `day ${Math.min(...xs)}–${Math.max(...xs)}`);
+    console.log(`${label}: ${pool.length} theme prompts (${pool.filter((c) => c.id === rootId(c)).length} base, ${pool.filter((c) => c.id !== rootId(c)).length} letter), ${origins.length} origins | first day that cannot be filled: ${range(firstFails)} | under-20-spare alarm: ${range(firstLows)} | days filled: ${Math.min(...drawn)}–${Math.max(...drawn)} of ${days}`);
   };
-  run("All prompts", themes);
+  /** fossilCandidates (answers.ts) with the rarity ceiling as a parameter. 2.3 is today's rule. */
+  const fossilCount = (c: Candidate, maxZipf: number, firstSense = true) => c.core.filter((w) => {
+    const z = zipf.get(w);
+    if (z !== undefined && z >= maxZipf) return false;
+    if (!/^[a-z]{4,14}$/.test(w)) return false;
+    const info = index.info.get(w);
+    if (!info || info.strictObsolete || info.strictOffensive) return false;
+    if (firstSense && c.senseIds) { const first = wn.synsetsOf.get(w)?.[0]; if (!first || !c.senseIds.has(first)) return false; }
+    return true;
+  }).length;
+  const counts = (pool: Candidate[], maxZipf = 2.3, firstSense = true) => new Map([...pool, ...origins].map((c) => [c.id, fossilCount(c, maxZipf, firstSense)]));
+  /** Letter variants with a smaller core floor than today's 25 (the easy, rare and fossil floors stay). */
+  const withLetters = (minCore: number) => [...base, ...base.flatMap((t) => letterVariants(t, zipf, { minCore })).map(finish)]
+    .filter((c) => floorProblems(c, fctx).every((p) => c.id !== rootId(c) && /^core \d+ < 25$/.test(p) && c.core.length >= minCore));
+
+  if (args.includes("--runway")) {
+    // Options for the supply runway (docs/dig-word-audit.md). Measure only: none of this is in the pipeline.
+    const q = (xs: number[]) => { const v = [...xs].sort((a, b) => a - b); return `min ${v[0]}, quarter ${v[Math.floor(v.length / 4)]}, median ${v[Math.floor(v.length / 2)]}, max ${v.at(-1)}`; };
+    console.log(`Fossil candidates per theme prompt: ${q(themes.map((c) => fossils.get(c.id) ?? 0))}; per origin prompt: ${q(origins.map((c) => fossils.get(c.id) ?? 0))}`);
+    run({ label: "Today's rules", pool: themes, fossils });
+    run({ label: "A3 fossils may repeat after 4 months", pool: themes, fossils, repeatDays: 122 });
+    run({ label: "A4 fossils may repeat after 3 months", pool: themes, fossils, repeatDays: 91 });
+    run({ label: "D fossils need not be the word's first WordNet sense", pool: themes, fossils: counts(themes, 2.3, false) });
+    run({ label: "E repeat after 4 months + Zipf 2.8", pool: themes, fossils: counts(themes, 2.8), repeatDays: 122 });
+    { const pool = withLetters(20); run({ label: "F repeat after 6 months + letters at 20 + Zipf 2.8", pool, fossils: counts(pool, 2.8), repeatDays: 182 }); }
+    run({ label: "A1 fossils may repeat after 12 months", pool: themes, fossils, repeatDays: 365 });
+    run({ label: "A2 fossils may repeat after 6 months", pool: themes, fossils, repeatDays: 182 });
+    for (const n of [20, 15]) { const pool = withLetters(n); run({ label: `B letter variants need ${n} shown answers, not 25`, pool, fossils: counts(pool) }); }
+    for (const zmax of [2.8, 3]) run({ label: `C fossils may be as common as Zipf ${zmax}, not 2.3`, pool: themes, fossils: counts(themes, zmax) });
+    { const pool = withLetters(20); run({ label: "A1 + B(20) together", pool, fossils: counts(pool), repeatDays: 365 }); }
+    return;
+  }
+  run({ label: "All prompts", pool: themes, fossils });
   if (paused.size) {
     const gone = themes.filter((c) => paused.has(rootId(c)));
-    console.log(`\nPausing ${[...paused].join(", ")} removes ${gone.length} prompts (${gone.filter((c) => c.id === rootId(c)).length} base, ${gone.filter((c) => c.id !== rootId(c)).length} letter): ${gone.map((c) => c.id).join(", ")}`);
-    run("With those paused", themes.filter((c) => !paused.has(rootId(c))));
+    console.log(`Pausing ${[...paused].join(", ")} removes ${gone.length} prompts (${gone.filter((c) => c.id === rootId(c)).length} base, ${gone.filter((c) => c.id !== rootId(c)).length} letter): ${gone.map((c) => c.id).join(", ")}`);
+    run({ label: "With those paused", pool: themes.filter((c) => !paused.has(rootId(c))), fossils });
   }
 }
 
