@@ -3,7 +3,9 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { parseOewn } from "./sources/oewn";
 import { indexWiktionary } from "./wiktionary";
-import { buildAliases, buildGuard, counts, dedupeByKey, dropBlocked, floorProblems, fossilCandidates } from "./answers";
+import { buildAliases, buildGuard, counts, dedupeByKey, dropBlocked, finishCandidate, floorProblems, fossilCandidates } from "./answers";
+import type { Catalogue } from "./catalogue";
+import type { CompactEntry } from "./sources/compact";
 import type { Candidate } from "./themes";
 
 const wn = parseOewn(readFileSync(path.join(__dirname, "fixtures/oewn-mini.xml"), "utf8"));
@@ -93,5 +95,66 @@ describe("dedupeByKey", () => {
     const d = dedupeByKey(cand(["icerink"], { accepted: ["ice rink", "icerink", "pitch"] }));
     expect(d.accepted).toEqual(["icerink", "pitch"]);
     expect(d.core).toEqual(["icerink"]);
+  });
+});
+
+describe("finishCandidate (audit fixes: hand-picked, excluded, hidden and junk words)", () => {
+  const entry = (w: string, pos = "noun"): CompactEntry => ({ w, pos, t: [], c: [], g: [], e: [], f: [], n: 1, et: "" });
+  const cat = (over: Partial<Catalogue> = {}): Catalogue => ({
+    anchorOverrides: {}, renames: {}, blockPatterns: [], wikidataThemes: [], originGroups: [], originExclude: [], langCodes: {}, ...over,
+  });
+  const zipf = new Map([["to", 7.4], ["in", 7.3], ["on", 6.9], ["out", 6.2], ["up", 6.5], ["but", 6.6], ["dog", 5.1]]);
+  const ctx = async (c: Partial<Catalogue> = {}) => ({
+    cat: cat(c), blocked: new Set<string>(), zipf,
+    index: await indexWiktionary([entry("to", "prep"), entry("in", "prep"), entry("on", "prep"), entry("out", "prep"), entry("up", "prep"), entry("but", "conj"), entry("dog")], new Set()),
+  });
+  const canids = (over: Partial<Candidate> = {}) => cand(["dog", "wolf", "hyena"], { id: "theme:canids", base: "theme:canids", accepted: ["dog", "wolf", "hyena", "fox"], ...over });
+
+  it("adds hand-picked answers and adjudication extras", async () => {
+    const c = finishCandidate(canids(), { ...(await ctx({ extraAnswers: { "theme:canids": ["labrador"] } })), extras: { "theme:canids": ["dingo"] } });
+    expect(c.accepted).toEqual(expect.arrayContaining(["labrador", "dingo", "dog"]));
+  });
+
+  it("never accepts an excluded word, even a shown one: hyena is not a canid", async () => {
+    const c = finishCandidate(canids({ obvious: ["dog", "hyena"] }), await ctx({ excludeAnswers: { "theme:canids": ["Hyena"], "*": ["fox"] } }));
+    expect(c.core).toEqual(["dog", "wolf"]);
+    expect(c.accepted).toEqual(["dog", "wolf"]);
+    expect(c.obvious).toEqual(["dog"]);
+    expect(c.excluded).toEqual(new Set(["hyena", "fox"]));
+  });
+
+  it("keeps exclusions per prompt: hyena stays a mammal, and a letter variant uses its theme's list", async () => {
+    const lists = { excludeAnswers: { "theme:canids": ["hyena"] } };
+    const mammals = finishCandidate(canids({ id: "theme:mammals", base: "theme:mammals" }), await ctx(lists));
+    expect(mammals.accepted).toContain("hyena");
+    // base points at a bigger family here, as assignFamilies can make it.
+    const letter = finishCandidate(canids({ id: "theme:canids:h", base: "theme:carnivores" }), await ctx(lists));
+    expect(letter.accepted).not.toContain("hyena");
+  });
+
+  it("hides a rude word from the shown list but still accepts it", async () => {
+    const body = cand(["arm", "minge", "leg"], { id: "theme:body-parts", base: "theme:body-parts" });
+    const c = finishCandidate(body, await ctx({ hiddenAnswers: { "*": ["minge"] } }));
+    expect(c.core).toEqual(["arm", "leg"]); // never shown, never the fossil
+    expect(c.accepted).toContain("minge");
+    expect(c.hidden).toEqual(new Set(["minge"]));
+  });
+
+  it("drops very common function words from the accepted-only list: to, in and on are not sailing words", async () => {
+    const sailing = cand(["keel", "out"], { id: "theme:nautical", base: "theme:nautical", accepted: ["keel", "out", "to", "in", "on", "jib", "dog"] });
+    const c = finishCandidate(sailing, await ctx());
+    expect(c.accepted).toEqual(["keel", "out", "jib", "dog"]); // "out" is core, "dog" is no function word
+    expect(c.excluded).toEqual(new Set(["to", "in", "on"]));
+  });
+
+  it("keeps a function word that is hand-picked or was added by adjudication", async () => {
+    const golf = cand(["tee"], { id: "theme:golf", base: "theme:golf", accepted: ["tee", "up", "but"] });
+    const c = finishCandidate(golf, { ...(await ctx({ extraAnswers: { "theme:golf": ["up"] } })), extras: { "theme:golf": ["but"] } });
+    expect(c.accepted).toEqual(["tee", "up", "but"]);
+  });
+
+  it("still applies the blocklist and one spelling per key", async () => {
+    const c = finishCandidate(cand(["apple"], { accepted: ["apple", "ice rink", "ice-rink", "rude"] }), { ...(await ctx()), blocked: new Set(["rude"]) });
+    expect(c.accepted).toEqual(["apple", "ice rink"]);
   });
 });

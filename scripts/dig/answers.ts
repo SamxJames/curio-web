@@ -1,6 +1,7 @@
 import { normalizeKey } from "../../lib/dig/normalize";
 import { oneEditVariants } from "../../lib/dig/match";
 import type { Wordnet } from "./sources/oewn";
+import { curatedAnswers, listFor, rootId, type Catalogue } from "./catalogue";
 import type { Candidate } from "./themes";
 import type { WiktionaryIndex } from "./wiktionary";
 
@@ -30,6 +31,44 @@ export function dedupeByKey(c: Candidate): Candidate {
   const kept = new Set(pick.values());
   const accepted = [...pick.values()];
   return { ...c, accepted, core: [...new Set(c.core.filter((w) => kept.has(w)))] };
+}
+
+/** At or above this Zipf, a preposition, pronoun, article or conjunction is one of the few hundred commonest
+ * words of English. Typed into a prompt it is filler, not an answer ("to", "in", "on" as sailing words). */
+export const FUNCTION_WORD_ZIPF = 5;
+
+export type FinishCtx = {
+  cat: Catalogue; blocked: Set<string>; index: WiktionaryIndex; zipf: Map<string, number>;
+  /** Adjudication's accepted guesses, by prompt id. */
+  extras?: Record<string, string[]>;
+};
+
+/** The one place a candidate's lists are completed. Every candidate passes through here, in the build and in the
+ * audit: adjudication extras and hand-picked answers go in; the catalogue's excluded words and very common
+ * function words come out of everything; hidden words leave the shown (core) list but stay accepted; then the
+ * blocklist, and one spelling per key. Safe to run twice on the same candidate. */
+export function finishCandidate(c: Candidate, ctx: FinishCtx): Candidate {
+  const picked = [...(ctx.extras?.[c.id] ?? []), ...curatedAnswers(ctx.cat, { id: c.id, base: rootId(c) })];
+  const keep = new Set(picked.map(normalizeKey));
+  const core = new Set(c.core);
+  // A second pass keeps what the first one took out (its function words are no longer in `accepted` to be found again).
+  const excluded = new Set([...(c.excluded ?? []), ...listFor(ctx.cat.excludeAnswers, c).map(normalizeKey)]);
+  for (const k of keep) excluded.delete(k);
+  const accepted = [...new Set([...c.accepted, ...picked])];
+  for (const w of accepted) {
+    if (core.has(w) || keep.has(normalizeKey(w))) continue;
+    if (ctx.index.info.get(w)?.functionWord && (ctx.zipf.get(w) ?? 0) >= FUNCTION_WORD_ZIPF) excluded.add(normalizeKey(w));
+  }
+  const hidden = new Set(listFor(ctx.cat.hiddenAnswers, c).map(normalizeKey));
+  const allowed = (w: string) => !excluded.has(normalizeKey(w));
+  const finished: Candidate = {
+    ...c,
+    core: c.core.filter((w) => allowed(w) && !hidden.has(normalizeKey(w))),
+    accepted: accepted.filter(allowed),
+    ...(c.obvious ? { obvious: c.obvious.filter(allowed) } : {}),
+    excluded, hidden,
+  };
+  return dedupeByKey(dropBlocked(finished, ctx.blocked));
 }
 
 export const isLetterVariant = (c: Candidate) => c.id.split(":").length === 3 && c.kind === "theme";

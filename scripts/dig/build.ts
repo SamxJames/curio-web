@@ -19,10 +19,10 @@ import { readCompact } from "./sources/compact";
 import { fetchWikidataLabels } from "./sources/wikidata";
 import { indexWiktionary, usableWord } from "./wiktionary";
 import { buildLexicon } from "./lexicon";
-import { curatedAnswers, loadCatalogue } from "./catalogue";
-import { letterVariants, wikidataThemeCandidates, wordnetThemes, type Candidate } from "./themes";
+import { loadCatalogue } from "./catalogue";
+import { letterVariants, unknownExtraCategories, wikidataThemeCandidates, wordnetThemes, type Candidate } from "./themes";
 import { originCandidates } from "./origins";
-import { buildAliases, buildGuard, dedupeByKey, dropBlocked, floorProblems, fossilCandidates } from "./answers";
+import { buildAliases, buildGuard, finishCandidate, floorProblems, fossilCandidates } from "./answers";
 import { yearlyViews } from "./pageviews";
 import { assignTiers, chooseFossil, toPlainPrompt, viewWordsFor } from "./fossil";
 import { assignFamilies, daysBetween, isEligible, pickDay, type HistoryDay } from "./assemble";
@@ -37,7 +37,7 @@ export type BuildStats = {
   bufferDays: number; poolThemes: number; poolOrigins: number;
   wikidata: Record<"fresh" | "cached" | "stale" | "missing" | "label-mismatch", number>;
   adjudication: { judged: number; accepted: number; amendedDays: number } | "failed";
-  repair: { amendedDays: number; added: number; removed: number; skippedOversize: number } | "failed";
+  repair: { amendedDays: number; added: number; removed: number; hidden?: number; skippedOversize: number } | "failed";
   /** Shadow-mode AI review of refused guesses: "off" means no API key was set. Absent in older stats. */
   review?: ReviewResult | "failed" | "off";
 };
@@ -75,7 +75,7 @@ export function summaryLines(s: BuildStats): string[] {
       : `Adjudication: ${s.adjudication.judged} judged, ${s.adjudication.accepted} accepted, ${s.adjudication.amendedDays} days amended`,
     s.repair === "failed"
       ? "Repair: failed"
-      : `Repair: ${s.repair.amendedDays} days amended, ${s.repair.added} words added, ${s.repair.removed} stray senses removed, ${s.repair.skippedOversize} skipped for size`,
+      : `Repair: ${s.repair.amendedDays} days amended, ${s.repair.added} words added, ${s.repair.removed} excluded words removed, ${s.repair.hidden ?? 0} hidden from reveals, ${s.repair.skippedOversize} skipped for size`,
     ...(s.review === undefined || s.review === "off"
       ? []
       : [s.review === "failed"
@@ -163,10 +163,12 @@ async function main() {
     if (r.labels) wdThemes.push({ theme, labels: r.labels });
   }
   let extras = await sink.readExtras();
-  // Every candidate passes through here, so this is also where blocked words go and spellings that share a key are collapsed.
-  // Hand-picked catalogue answers join the adjudication extras.
-  const withExtras = (c: Candidate): Candidate =>
-    dedupeByKey(dropBlocked({ ...c, accepted: [...new Set([...c.accepted, ...(extras[c.id] ?? []), ...curatedAnswers(cat, c)])] }, blocked));
+  // Every candidate passes through finishCandidate: adjudication extras, the catalogue's hand-picked, excluded
+  // and hidden words, the blocklist, and one spelling per key.
+  const withExtras = (c: Candidate): Candidate => finishCandidate(c, { cat, blocked, index, zipf, extras });
+  const unknownCategories = unknownExtraCategories(cat, index);
+  // Count only: a category name could hint at a future prompt.
+  if (unknownCategories.length) console.log(`Catalogue: ${unknownCategories.length} extraCategories names are not in Wiktionary`);
   const fctx = { wn, index, zipf };
   const baseThemes = assignFamilies([...wordnetThemes(wn, index, zipf, cat), ...wikidataThemeCandidates(wdThemes, index, zipf)].map(withExtras));
   const letters = baseThemes.flatMap((t) => letterVariants(t, zipf)).map(withExtras);

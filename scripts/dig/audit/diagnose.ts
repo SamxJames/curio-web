@@ -16,10 +16,10 @@ import { readCompact } from "../sources/compact";
 import { fetchWikidataLabels } from "../sources/wikidata";
 import { indexWiktionary } from "../wiktionary";
 import { buildLexicon } from "../lexicon";
-import { curatedAnswers, loadCatalogue } from "../catalogue";
+import { loadCatalogue } from "../catalogue";
 import { letterVariants, wikidataThemeCandidates, wordnetThemes, type Candidate } from "../themes";
 import { originCandidates } from "../origins";
-import { buildAliases, buildGuard, dedupeByKey, dropBlocked, floorProblems, hasBlockedWord } from "../answers";
+import { buildAliases, buildGuard, finishCandidate, floorProblems, hasBlockedWord } from "../answers";
 import { assignFamilies } from "../assemble";
 import { etymologySentence, fold } from "../fossil";
 import { parseGuesses } from "./probe";
@@ -36,7 +36,7 @@ async function main() {
   const index = await indexWiktionary(readCompact(path.join(data, "derived", "en-compact.jsonl")), blocked);
   const lexicon = buildLexicon(zipf, index.info.keys());
   const guardLexicon = buildLexicon(new Map([...zipf].filter(([, z]) => z >= 2)), []);
-  const cat = loadCatalogue();
+  const cat = loadCatalogue(flag(args, "--catalogue"));
   const curioLineage = new Map(WORDS.map((w) => [w.word.toLowerCase(), w.lineage]));
   const wdThemes: { theme: (typeof cat.wikidataThemes)[number]; labels: Set<string> }[] = [];
   const wikidataFetcher = createFetcher({ minGapMs: 1000, attempts: 2 });
@@ -47,8 +47,7 @@ async function main() {
       console.log(`wikidata ${theme.id}: ${r.status}`);
     } catch { console.log(`wikidata ${theme.id}: failed`); }
   }
-  const withExtras = (c: Candidate): Candidate =>
-    dedupeByKey(dropBlocked({ ...c, accepted: [...new Set([...c.accepted, ...curatedAnswers(cat, c)])] }, blocked));
+  const withExtras = (c: Candidate): Candidate => finishCandidate(c, { cat, blocked, index, zipf });
   const fctx = { wn, index, zipf };
   const rawThemes = [...wordnetThemes(wn, index, zipf, cat), ...wikidataThemeCandidates(wdThemes, index, zipf)];
   const baseThemes = assignFamilies(rawThemes.map(withExtras));
@@ -77,7 +76,7 @@ async function main() {
     const s = fold(etymologySentence(index.info.get(w)?.etymology ?? ""));
     return !s || s.includes(fold(lang.split(" ").at(-1)!));
   };
-  const RANK = ["accepted-now", "cap", "letter", "homograph-filter", "blocklist-word", "origin-etymology-check", "obsolete", "offensive-rule", "tags-not-ok", "no-lowercase-entry"];
+  const RANK = ["accepted-now", "cap", "letter", "excluded", "blocklist-word", "origin-etymology-check", "obsolete", "offensive-rule", "tags-not-ok", "no-lowercase-entry"];
 
   function why(c: Candidate, guess: string): { reason: string; detail: string } {
     const key = normalizeKey(guess);
@@ -100,7 +99,7 @@ async function main() {
         else if (info.obsolete && !zipf.has(w)) reason = "obsolete";
         else if (hasBlockedWord(w, blocked)) reason = "blocklist-word";
         else if (c.kind === "origin" && !c.languages.some((l) => names(w, l))) reason = "origin-etymology-check";
-        else if (pre.homographs?.has(w)) reason = "homograph-filter";
+        else if (c.excluded?.has(normalizeKey(w))) reason = "excluded";
         else if (c !== parent && w[0] !== c.id.split(":").at(-1)) reason = "letter";
         else reason = "cap";
         hits.push({ reason, detail: d });
@@ -145,7 +144,7 @@ async function main() {
       const { reason } = why(c, w);
       (lost[reason] ??= []).push(w);
     }
-    reverse[id] = { text: c.text, accepted: c.accepted.length, core: c.core.length, noFreq, everydayNonCore, strictOffensive, lost, homographs: [...(pre.homographs ?? [])].filter((w) => (zipf.get(w) ?? 0) >= 3.5), obvious: c.obvious?.length ?? 0 };
+    reverse[id] = { text: c.text, accepted: c.accepted.length, core: c.core.length, noFreq, everydayNonCore, strictOffensive, lost, excluded: [...(c.excluded ?? [])], hidden: [...(c.hidden ?? [])], obvious: c.obvious?.length ?? 0 };
   }
   writeFileSync(path.join(outDir, "rows.json"), JSON.stringify(rows));
   writeFileSync(path.join(outDir, "reverse.json"), JSON.stringify(reverse));

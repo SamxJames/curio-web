@@ -17,8 +17,12 @@ export type Candidate = {
   senseIds: Set<string> | null;
   ancestors: Set<string>;
   languages: string[];
-  /** Category words dropped as stray senses (isHomograph). Repair takes them out of unplayed days. */
-  homographs?: Set<string>;
+  /** Normalised keys this prompt never accepts: the catalogue's excludeAnswers plus very common function words
+   * (finishCandidate). Repair takes them out of unplayed days, and adjudication never votes them back in. */
+  excluded?: Set<string>;
+  /** Normalised keys that are accepted but never shown (the catalogue's hiddenAnswers): kept out of core, so
+   * out of reveals and fossils. Repair hides them on unplayed days. */
+  hidden?: Set<string>;
   /** Everyday members of a kind-of theme ("potato" for vegetables): always accepted unless
    * blocklisted, and the floor rejects a prompt that is missing one. */
   obvious?: string[];
@@ -107,27 +111,21 @@ export function anchorCategory(wn: Wordnet, name: string, words: Set<string>, ov
   return fallback && fallback.size >= 2 ? fallback : null;
 }
 
-/** At or above this Zipf, a category word WordNet doesn't place in the theme is an everyday word
- * with a stray sense ("more" in Vegetables, an obsolete word for a root), not an answer. */
-export const HOMOGRAPH_ZIPF = 4;
+/** At or above this Zipf a word is an everyday one (the "obvious" answers below). */
+export const EVERYDAY_ZIPF = 4;
 
-/** Wiktionary categories hold entries, not senses, so a word joins "Vegetables" or "Birds" on the
- * strength of one obscure sense ("name", "chat", "brilliant"). Such a word is dropped from a
- * kind-of theme when WordNet knows it as a noun but files every noun sense elsewhere, or when it
- * is an everyday word that WordNet doesn't place under the theme at all. */
-export function isHomograph(wn: Wordnet, w: string, senseIds: Set<string>, zipf: Map<string, number>): boolean {
-  const nounSenses = (wn.synsetsOf.get(w) ?? []).filter((id) => wn.synsets.get(id)?.pos === "n");
-  if (nounSenses.length && !nounSenses.some((id) => senseIds.has(id))) return true;
-  return (zipf.get(w) ?? 0) >= HOMOGRAPH_ZIPF;
+/** Catalogue extraCategories names that Wiktionary no longer has (a rename, or a typo). */
+export function unknownExtraCategories(cat: Pick<Catalogue, "extraCategories">, index: WiktionaryIndex): string[] {
+  return [...new Set(Object.values(cat.extraCategories ?? {}).flat())].filter((name) => !index.categories.has(name)).sort();
 }
 
 /** The words most people would type first: single words in the theme's WordNet subtree whose
- * first noun sense is the theme sense, and that are everyday words (Zipf ≥ HOMOGRAPH_ZIPF).
+ * first noun sense is the theme sense, and that are everyday words (Zipf ≥ EVERYDAY_ZIPF).
  * They skip the Wiktionary tag filter, whose entry-level tags have hidden "potato" and "mother"
  * before; the blocklist still applies (dropBlocked). */
 export function obviousMembers(wn: Wordnet, index: WiktionaryIndex, zipf: Map<string, number>, wnSet: Set<string>, senseIds: Set<string>): string[] {
   return [...wnSet].filter((w) => {
-    if (!/^[a-z]+$/.test(w) || (zipf.get(w) ?? 0) < HOMOGRAPH_ZIPF || !index.info.has(w)) return false;
+    if (!/^[a-z]+$/.test(w) || (zipf.get(w) ?? 0) < EVERYDAY_ZIPF || !index.info.has(w)) return false;
     const first = (wn.synsetsOf.get(w) ?? []).find((id) => wn.synsets.get(id)?.pos === "n");
     return !!first && senseIds.has(first);
   }).sort();
@@ -166,22 +164,26 @@ export function wordnetThemes(
       const below = hyponymSynsets(wn, [a.id]);
       for (const [other, a2] of anchors) if (a2.via === "kind-of" && below.has(a2.id)) index.categories.get(other)!.forEach((w) => wiktionary.add(w));
     }
+    // Sub-categories WordNet's tree does not connect ("Blacks" for Colors, "Cutlery" for Kitchenware) come from the catalogue.
+    for (const extra of cat.extraCategories?.[name] ?? []) index.categories.get(extra)?.forEach((w) => wiktionary.add(w));
     const senseIds = a.via === "kind-of" ? hyponymSynsets(wn, [a.id]) : domainSynsets(wn, [a.id]);
     const wnSet = a.via === "kind-of" ? hyponymLemmas(wn, [a.id]) : domainLemmas(wn, [a.id]);
     const core = [...wiktionary].filter((w) => wnSet.has(w) && usable(w)).sort();
     if (core.length > OVER_BROAD) continue;
     // Every animal is not a baby animal: a broad theme accepts only its category's words.
+    // A category word WordNet files elsewhere still counts ("tulip" sits under lilies, not flowers, and "sad" is
+    // no noun at all). Wiktionary tags a category on the whole page, not on one sense, so no rule here can tell
+    // a stray sense ("more", an obsolete word for a root, in Vegetables) from a real one: the catalogue's
+    // excludeAnswers names those (finishCandidate in answers.ts).
     const kindOf = a.via === "kind-of";
-    const homographs = new Set(kindOf ? [...wiktionary].filter((w) => !wnSet.has(w) && isHomograph(wn, w, senseIds, zipf)) : []);
-    const fromCategory = [...wiktionary].filter((w) => !homographs.has(w));
-    const others = [...fromCategory, ...(a.broad ? [] : [...wnSet].filter((w) => index.info.has(w)))].filter(usable);
+    const others = [...wiktionary, ...(a.broad ? [] : [...wnSet].filter((w) => index.info.has(w)))].filter(usable);
     // A broad theme accepts only its category's words, so it has no WordNet-wide obvious list.
     const obvious = kindOf && !a.broad ? obviousMembers(wn, index, zipf, wnSet, senseIds) : [];
     const c: Candidate = {
       id: `theme:${slugify(name)}`, base: `theme:${slugify(name)}`, kind: "theme",
       text: themeText(name, a.via, cat.renames), core, accepted: capAccepted(core, [...others, ...obvious], zipf),
       sources: [wiktionary, wnSet], anchor: a.id, senseIds, ancestors: ancestors(wn, a.id), languages: [],
-      homographs, obvious,
+      obvious,
     };
     // Two names for one sense ("Fish" and "Fishes") keep the shorter; a broad-anchored subset
     // is its own theme, and assignFamilies keeps it apart from its parent.
