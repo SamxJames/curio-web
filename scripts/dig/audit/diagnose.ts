@@ -14,7 +14,7 @@ import { loadWordfreq } from "../sources/wordfreq";
 import { loadOewn } from "../sources/oewn";
 import { readCompact } from "../sources/compact";
 import { fetchWikidataLabels } from "../sources/wikidata";
-import { indexWiktionary, usableWord } from "../wiktionary";
+import { indexWiktionary } from "../wiktionary";
 import { buildLexicon } from "../lexicon";
 import { curatedAnswers, loadCatalogue } from "../catalogue";
 import { letterVariants, wikidataThemeCandidates, wordnetThemes, type Candidate } from "../themes";
@@ -37,7 +37,6 @@ async function main() {
   const lexicon = buildLexicon(zipf, index.info.keys());
   const guardLexicon = buildLexicon(new Map([...zipf].filter(([, z]) => z >= 2)), []);
   const cat = loadCatalogue();
-  const usable = (w: string) => usableWord(index, zipf, w);
   const curioLineage = new Map(WORDS.map((w) => [w.word.toLowerCase(), w.lineage]));
   const wdThemes: { theme: (typeof cat.wikidataThemes)[number]; labels: Set<string> }[] = [];
   const wikidataFetcher = createFetcher({ minGapMs: 1000, attempts: 2 });
