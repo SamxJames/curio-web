@@ -44,16 +44,17 @@ describe("originCandidates", () => {
     );
     const norse = originCandidates(idx, new Map(), cat, new Map()).find((c) => c.id === "origin:old-norse")!;
     expect(norse.core.sort()).toEqual(["ransack", "sky"]);
-    // Accepted-only takes any word Wiktionary derives from the language (audit fix 4); a very common
-    // function word like "and" is then dropped by finishCandidate.
-    expect(norse.accepted).toContain("and");
+    expect(norse.accepted).not.toContain("and");
   });
 
   it("counts a word that came through another language: sugar is from Arabic, though it reached English through French", async () => {
-    const sugar = { ...e("sugar", "Arabic", null), et: "From Middle English sugre, from Middle French sucre, from Old French çucre." };
-    const idx = await indexWiktionary([e("algebra", "Arabic", "ar"), sugar], new Set());
+    const sugar = { ...e("sugar", "Arabic", null), et: "From Middle English sugre, from Middle French sucre, from Old French çucre, from Medieval Latin zuccarum, from Arabic sukkar." };
+    // "tell" (a mound, in archaeology) is tagged Arabic too, but its main etymology is the Old English verb's.
+    const tell = { ...e("tell", "Arabic", "ar"), et: "From Middle English tellen, from Old English tellan (“to count, tell”)." };
+    const idx = await indexWiktionary([e("algebra", "Arabic", "ar"), sugar, tell], new Set());
     const arabic = originCandidates(idx, new Map(), cat, new Map()).find((c) => c.id === "origin:arabic")!;
     expect(arabic.accepted).toContain("sugar");
+    expect(arabic.accepted).not.toContain("tell");
     expect(arabic.core).toEqual(["algebra"]); // the shown list stays strict
   });
 
@@ -63,7 +64,7 @@ describe("originCandidates", () => {
       originVariants: { Italian: ["Neapolitan"], Spanish: ["Mexican Spanish"], Hebrew: ["Biblical Hebrew"] },
     };
     const idx = await indexWiktionary(
-      [e("pasta", "Italian", "it"), e("pizza", "Neapolitan", "nap"), e("siesta", "Spanish", "es"), e("taco", "Mexican Spanish", null),
+      [e("pasta", "Italian", "it"), { ...e("pizza", "Neapolitan", "nap"), et: "Borrowed from Neapolitan pizza." }, e("siesta", "Spanish", "es"), e("taco", "Mexican Spanish", null),
        e("kosher", "Hebrew", "he"), e("amen", "Biblical Hebrew", null), e("jubilee", "the Biblical Hebrew root י־ב־ל", null), e("alcohol", "the Arabic root ك ح ل", null)],
       new Set()
     );

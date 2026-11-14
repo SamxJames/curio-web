@@ -5,7 +5,6 @@ import { parseOewn } from "./sources/oewn";
 import { indexWiktionary } from "./wiktionary";
 import { buildAliases, buildGuard, counts, dedupeByKey, dropBlocked, finishCandidate, floorProblems, fossilCandidates } from "./answers";
 import type { Catalogue } from "./catalogue";
-import type { CompactEntry } from "./sources/compact";
 import type { Candidate } from "./themes";
 
 const wn = parseOewn(readFileSync(path.join(__dirname, "fixtures/oewn-mini.xml"), "utf8"));
@@ -99,15 +98,10 @@ describe("dedupeByKey", () => {
 });
 
 describe("finishCandidate (audit fixes: hand-picked, excluded, hidden and junk words)", () => {
-  const entry = (w: string, pos = "noun"): CompactEntry => ({ w, pos, t: [], c: [], g: [], e: [], f: [], n: 1, et: "" });
   const cat = (over: Partial<Catalogue> = {}): Catalogue => ({
     anchorOverrides: {}, renames: {}, blockPatterns: [], wikidataThemes: [], originGroups: [], originExclude: [], langCodes: {}, ...over,
   });
-  const zipf = new Map([["to", 7.4], ["in", 7.3], ["on", 6.9], ["out", 6.2], ["up", 6.5], ["but", 6.6], ["dog", 5.1]]);
-  const ctx = async (c: Partial<Catalogue> = {}) => ({
-    cat: cat(c), blocked: new Set<string>(), zipf,
-    index: await indexWiktionary([entry("to", "prep"), entry("in", "prep"), entry("on", "prep"), entry("out", "prep"), entry("up", "prep"), entry("but", "conj"), entry("dog")], new Set()),
-  });
+  const ctx = async (c: Partial<Catalogue> = {}) => ({ cat: cat({ fillerWords: ["to", "in", "on", "out", "up", "but"], ...c }), blocked: new Set<string>() });
   const canids = (over: Partial<Candidate> = {}) => cand(["dog", "wolf", "hyena"], { id: "theme:canids", base: "theme:canids", accepted: ["dog", "wolf", "hyena", "fox"], ...over });
 
   it("adds hand-picked answers and adjudication extras", async () => {
@@ -140,14 +134,14 @@ describe("finishCandidate (audit fixes: hand-picked, excluded, hidden and junk w
     expect(c.hidden).toEqual(new Set(["minge"]));
   });
 
-  it("drops very common function words from the accepted-only list: to, in and on are not sailing words", async () => {
+  it("drops filler words from the accepted-only list: to, in and on are not sailing words", async () => {
     const sailing = cand(["keel", "out"], { id: "theme:nautical", base: "theme:nautical", accepted: ["keel", "out", "to", "in", "on", "jib", "dog"] });
     const c = finishCandidate(sailing, await ctx());
-    expect(c.accepted).toEqual(["keel", "out", "jib", "dog"]); // "out" is core, "dog" is no function word
+    expect(c.accepted).toEqual(["keel", "out", "jib", "dog"]); // "out" is core, "dog" is not filler
     expect(c.excluded).toEqual(new Set(["to", "in", "on"]));
   });
 
-  it("keeps a function word that is hand-picked or was added by adjudication", async () => {
+  it("keeps a filler word that is hand-picked or was added by adjudication", async () => {
     const golf = cand(["tee"], { id: "theme:golf", base: "theme:golf", accepted: ["tee", "up", "but"] });
     const c = finishCandidate(golf, { ...(await ctx({ extraAnswers: { "theme:golf": ["up"] } })), extras: { "theme:golf": ["but"] } });
     expect(c.accepted).toEqual(["tee", "up", "but"]);

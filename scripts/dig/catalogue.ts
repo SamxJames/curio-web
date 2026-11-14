@@ -23,6 +23,10 @@ export type Catalogue = {
   excludeAnswers?: Record<string, string[]>;
   /** Words that are accepted but never shown in a reveal and never the fossil, by base prompt id or "*". */
   hiddenAnswers?: Record<string, string[]>;
+  /** Filler: very common words ("to", "in", "on") that are never an accepted-only answer. A prompt keeps one
+   * only where both sources agree on it (core) or it is hand-picked. Part of speech cannot pick these out:
+   * Wiktionary calls "cross", "hit" and "man" prepositions or pronouns too. */
+  fillerWords?: string[];
   /** Dialects and stages that count as the language for an origin prompt ("Neapolitan" for Italian). A variant
    * never gets a prompt of its own. Its code in langCodes is optional (the category alone is enough). */
   originVariants?: Record<string, string[]>;

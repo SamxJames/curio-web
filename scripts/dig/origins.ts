@@ -13,10 +13,11 @@ export const ORIGIN_EVERYDAY_ZIPF = 3;
 type LangSets = { core: Set<string>; accepted: Set<string>; sources: Set<string>[] };
 
 /** Origin prompts (pipeline-design §4). Core, the shown list, needs both Wiktionary's "derived from" category
- * and a structured etymology template naming the language, and a main etymology that names it. Accepted-only
- * takes any word either source derives from the language, whatever route it took: Sam's 2026-11-14 ruling is
- * that a word counts if the language is its immediate or its original source ("sugar" is from Arabic though
- * it reached English through French), and Wiktionary's data cannot tell a middle step from the first one.
+ * and a structured etymology template naming the language, and a main etymology whose first sentence names it.
+ * Accepted-only takes a word either source derives from the language when its main etymology names the
+ * language anywhere, whatever route the word took: Sam's 2026-11-14 ruling is that a word counts if the
+ * language is its immediate or its original source ("sugar" is from Arabic though it reached English through
+ * French), and Wiktionary's data cannot tell a middle step from the first one.
  * Dialects and stages listed in the catalogue's originVariants count as their language ("pizza" is tagged
  * Neapolitan, "taco" Mexican Spanish, "amen" Biblical Hebrew), as do its root categories ("the Arabic root …").
  * Grouped origins union their members (fix 3). Common-tier caps are enforced by the floor in answers.ts. */
@@ -32,6 +33,14 @@ export function originCandidates(
   const names = (w: string, lang: string) => {
     const s = fold(etymologySentence(index.info.get(w)?.etymology ?? ""));
     return !s || s.includes(fold(lang.split(" ").at(-1)!));
+  };
+  // For accepted-only the language (or the dialect label that tagged the word) may be named anywhere in the
+  // main etymology, not just first: "sugar" names French first and Arabic later. A homograph still fails:
+  // the main etymology of "tell" never mentions Arabic, though its archaeology sense is tagged with it.
+  const lastWord = (label: string) => fold(label.split(" ").at(-1)!);
+  const mentions = (w: string, labels: string[]) => {
+    const text = fold(index.info.get(w)?.etymology ?? "");
+    return !text || labels.some((l) => text.includes(lastWord(l)));
   };
   const usable = (w: string) => usableWord(index, zipf, w);
   const exclude = new Set(cat.originExclude);
@@ -50,7 +59,7 @@ export function originCandidates(
       const labelCode = cat.langCodes[label];
       const template = (labelCode && index.originTemplate.get(labelCode)) || none;
       sources.push(category, template);
-      for (const w of [...category, ...template]) if (usable(w)) accepted.add(w);
+      for (const w of [...category, ...template]) if (usable(w) && mentions(w, [lang, label])) accepted.add(w);
       if (label === lang) for (const w of category) if (template.has(w) && usable(w) && names(w, lang)) core.add(w);
     }
     sets.set(lang, { core, accepted, sources });

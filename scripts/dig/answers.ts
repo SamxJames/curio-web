@@ -33,32 +33,26 @@ export function dedupeByKey(c: Candidate): Candidate {
   return { ...c, accepted, core: [...new Set(c.core.filter((w) => kept.has(w)))] };
 }
 
-/** At or above this Zipf, a preposition, pronoun, article or conjunction is one of the few hundred commonest
- * words of English. Typed into a prompt it is filler, not an answer ("to", "in", "on" as sailing words). */
-export const FUNCTION_WORD_ZIPF = 5;
-
 export type FinishCtx = {
-  cat: Catalogue; blocked: Set<string>; index: WiktionaryIndex; zipf: Map<string, number>;
+  cat: Catalogue; blocked: Set<string>;
   /** Adjudication's accepted guesses, by prompt id. */
   extras?: Record<string, string[]>;
 };
 
 /** The one place a candidate's lists are completed. Every candidate passes through here, in the build and in the
- * audit: adjudication extras and hand-picked answers go in; the catalogue's excluded words and very common
- * function words come out of everything; hidden words leave the shown (core) list but stay accepted; then the
+ * audit: adjudication extras and hand-picked answers go in; the catalogue's excluded words come out of
+ * everything and its filler words ("to", "in", "on") out of the accepted-only list; hidden words leave the shown (core) list but stay accepted; then the
  * blocklist, and one spelling per key. Safe to run twice on the same candidate. */
 export function finishCandidate(c: Candidate, ctx: FinishCtx): Candidate {
   const picked = [...(ctx.extras?.[c.id] ?? []), ...curatedAnswers(ctx.cat, { id: c.id, base: rootId(c) })];
   const keep = new Set(picked.map(normalizeKey));
   const core = new Set(c.core);
-  // A second pass keeps what the first one took out (its function words are no longer in `accepted` to be found again).
+  // A second pass keeps what the first one took out (its filler words are no longer in `accepted` to be found again).
   const excluded = new Set([...(c.excluded ?? []), ...listFor(ctx.cat.excludeAnswers, c).map(normalizeKey)]);
   for (const k of keep) excluded.delete(k);
   const accepted = [...new Set([...c.accepted, ...picked])];
-  for (const w of accepted) {
-    if (core.has(w) || keep.has(normalizeKey(w))) continue;
-    if (ctx.index.info.get(w)?.functionWord && (ctx.zipf.get(w) ?? 0) >= FUNCTION_WORD_ZIPF) excluded.add(normalizeKey(w));
-  }
+  const filler = new Set((ctx.cat.fillerWords ?? []).map(normalizeKey));
+  for (const w of accepted) if (!core.has(w) && !keep.has(normalizeKey(w)) && filler.has(normalizeKey(w))) excluded.add(normalizeKey(w));
   const hidden = new Set(listFor(ctx.cat.hiddenAnswers, c).map(normalizeKey));
   const allowed = (w: string) => !excluded.has(normalizeKey(w));
   const finished: Candidate = {

@@ -47,7 +47,7 @@ async function main() {
       console.log(`wikidata ${theme.id}: ${r.status}`);
     } catch { console.log(`wikidata ${theme.id}: failed`); }
   }
-  const withExtras = (c: Candidate): Candidate => finishCandidate(c, { cat, blocked, index, zipf });
+  const withExtras = (c: Candidate): Candidate => finishCandidate(c, { cat, blocked });
   const fctx = { wn, index, zipf };
   const rawThemes = [...wordnetThemes(wn, index, zipf, cat), ...wikidataThemeCandidates(wdThemes, index, zipf)];
   const baseThemes = assignFamilies(rawThemes.map(withExtras));

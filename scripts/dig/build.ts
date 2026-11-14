@@ -165,7 +165,7 @@ async function main() {
   let extras = await sink.readExtras();
   // Every candidate passes through finishCandidate: adjudication extras, the catalogue's hand-picked, excluded
   // and hidden words, the blocklist, and one spelling per key.
-  const withExtras = (c: Candidate): Candidate => finishCandidate(c, { cat, blocked, index, zipf, extras });
+  const withExtras = (c: Candidate): Candidate => finishCandidate(c, { cat, blocked, extras });
   const unknownCategories = unknownExtraCategories(cat, index);
   // Count only: a category name could hint at a future prompt.
   if (unknownCategories.length) console.log(`Catalogue: ${unknownCategories.length} extraCategories names are not in Wiktionary`);

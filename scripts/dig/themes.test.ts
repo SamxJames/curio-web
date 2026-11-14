@@ -57,14 +57,6 @@ describe("indexWiktionary", () => {
     expect(idx.info.get("onion")?.strictObsolete).toBe(true);
   });
 
-  it("flags function words (to, in, on, he, an) by part of speech", async () => {
-    const idx = await indexWiktionary([entry("to", ["Nautical"], { pos: "prep" }), entry("to", [], { pos: "adv" }), entry("he", [], { pos: "pron" }), entry("an", [], { pos: "article" }), entry("apple", ["Fruits"])], new Set());
-    expect(idx.info.get("to")?.functionWord).toBe(true);
-    expect(idx.info.get("he")?.functionWord).toBe(true);
-    expect(idx.info.get("an")?.functionWord).toBe(true);
-    expect(idx.info.get("apple")?.functionWord).toBeUndefined();
-  });
-
   it("keeps the blocklist absolute, whatever the sense counts say", async () => {
     const idx = await indexWiktionary([entry("blockedword", ["Fruits"], { n: 3, k: 3, b: 0, l: 3 })], new Set(["blockedword"]));
     expect(usableWord(idx, new Map(), "blockedword")).toBe(false);

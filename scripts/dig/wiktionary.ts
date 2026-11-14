@@ -7,8 +7,6 @@ import { BAD_TAGS, NOT_ANSWER_TAGS, type CompactEntry } from "./sources/compact"
 export type WordInfo = {
   ok: boolean; noun: boolean; offensive: boolean; obsolete: boolean;
   strictOffensive: boolean; strictObsolete: boolean; aliases: string[]; etymology: string;
-  /** Some entry is a preposition, pronoun, article, determiner, conjunction or particle ("to", "he", "an"). */
-  functionWord?: boolean;
 };
 export type WiktionaryIndex = {
   info: Map<string, WordInfo>;
@@ -22,7 +20,6 @@ export type WiktionaryIndex = {
 
 const SHAPE = /^[a-z][a-z' -]*[a-z]$/;
 const OK_POS = new Set(["noun", "verb", "adj", "adv"]);
-const FUNCTION_POS = new Set(["prep", "pron", "det", "article", "conj", "particle", "postp"]);
 const BAD = BAD_TAGS;
 const NOT_ANSWER = NOT_ANSWER_TAGS;
 
@@ -65,7 +62,6 @@ export async function indexWiktionary(
       offensive, obsolete, strictOffensive, strictObsolete,
       aliases: [...new Set([...(prev?.aliases ?? []), ...e.f])].slice(0, 8),
       etymology: prev?.etymology || e.et,
-      ...(prev?.functionWord || FUNCTION_POS.has(e.pos) ? { functionWord: true } : {}),
     });
     for (const c of e.c) {
       if (c.startsWith("en:")) add(idx.categories, c.slice(3), w);
