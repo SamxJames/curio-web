@@ -119,6 +119,22 @@ describe("wordnetThemes", () => {
   });
 });
 
+describe("jargonCategories", () => {
+  // "Poker" anchors under card game, so its vocabulary (river, flop, bluff) used to roll up into "Name a card game".
+  const entries = [...["apple", "fig", "pear", "plum", "date"].map((w) => entry(w, ["Fruits"])), entry("lemon", ["Citrus fruits"]), entry("zest", ["Citrus fruits"])];
+  it("rolls a sub-category up into its parent by default", async () => {
+    const idx = await indexWiktionary(entries, new Set());
+    const fruit = wordnetThemes(wn, idx, new Map(), cat, { minOwnWords: 1, minAnchor: 1 }).find((t) => t.id === "theme:fruits")!;
+    expect(fruit.accepted).toContain("zest");
+  });
+  it("keeps a category of jargon out of its parent", async () => {
+    const idx = await indexWiktionary(entries, new Set());
+    const fruit = wordnetThemes(wn, idx, new Map(), { ...cat, jargonCategories: ["Citrus fruits"] }, { minOwnWords: 1, minAnchor: 1 }).find((t) => t.id === "theme:fruits")!;
+    expect(fruit.accepted).not.toContain("zest");
+    expect(fruit.accepted).toContain("lemon"); // WordNet still places lemon under fruit
+  });
+});
+
 describe("category words WordNet files elsewhere (audit fix 1)", () => {
   it("keeps them: tulip is a flower though WordNet files it under lilies, and sad is an emotion though it is a very common word", async () => {
     // The fixture's stand-ins: "colour" is a noun WordNet files elsewhere (like tulip, museum, juice);

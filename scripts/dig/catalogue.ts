@@ -17,6 +17,9 @@ export type Catalogue = {
   /** Wiktionary sub-categories joined to a theme, by the theme's own category name: "Colors" takes the words of
    * "Blacks" and "Whites", which Wiktionary files apart and WordNet's tree does not connect. */
   extraCategories?: Record<string, string[]>;
+  /** Categories that hold the vocabulary of a thing, not kinds of it ("Poker": river, flop, bluff). They anchor
+   * under a theme in WordNet, but their words are never rolled up into it ("Name a card game"). */
+  jargonCategories?: string[];
   /** Words a prompt never accepts, by base prompt id, or "*" for every prompt. For stray senses ("more" is a
    * vegetable only as an obsolete word for a root) and source errors (WordNet files "hyena" under canine).
    * Wiktionary tags a category on the whole page, not on a sense, so no rule can find these. */

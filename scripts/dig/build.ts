@@ -1,6 +1,7 @@
 // The dig pipeline (docs/rarity-game/pipeline-design.md). Local by default (FileSink in
 // .dig-out/); --publish writes to production Upstash and is refused outside GitHub Actions.
-//   npm run dig:build -- --data <dir> [--out .dig-out] [--publish] [--days 45] [--today YYYY-MM-DD]
+//   npm run dig:build -- --data <dir> [--out .dig-out] [--publish] [--days 45] [--today YYYY-MM-DD] [--catalogue <file>]
+// --catalogue tries out a draft catalogue locally; it is refused with --publish.
 // Public logs: counts only. Never print answers, fossils or future prompts.
 import { appendFileSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -146,7 +147,9 @@ async function main() {
   // rarely typed on purpose, many are misspellings of the very answers a near miss should offer, and
   // they pushed every day past MAX_DAY_CHARS.
   const guardLexicon = buildLexicon(new Map([...zipf].filter(([, z]) => z >= GUARD_MIN_ZIPF)), []);
-  const cat = loadCatalogue();
+  const draftCatalogue = flagValue(args, "--catalogue");
+  if (publish && draftCatalogue) throw new Error("day builds from a draft catalogue cannot be published");
+  const cat = loadCatalogue(draftCatalogue);
   const usable = (w: string) => usableWord(index, zipf, w);
   const curio = new Map(WORDS.map((w) => [w.word.toLowerCase(), { slug: w.slug, teaser: w.teaser }]));
   const curioLineage = new Map(WORDS.map((w) => [w.word.toLowerCase(), w.lineage]));

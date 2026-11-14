@@ -153,6 +153,7 @@ export function wordnetThemes(
     const a = anchorCategory(wn, name, words, cat.anchorOverrides, minAnchor);
     if (a) anchors.set(name, a);
   }
+  const jargon = new Set(cat.jargonCategories ?? []);
   const out: Candidate[] = [];
   const byAnchor = new Map<string, Candidate>();
   for (const [name, a] of anchors) {
@@ -162,7 +163,7 @@ export function wordnetThemes(
     // A broad anchor's subtree is the parent theme, not this one: keep the category's own words.
     if (a.via === "kind-of" && !a.broad) {
       const below = hyponymSynsets(wn, [a.id]);
-      for (const [other, a2] of anchors) if (a2.via === "kind-of" && below.has(a2.id)) index.categories.get(other)!.forEach((w) => wiktionary.add(w));
+      for (const [other, a2] of anchors) if (a2.via === "kind-of" && below.has(a2.id) && !jargon.has(other)) index.categories.get(other)!.forEach((w) => wiktionary.add(w));
     }
     // Sub-categories WordNet's tree does not connect ("Blacks" for Colors, "Cutlery" for Kitchenware) come from the catalogue.
     for (const extra of cat.extraCategories?.[name] ?? []) index.categories.get(extra)?.forEach((w) => wiktionary.add(w));

@@ -4,11 +4,11 @@ import { usableWord, type WiktionaryIndex } from "./wiktionary";
 import { etymologySentence, fold } from "./fossil";
 
 export const ORIGIN_CORE_CAP = 2000;
-/** A big language's core alone passes ACCEPTED_CAP, which used to cut every accepted-only word ("opera" and
- * "violin" for Italian). Up to this many everyday ones (Zipf ≥ ORIGIN_EVERYDAY_ZIPF) are kept past the cap.
- * A ceiling, because a day file has a size limit (MAX_DAY_CHARS). */
+/** A big language's core alone passes ACCEPTED_CAP, which used to cut every accepted-only word ("opera",
+ * "violin" and "ravioli" for Italian). Up to this many of the commonest ones (Zipf ≥ ORIGIN_EVERYDAY_ZIPF, so
+ * words people actually use) are kept past the cap. A ceiling, because a day file has a size limit (MAX_DAY_CHARS). */
 export const ORIGIN_EVERYDAY_EXTRA = 250;
-export const ORIGIN_EVERYDAY_ZIPF = 3;
+export const ORIGIN_EVERYDAY_ZIPF = 2;
 
 type LangSets = { core: Set<string>; accepted: Set<string>; sources: Set<string>[] };
 
@@ -37,7 +37,8 @@ export function originCandidates(
   // For accepted-only the language (or the dialect label that tagged the word) may be named anywhere in the
   // main etymology, not just first: "sugar" names French first and Arabic later. A homograph still fails:
   // the main etymology of "tell" never mentions Arabic, though its archaeology sense is tagged with it.
-  const lastWord = (label: string) => fold(label.split(" ").at(-1)!);
+  // "Hindustani languages" is named as "Hindustani"; "Mexican Spanish" passes on "Spanish".
+  const lastWord = (label: string) => fold(label.replace(/ languages$/, "").split(" ").at(-1)!);
   const mentions = (w: string, labels: string[]) => {
     const text = fold(index.info.get(w)?.etymology ?? "");
     return !text || labels.some((l) => text.includes(lastWord(l)));
@@ -59,7 +60,7 @@ export function originCandidates(
       const labelCode = cat.langCodes[label];
       const template = (labelCode && index.originTemplate.get(labelCode)) || none;
       sources.push(category, template);
-      for (const w of [...category, ...template]) if (usable(w) && mentions(w, [lang, label])) accepted.add(w);
+      for (const w of [...category, ...template]) if (usable(w) && mentions(w, labels)) accepted.add(w);
       if (label === lang) for (const w of category) if (template.has(w) && usable(w) && names(w, lang)) core.add(w);
     }
     sets.set(lang, { core, accepted, sources });
