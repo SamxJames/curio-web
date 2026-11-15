@@ -5,6 +5,9 @@
 //   npx tsx --max-old-space-size=8192 scripts/dig/audit/supply.ts --data <dig-data> [--catalogue <file>] [--pause id,id] [--days 180] [--seeds 5] [--runway]
 // --runway compares options for making the pool last longer (fossils repeating, more letter variants, commoner fossils).
 // --all-candidates counts fossil candidates that have no fact to show too (the best case).
+// --as-built draws the way the builder did before 2026-11-15 (every prompt off cooldown is offered, and a
+// drawn prompt with no fossil left wastes the salt); without it the draw skips such prompts, as build.ts does now.
+// --start <date> sets the first simulated day (default 2026-12-01).
 // A paused base prompt takes its letter variants with it. Prints counts and ids: keep the output out of public logs.
 import { readFileSync } from "node:fs";
 import path from "node:path";

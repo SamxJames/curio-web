@@ -1,6 +1,6 @@
 # Curio: Handover
 
-Last updated: 2026-11-12. Read this first; it's deliberately short. Open a file in `docs/handover/` only when the
+Last updated: 2026-11-15. Read this first; it's deliberately short. Open a file in `docs/handover/` only when the
 task touches that area. **Keep this file under ~200 lines:** current state, gotchas and pointers only. Put session
 detail in `docs/handover/history.md` and depth in the topic files.
 
@@ -30,10 +30,10 @@ every feature against it.
   Kept: worktree `worktree-search-watch` (8 UNMERGED commits: demand report Search Console trend, drop detection,
   URL-inspection index sample). Empty `.claude/worktrees/dig-guess-review` is locked by an open process: delete after
   closing the terminal. Old `stash@{0}` (task7-wip-check-preexisting, Sep) untouched.
-- **Dig pipeline workflow is INTERMITTENT.** Scheduled "Dig pipeline" failed 2026-11-09 and 2026-11-12: "Date
-  2026-12-22 salt 7: no usable fossil for prompt 1" (exit 1, ~15 min). The manual `workflow_dispatch` run on 11-12
-  passed on retry. Future date, so players are not affected (`/api/dig/today` serves dig #6). Watch the next scheduled
-  run; see `docs/handover/dig.md` for the pipeline.
+- **Dig pipeline "no usable fossil" failures: cause found, fix in a PR (2026-11-15, not merged).** The draw offered
+  prompts whose fossils were all used; each one wasted an attempt until a date failed. PRs #5/#6 delayed it, did not fix
+  it. Branch `fix/dig-fossil-aware-draw`: the draw skips spent prompts, and the run fails if a 30-day forecast finds a
+  day it cannot draw. Details and evidence: `docs/handover/dig.md`. Players were never affected (future dates only).
 - **Dig guess review deployed (master 543deee; labels d1c5a12; details in `docs/handover/dig.md` "Guess review").**
   Wrong guesses go out live as `miss` events (abandoned digs count); a blind AI reviewer of refused words runs in shadow
   mode (changes no answer list) with an admin table. **Reviewer is blocked on Anthropic credit:** the `ANTHROPIC_API_KEY`
@@ -154,8 +154,8 @@ every feature against it.
 - The demand report lives in a private repo and public Actions logs print counts only.
 
 ## Open threads
-- **Dig pipeline workflow:** intermittent "no usable fossil for prompt 1" (date 2026-12-22 salt 7); manual run passed on
-  retry. Find the cause before that date arrives.
+- **Dig pipeline:** merge the `fix/dig-fossil-aware-draw` PR, then watch the next scheduled run (Mon/Thu 04:00 UTC):
+  expect 0 dates failed and a `Forecast: 0 of the next 30 days cannot be drawn` line.
 - **Dig reviewer:** 14 of 14 Anthropic calls fail with HTTP 400 (key in place). Likely out of credit on the Anthropic
   account; confirm from the `400:credit` label once the other session's `scripts/dig/review.ts` edits are pushed.
 - **After the 12-18 GSC read and freeze end:** related-word links ("Down the rabbit hole") on story pages (pull, not push).
