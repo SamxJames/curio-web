@@ -25,7 +25,7 @@ import { letterVariants, unknownExtraCategories, wikidataThemeCandidates, wordne
 import { originCandidates } from "./origins";
 import { buildAliases, buildGuard, finishCandidate, floorProblems, fossilCandidates } from "./answers";
 import { yearlyViews } from "./pageviews";
-import { assignTiers, chooseFossil, toPlainPrompt, viewWordsFor } from "./fossil";
+import { assignTiers, chooseFossil, fossilFactFor, toPlainPrompt, viewWordsFor } from "./fossil";
 import { assignFamilies, daysBetween, fossilsResting, isFree, lastFossilUse, pickDay, type HistoryDay } from "./assemble";
 import { fossilTypoCollides, validateDay } from "./validate";
 import { adjudicate } from "./adjudicate";
@@ -304,7 +304,13 @@ async function main() {
   const furthest = Object.keys(manifest.days).sort().at(-1);
   const after = addDays(furthest ?? today, 1);
   // Spare = free to run the day after the newest built day: off cooldown, with a fossil that is not resting.
-  const free = (c: Candidate) => isFree(c, after, history, fossilCandidates(c, fctx));
+  // A fossil here is a candidate with a fact to show. Still a little generous: a candidate promoted to a
+  // Popular pick, or one a typo of which lands on another answer, is counted though the builder would skip it
+  // (the first needs page views, the second is too slow to check for every prompt).
+  const etymologyOf = (w: string) => index.info.get(w)?.etymology ?? "";
+  const usableFossils = (c: Candidate) => fossilCandidates(c, fctx)
+    .filter((w) => fossilFactFor(w, { curio, definitions, etymology: etymologyOf, mustMention: c.kind === "origin" ? c.languages : undefined }) !== null);
+  const free = (c: Candidate) => isFree(c, after, history, usableFossils(c));
   manifest.poolThemes = themes.filter(free).length;
   manifest.poolOrigins = origins.filter(free).length;
   manifest.lastRun = new Date().toISOString();

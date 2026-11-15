@@ -136,6 +136,18 @@ function clampFact(text: string): string {
   return `${(space > 0 ? head.slice(0, space) : head.slice(0, MAX_FACT - 1)).trimEnd()}…`;
 }
 
+/** The fossil a word would make, with the fact it would be shown with: a Curio story word's teaser, else a
+ * sourced fact (etymology, then definition) that, for an origin prompt, names one of its languages. Null when
+ * the word has no usable fact. chooseFossil picks with it, and the spare-pool count uses it so that a
+ * candidate with no fact is not counted as a fossil the prompt still has. */
+export function fossilFactFor(w: string, ctx: Pick<FossilCtx, "curio" | "definitions" | "etymology" | "mustMention">): DigFossil | null {
+  const story = ctx.curio.get(w);
+  if (story && story.teaser.trim() !== "") return { word: w, fact: clampFact(story.teaser), story: story.slug };
+  const fact = etymologyFact(ctx.etymology(w)) ?? (ctx.definitions.get(w) ? etymologyFact(ctx.definitions.get(w)!) : null);
+  if (fact && ctx.mustMention?.length && !ctx.mustMention.some((l) => fold(fact).includes(fold(l.split(" ").at(-1)!)))) return null;
+  return fact ? { word: w, fact } : null;
+}
+
 /** pipeline-design §7: a Curio story word if any candidate is one (its teaser is the fact),
  * else the most-viewed candidate that has a sourced fact. Ties go to the alphabetical first.
  * Fossils the prompt has never used come first; only when none of them works does a used one return,
@@ -145,19 +157,13 @@ export function chooseFossil(_c: Candidate, ctx: FossilCtx): DigFossil | null {
   const pool = ctx.candidates
     .filter((w) => !ctx.exclude.has(w) && ctx.tiers.get(w) === "rare" && !ctx.reject?.(w))
     .sort((a, b) => (ctx.views.get(b) ?? 0) - (ctx.views.get(a) ?? 0) || a.localeCompare(b));
-  const teaser = (w: string) => ctx.curio.get(w)?.teaser.trim() ?? "";
-  const sourced = (w: string): DigFossil | null => {
-    const fact = etymologyFact(ctx.etymology(w)) ?? (ctx.definitions.get(w) ? etymologyFact(ctx.definitions.get(w)!) : null);
-    if (fact && ctx.mustMention?.length && !ctx.mustMention.some((l) => fold(fact).includes(fold(l.split(" ").at(-1)!)))) return null;
-    return fact ? { word: w, fact } : null;
-  };
-  const storyFossil = (w: string): DigFossil => ({ word: w, fact: clampFact(ctx.curio.get(w)!.teaser), story: ctx.curio.get(w)!.slug });
+  const isStory = (w: string) => (ctx.curio.get(w)?.teaser.trim() ?? "") !== "";
   const fresh = pool.filter((w) => !ctx.lastUsed?.has(w));
-  const curioPick = fresh.find((w) => teaser(w) !== "");
-  if (curioPick) return storyFossil(curioPick);
-  for (const w of fresh) { const f = sourced(w); if (f) return f; }
+  const curioPick = fresh.find(isStory);
+  if (curioPick) return fossilFactFor(curioPick, ctx);
+  for (const w of fresh) { const f = fossilFactFor(w, ctx); if (f) return f; }
   const used = pool.filter((w) => ctx.lastUsed?.has(w)).sort((a, b) => ctx.lastUsed!.get(a)!.localeCompare(ctx.lastUsed!.get(b)!));
-  for (const w of used) { const f = teaser(w) !== "" ? storyFossil(w) : sourced(w); if (f) return f; }
+  for (const w of used) { const f = fossilFactFor(w, ctx); if (f) return f; }
   return null;
 }
 

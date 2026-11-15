@@ -4,6 +4,7 @@
 // the count of candidates is an upper bound on how often it can run.
 //   npx tsx --max-old-space-size=8192 scripts/dig/audit/supply.ts --data <dig-data> [--catalogue <file>] [--pause id,id] [--days 180] [--seeds 5] [--runway]
 // --runway compares options for making the pool last longer (fossils repeating, more letter variants, commoner fossils).
+// --all-candidates counts fossil candidates that have no fact to show too (the best case).
 // A paused base prompt takes its letter variants with it. Prints counts and ids: keep the output out of public logs.
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -18,6 +19,7 @@ import { loadCatalogue, rootId } from "../catalogue";
 import { letterVariants, wikidataThemeCandidates, wordnetThemes, type Candidate } from "../themes";
 import { originCandidates } from "../origins";
 import { finishCandidate, floorProblems, fossilCandidates } from "../answers";
+import { fossilFactFor } from "../fossil";
 import { assignFamilies, COOLDOWNS, isEligible, pickDay, type HistoryDay } from "../assemble";
 
 const flag = (args: string[], name: string) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : undefined; };
@@ -46,7 +48,14 @@ async function main() {
   const ok = (c: Candidate) => floorProblems(c, fctx).length === 0;
   const themes = [...base, ...letters].filter(ok);
   const origins = originCandidates(index, zipf, cat, new Map(WORDS.map((w) => [w.word.toLowerCase(), w.lineage]))).map(finish).filter(ok);
-  const fossils = new Map([...themes, ...origins].map((c) => [c.id, fossilCandidates(c, fctx).length]));
+  // A usable fossil has a fact to show, as in the pipeline's spare-pool count (build.ts). --all-candidates counts
+  // every candidate instead: the best case the first runway table in docs/dig-word-audit.md was measured with.
+  const curio = new Map(WORDS.map((w) => [w.word.toLowerCase(), { slug: w.slug, teaser: w.teaser }]));
+  const definitions = new Map<string, string>();
+  for (const [lemma, ids] of wn.synsetsOf) { const def = wn.synsets.get(ids[0])?.def; if (def) definitions.set(lemma, def); }
+  const everyCandidate = args.includes("--all-candidates");
+  const hasFact = (c: Candidate, w: string) => everyCandidate || fossilFactFor(w, { curio, definitions, etymology: (x) => index.info.get(x)?.etymology ?? "", mustMention: c.kind === "origin" ? c.languages : undefined }) !== null;
+  const fossils = new Map([...themes, ...origins].map((c) => [c.id, fossilCandidates(c, fctx).filter((w) => hasFact(c, w)).length]));
 
   /** repeatDays: how long a prompt's fossil rests before it may return. Left out, it is the pipeline's rule
    * (COOLDOWNS.fossilDays); null means never, the rule before 2026-11-15. */
@@ -92,7 +101,7 @@ async function main() {
     const info = index.info.get(w);
     if (!info || info.strictObsolete || info.strictOffensive) return false;
     if (firstSense && c.senseIds) { const first = wn.synsetsOf.get(w)?.[0]; if (!first || !c.senseIds.has(first)) return false; }
-    return true;
+    return hasFact(c, w);
   }).length;
   const counts = (pool: Candidate[], maxZipf = 2.3, firstSense = true) => new Map([...pool, ...origins].map((c) => [c.id, fossilCount(c, maxZipf, firstSense)]));
   /** Letter variants with a smaller core floor than today's 25 (the easy, rare and fossil floors stay). */

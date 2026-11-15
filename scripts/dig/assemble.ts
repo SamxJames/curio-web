@@ -34,7 +34,8 @@ export function fossilsResting(lastUsed: Map<string, string>, date: string, cd: 
   return new Set([...lastUsed].filter(([, used]) => Math.abs(daysBetween(used, date)) < cd.fossilDays).map(([w]) => w));
 }
 
-/** Free to run on `date`: off its cooldowns, and with at least one fossil candidate that is not resting.
+/** Free to run on `date`: off its cooldowns, and with at least one fossil that is not resting. The caller
+ * passes the fossils the prompt could really use (build.ts counts candidates that have a fact to show).
  * The spare-pool alarm counts these. Cooldowns alone used to count a prompt with no fossil left as spare. */
 export function isFree(c: Candidate, date: string, history: HistoryDay[], fossilCandidates: string[], cd: Cooldowns = COOLDOWNS): boolean {
   if (!isEligible(c, date, history, cd)) return false;
