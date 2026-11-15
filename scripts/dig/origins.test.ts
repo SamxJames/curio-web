@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { indexWiktionary } from "./wiktionary";
-import { ORIGIN_CORE_CAP, originCandidates } from "./origins";
+import { ORIGIN_CORE_CAP, ORIGIN_EVERYDAY_EXTRA, originCandidates } from "./origins";
+import { ACCEPTED_CAP } from "./themes";
 import type { Catalogue } from "./catalogue";
 import type { CompactEntry } from "./sources/compact";
 
@@ -44,6 +45,58 @@ describe("originCandidates", () => {
     const norse = originCandidates(idx, new Map(), cat, new Map()).find((c) => c.id === "origin:old-norse")!;
     expect(norse.core.sort()).toEqual(["ransack", "sky"]);
     expect(norse.accepted).not.toContain("and");
+  });
+
+  it("counts a word that came through another language: sugar is from Arabic, though it reached English through French", async () => {
+    const sugar = { ...e("sugar", "Arabic", null), et: "From Middle English sugre, from Middle French sucre, from Old French çucre, from Medieval Latin zuccarum, from Arabic sukkar." };
+    // "tell" (a mound, in archaeology) is tagged Arabic too, but its main etymology is the Old English verb's.
+    const tell = { ...e("tell", "Arabic", "ar"), et: "From Middle English tellen, from Old English tellan (“to count, tell”)." };
+    const idx = await indexWiktionary([e("algebra", "Arabic", "ar"), sugar, tell], new Set());
+    const arabic = originCandidates(idx, new Map(), cat, new Map()).find((c) => c.id === "origin:arabic")!;
+    expect(arabic.accepted).toContain("sugar");
+    expect(arabic.accepted).not.toContain("tell");
+    expect(arabic.core).toEqual(["algebra"]); // the shown list stays strict
+  });
+
+  it("counts dialect labels as their language: pizza (Neapolitan) is Italian, taco (Mexican Spanish) is Spanish, amen (Biblical Hebrew) is Hebrew", async () => {
+    const variants: Catalogue = {
+      ...cat, langCodes: { Italian: "it", Neapolitan: "nap", Spanish: "es", Hebrew: "he" },
+      originVariants: { Italian: ["Neapolitan"], Spanish: ["Mexican Spanish"], Hebrew: ["Biblical Hebrew"], Hindi: ["Hindustani languages"] },
+    };
+    variants.langCodes.Hindi = "hi";
+    const idx = await indexWiktionary(
+      [e("pasta", "Italian", "it"), { ...e("pizza", "Neapolitan", "nap"), et: "Borrowed from Neapolitan pizza." }, e("siesta", "Spanish", "es"), e("taco", "Mexican Spanish", null),
+       e("kosher", "Hebrew", "he"), e("amen", "Biblical Hebrew", null), e("jubilee", "the Biblical Hebrew root י־ב־ל", null), e("alcohol", "the Arabic root ك ح ل", null),
+       e("pukka", "Hindi", "hi"), { ...e("thug", "Hindi", null), et: "Borrowed from Hindustani ठग (ṭhag)." }, { ...e("yoga", "Hindi", null), et: "Borrowed from Sanskrit योग (yoga)." }],
+      new Set()
+    );
+    const out = originCandidates(idx, new Map(), variants, new Map());
+    const of = (id: string) => out.find((c) => c.id === id)!;
+    expect(of("origin:italian").accepted).toContain("pizza");
+    expect(of("origin:italian").core).toEqual(["pasta"]);
+    expect(of("origin:italian").sources.some((s) => s.has("pizza"))).toBe(true); // adjudication can use it
+    expect(of("origin:spanish").accepted).toContain("taco");
+    expect(of("origin:hebrew").accepted).toEqual(expect.arrayContaining(["amen", "jubilee"]));
+    expect(of("origin:hindi").accepted).toContain("thug"); // its etymology says "Hindustani", one of Hindi's labels
+    expect(of("origin:hindi").accepted).not.toContain("yoga"); // tagged Hindi, but its etymology names only Sanskrit
+    expect(out.some((c) => c.id === "origin:neapolitan")).toBe(false); // a variant never gets its own prompt
+    // A root category belongs to its language even with no variants listed.
+    const arabic = originCandidates(idx, new Map(), { ...cat, originVariants: {} }, new Map()).find((c) => c.id === "origin:arabic");
+    expect(arabic).toBeUndefined(); // no "Arabic" category in this index, so no prompt
+    const idx2 = await indexWiktionary([e("algebra", "Arabic", "ar"), e("alcohol", "the Arabic root ك ح ل", null)], new Set());
+    expect(originCandidates(idx2, new Map(), cat, new Map()).find((c) => c.id === "origin:arabic")!.accepted).toContain("alcohol");
+  });
+
+  it("keeps everyday words past the size cap for a big language: opera and violin are from Italian", async () => {
+    const letters = (i: number) => [i % 26, Math.floor(i / 26) % 26, Math.floor(i / 676)].map((n) => String.fromCharCode(97 + n)).join("");
+    const core = Array.from({ length: ACCEPTED_CAP + 50 }, (_, i) => e(`qu${letters(i)}`, "Arabic", "ar"));
+    const idx = await indexWiktionary([...core, e("opera", "Arabic", null), e("violin", "Arabic", null), e("zzyzx", "Arabic", null)], new Set());
+    const zipf = new Map([["opera", 4.3], ["violin", 3.7], ["zzyzx", 1.2]]); // ravioli (2.9) passes too; a 1.2 does not
+    const arabic = originCandidates(idx, zipf, cat, new Map()).find((c) => c.id === "origin:arabic")!;
+    expect(arabic.core).toHaveLength(ACCEPTED_CAP + 50);
+    expect(arabic.accepted).toEqual(expect.arrayContaining(["opera", "violin"]));
+    expect(arabic.accepted).not.toContain("zzyzx"); // rare words past the cap are still cut
+    expect(arabic.accepted.length).toBeLessThanOrEqual(ACCEPTED_CAP + 50 + ORIGIN_EVERYDAY_EXTRA);
   });
 
   it("keeps a big language (the spec counts Japanese at 1,576) and drops one too broad to play (more than ORIGIN_CORE_CAP)", async () => {

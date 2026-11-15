@@ -2,7 +2,7 @@ import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import { adjudicate, judge, JUDGE_PER_PROMPT } from "./adjudicate";
+import { adjudicate, explainJudge, judge, JUDGE_PER_PROMPT } from "./adjudicate";
 import { FileSink } from "./sink";
 import { decodeDay, encodeDay } from "../../lib/dig/payload";
 import type { DigDayPlain } from "../../lib/dig/types";
@@ -23,6 +23,11 @@ describe("judge", () => {
     expect(judge("banana", theme, ctx)).toBeNull();
     expect(judge("cleat", theme, ctx)).toBeNull();
     expect(judge("zzzz", theme, ctx)).toBeNull();
+  });
+  it("never votes an excluded word back in: hyena stays out of canids however often it is guessed", () => {
+    const t = { ...theme, excluded: new Set(["jib"]) };
+    expect(judge("jib", t, ctx)).toBeNull();
+    expect(explainJudge("Jib", t, ctx).reason).toBe("unusable");
   });
   it("rejects a phrase containing a blocked word", () => {
     const t = { ...theme, sources: [new Set(["jib sheet"])] };

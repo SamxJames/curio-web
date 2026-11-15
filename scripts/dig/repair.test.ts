@@ -18,7 +18,7 @@ const prompt = (over: Partial<DigPromptPlain> = {}): DigPromptPlain => ({
 const cand = (over: Partial<Candidate> = {}): Candidate => ({
   id: "theme:vegetables", base: "theme:vegetables", kind: "theme", text: "Name a vegetable",
   core: ["rutabaga", "tomato", "kale", "potato"], accepted: ["rutabaga", "tomato", "kale", "potato", "carrot"],
-  sources: [], anchor: "x", senseIds: null, ancestors: new Set(), languages: [], homographs: new Set(["more", "chat"]),
+  sources: [], anchor: "x", senseIds: null, ancestors: new Set(), languages: [], excluded: new Set(["more", "chat"]),
   ...over,
 });
 const zipf = new Map([["potato", 4.1], ["carrot", 3.6]]);
@@ -27,7 +27,7 @@ const matches = (p: DigPromptPlain, w: string) => checkGuess(buildLookup(p), w).
 
 describe("repairPrompt", () => {
   it("adds accepted words the day is missing, tiered by frequency, as accepted-only", () => {
-    const r = repairPrompt(prompt(), cand(), { ...ctx, removeHomographs: false });
+    const r = repairPrompt(prompt(), cand(), { ...ctx, unplayed: false });
     expect(r.added).toEqual(["potato", "carrot"]);
     expect(r.prompt.answers).toContainEqual(["potato", "common", 0]);
     expect(r.prompt.answers).toContainEqual(["carrot", "familiar", 0]);
@@ -37,7 +37,7 @@ describe("repairPrompt", () => {
   });
 
   it("removes stray-sense words only when asked (unplayed days), keeping aliases and stories pointing right", () => {
-    const r = repairPrompt(prompt(), cand(), { ...ctx, removeHomographs: true });
+    const r = repairPrompt(prompt(), cand(), { ...ctx, unplayed: true });
     expect(r.removed).toEqual(["more", "chat"]);
     expect(matches(r.prompt, "more")).toBe(false);
     expect(matches(r.prompt, "chats")).toBe(false);
@@ -49,20 +49,43 @@ describe("repairPrompt", () => {
     expect(at("tomatoes")).toBe("tomato");
   });
 
-  it("never removes a core answer or the fossil, even if listed as a stray sense", () => {
-    const r = repairPrompt(prompt(), cand({ homographs: new Set(["kale", "rutabaga"]) }), { ...ctx, removeHomographs: true });
-    expect(r.removed).toEqual([]);
+  it("removes an excluded word even from the shown list (hyena as a canid), but never the fossil", () => {
+    // A finished candidate never lists an excluded word as an answer.
+    const c = cand({ core: ["rutabaga", "tomato"], accepted: ["rutabaga", "tomato"], excluded: new Set(["kale", "rutabaga"]) });
+    const r = repairPrompt(prompt(), c, { ...ctx, unplayed: true });
+    expect(r.removed).toEqual(["kale"]);
+    expect(matches(r.prompt, "kale")).toBe(false);
+    expect(matches(r.prompt, "rutabaga")).toBe(true);
+    expect(r.prompt.fossil.word).toBe("rutabaga");
+  });
+
+  it("hides a rude word on an unplayed day: still accepted, no longer shown, never the fossil", () => {
+    const c = cand({ excluded: new Set(), hidden: new Set(["tomato", "rutabaga", "more"]) });
+    const r = repairPrompt(prompt(), c, { ...ctx, unplayed: true });
+    expect(r.hidden).toEqual(["tomato"]); // "more" was never shown; the fossil stays
+    expect(r.prompt.answers).toContainEqual(["tomato", "familiar", 0]);
+    expect(r.prompt.answers).toContainEqual(["rutabaga", "fossil", 1]);
+    expect(matches(r.prompt, "tomatoes")).toBe(true);
+    // A played day keeps what its players saw.
+    expect(repairPrompt(prompt(), c, { ...ctx, unplayed: false }).hidden).toEqual([]);
+  });
+
+  it("puts back what the old stray-sense filter took out: tulip, sad and juice return on every day but today", () => {
+    const r = repairPrompt(prompt(), cand({ accepted: ["rutabaga", "tomato", "kale", "tulip"], excluded: new Set() }), { ...ctx, unplayed: true });
+    expect(r.added).toEqual(["tulip"]);
+    expect(matches(r.prompt, "tulips")).toBe(true);
+    expect(matches(r.prompt, "more")).toBe(true); // no longer listed as a stray: left alone
   });
 
   it("skips a word that a typo of the fossil would land on (the validator's rule)", () => {
     // "rutabags", one typo from the fossil, would read as the plural of "rutabag".
-    const r = repairPrompt(prompt(), cand({ accepted: ["rutabaga", "rutabag", "potato"] }), { ...ctx, removeHomographs: false });
+    const r = repairPrompt(prompt(), cand({ accepted: ["rutabaga", "rutabag", "potato"] }), { ...ctx, unplayed: false });
     expect(r.added).toEqual(["potato"]);
   });
 
   it("changes nothing when the day already has every accepted word and no stray senses", () => {
     const p = prompt({ answers: [["rutabaga", "fossil", 1], ["tomato", "familiar", 1]], aliases: {}, stories: {} });
-    const r = repairPrompt(p, cand({ accepted: ["rutabaga", "tomato"] }), { ...ctx, removeHomographs: true });
+    const r = repairPrompt(p, cand({ accepted: ["rutabaga", "tomato"] }), { ...ctx, unplayed: true });
     expect(r.added).toEqual([]);
     expect(r.removed).toEqual([]);
   });
@@ -80,7 +103,7 @@ describe("repairDays", () => {
   it("adds to past and future days, removes stray senses only from future days, and leaves today alone", async () => {
     const sink = await setup(["2026-11-06", "2026-11-07", "2026-11-08"]);
     const r = await repairDays(sink, new Map([["theme:vegetables", cand()]]), { ...ctx, today: "2026-11-07" });
-    expect(r).toEqual({ amendedDays: 2, added: 4, removed: 2, skippedOversize: 0 });
+    expect(r).toEqual({ amendedDays: 2, added: 4, removed: 2, hidden: 0, skippedOversize: 0 });
     const read = async (d: string) => decodeDay((await sink.readDay(d))!).prompts[0];
     expect(matches(await read("2026-11-06"), "potato")).toBe(true);
     expect(matches(await read("2026-11-06"), "more")).toBe(true); // played day: nothing taken away
@@ -93,14 +116,14 @@ describe("repairDays", () => {
     const sink = await setup(["2026-11-08"]);
     const cands = new Map([["theme:vegetables", cand()]]);
     await repairDays(sink, cands, { ...ctx, today: "2026-11-07" });
-    expect(await repairDays(sink, cands, { ...ctx, today: "2026-11-07" })).toEqual({ amendedDays: 0, added: 0, removed: 0, skippedOversize: 0 });
+    expect(await repairDays(sink, cands, { ...ctx, today: "2026-11-07" })).toEqual({ amendedDays: 0, added: 0, removed: 0, hidden: 0, skippedOversize: 0 });
   });
 
   it("drops the rarest additions first when a day would go over the size cap", async () => {
     const sink = await setup(["2026-11-08"]);
-    const noStray = cand({ homographs: new Set() });
+    const noStray = cand({ excluded: new Set() });
     // The cap fits the day with potato added, but not with carrot too.
-    const withPotato = { ...day("2026-11-08"), prompts: [repairPrompt(prompt(), cand({ accepted: ["potato"], homographs: new Set() }), { ...ctx, removeHomographs: false }).prompt] };
+    const withPotato = { ...day("2026-11-08"), prompts: [repairPrompt(prompt(), cand({ accepted: ["potato"], excluded: new Set() }), { ...ctx, unplayed: false }).prompt] };
     const cap = JSON.stringify(encodeDay(withPotato)).length + 2;
     const r = await repairDays(sink, new Map([["theme:vegetables", noStray]]), { ...ctx, today: "2026-11-07", maxDayChars: cap });
     expect(r.skippedOversize).toBeGreaterThan(0);
