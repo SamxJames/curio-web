@@ -58,8 +58,9 @@ vi.mock("@atproto/api", async (importOriginal) => ({
 // this whole file regardless of where it's written, so one import already
 // sees the mocked @atproto/api; a second, earlier-looking import of the
 // same module wouldn't get an unmocked version, it would just be redundant.
-const { buildBlueskyPost, buildStoryCard, graphemeLength, CARD_DESCRIPTION, postDailyWordToBluesky } =
+const { buildBlueskyPost, buildStoryCard, graphemeLength, CARD_DESCRIPTION, postDailyWordToBluesky, postRevealToBluesky } =
   await import("./bluesky");
+const { SAMPLE_REVEAL, buildBlueskyReveal, buildRevealCard } = await import("./dig/revealText");
 
 const ORIGINAL_ENV = { ...process.env };
 
@@ -310,5 +311,108 @@ describe("postDailyWordToBluesky", () => {
     const external = mockPost.mock.calls[0][0].embed.external;
     expect(external.uri).toBe(URL);
     expect(external).not.toHaveProperty("thumb");
+  });
+});
+
+describe("postRevealToBluesky", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.BLUESKY_IDENTIFIER = "curiodaily.bsky.social";
+    process.env.BLUESKY_APP_PASSWORD = "app-password";
+    process.env.CURIO_SITE_URL = "https://example.com";
+    mockLogin.mockResolvedValue(undefined);
+    mockPost.mockResolvedValue(undefined);
+    const png = new Uint8Array([137, 80, 78, 71]);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(png, { status: 200, headers: { "content-type": "image/png" } }))
+    );
+    mockUploadBlob.mockResolvedValue({ data: { blob: { ref: "bafy-thumb" } } });
+  });
+
+  afterEach(() => {
+    process.env = { ...ORIGINAL_ENV };
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+
+  it("posts the reveal text with a link card for the answers page, its preview image as the thumbnail", async () => {
+    const result = await postRevealToBluesky(SAMPLE_REVEAL, new Date("2026-11-14T10:00:00Z"));
+    expect(result).toEqual({ posted: true, thumb: true });
+    expect(mockLogin).toHaveBeenCalledWith({ identifier: "curiodaily.bsky.social", password: "app-password" });
+    expect(mockDetectFacets).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+      "https://example.com/dig/2026-11-13/opengraph-image",
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    );
+
+    const record = mockPost.mock.calls[0][0];
+    expect(record.text).toBe(buildBlueskyReveal(SAMPLE_REVEAL));
+    expect(record.createdAt).toBe("2026-11-14T10:00:00.000Z");
+    const card = buildRevealCard(SAMPLE_REVEAL);
+    expect(record.embed).toEqual({
+      $type: "app.bsky.embed.external",
+      external: { uri: card.uri, title: card.title, description: card.description, thumb: { ref: "bafy-thumb" } },
+    });
+    expect(card.uri).toContain("/dig/2026-11-13?utm_source=bluesky&utm_medium=social&utm_campaign=dig-reveal");
+  });
+
+  it("is a valid post record", async () => {
+    await postRevealToBluesky(SAMPLE_REVEAL);
+    const record = mockPost.mock.calls[0][0];
+    const { external } = record.embed;
+    expect(
+      AppBskyFeedPost.validateRecord({
+        $type: "app.bsky.feed.post",
+        text: record.text,
+        createdAt: record.createdAt,
+        embed: {
+          $type: "app.bsky.embed.external",
+          external: { uri: external.uri, title: external.title, description: external.description },
+        },
+      }).success
+    ).toBe(true);
+  });
+
+  it("still posts the card, without a thumbnail, when the image cannot be fetched", async () => {
+    vi.mocked(fetch).mockRejectedValueOnce(new Error("timeout"));
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    expect(await postRevealToBluesky(SAMPLE_REVEAL)).toEqual({ posted: true, thumb: false });
+    warn.mockRestore();
+    expect(mockPost.mock.calls[0][0].embed.external).not.toHaveProperty("thumb");
+  });
+
+  it("logs and reports not posted when unconfigured, without logging in", async () => {
+    delete process.env.BLUESKY_IDENTIFIER;
+    delete process.env.BLUESKY_APP_PASSWORD;
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    expect(await postRevealToBluesky(SAMPLE_REVEAL)).toEqual({ posted: false, thumb: false });
+    expect(log.mock.calls.flat().join(" ")).toContain("[curio:bluesky:reveal:dev-fallback]");
+    log.mockRestore();
+    expect(mockLogin).not.toHaveBeenCalled();
+    expect(mockPost).not.toHaveBeenCalled();
+  });
+
+  it("refuses to post in production when CURIO_SITE_URL is not set", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.stubEnv("VERCEL_ENV", "production");
+    delete process.env.CURIO_SITE_URL;
+    expect(await postRevealToBluesky(SAMPLE_REVEAL)).toEqual({ posted: false, thumb: false });
+    expect(mockLogin).not.toHaveBeenCalled();
+    expect(mockPost).not.toHaveBeenCalled();
+    expect(consoleError).toHaveBeenCalledWith(expect.stringContaining("CURIO_SITE_URL is not set in production"));
+    consoleError.mockRestore();
+  });
+
+  it("never throws on a login or post failure, and logs only the error name", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockLogin.mockRejectedValueOnce(new TypeError("invalid credentials app-password"));
+    expect(await postRevealToBluesky(SAMPLE_REVEAL)).toEqual({ posted: false, thumb: false });
+    mockPost.mockRejectedValueOnce(new RangeError("rate limited app-password"));
+    expect(await postRevealToBluesky(SAMPLE_REVEAL)).toEqual({ posted: false, thumb: false });
+    expect(consoleError).toHaveBeenCalledWith("[curio:bluesky:reveal] post failed:", "TypeError");
+    expect(consoleError).toHaveBeenCalledWith("[curio:bluesky:reveal] post failed:", "RangeError");
+    expect(JSON.stringify(consoleError.mock.calls)).not.toContain("app-password");
+    consoleError.mockRestore();
   });
 });

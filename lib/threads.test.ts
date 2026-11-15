@@ -2,7 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { WORDS, type WordEntry } from "./words";
 
 vi.mock("./metaTokens", () => ({ getMetaToken: vi.fn(async () => "tok-123") }));
-const { postDailyWordToThreads } = await import("./threads");
+const { postDailyWordToThreads, postRevealToThreads } = await import("./threads");
+const { SAMPLE_REVEAL, buildThreadsReveal } = await import("./dig/revealText");
 const { getMetaToken } = await import("./metaTokens");
 
 const word = WORDS.find((w) => w.slug === "ketchup") as WordEntry;
@@ -170,5 +171,51 @@ describe("postDailyWordToThreads", () => {
     expect(logged).toContain("[curio:threads] post failed");
     expect(logged).not.toContain("tok-123");
     expect(log.mock.calls.flat().join(" ")).not.toContain("[curio:threads] posted");
+  });
+});
+
+describe("postRevealToThreads", () => {
+  it("posts the reveal text through the same create, wait, publish flow, with no link_attachment", async () => {
+    expect(await postRevealToThreads(SAMPLE_REVEAL, { sleep: noSleep })).toEqual({ posted: true });
+    const [createUrl, createInit] = vi.mocked(fetch).mock.calls[0];
+    expect(createUrl).toBe("https://graph.threads.net/v1.0/u1/threads");
+    const body = new URLSearchParams(String(createInit?.body));
+    expect(body.get("media_type")).toBe("TEXT");
+    expect(body.get("text")).toBe(buildThreadsReveal(SAMPLE_REVEAL));
+    expect(body.get("text")).toContain("utm_source=threads&utm_medium=social&utm_campaign=dig-reveal");
+    expect(body.has("link_attachment")).toBe(false);
+    expect(String(vi.mocked(fetch).mock.calls[1][0])).toContain("/v1.0/c1?fields=status");
+    expect(String(vi.mocked(fetch).mock.calls[2][0])).toBe("https://graph.threads.net/v1.0/u1/threads_publish");
+  });
+
+  it("logs a status line only, never the post text", async () => {
+    await postRevealToThreads(SAMPLE_REVEAL, { sleep: noSleep });
+    const logged = log.mock.calls.flat().map(String).join(" ");
+    expect(logged).toContain("[curio:threads:reveal] posted");
+    expect(logged).not.toContain(SAMPLE_REVEAL.fossilWord);
+  });
+
+  it("logs instead of posting when there is no token", async () => {
+    vi.mocked(getMetaToken).mockResolvedValueOnce(null);
+    expect(await postRevealToThreads(SAMPLE_REVEAL, { sleep: noSleep })).toEqual({ posted: false });
+    expect(log.mock.calls.flat().join(" ")).toContain("[curio:threads:reveal:dev-fallback]");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("refuses to post a localhost link", async () => {
+    vi.stubEnv("CURIO_SITE_URL", "");
+    const errors = captureErrors();
+    expect(await postRevealToThreads(SAMPLE_REVEAL, { sleep: noSleep })).toEqual({ posted: false });
+    expect(errors()).toContain("[curio:threads:reveal] CURIO_SITE_URL points to localhost — not posting");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("never throws, and logs without the token, when Meta rejects the create call", async () => {
+    vi.mocked(fetch).mockReset().mockResolvedValueOnce(json({ error: { message: "bad tok-123" } }, 400));
+    const errors = captureErrors();
+    expect(await postRevealToThreads(SAMPLE_REVEAL, { sleep: noSleep })).toEqual({ posted: false });
+    const logged = errors();
+    expect(logged).toContain("[curio:threads:reveal] post failed");
+    expect(logged).not.toContain("tok-123");
   });
 });
