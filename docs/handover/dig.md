@@ -211,4 +211,4 @@ Branch `fix/dig-fossil-aware-draw`, opened as a PR. **Not merged, not deployed.*
 
 **What could still go wrong.** The pool is thin, not empty: with the fix the simulated free pool is 29 themes on a typical day and 8 at its lowest, and the alarm fires under 8. If the alarm or the forecast fires, the answer is more prompts or more fossil candidates (`docs/dig-word-audit.md`, "Supply runway"). The forecast uses throwaway seeds, not the secret one, so it predicts supply, not the actual days.
 
-**Proof that built days do not change:** see the PR description (before/after hashes of the same output folder under master and under the fix).
+**Proof that built days do not change (run 2026-11-15):** master built 11-15 to 11-17 locally; that folder was then extended to 11-20 by master and, separately, by the fix. All three built days, including the run day, kept the same sha256, and the three new days were byte-identical under both. Hashes are in PR #7. Limit: a 3-day history has no spent prompt and nothing to repair. CI on the PR is green (3 checks).
