@@ -117,6 +117,16 @@ describe("finishCandidate (audit fixes: hand-picked, excluded, hidden and junk w
     expect(c.excluded).toEqual(new Set(["hyena", "fox"]));
   });
 
+  it("lets an exclusion beat a word players already voted in: hyena stays out even if adjudication stored it", async () => {
+    const c = finishCandidate(canids(), { ...(await ctx({ excludeAnswers: { "theme:canids": ["hyena"] } })), extras: { "theme:canids": ["hyena", "dingo"] } });
+    expect(c.accepted).not.toContain("hyena");
+    expect(c.core).not.toContain("hyena");
+    expect(c.accepted).toContain("dingo");
+    expect(c.excluded?.has("hyena")).toBe(true);
+    // And a second pass (the build finishes candidates again after adjudication) keeps it out.
+    expect(finishCandidate(c, { ...(await ctx({ excludeAnswers: { "theme:canids": ["hyena"] } })), extras: { "theme:canids": ["hyena"] } }).accepted).not.toContain("hyena");
+  });
+
   it("keeps exclusions per prompt: hyena stays a mammal, and a letter variant uses its theme's list", async () => {
     const lists = { excludeAnswers: { "theme:canids": ["hyena"] } };
     const mammals = finishCandidate(canids({ id: "theme:mammals", base: "theme:mammals" }), await ctx(lists));

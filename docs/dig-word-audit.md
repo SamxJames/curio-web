@@ -153,7 +153,7 @@ Sam approved fixes 1, 2 and 4, plus the rude words on shown lists and the junk a
 | `hiddenAnswers` | Accepted, never shown, never the fossil (minge, nazi, dyke) | 20 words |
 | `fillerWords` | Never an accepted-only answer (to, in, on) | 74 words |
 | `jargonCategories` | Vocabulary lists that are not kinds of the thing (Poker for card games) | 12 categories |
-| `originVariants` | Dialects that count as the language (Neapolitan for Italian) | 12 languages |
+| `originVariants` | Dialects that count as the language (Neapolitan for Italian) | 11 languages |
 
 ### Before and after
 

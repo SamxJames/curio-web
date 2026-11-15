@@ -144,7 +144,6 @@
     "Old Irish": "sga",
     "Middle Irish": "mga",
     "Indonesian": "id",
-    "Okinawan": "ryu",
     "Gujarati": "gu",
     "Punjabi": "pa",
     "Telugu": "te",
@@ -232,8 +231,7 @@
     "Persian": ["Classical Persian", "Iranian Persian", "Middle Persian", "Old Persian"],
     "Portuguese": ["Brazilian Portuguese", "Old Galician-Portuguese"],
     "Irish": ["Old Irish", "Middle Irish"],
-    "Malay": ["Indonesian"],
-    "Japanese": ["Okinawan"]
+    "Malay": ["Indonesian"]
   },
   "fillerWords": ["a", "an", "the", "and", "or", "but", "if", "as", "of", "to", "in", "on", "at", "by", "for", "with", "from", "into", "about", "after", "before", "than", "then", "though", "he", "she", "it", "we", "you", "they", "my", "his", "her", "our", "their", "this", "that", "these", "those", "what", "who", "which", "how", "is", "am", "are", "was", "were", "be", "been", "not", "no", "only", "once", "ever", "more", "most", "like", "will", "can", "up", "out", "off", "above", "below", "behind", "inside", "outside", "near", "have", "has", "had", "get", "got"],
   "jargonCategories": ["Poker", "Cribbage", "Mahjong", "Bowling", "Table tennis", "Dominoes", "Data structures", "Diapers", "Cryptocurrency", "Silver", "Road transport", "Oranges"],

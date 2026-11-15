@@ -41,18 +41,21 @@ export type FinishCtx = {
 
 /** The one place a candidate's lists are completed. Every candidate passes through here, in the build and in the
  * audit: adjudication extras and hand-picked answers go in; the catalogue's excluded words come out of
- * everything and its filler words ("to", "in", "on") out of the accepted-only list; hidden words leave the shown (core) list but stay accepted; then the
+ * everything (extras included) and its filler words ("to", "in", "on") out of the accepted-only list; hidden words leave the shown (core) list but stay accepted; then the
  * blocklist, and one spelling per key. Safe to run twice on the same candidate. */
 export function finishCandidate(c: Candidate, ctx: FinishCtx): Candidate {
   const picked = [...(ctx.extras?.[c.id] ?? []), ...curatedAnswers(ctx.cat, { id: c.id, base: rootId(c) })];
   const keep = new Set(picked.map(normalizeKey));
   const core = new Set(c.core);
-  // A second pass keeps what the first one took out (its filler words are no longer in `accepted` to be found again).
-  const excluded = new Set([...(c.excluded ?? []), ...listFor(ctx.cat.excludeAnswers, c).map(normalizeKey)]);
-  for (const k of keep) excluded.delete(k);
   const accepted = [...new Set([...c.accepted, ...picked])];
+  // Filler is only a default: a filler word stays if both sources agree on it (core), or it was hand-picked or
+  // voted in. A second pass keeps what the first took out (those words are no longer in `accepted` to be found).
+  const excluded = new Set(c.excluded ?? []);
+  for (const k of keep) excluded.delete(k);
   const filler = new Set((ctx.cat.fillerWords ?? []).map(normalizeKey));
   for (const w of accepted) if (!core.has(w) && !keep.has(normalizeKey(w)) && filler.has(normalizeKey(w))) excluded.add(normalizeKey(w));
+  // The catalogue's exclusions are final: they beat adjudication extras stored before the word was excluded.
+  for (const w of listFor(ctx.cat.excludeAnswers, c)) excluded.add(normalizeKey(w));
   const hidden = new Set(listFor(ctx.cat.hiddenAnswers, c).map(normalizeKey));
   const allowed = (w: string) => !excluded.has(normalizeKey(w));
   const finished: Candidate = {
