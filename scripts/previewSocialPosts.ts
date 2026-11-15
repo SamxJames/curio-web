@@ -2,7 +2,7 @@
 // over the next N days, so the owner can read them before they go out.
 // Read-only: no network, no Redis, no tokens, no posting.
 // Usage: npm run social:preview -- [days=7] [from=YYYY-MM-DD]
-import { buildSocialPreview } from "../lib/socialPreview";
+import { buildSocialPreview, buildThreadsRevealPreview } from "../lib/socialPreview";
 
 const days = Number(process.argv[2] ?? 7);
 const from = process.argv[3] ? new Date(`${process.argv[3]}T00:00:00Z`) : new Date();
@@ -24,6 +24,10 @@ for (const row of buildSocialPreview(from, days)) {
   });
   console.log("");
 }
+const reveal = buildThreadsRevealPreview();
+console.log(`── Dig reveal post (sample day; posts only when DIG_REVEAL_POSTS=on) · ${reveal.bytes}/500 bytes`);
+console.log(`[threads] ${reveal.text}`);
+console.log("");
 console.log(
   "Words come from the calendar formula. A day's word locks the first time it's shown, so these are what will post unless WORDS or LAUNCH_OPENERS change before then."
 );

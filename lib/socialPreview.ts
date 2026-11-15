@@ -8,6 +8,7 @@ import {
   socialStoryUrl,
   type Slide,
 } from "./socialPost";
+import { SAMPLE_REVEAL, buildThreadsReveal, type DigReveal } from "./dig/revealText";
 
 // Imports only the pure builders: lib/threads.ts, instagram.ts and
 // metaGraph.ts pull in tokens and Redis, and the preview must stay offline
@@ -43,4 +44,12 @@ export function buildSocialPreview(from: Date, days: number): SocialPreviewRow[]
       })),
     };
   });
+}
+
+/** The dig reveal post as Threads will send it, for the owner to read before
+ * DIG_REVEAL_POSTS is turned on. Offline: with no real day to look back on it
+ * uses the sample reveal. */
+export function buildThreadsRevealPreview(reveal: DigReveal = SAMPLE_REVEAL): { text: string; bytes: number } {
+  const text = buildThreadsReveal(reveal);
+  return { text, bytes: Buffer.byteLength(text, "utf8") };
 }
