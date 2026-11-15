@@ -87,6 +87,21 @@ describe("chooseFossil", () => {
     const pick = chooseFossil(c, { ...base, curio: new Map(), etymology, mustMention: ["Maori", "Tahitian"] });
     expect(pick).toEqual({ word: "halyard", fact: "From Māori hāriata" });
   });
+  it("prefers a fossil this prompt has never used, even over a more-viewed or Curio one it has", () => {
+    const etymology = (w: string) => (w === "bowsprit" ? "From Middle Low German bōchsprēt." : w === "halyard" ? "From Middle English halier." : "");
+    const lastUsed = new Map([["bowsprit", "2026-03-01"]]);
+    expect(chooseFossil(c, { ...base, curio: new Map(), etymology, lastUsed })?.word).toBe("halyard");
+    const curio = new Map([["gunwale", { slug: "gunwale", teaser: "Once the plank that held the guns." }]]);
+    expect(chooseFossil(c, { ...base, curio, etymology, lastUsed: new Map([["gunwale", "2026-03-01"]]) })?.word).toBe("bowsprit");
+  });
+  it("when every fossil has been used, brings back the one used longest ago", () => {
+    const etymology = (w: string) => (w === "bowsprit" ? "From Middle Low German bōchsprēt." : w === "halyard" ? "From Middle English halier." : "");
+    const lastUsed = new Map([["bowsprit", "2026-05-01"], ["halyard", "2026-03-01"], ["gunwale", "2026-01-01"]]);
+    // gunwale is oldest but has no fact here, so halyard, the next oldest, returns.
+    expect(chooseFossil(c, { ...base, curio: new Map(), etymology, lastUsed })?.word).toBe("halyard");
+    const curio = new Map([["gunwale", { slug: "gunwale", teaser: "Once the plank that held the guns." }]]);
+    expect(chooseFossil(c, { ...base, curio, etymology, lastUsed })).toEqual({ word: "gunwale", fact: "Once the plank that held the guns.", story: "gunwale" });
+  });
   it("skips words the build rejects (a typo would land on another answer)", () => {
     const etymology = (w: string) => (w === "bowsprit" ? "From Middle Low German bōchsprēt." : w === "halyard" ? "From Middle English halier." : "");
     expect(chooseFossil(c, { ...base, curio: new Map(), etymology, reject: (w) => w === "bowsprit" })?.word).toBe("halyard");

@@ -103,6 +103,14 @@ describe("validateDay", () => {
     expect(at("2026-11-22")).toContain("theme:a: repeats within 14 days");
     expect(at("2026-11-21")).toEqual([]);
   });
+  it("lets a prompt reuse a fossil after 122 days, and not before", () => {
+    const fossil = good().prompts[0].fossil.word;
+    const at = (date: string) => validateDay(good(), { ...ctx, history: [{ date, prompts: [{ id: "theme:a", base: "theme:a", fossil }] }] });
+    expect(at("2026-08-06")).toContain("theme:a: repeats a fossil within 122 days"); // 121 days before
+    expect(at("2026-08-05")).toEqual([]); // 122 days before
+    // Another prompt's fossil of the same name is no clash.
+    expect(validateDay(good(), { ...ctx, history: [{ date: "2026-11-01", prompts: [{ id: "theme:z", base: "theme:z", fossil }] }] })).toEqual([]);
+  });
   it("blocks an origin language for 4 days", () => {
     const d = good();
     const today = d.prompts.map((p) => ({ id: p.id, base: p.id, fossil: p.fossil.word, ...(p.id === "origin:x" ? { languages: ["Arabic"] } : {}) }));

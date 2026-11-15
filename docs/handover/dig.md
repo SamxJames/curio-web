@@ -16,8 +16,10 @@ There is less content than the spec expected. The Phase 6 re-measure found about
 - Themes need 30 answers and 5 easy ones.
 - Origins need 5 easy ones.
 - An exact theme prompt can return after 14 days, a theme family after 5, an origin language after 4. Origins have no exact-prompt rule: an origin can return as soon as its languages are out of their 4-day window.
+- A prompt can reuse a fossil 122 days after it last used it (Sam, 2026-11-15). It always prefers a fossil it has never used; when none is left, the one used longest ago returns. Before this, fossils never repeated, and the pool would have run dry about four and a half months after launch (`docs/dig-word-audit.md`, "Supply runway").
+- The pipeline run fails when fewer than 8 theme prompts or 6 origin prompts are free the day after the newest built day. Free means off cooldown with a fossil that is not resting. 8 is the 5 themes a day needs plus 3 to spare; in three simulated years under the 122-day rule the free pool never fell below 9. (It was 20, counted on cooldowns alone.)
 
-The numbers live in one place each: `floorFor` in `scripts/dig/answers.ts` and `COOLDOWNS` in `scripts/dig/assemble.ts`. To grow supply, add `anchorOverrides` or `wikidataThemes` in `content/dig/catalogue.json`. A supply simulation is now in the repo: `scripts/dig/audit/supply.ts` (see "Word lists" below).
+The numbers live in one place each: `floorFor` in `scripts/dig/answers.ts`, `COOLDOWNS` in `scripts/dig/assemble.ts` (including `fossilDays`) and `MIN_POOL_THEMES` in `scripts/dig/build.ts`. To grow supply, add `anchorOverrides` or `wikidataThemes` in `content/dig/catalogue.json`. A supply simulation is now in the repo: `scripts/dig/audit/supply.ts` (see "Word lists" below).
 
 A local dry run on 2026-10-25 (`npm run dig:build -- --data <data dir> --out .dig-out --days 45`, which writes files and never touches Redis) built all 45 days with none failing. It left 35 themes and 15 origins spare and used 129 different prompts. A cold run spends about 10 minutes loading data, then takes about a minute per day once the pageview cache is warm. The cache is kept between Actions runs.
 
@@ -41,7 +43,7 @@ There is no stray-sense filter any more (it refused "tulip" and "sad"): strays a
 
 When a player reports a refused or wrong word, the fix is usually one line in the catalogue. `scripts/dig/catalogue.test.ts` checks the file's shape. To try a change locally: `npm run dig:build -- --data <dir> --catalogue <draft file>` (refused with `--publish`).
 
-Known limits: day files are bigger (about 17% of draws now exceed the size limit and are redrawn); "___ word" prompts (art, weather, sports…) were left alone and still refuse about a third of fair guesses; the pool runs out of fossils in roughly four to five months from launch, mid-March to early April 2027 at the latest (`docs/dig-word-audit.md`, "Supply runway", with options; none is built).
+Known limits: day files are bigger (about 17% of draws now exceed the size limit and are redrawn); "___ word" prompts (art, weather, sports…) were left alone and still refuse about a third of fair guesses; if the spare-pool alarm fires, the fix is more prompts or more fossil candidates (`docs/dig-word-audit.md`, "Supply runway", lists the measured options).
 
 ## Where the code lives
 

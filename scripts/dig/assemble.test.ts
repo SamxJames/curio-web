@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assignFamilies, daysBetween, isEligible, overlapRatio, pickDay, sameFamily, type HistoryDay } from "./assemble";
+import { assignFamilies, COOLDOWNS, daysBetween, fossilsResting, isEligible, isFree, lastFossilUse, overlapRatio, pickDay, sameFamily, type HistoryDay } from "./assemble";
 import type { Candidate } from "./themes";
 
 const mk = (id: string, kind: "theme" | "origin", core: string[], over: Partial<Candidate> = {}): Candidate => ({
@@ -23,6 +23,28 @@ describe("cooldowns", () => {
   it("blocks an origin language for 4 days, including inside a group", () => {
     expect(isEligible(mk("origin:group:x", "origin", [], { languages: ["Persian", "Arabic"] }), "2026-12-03", history)).toBe(false);
     expect(isEligible(mk("origin:group:y", "origin", [], { languages: ["Arabic"] }), "2026-12-05", history)).toBe(true);
+  });
+});
+
+describe("fossils may return after four months", () => {
+  const day = (date: string, id: string, fossil: string) => ({ date, prompts: [{ id, base: id, fossil }] });
+  const history: HistoryDay[] = [day("2026-07-01", "theme:birds", "chough"), day("2026-11-01", "theme:birds", "dunlin"), day("2026-11-20", "theme:birds", "chough"), day("2026-11-10", "theme:fish", "smelt")];
+  it("remembers when a prompt last used each fossil, and nobody else's", () => {
+    expect(lastFossilUse("theme:birds", history)).toEqual(new Map([["chough", "2026-11-20"], ["dunlin", "2026-11-01"]]));
+  });
+  it("rests a fossil for 122 days after its last use, in either direction", () => {
+    expect(COOLDOWNS.fossilDays).toBe(122);
+    const used = new Map([["chough", "2026-08-01"], ["dunlin", "2026-12-01"]]);
+    expect(fossilsResting(used, "2026-11-30")).toEqual(new Set(["chough", "dunlin"])); // 121 days on; and a day built before a later one
+    expect(fossilsResting(used, "2026-12-01")).toEqual(new Set(["dunlin"])); // 122 days on: chough may return
+  });
+  it("counts a prompt as free only when it is off cooldown and has a fossil that is not resting", () => {
+    const birds = mk("theme:birds", "theme", []);
+    expect(isFree(birds, "2026-12-20", history, ["chough", "dunlin"])).toBe(false); // both used within 122 days
+    expect(isFree(birds, "2026-12-20", history, ["chough", "dunlin", "godwit"])).toBe(true);
+    expect(isFree(birds, "2026-11-25", history, ["chough", "dunlin", "godwit"])).toBe(false); // still on its 14-day cooldown
+    expect(isFree(birds, "2027-03-03", history, ["chough", "dunlin"])).toBe(true); // dunlin is back after 122 days
+    expect(isFree(birds, "2027-06-01", history, [])).toBe(false); // no fossil at all
   });
 });
 

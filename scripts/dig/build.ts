@@ -26,7 +26,7 @@ import { originCandidates } from "./origins";
 import { buildAliases, buildGuard, finishCandidate, floorProblems, fossilCandidates } from "./answers";
 import { yearlyViews } from "./pageviews";
 import { assignTiers, chooseFossil, toPlainPrompt, viewWordsFor } from "./fossil";
-import { assignFamilies, daysBetween, isEligible, pickDay, type HistoryDay } from "./assemble";
+import { assignFamilies, daysBetween, fossilsResting, isFree, lastFossilUse, pickDay, type HistoryDay } from "./assemble";
 import { fossilTypoCollides, validateDay } from "./validate";
 import { adjudicate } from "./adjudicate";
 import { repairDays } from "./repair";
@@ -44,7 +44,11 @@ export type BuildStats = {
 };
 
 const GUARD_MIN_ZIPF = 2;
-const BUFFER_FLOOR = 30, MIN_POOL_THEMES = 20, MIN_POOL_ORIGINS = 6, HEARTBEAT_STALE_DAYS = 3, MAX_SALTS = 10;
+const BUFFER_FLOOR = 30, MIN_POOL_ORIGINS = 6, HEARTBEAT_STALE_DAYS = 3, MAX_SALTS = 10;
+/** The spare-pool alarm for themes. 8 = the 5 themes a day needs plus 3 to spare; under the four-month fossil
+ * rule the pool of free themes never fell below 9 in three simulated years, and every day was still filled.
+ * (It was 20, counted on cooldowns alone, which could not see a prompt that had run out of fossils.) */
+export const MIN_POOL_THEMES = 8;
 const addDays = (d: string, n: number) => dayKey(new Date(dayStart(d).getTime() + n * DAY_MS));
 
 /** Every date from today to today + target - 1 that is not built yet, earliest first. Holes
@@ -248,7 +252,9 @@ async function main() {
       const usedToday = new Set<string>();
       const prompts: DigDayPlain["prompts"] = [];
       for (const c of picks) {
-        const previous = new Set(history.flatMap((h) => h.prompts.filter((p) => p.id === c.id).map((p) => p.fossil)));
+        // A fossil rests for COOLDOWNS.fossilDays after this prompt used it, then may return (oldest first).
+        const lastUsed = lastFossilUse(c.id, history);
+        const resting = fossilsResting(lastUsed, date);
         const tiers = assignTiers(c, zipf, views);
         // Aliases and the guard don't depend on the fossil, so they're built first and the fossil
         // choice can skip words the validator would refuse (a typo landing on another answer).
@@ -259,7 +265,8 @@ async function main() {
         const fossil = chooseFossil(c, {
           candidates: fossilCandidates(c, fctx), tiers, views, curio, definitions,
           etymology: (w) => index.info.get(w)?.etymology ?? "",
-          exclude: new Set([...daily, ...usedToday, ...previous]),
+          exclude: new Set([...daily, ...usedToday, ...resting]),
+          lastUsed,
           reject: (w) => fossilTypoCollides(secret, w, lookup),
           mustMention: c.kind === "origin" ? c.languages : undefined,
         });
@@ -296,8 +303,10 @@ async function main() {
   const bufferDays = bufferDaysFrom(today, Object.keys(manifest.days));
   const furthest = Object.keys(manifest.days).sort().at(-1);
   const after = addDays(furthest ?? today, 1);
-  manifest.poolThemes = themes.filter((c) => isEligible(c, after, history)).length;
-  manifest.poolOrigins = origins.filter((c) => isEligible(c, after, history)).length;
+  // Spare = free to run the day after the newest built day: off cooldown, with a fossil that is not resting.
+  const free = (c: Candidate) => isFree(c, after, history, fossilCandidates(c, fctx));
+  manifest.poolThemes = themes.filter(free).length;
+  manifest.poolOrigins = origins.filter(free).length;
   manifest.lastRun = new Date().toISOString();
   await sink.writeManifest(manifest);
 
@@ -308,7 +317,7 @@ async function main() {
 
   if (failedDates > 0) failures.push(`${failedDates} dates could not be built`);
   if (bufferDays < BUFFER_FLOOR) failures.push(`buffer ${bufferDays} days < ${BUFFER_FLOOR}`);
-  if (manifest.poolThemes < MIN_POOL_THEMES || manifest.poolOrigins < MIN_POOL_ORIGINS) failures.push("spare pool below 20 themes / 6 origins");
+  if (manifest.poolThemes < MIN_POOL_THEMES || manifest.poolOrigins < MIN_POOL_ORIGINS) failures.push(`spare pool below ${MIN_POOL_THEMES} themes / ${MIN_POOL_ORIGINS} origins`);
   const heartbeat = await sink.readHeartbeat();
   const heartbeatIssue = heartbeatProblem(heartbeat, Object.keys(manifest.days), today, Date.now());
   if (heartbeatIssue) failures.push(heartbeatIssue);
