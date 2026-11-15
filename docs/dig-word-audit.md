@@ -191,7 +191,11 @@ Eight "___ word" prompts score under 75% and would be paused: phonetics 39%, wea
 
 ## Supply runway: when the game runs out of fossils
 
-Measured only. Nothing in this section is built.
+**Decision, 15 November 2026:** option A at four months is built (plan: `docs/superpowers/plans/2026-11-15-dig-fossil-repeat.md`). A prompt may reuse a fossil 122 days after it last used it. The other options are not built.
+
+**The alarm changed with it.** The pipeline run fails when fewer than **8** theme prompts are free: the 5 a day needs plus 3 to spare. Under the new rule the pool of free themes never fell below 9 in three simulated years, and every day was still filled. "Free" now means off cooldown *and* with a fossil that is not resting. The old alarm (20 themes) counted cooldowns alone, so it could not see a prompt that had run out of fossils and would not have warned before days started failing. The "alarm first fires" column below used the stricter, fossil-aware count, so it shows when the real alarm *should* have fired, not when it would have.
+
+The rest of this section is the measurement that led to the decision.
 
 ### The problem
 
@@ -212,9 +216,9 @@ A theme prompt runs about once a month, so a prompt with 6 fossils is spent in a
 
 `scripts/dig/audit/supply.ts --runway` draws days with the real picker and cooldowns for three simulated years, three times over, from a fresh start. A prompt drops out when it has no unused fossil left.
 
-It is a **best case**. It counts fossil candidates before the page-view, fact and typo rules cut them further, so the real run-out comes sooner. Days count from a fresh start: the live game began on 7 November 2026, so "day 131–151" is mid-March to early April 2027 at the latest.
+It is a **best case**. It counts fossil candidates before the page-view and typo rules cut them further, so the real run-out comes sooner. (The table was measured counting every candidate. Counting only candidates that have a fact to show, as the pipeline's alarm now does, gave the same results: almost every theme candidate has one.) Days count from a fresh start: the live game began on 7 November 2026, so "day 131–151" is mid-March to early April 2027 at the latest.
 
-"Alarm" is the pipeline's own health rule: a run fails, and emails, when fewer than 20 theme prompts are spare.
+"Alarm" is the day the count of free theme prompts (off cooldown, with a fossil left) first drops under 20, the pipeline's threshold at the time.
 
 ### Options
 
@@ -238,7 +242,7 @@ It is a **best case**. It counts fossil candidates before the page-view, fact an
 
 - **Only repeating fossils removes the run-out, and only if they come back within about four months.** The pool empties at about four and a half months, so a 6- or 12-month wait leaves a gap before the first fossils return.
 - More letter variants, commoner fossils and the looser meaning rule each buy one to three months, then the pool empties anyway.
-- Under option A the alarm still fires from about day 80, because the pool sits near the 20-prompt line. The line would need lowering, or A needs pairing with C.
+- Under option A the free pool still dips under 20 from about day 80: it settles at about 29 on a typical day, 18 or fewer on one day in twenty, and 9 at its lowest. So the alarm line had to come down with the rule (it is now 8).
 
 ### Effect on scoring
 

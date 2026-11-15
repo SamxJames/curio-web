@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { assignTiers, chooseFossil, etymologyFact, toPlainPrompt } from "./fossil";
+import { assignTiers, chooseFossil, etymologyFact, fossilFactFor, toPlainPrompt } from "./fossil";
 import { ETYMOLOGY_CHARS } from "./sources/compact";
 import { yearlyViews } from "./pageviews";
 import type { Candidate } from "./themes";
@@ -66,6 +66,28 @@ describe("etymologyFact", () => {
   });
 });
 
+describe("fossilFactFor", () => {
+  const ctx = {
+    curio: new Map([["gunwale", { slug: "gunwale", teaser: "Once the plank that held the guns." }], ["blank", { slug: "blank", teaser: "  " }]]),
+    definitions: new Map([["thwart", "A seat across a boat on which a rower may sit."]]),
+    etymology: (w: string) => (w === "bowsprit" ? "From Middle Low German bōchsprēt." : w === "halyard" ? "From Māori hāriata." : ""),
+  };
+  it("gives a story word its teaser, and any other word its sourced fact or definition", () => {
+    expect(fossilFactFor("gunwale", ctx)).toEqual({ word: "gunwale", fact: "Once the plank that held the guns.", story: "gunwale" });
+    expect(fossilFactFor("bowsprit", ctx)).toEqual({ word: "bowsprit", fact: "From Middle Low German bōchsprēt" });
+    expect(fossilFactFor("thwart", ctx)?.word).toBe("thwart");
+  });
+  it("has nothing for a word with no fact: the spare-pool alarm must not count it as a usable fossil", () => {
+    expect(fossilFactFor("keelson", ctx)).toBeNull();
+    expect(fossilFactFor("blank", ctx)).toBeNull(); // an empty teaser and no sourced fact
+  });
+  it("for an origin prompt, needs a fact that names one of its languages (a story teaser is exempt)", () => {
+    expect(fossilFactFor("halyard", { ...ctx, mustMention: ["Maori"] })?.word).toBe("halyard");
+    expect(fossilFactFor("bowsprit", { ...ctx, mustMention: ["Maori"] })).toBeNull();
+    expect(fossilFactFor("gunwale", { ...ctx, mustMention: ["Maori"] })?.story).toBe("gunwale");
+  });
+});
+
 describe("chooseFossil", () => {
   const base = {
     candidates: ["halyard", "gunwale", "bowsprit"],
@@ -86,6 +108,21 @@ describe("chooseFossil", () => {
     const etymology = (w: string) => (w === "bowsprit" ? "Borrowed from Sotho lelapa." : w === "halyard" ? "From Māori hāriata." : "");
     const pick = chooseFossil(c, { ...base, curio: new Map(), etymology, mustMention: ["Maori", "Tahitian"] });
     expect(pick).toEqual({ word: "halyard", fact: "From Māori hāriata" });
+  });
+  it("prefers a fossil this prompt has never used, even over a more-viewed or Curio one it has", () => {
+    const etymology = (w: string) => (w === "bowsprit" ? "From Middle Low German bōchsprēt." : w === "halyard" ? "From Middle English halier." : "");
+    const lastUsed = new Map([["bowsprit", "2026-03-01"]]);
+    expect(chooseFossil(c, { ...base, curio: new Map(), etymology, lastUsed })?.word).toBe("halyard");
+    const curio = new Map([["gunwale", { slug: "gunwale", teaser: "Once the plank that held the guns." }]]);
+    expect(chooseFossil(c, { ...base, curio, etymology, lastUsed: new Map([["gunwale", "2026-03-01"]]) })?.word).toBe("bowsprit");
+  });
+  it("when every fossil has been used, brings back the one used longest ago", () => {
+    const etymology = (w: string) => (w === "bowsprit" ? "From Middle Low German bōchsprēt." : w === "halyard" ? "From Middle English halier." : "");
+    const lastUsed = new Map([["bowsprit", "2026-05-01"], ["halyard", "2026-03-01"], ["gunwale", "2026-01-01"]]);
+    // gunwale is oldest but has no fact here, so halyard, the next oldest, returns.
+    expect(chooseFossil(c, { ...base, curio: new Map(), etymology, lastUsed })?.word).toBe("halyard");
+    const curio = new Map([["gunwale", { slug: "gunwale", teaser: "Once the plank that held the guns." }]]);
+    expect(chooseFossil(c, { ...base, curio, etymology, lastUsed })).toEqual({ word: "gunwale", fact: "Once the plank that held the guns.", story: "gunwale" });
   });
   it("skips words the build rejects (a typo would land on another answer)", () => {
     const etymology = (w: string) => (w === "bowsprit" ? "From Middle Low German bōchsprēt." : w === "halyard" ? "From Middle English halier." : "");

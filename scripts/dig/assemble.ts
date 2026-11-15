@@ -9,11 +9,39 @@ export const daysBetween = (a: string, b: string) => Math.round((Date.parse(`${b
 
 // Sam's 2026-10-24 supply ruling (the spec's 90 / 30 / 14 ran dry in about 8 days).
 const EXACT_DAYS = 14, BASE_DAYS = 5, LANGUAGE_DAYS = 4, MAX_OVERLAP = 0.2;
+// Sam's 2026-11-15 ruling: a prompt may reuse a fossil after four months. Never reusing one emptied the pool
+// in about four and a half months (half the theme prompts have 11 fossil candidates or fewer), and a wait of
+// six months or more comes back too late to stop that (docs/dig-word-audit.md, "Supply runway").
+const FOSSIL_DAYS = 122;
 
 /** pipeline-design §3a fix 4, at Sam's 2026-10-24 values. Origins return on their language cooldown alone;
  * the exact-prompt rule is for themes. */
-export type Cooldowns = { exactDays: number; baseDays: number; languageDays: number };
-export const COOLDOWNS: Cooldowns = { exactDays: EXACT_DAYS, baseDays: BASE_DAYS, languageDays: LANGUAGE_DAYS };
+export type Cooldowns = { exactDays: number; baseDays: number; languageDays: number; fossilDays: number };
+export const COOLDOWNS: Cooldowns = { exactDays: EXACT_DAYS, baseDays: BASE_DAYS, languageDays: LANGUAGE_DAYS, fossilDays: FOSSIL_DAYS };
+
+/** Each fossil a prompt has used, with the latest date it used it. */
+export function lastFossilUse(promptId: string, history: HistoryDay[]): Map<string, string> {
+  const last = new Map<string, string>();
+  for (const h of history) for (const p of h.prompts) {
+    if (p.id === promptId && (last.get(p.fossil) ?? "") < h.date) last.set(p.fossil, h.date);
+  }
+  return last;
+}
+
+/** The fossils a prompt may not use on `date`: those it used within fossilDays, before or after
+ * (a hole in the buffer can be filled after later days were built). */
+export function fossilsResting(lastUsed: Map<string, string>, date: string, cd: Cooldowns = COOLDOWNS): Set<string> {
+  return new Set([...lastUsed].filter(([, used]) => Math.abs(daysBetween(used, date)) < cd.fossilDays).map(([w]) => w));
+}
+
+/** Free to run on `date`: off its cooldowns, and with at least one fossil that is not resting. The caller
+ * passes the fossils the prompt could really use (build.ts counts candidates that have a fact to show).
+ * The spare-pool alarm counts these. Cooldowns alone used to count a prompt with no fossil left as spare. */
+export function isFree(c: Candidate, date: string, history: HistoryDay[], fossilCandidates: string[], cd: Cooldowns = COOLDOWNS): boolean {
+  if (!isEligible(c, date, history, cd)) return false;
+  const resting = fossilsResting(lastFossilUse(c.id, history), date, cd);
+  return fossilCandidates.some((w) => !resting.has(w));
+}
 
 export function isEligible(c: Candidate, date: string, history: HistoryDay[], cd: Cooldowns = COOLDOWNS): boolean {
   for (const h of history) {

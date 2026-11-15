@@ -114,11 +114,14 @@ export type FossilCtx = {
   curio: Map<string, { slug: string; teaser: string }>;
   definitions: Map<string, string>;
   etymology: (w: string) => string;
-  /** Today's/tomorrow's daily word and /play answer, fossils already used today, and this
-   * prompt's previous fossils. */
+  /** Today's/tomorrow's daily word and /play answer, fossils already used today, and the fossils
+   * this prompt used in the last COOLDOWNS.fossilDays (still resting). */
   exclude: Set<string>;
   /** Words the validator would refuse as this prompt's fossil (validate.ts fossilTypoCollides). */
   reject?: (w: string) => boolean;
+  /** When this prompt last used each fossil (assemble.ts lastFossilUse). A fossil it has never used is always
+   * preferred; when none is left, the one used longest ago returns. Resting fossils are in `exclude`. */
+  lastUsed?: Map<string, string>;
   /** Origin prompts: a sourced fact must name one of these languages (a word can have several
    * etymologies, and the first may be the wrong one). Curio teasers are exempt. */
   mustMention?: string[];
@@ -133,23 +136,34 @@ function clampFact(text: string): string {
   return `${(space > 0 ? head.slice(0, space) : head.slice(0, MAX_FACT - 1)).trimEnd()}…`;
 }
 
+/** The fossil a word would make, with the fact it would be shown with: a Curio story word's teaser, else a
+ * sourced fact (etymology, then definition) that, for an origin prompt, names one of its languages. Null when
+ * the word has no usable fact. chooseFossil picks with it, and the spare-pool count uses it so that a
+ * candidate with no fact is not counted as a fossil the prompt still has. */
+export function fossilFactFor(w: string, ctx: Pick<FossilCtx, "curio" | "definitions" | "etymology" | "mustMention">): DigFossil | null {
+  const story = ctx.curio.get(w);
+  if (story && story.teaser.trim() !== "") return { word: w, fact: clampFact(story.teaser), story: story.slug };
+  const fact = etymologyFact(ctx.etymology(w)) ?? (ctx.definitions.get(w) ? etymologyFact(ctx.definitions.get(w)!) : null);
+  if (fact && ctx.mustMention?.length && !ctx.mustMention.some((l) => fold(fact).includes(fold(l.split(" ").at(-1)!)))) return null;
+  return fact ? { word: w, fact } : null;
+}
+
 /** pipeline-design §7: a Curio story word if any candidate is one (its teaser is the fact),
- * else the most-viewed candidate that has a sourced fact. Ties go to the alphabetical first. */
+ * else the most-viewed candidate that has a sourced fact. Ties go to the alphabetical first.
+ * Fossils the prompt has never used come first; only when none of them works does a used one return,
+ * the one used longest ago first. */
 export function chooseFossil(_c: Candidate, ctx: FossilCtx): DigFossil | null {
   // Only Rare words are fossil material. That already excludes Popular picks.
   const pool = ctx.candidates
     .filter((w) => !ctx.exclude.has(w) && ctx.tiers.get(w) === "rare" && !ctx.reject?.(w))
     .sort((a, b) => (ctx.views.get(b) ?? 0) - (ctx.views.get(a) ?? 0) || a.localeCompare(b));
-  const curioPick = pool.find((w) => (ctx.curio.get(w)?.teaser.trim() ?? "") !== "");
-  if (curioPick) {
-    const entry = ctx.curio.get(curioPick)!;
-    return { word: curioPick, fact: clampFact(entry.teaser), story: entry.slug };
-  }
-  for (const w of pool) {
-    const fact = etymologyFact(ctx.etymology(w)) ?? (ctx.definitions.get(w) ? etymologyFact(ctx.definitions.get(w)!) : null);
-    if (fact && ctx.mustMention?.length && !ctx.mustMention.some((l) => fold(fact).includes(fold(l.split(" ").at(-1)!)))) continue;
-    if (fact) return { word: w, fact };
-  }
+  const isStory = (w: string) => (ctx.curio.get(w)?.teaser.trim() ?? "") !== "";
+  const fresh = pool.filter((w) => !ctx.lastUsed?.has(w));
+  const curioPick = fresh.find(isStory);
+  if (curioPick) return fossilFactFor(curioPick, ctx);
+  for (const w of fresh) { const f = fossilFactFor(w, ctx); if (f) return f; }
+  const used = pool.filter((w) => ctx.lastUsed?.has(w)).sort((a, b) => ctx.lastUsed!.get(a)!.localeCompare(ctx.lastUsed!.get(b)!));
+  for (const w of used) { const f = fossilFactFor(w, ctx); if (f) return f; }
   return null;
 }
 

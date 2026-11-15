@@ -85,7 +85,7 @@ export function validateDay(day: DigDayPlain, ctx: ValidateCtx): string[] {
       const base = ctx.today?.[i]?.base ?? baseOf(p.id);
       const languages = ctx.today?.[i]?.languages ?? [];
       if (p.kind === "theme" && hp.id === p.id && gap < COOLDOWNS.exactDays) problems.push(`${p.id}: repeats within ${COOLDOWNS.exactDays} days`);
-      if (hp.id === p.id && hp.fossil === p.fossil.word) problems.push(`${p.id}: repeats a previous fossil`);
+      if (hp.id === p.id && hp.fossil === p.fossil.word && gap < COOLDOWNS.fossilDays) problems.push(`${p.id}: repeats a fossil within ${COOLDOWNS.fossilDays} days`);
       if (p.kind === "theme" && hp.id !== p.id && gap < COOLDOWNS.baseDays && (hp.base || baseOf(hp.id)) === base) problems.push(`${p.id}: shares a base theme within ${COOLDOWNS.baseDays} days`);
       if (p.kind === "origin" && gap < COOLDOWNS.languageDays && (hp.languages ?? []).some((l) => languages.includes(l))) problems.push(`${p.id}: repeats a language within ${COOLDOWNS.languageDays} days`);
     });

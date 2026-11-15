@@ -329,7 +329,7 @@ Every generated day is checked in CI. The same checks run as a Vitest suite in t
 
 **When a check fails**, the whole day is picked again with a new seed, up to 10 times (raised from 5 after the Phase 6 dry run left one date empty; the planned
 per-prompt swap from a stored pool was dropped as simpler-but-equivalent). The "spare pool" is now a count: the job
-fails if fewer than 20 unused themes or 6 unused origins remain. A date that still fails after 10 tries is left empty,
+fails if fewer than 8 free themes or 6 free origins remain (free: off cooldown, with a fossil that is not resting. Changed 2026-11-15 from 20 themes counted on cooldowns alone, when fossils became reusable after 122 days). A date that still fails after 10 tries is left empty,
 the job fails, and the next run tries it again. A day already written is never rebuilt.
 
 Retries are written to the job summary. If the buffer can't be refilled to 30 days, the job **fails**, so GitHub
