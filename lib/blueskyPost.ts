@@ -9,7 +9,7 @@ import { digLineText, digLineUrl, type DigLine } from "./dig/digLineText";
 
 const MAX_GRAPHEMES = 300;
 const ELLIPSIS = "…";
-const HASHTAGS = "#etymology #wordoftheday";
+export const BLUESKY_HASHTAGS = "#etymology #wordoftheday";
 
 /** The card's description. Not the teaser: that's already the post's first
  * line. This tells someone who's never heard of Curio what it is. */
@@ -49,11 +49,11 @@ export function buildBlueskyPost(word: WordEntry, dig?: DigLine | null): string 
   if (dig) {
     const url = digLineUrl("bluesky");
     for (const short of [false, true]) {
-      const full = `${word.teaser}${base}\n\n${digLineText(dig.prompt, { short })}\n${url}\n\n${HASHTAGS}`;
+      const full = `${word.teaser}${base}\n\n${digLineText(dig.prompt, { short })}\n${url}\n\n${BLUESKY_HASHTAGS}`;
       if (graphemeLength(full) <= MAX_GRAPHEMES) return full;
     }
   }
-  const tail = `${base}\n\n${HASHTAGS}`;
+  const tail = `${base}\n\n${BLUESKY_HASHTAGS}`;
   const budget = MAX_GRAPHEMES - graphemeLength(tail);
 
   let teaser = word.teaser;
