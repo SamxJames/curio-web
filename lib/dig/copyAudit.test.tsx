@@ -10,6 +10,7 @@ import PastList from "@/components/dig/PastList";
 import { shareImageLines } from "@/components/dig/shareImage";
 import { noop, promptBase, secret } from "@/components/dig/testFixtures";
 import { digLineText } from "./digLineText";
+import { SAMPLE_REVEAL, buildBlueskyReveal, buildRevealCard, buildThreadsReveal } from "./revealText";
 import { shareText } from "./share";
 import { staleChallengeLine } from "./challenge";
 import { ogDayTitle, OG_DIG_TAGLINE, OG_DIG_TITLE } from "./ogText";
@@ -111,6 +112,12 @@ const surfaces: Record<string, string> = {
   bluesky: buildBlueskyPost(word, dig),
   threads: buildThreadsPost(word, dig),
   instagram: buildInstagramCaption(word, dig),
+  blueskyReveal: buildBlueskyReveal(SAMPLE_REVEAL),
+  blueskyRevealTrimmed: buildBlueskyReveal({ ...SAMPLE_REVEAL, fact: "word ".repeat(80).trim() }),
+  blueskyRevealNoFact: buildBlueskyReveal({ ...SAMPLE_REVEAL, fact: "" }),
+  blueskyRevealCard: Object.values(buildRevealCard(SAMPLE_REVEAL)).join("\n"),
+  threadsReveal: buildThreadsReveal(SAMPLE_REVEAL),
+  threadsRevealNoFact: buildThreadsReveal({ ...SAMPLE_REVEAL, fact: "" }),
 };
 
 describe("copy audit: archive, never backlog", () => {

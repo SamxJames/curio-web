@@ -152,6 +152,22 @@ describe("digest runs, social channels", () => {
       "curio:digest:threads:2026-09-27",
     ]);
   });
+
+  it("gives the dig reveal posts their own keys, independent of the word posts", async () => {
+    for (const channel of ["bluesky", "threads", "bluesky-reveal", "threads-reveal"] as const) {
+      expect(await claimRun(channel, "2026-11-15")).toBe(true);
+    }
+    expect(await claimRun("bluesky-reveal", "2026-11-15")).toBe(false);
+    expect(await claimRun("threads-reveal", "2026-11-15")).toBe(false);
+    expect([...fake.store.keys()].sort()).toEqual([
+      "curio:digest:bluesky-reveal:2026-11-15",
+      "curio:digest:bluesky:2026-11-15",
+      "curio:digest:threads-reveal:2026-11-15",
+      "curio:digest:threads:2026-11-15",
+    ]);
+    await releaseRun("bluesky-reveal", "2026-11-15");
+    expect(await claimRun("bluesky-reveal", "2026-11-15")).toBe(true);
+  });
 });
 
 // Local dev shares production's Upstash: a local cron run must never claim

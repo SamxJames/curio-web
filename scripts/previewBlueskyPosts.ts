@@ -1,7 +1,7 @@
 // Prints the Bluesky posts the daily cron will make over the next N days,
 // so the owner can read them before they go out. Read-only: no network, no
 // Redis, no posting. Usage: npm run bluesky:preview -- [days=7] [from=YYYY-MM-DD]
-import { buildBlueskyPreview } from "../lib/blueskyPreview";
+import { buildBlueskyPreview, buildBlueskyRevealPreview } from "../lib/blueskyPreview";
 
 const days = Number(process.argv[2] ?? 7);
 const from = process.argv[3] ? new Date(`${process.argv[3]}T00:00:00Z`) : new Date();
@@ -18,6 +18,13 @@ for (const row of buildBlueskyPreview(from, days)) {
   console.log(`       ${row.card.uri}`);
   console.log("");
 }
+const reveal = buildBlueskyRevealPreview();
+console.log(`── Dig reveal post (sample day ${reveal.reveal.date}; posts only when DIG_REVEAL_POSTS=on) · ${reveal.graphemes}/300 graphemes`);
+console.log(reveal.text);
+console.log(`[card] ${reveal.card.title}`);
+console.log(`       ${reveal.card.description}`);
+console.log(`       ${reveal.card.uri}`);
+console.log("");
 console.log(
   "Words come from the calendar formula. A day's word locks the first time it's shown, so these are what will post unless WORDS or LAUNCH_OPENERS change before then."
 );

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { buildBlueskyPreview } from "./blueskyPreview";
+import { buildBlueskyPreview, buildBlueskyRevealPreview } from "./blueskyPreview";
+import { SAMPLE_REVEAL, buildBlueskyReveal } from "./dig/revealText";
+import { graphemeLength } from "./blueskyPost";
 import { getWordForDate } from "./words";
 import { buildBlueskyPost } from "./bluesky";
 
@@ -16,5 +18,21 @@ describe("buildBlueskyPreview", () => {
       expect(r.graphemes).toBeLessThanOrEqual(300);
       expect(r.card.uri).toContain(`/story/${w.slug}`);
     }
+  });
+});
+
+describe("buildBlueskyRevealPreview", () => {
+  it("is the exact reveal post and card for a sample day, within the limit, with no network", () => {
+    const r = buildBlueskyRevealPreview();
+    expect(r.reveal).toBe(SAMPLE_REVEAL);
+    expect(r.text).toBe(buildBlueskyReveal(SAMPLE_REVEAL));
+    expect(r.graphemes).toBe(graphemeLength(r.text));
+    expect(r.graphemes).toBeLessThanOrEqual(300);
+    expect(r.card.uri).toContain(`/dig/${SAMPLE_REVEAL.date}?`);
+  });
+
+  it("takes a real reveal when given one", () => {
+    const real = { ...SAMPLE_REVEAL, prompt: "Name a fruit", fossilWord: "pawpaw" };
+    expect(buildBlueskyRevealPreview(real).text).toContain("“Name a fruit”. The rarest answer: pawpaw.");
   });
 });

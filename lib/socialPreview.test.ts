@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { buildSocialPreview } from "./socialPreview";
+import { buildSocialPreview, buildThreadsRevealPreview } from "./socialPreview";
+import { SAMPLE_REVEAL, buildThreadsReveal } from "./dig/revealText";
 import { getWordForDate } from "./words";
 import { buildCarouselSlides, buildInstagramCaption, buildThreadsPost, carouselSlideUrl } from "./socialPost";
 
@@ -30,6 +31,17 @@ describe("buildSocialPreview", () => {
   it("stays offline: no slide warm-up, no network at all", () => {
     vi.stubGlobal("fetch", vi.fn());
     buildSocialPreview(new Date("2026-10-01T15:00:00Z"), 7);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+});
+
+describe("buildThreadsRevealPreview", () => {
+  it("is the exact Threads reveal post for a sample day, within 500 bytes, with no network", () => {
+    vi.stubGlobal("fetch", vi.fn());
+    const r = buildThreadsRevealPreview();
+    expect(r.text).toBe(buildThreadsReveal(SAMPLE_REVEAL));
+    expect(r.bytes).toBe(Buffer.byteLength(r.text, "utf8"));
+    expect(r.bytes).toBeLessThanOrEqual(500);
     expect(fetch).not.toHaveBeenCalled();
   });
 });

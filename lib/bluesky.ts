@@ -2,6 +2,7 @@ import { AtpAgent, RichText } from "@atproto/api";
 import type { WordEntry } from "./words";
 import { buildBlueskyPost, buildStoryCard } from "./blueskyPost";
 import type { DigLine } from "./dig/digLineText";
+import { buildBlueskyReveal, buildRevealCard, type DigReveal } from "./dig/revealText";
 import { siteUrl } from "./siteUrl";
 
 // The pure post/card builders live in ./blueskyPost (no @atproto/api import,
@@ -97,6 +98,61 @@ export async function postDailyWordToBluesky(
     // revoked app password, rate limiting) would be indistinguishable
     // from "just not configured" and could go unnoticed indefinitely.
     console.error("[curio:bluesky] post failed:", err);
+    return { posted: false, thumb: false };
+  }
+}
+
+/** Posts "yesterday's answer" (lib/dig/revealText.ts) with the same login, the
+ * same localhost guard and the same dev-fallback as the daily word, and a link
+ * card for the answers page with its own preview image as the thumbnail. The
+ * link is in the text too, so it stays clickable in clients that skip cards.
+ * Never throws, and on failure logs only the error's name: this runs unattended
+ * and the repo is public. */
+export async function postRevealToBluesky(
+  reveal: DigReveal,
+  date: Date = new Date()
+): Promise<{ posted: boolean; thumb: boolean }> {
+  const identifier = process.env.BLUESKY_IDENTIFIER;
+  const appPassword = process.env.BLUESKY_APP_PASSWORD;
+  const text = buildBlueskyReveal(reveal);
+  const card = buildRevealCard(reveal);
+
+  if (!identifier || !appPassword) {
+    console.log(`[curio:bluesky:reveal:dev-fallback] would post: ${text}\n[card] ${card.title} — ${card.uri}`);
+    return { posted: false, thumb: false };
+  }
+
+  if (process.env.VERCEL_ENV === "production" && siteUrl().startsWith("http://localhost")) {
+    console.error("[curio:bluesky:reveal] CURIO_SITE_URL is not set in production — not posting a card that links to localhost");
+    return { posted: false, thumb: false };
+  }
+
+  try {
+    const agent = new AtpAgent({ service: "https://bsky.social" });
+    await agent.login({ identifier, password: appPassword });
+
+    const richText = new RichText({ text });
+    await richText.detectFacets(agent);
+
+    const thumb = await uploadThumb(agent, card.thumbUrl);
+    await agent.post({
+      text: richText.text,
+      facets: richText.facets,
+      embed: {
+        $type: "app.bsky.embed.external",
+        external: {
+          uri: card.uri,
+          title: card.title,
+          description: card.description,
+          ...(thumb ? { thumb } : {}),
+        },
+      },
+      createdAt: date.toISOString(),
+    });
+    console.log("[curio:bluesky:reveal] posted");
+    return { posted: true, thumb: thumb !== undefined };
+  } catch (err) {
+    console.error("[curio:bluesky:reveal] post failed:", err instanceof Error ? err.name : "unknown");
     return { posted: false, thumb: false };
   }
 }
