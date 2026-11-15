@@ -289,7 +289,8 @@ channel and the email/Bluesky locks not at all. The same caveats as
   slide, next/og still returns a 200 JPEG with boxes. Recover by deleting
   the post in the Instagram app, then running `?repost=instagram`.
 
-Rejected with 400 unless it is exactly one of `threads` / `instagram`, and
+Rejected with 400 unless it is exactly one of `threads` / `instagram` (or, with
+`DIG_REVEAL_POSTS=on`, `bluesky-reveal` / `threads-reveal`: see "Dig reveal posts"), and
 with 401 without `CRON_SECRET`. Reading the response: `{ word, threads,
 instagram, alreadyRan }`, where `threads`/`instagram` say whether this run
 posted and `alreadyRan` says which channels a normal run skipped because
@@ -297,6 +298,29 @@ the day's lock was held. A failed post logs `[curio:threads] post failed:`
 or `[curio:instagram] post failed:` with the reason (see the architecture
 map for what is and isn't logged), and — like Bluesky — keeps its lock, so
 a failure is retried by hand with `?repost=`, not automatically.
+
+### Dig reveal posts (Bluesky + Threads, 2026-11-15)
+
+"Yesterday's curio dig asked ... The rarest answer: ..." on alternate days, from the same 10:00 UTC `/api/cron/social` run, after the word posts. What it is and how it is built: `docs/handover/dig.md`, "Daily reveal post". **Off until Sam turns it on.**
+
+**Turn on (Sam, manual):**
+
+1. Preview the text first: `npm run bluesky:preview` and `npm run social:preview` (both end with the reveal post for a sample day).
+2. Vercel Production env: `DIG_REVEAL_POSTS` = `on` (exactly; anything else is off). It needs `DIG_LAUNCH_DATE` set and the Bluesky and Threads credentials already in place. Redeploy.
+3. After the first 10:00 UTC run on a day whose yesterday had an odd dig number: the cron response (or the Vercel log) shows `[curio:social] reveal <day>: bluesky posted; threads posted`. Check the two accounts. Even days log nothing for it (no reveal, no lock).
+4. Turn off: remove the variable (or set it to anything but `on`) and redeploy. A post already out has to be deleted in the app.
+
+**Re-post by hand** (`CRON_SECRET`, one channel at a time, same caveats as the word re-posts above: it forces the lock and posts every time, and it does not remove an earlier post):
+
+```bash
+curl -sS -H "Authorization: Bearer $CURIO_CRON_SECRET" "https://curioword.com/api/cron/social?repost=bluesky-reveal"
+curl -sS -H "Authorization: Bearer $CURIO_CRON_SECRET" "https://curioword.com/api/cron/social?repost=threads-reveal"
+```
+
+- It re-posts **yesterday's** reveal, run on the same UTC day as the failure; on an even day there is nothing to post and it spends no lock (`reveal.available: false`).
+- With the flag off it is refused with 409. A normal `?repost=threads|instagram` never touches the reveal posts.
+- Response: the usual word fields (false on a reveal repost) plus `reveal: { available, bluesky, threads, alreadyRan }`. The `reveal` key is absent while the flag is off.
+- A failure logs `[curio:bluesky:reveal] post failed:` or `[curio:threads:reveal] post failed:` with an error name only, and keeps its lock; retry by hand with `?repost=`.
 
 ## Threads + Instagram: owner setup
 

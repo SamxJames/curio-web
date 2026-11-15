@@ -69,6 +69,7 @@ Locally, with no `VERCEL_ENV`, the game reads days from `.dig-out/days/` (or `DI
 | `DIG_REDIS_REST_URL`, `DIG_REDIS_REST_TOKEN` | GitHub Actions secrets (always); Vercel (only for a separate database) | The pipeline reads only these two. On Vercel they are optional: without them the site uses its normal `UPSTASH_REDIS_REST_*` client. Both sides must point at the same database: the pipeline fails if it can't see the health cron's heartbeat. |
 | `DIG_SEED_SALT` | GitHub Actions secret | Secret seed for the daily draw. Required (16+ characters) with `--publish`; local runs use a fixed dev string. |
 | `ANTHROPIC_API_KEY` | GitHub Actions secret (optional) | Turns on the blind AI review of refused guesses (shadow mode, see "Guess review"). Absent means the step is skipped and nothing else changes. |
+| `DIG_REVEAL_POSTS` | Vercel | `on` (exactly) lets the 10:00 UTC social cron post "yesterday's answer" to Bluesky and Threads on odd dig days. Unset or anything else: off (see "Daily reveal post"). |
 | `DIG_LOCAL_DIR` | Local only | Folder of pipeline output for local dev. Default `.dig-out`. |
 
 ## Redis keys
@@ -212,3 +213,21 @@ Branch `fix/dig-fossil-aware-draw`, opened as a PR. **Not merged, not deployed.*
 **What could still go wrong.** The pool is thin, not empty: with the fix the simulated free pool is 29 themes on a typical day and 8 at its lowest, and the alarm fires under 8. If the alarm or the forecast fires, the answer is more prompts or more fossil candidates (`docs/dig-word-audit.md`, "Supply runway"). The forecast uses throwaway seeds, not the secret one, so it predicts supply, not the actual days.
 
 **Proof that built days do not change (run 2026-11-15):** master built 11-15 to 11-17 locally; that folder was then extended to 11-20 by master and, separately, by the fix. All three built days, including the run day, kept the same sha256, and the three new days were byte-identical under both. Hashes are in PR #7. Limit: a 3-day history has no spent prompt and nothing to repair. CI on the PR is green (3 checks).
+
+## Daily reveal post (2026-11-15)
+
+Branch `feat/dig-reveal-post`. **Built, not merged, not deployed, and off by default.** Plan: `docs/superpowers/plans/2026-11-15-dig-reveal-post.md`. Origin: the growth-marketer ranking, experiment 1.
+
+What it does: on alternate days the 10:00 UTC social cron posts one extra short post to Bluesky and to Threads about *yesterday's* dig, linking to its indexed answers page:
+
+> Yesterday's curio dig asked “Name a beverage”. The rarest answer: kvass. (the fossil's fact, trimmed) + link to `/dig/<yesterday>` + the usual tags
+
+- **Which days.** Yesterday's dig number is odd (`isRevealDay`). Day 1 is `DIG_LAUNCH_DATE`; the post never looks back before it, and never for today or a future day. Nothing is made up for days that were not built.
+- **What it says.** First prompt of the day and that prompt's fossil (the rarest answer) only. The fact is shown only if `presentableFact` (`lib/dig/fact.ts`) would show it on the dig screen, and is cut at a word boundary with an ellipsis, or dropped, to fit (Bluesky 300 graphemes, Threads 500 bytes). A fact that would trip the shared copy audit (`lib/dig/copyAudit.ts`) is dropped. It says "asked", never "played", never a count of people, never a gap. `copyAudit.test.tsx` renders the post and its card.
+- **Links.** `/dig/<date>?utm_source=bluesky|threads&utm_medium=social&utm_campaign=dig-reveal`, so the existing `land:<source>` funnel field credits the arrival. Bluesky also gets a link card using `/dig/<date>/opengraph-image`; the link stays in the text too (Bluesky has little room for the fact once the link and tags are in: expect it to be trimmed or dropped most days). Threads is text only; the link in the text is previewed by Threads.
+- **Off by default.** Posts only when the Vercel env var `DIG_REVEAL_POSTS` is exactly `on`. Any other value (or unset) posts nothing, and a `?repost=` of a reveal channel is refused with 409. Deploying changes nothing public. The existing gates still apply: Bluesky and Threads credentials, the localhost-site guard.
+- **Locks.** One per UTC day per channel, taken before posting, in new channels `bluesky-reveal` and `threads-reveal` (`curio:digest:bluesky-reveal:<day>`, `curio:digest:threads-reveal:<day>`, 3-day TTL), kept after a failure like the word posts. A day with no reveal takes no lock.
+- **Isolation.** It runs after the Threads and Instagram word posts. A failed lookup, claim or post (all caught) cannot change them or the 200 response. When the flag is on, the response gains a `reveal` object; when off, the response is unchanged.
+- **Code.** `lib/dig/revealText.ts` (pure text, link and card builders, `SAMPLE_REVEAL`), `lib/dig/reveal.ts` (`getYesterdayReveal`, never throws), `postRevealToBluesky` (`lib/bluesky.ts`), `postRevealToThreads` (`lib/threads.ts`, which now shares one create-wait-publish flow with the word post), `app/api/cron/social/route.ts`. Logs are statuses and error names only.
+- **Preview.** `npm run bluesky:preview` and `npm run social:preview` end with the reveal post for a sample day (no real day, network or Redis needed).
+- **Turning it on and checking it:** `docs/handover/operations.md`, "Dig reveal posts".
