@@ -26,7 +26,7 @@ import { originCandidates } from "./origins";
 import { buildAliases, buildGuard, finishCandidate, floorProblems, fossilCandidates } from "./answers";
 import { yearlyViews } from "./pageviews";
 import { assignTiers, chooseFossil, fossilFactFor, toPlainPrompt, viewWordsFor } from "./fossil";
-import { assignFamilies, daysBetween, fossilsResting, isFree, lastFossilUse, pickDay, type HistoryDay } from "./assemble";
+import { assignFamilies, daysBetween, drawablePools, forecastSupply, fossilsResting, isEligible, isFree, lastFossilUse, pickDay, type HistoryDay, type SupplyForecast } from "./assemble";
 import { fossilTypoCollides, validateDay } from "./validate";
 import { adjudicate } from "./adjudicate";
 import { repairDays } from "./repair";
@@ -41,6 +41,11 @@ export type BuildStats = {
   repair: { amendedDays: number; added: number; removed: number; hidden?: number; skippedOversize: number } | "failed";
   /** Shadow-mode AI review of refused guesses: "off" means no API key was set. Absent in older stats. */
   review?: ReviewResult | "failed" | "off";
+  /** Theme prompts off cooldown the day after the newest built day whose fossils are all resting. The draw
+   * leaves them out; before 2026-11-15 it drew them and wasted salts. Absent in older stats. */
+  spentThemes?: number;
+  /** A trial draw of the days after the buffer (assemble.ts forecastSupply). Absent in older stats. */
+  forecast?: SupplyForecast;
 };
 
 const GUARD_MIN_ZIPF = 2;
@@ -49,6 +54,9 @@ const BUFFER_FLOOR = 30, MIN_POOL_ORIGINS = 6, HEARTBEAT_STALE_DAYS = 3, MAX_SAL
  * rule the pool of free themes never fell below 9 in three simulated years, and every day was still filled.
  * (It was 20, counted on cooldowns alone, which could not see a prompt that had run out of fossils.) */
 export const MIN_POOL_THEMES = 8;
+/** How far past the newest built day the run looks for a day that cannot be drawn (forecastSupply). The run
+ * fails if it finds one, a month before the builder would reach it. */
+export const FORECAST_DAYS = 30;
 const addDays = (d: string, n: number) => dayKey(new Date(dayStart(d).getTime() + n * DAY_MS));
 
 /** Every date from today to today + target - 1 that is not built yet, earliest first. Holes
@@ -87,7 +95,8 @@ export function summaryLines(s: BuildStats): string[] {
         ? "Review: failed"
         : `Review (shadow): ${s.review.considered} refused guesses, ${s.review.reviewed} newly reviewed, ${s.review.shouldAccept} the reviewer would accept, ${s.review.failedCalls} calls failed${s.review.failedCalls ? ` (${Object.entries(s.review.failures).map(([k, n]) => `${k} x${n}`).join(", ")})` : ""}`]),
     `Built: ${s.built} days (${s.retries} retries, ${s.failedDates} dates failed)`,
-    `Buffer: ${s.bufferDays} days. Spare pool: ${s.poolThemes} themes, ${s.poolOrigins} origins`,
+    `Buffer: ${s.bufferDays} days. Spare pool: ${s.poolThemes} themes, ${s.poolOrigins} origins${s.spentThemes === undefined ? "" : ` (${s.spentThemes} more themes are off cooldown with no fossil free)`}`,
+    ...(s.forecast ? [`Forecast: ${s.forecast.unfilled} of the next ${s.forecast.days} days cannot be drawn; fewest free themes on any of them: ${s.forecast.fewestFreeThemes}`] : []),
   ];
 }
 
@@ -236,14 +245,33 @@ async function main() {
     return out;
   };
 
+  // A prompt's fossils: its candidates that have a fact to show. Still a little generous: a candidate promoted
+  // to a Popular pick, or one a typo of which lands on another answer, is counted though the builder would skip
+  // it (the first needs page views, the second is too slow to check for every prompt).
+  const etymologyOf = (w: string) => index.info.get(w)?.etymology ?? "";
+  const fossilCache = new Map<string, string[]>();
+  const usableFossils = (c: Candidate) => {
+    let list = fossilCache.get(c.id);
+    if (!list) {
+      list = fossilCandidates(c, fctx).filter((w) => fossilFactFor(w, { curio, definitions, etymology: etymologyOf, mustMention: c.kind === "origin" ? c.languages : undefined }) !== null);
+      fossilCache.set(c.id, list);
+    }
+    return list;
+  };
+
   let built = 0, retries = 0, failedDates = 0;
   for (const date of datesToBuild(today, Object.keys(manifest.days), target)) {
     // Every written day is frozen: a day on disk that the manifest doesn't know about is never overwritten.
     if (await sink.readDay(date)) throw new Error(`day ${date} exists but is not in the manifest`);
     let done = false;
+    // Prompts found to have no usable fossil on this date (the cheap count above missed a page-view or typo
+    // rule): later salts do not draw them again.
+    const unusable = new Set<string>();
     for (let salt = 0; salt < MAX_SALTS && !done; salt++) {
       if (salt > 0) retries++;
-      const picks = pickDay(date, { themes, origins }, history, zipf, seedSalt, salt);
+      // Only prompts with a fossil that is not resting are offered to the draw. Offering every prompt was the
+      // cause of the 2026-11 "no usable fossil" failures: each spent prompt drawn wasted a salt.
+      const picks = pickDay(date, drawablePools({ themes, origins }, date, history, usableFossils, unusable), history, zipf, seedSalt, salt);
       // Another salt shuffles differently and may find a draw, so a failed one is not the end.
       // Reasons go to the log as positions and counts only: prompt ids would name future prompts.
       if (!picks) { console.log(`Date ${date} salt ${salt}: no draw fits the cooldowns`); continue; }
@@ -270,7 +298,7 @@ async function main() {
           reject: (w) => fossilTypoCollides(secret, w, lookup),
           mustMention: c.kind === "origin" ? c.languages : undefined,
         });
-        if (!fossil) { console.log(`Date ${date} salt ${salt}: no usable fossil for prompt ${prompts.length + 1}`); break; }
+        if (!fossil) { unusable.add(c.id); console.log(`Date ${date} salt ${salt}: no usable fossil for prompt ${prompts.length + 1}`); break; }
         usedToday.add(fossil.word);
         prompts.push(toPlainPrompt(c, tiers, fossil, aliases, guard, curio));
       }
@@ -303,26 +331,26 @@ async function main() {
   const bufferDays = bufferDaysFrom(today, Object.keys(manifest.days));
   const furthest = Object.keys(manifest.days).sort().at(-1);
   const after = addDays(furthest ?? today, 1);
-  // Spare = free to run the day after the newest built day: off cooldown, with a fossil that is not resting.
-  // A fossil here is a candidate with a fact to show. Still a little generous: a candidate promoted to a
-  // Popular pick, or one a typo of which lands on another answer, is counted though the builder would skip it
-  // (the first needs page views, the second is too slow to check for every prompt).
-  const etymologyOf = (w: string) => index.info.get(w)?.etymology ?? "";
-  const usableFossils = (c: Candidate) => fossilCandidates(c, fctx)
-    .filter((w) => fossilFactFor(w, { curio, definitions, etymology: etymologyOf, mustMention: c.kind === "origin" ? c.languages : undefined }) !== null);
+  // Spare = free to run the day after the newest built day: off cooldown, with a fossil that is not resting
+  // (usableFossils, above).
   const free = (c: Candidate) => isFree(c, after, history, usableFossils(c));
+  const spentThemes = themes.filter((c) => isEligible(c, after, history) && !free(c)).length;
+  // Guard: draw the next FORECAST_DAYS days the way the builder will. A day that cannot be drawn fails this
+  // run now, about a month before the builder would reach it. Counts only.
+  const forecast = forecastSupply({ themes, origins }, history, usableFossils, zipf, { from: after, days: FORECAST_DAYS });
   manifest.poolThemes = themes.filter(free).length;
   manifest.poolOrigins = origins.filter(free).length;
   manifest.lastRun = new Date().toISOString();
   await sink.writeManifest(manifest);
 
-  const stats: BuildStats = { themes: themes.length, origins: origins.length, letterVariants: letterCount, built, retries, failedDates, bufferDays, poolThemes: manifest.poolThemes, poolOrigins: manifest.poolOrigins, wikidata, adjudication, repair, review };
+  const stats: BuildStats = { themes: themes.length, origins: origins.length, letterVariants: letterCount, built, retries, failedDates, bufferDays, poolThemes: manifest.poolThemes, poolOrigins: manifest.poolOrigins, wikidata, adjudication, repair, review, spentThemes, forecast };
   const lines = summaryLines(stats);
   console.log(lines.join("\n"));
   if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.map((l) => `- ${l}`).join("\n") + "\n");
 
   if (failedDates > 0) failures.push(`${failedDates} dates could not be built`);
   if (bufferDays < BUFFER_FLOOR) failures.push(`buffer ${bufferDays} days < ${BUFFER_FLOOR}`);
+  if (forecast.unfilled > 0) failures.push(`supply forecast: ${forecast.unfilled} of the next ${forecast.days} days cannot be drawn`);
   if (manifest.poolThemes < MIN_POOL_THEMES || manifest.poolOrigins < MIN_POOL_ORIGINS) failures.push(`spare pool below ${MIN_POOL_THEMES} themes / ${MIN_POOL_ORIGINS} origins`);
   const heartbeat = await sink.readHeartbeat();
   const heartbeatIssue = heartbeatProblem(heartbeat, Object.keys(manifest.days), today, Date.now());

@@ -188,3 +188,18 @@ Wrong guesses now go out as they are made (`miss` event, `newMisses` in `lib/dig
 After adjudication, `scripts/dig/review.ts` sends each refused real word (most typed first, 20 a prompt, 60 calls a run, claude-haiku-5-5) to a reviewer that sees only the prompt text and the word, never our verdict or sources. Our reason (`not-a-word`, `blocked`, `unusable`, `not-in-sources`) and its verdict go in `curio:dig:verdicts`. Blocked words and single-typed non-words are logged without asking. **Nothing here changes an answer list.** The admin page ("Refused guesses, reviewed blind") lists the words it would accept, most confident first.
 Public logs: the run prints counts only (`Review (shadow): …`). Words appear only on the admin page.
 Next (not built): auto-accept. It would let a confident reviewer "yes" replace the "must be in a source list" rule in `adjudicate.ts`, keeping the lexicon, blocklist, `usable` and cap checks. Turn it on only after reading a week or two of admin verdicts and agreeing the reviewer is right.
+
+## Intermittent "no usable fossil" failures: investigation (2026-11-15, in progress)
+
+Branch `fix/dig-fossil-aware-draw` (worktree `.claude/worktrees/dig-fossil-draw`). Nothing pushed to master.
+
+**Evidence from the public Actions logs (counts only):**
+- Scheduled runs 11-09 and 11-12 (commit 4432331) each failed one date (2026-12-22) after all 10 salts hit "no usable fossil". The 11-05 "success" was a near miss: 17 retries for 3 days, same message.
+- The failing prompt is almost always position 1, 2 or 4, never 3 or 6. `pickDay` (`scripts/dig/assemble.ts`) puts the theme with the fewest rare words at position 2 and the next fewest at 4; 3 and 6 are origins, which have hundreds of fossil candidates. So the failures are theme prompts that have few fossil candidates.
+- Timing fits: first days were built about 10-26, a theme can return every 14 days, so a theme with 4 fossils is spent after about 56 days, which is 12-20.
+
+**Working hypothesis (being tested):** `pickDay` draws from every theme that is off cooldown and does not know whether a theme still has a fossil it may use. A drawn theme with none left wastes that salt. As more themes are spent, more salts are wasted, until all 10 are and the date fails. PR #6 (fossils return after 122 days) and PR #5 (bigger lists) lower the share of spent themes but the draw is still blind, and `scripts/dig/audit/supply.ts` did not model this: it removed spent prompts before drawing, which the builder does not do.
+
+**Would disprove it:** a simulation that draws the way the builder does (`supply.ts --as-built`, added on this branch) showing no wasted salts and no failed dates on today's rules.
+
+**Running:** a real 62-day local build of 4432331 (control), and `supply.ts --start 2026-10-26 --days 400 --seeds 20` with and without `--as-built`.

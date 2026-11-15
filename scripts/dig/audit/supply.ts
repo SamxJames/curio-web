@@ -61,22 +61,32 @@ async function main() {
    * (COOLDOWNS.fossilDays); null means never, the rule before 2026-11-15. */
   type Scenario = { label: string; pool: Candidate[]; fossils: Map<string, number>; repeatDays?: number | null };
   const only = flag(args, "--only");
+  // --as-built draws the way build.ts did before the fix: from every prompt off cooldown, with a salt wasted
+  // when a drawn prompt has no fossil left. Without it the draw skips such prompts (the fossil-aware draw).
+  const asBuilt = args.includes("--as-built"), start = flag(args, "--start") ?? "2026-12-01";
   const run = ({ label, pool, fossils: have, repeatDays = COOLDOWNS.fossilDays }: Scenario) => {
     if (only && !label.includes(only)) return;
     const firstFails: number[] = [], firstLows: number[] = [], drawn: number[] = [];
     const allSpare: number[] = [], freeAtFailure: number[] = [];
+    let wasted = 0; const failedDays: number[] = [], spentShare: number[] = [];
     for (let seed = 0; seed < seeds; seed++) {
       const history: HistoryDay[] = [];
       const used = new Map<string, number[]>(); // day numbers on which a prompt ran
       const spare: number[] = [];
       let failed = 0, firstFail = 0;
       for (let i = 0; i < days; i++) {
-        const date = addDays("2026-12-01", i);
+        const date = addDays(start, i);
         // A prompt needs a fossil it has not used (or, with repeatDays, not used in that long).
         const left = (c: Candidate) => (used.get(c.id) ?? []).filter((d) => repeatDays === null || i - d < repeatDays).length < (have.get(c.id) ?? 0);
         const live = pool.filter(left), liveOrigins = origins.filter(left);
         let picks: Candidate[] | null = null;
-        for (let salt = 0; salt < MAX_SALTS && !picks; salt++) picks = pickDay(date, { themes: live, origins: liveOrigins }, history, zipf, `supply-${seed}`, salt);
+        for (let salt = 0; salt < MAX_SALTS && !picks; salt++) {
+          const p = pickDay(date, asBuilt ? { themes: pool, origins } : { themes: live, origins: liveOrigins }, history, zipf, `supply-${seed}`, salt);
+          if (p && !p.every(left)) { wasted++; continue; }
+          picks = p;
+        }
+        { const el = pool.filter((c) => isEligible(c, date, history)); spentShare.push(el.length ? el.filter((c) => !left(c)).length / el.length : 0); }
+        if (!picks) failedDays.push(i + 1);
         if (!picks) { failed++; firstFail ||= i + 1; freeAtFailure.push(live.filter((c) => isEligible(c, date, history)).length); continue; }
         history.push({ date, prompts: picks.map((c) => ({ id: c.id, base: c.base, fossil: `${c.id}#${i}`, ...(c.languages.length ? { languages: c.languages } : {}) })) });
         for (const c of picks) used.set(c.id, [...(used.get(c.id) ?? []), i]);
@@ -87,6 +97,9 @@ async function main() {
       firstFails.push(firstFail); firstLows.push(low < 0 ? 0 : low + BUFFER + 1); drawn.push(days - failed);
       allSpare.push(...spare);
     }
+    { const v = [...spentShare].sort((a, b) => a - b); const pc = (x: number) => `${Math.round(x * 100)}%`;
+      const byMonth = new Map<number, number>(); for (const d of failedDays) byMonth.set(Math.ceil(d / 30), (byMonth.get(Math.ceil(d / 30)) ?? 0) + 1);
+      console.log(`   [${asBuilt ? "as built" : "fossil-aware draw"}, from ${start}] salts wasted on a prompt with no fossil left: ${wasted} over ${seeds} runs | dates not filled: ${failedDays.length} (first on day ${failedDays.length ? Math.min(...failedDays) : "-"}; per 30-day block: ${[...byMonth].sort((a, b) => a[0] - b[0]).map(([m, n]) => `${m}:${n}`).join(" ") || "-"}) | share of off-cooldown theme prompts with no fossil left: median ${pc(v[Math.floor(v.length / 2)])}, worst ${pc(v.at(-1)!)}`); }
     const sorted = [...allSpare].sort((a, b) => a - b);
     const at = (q: number) => sorted[Math.floor(q * (sorted.length - 1))];
     const range = (xs: number[]) => (xs.every((x) => x === 0) ? `never in ${days} days` : xs.some((x) => x === 0) ? `day ${Math.min(...xs.filter(Boolean))} at the earliest, never in some runs` : `day ${Math.min(...xs)}–${Math.max(...xs)}`);

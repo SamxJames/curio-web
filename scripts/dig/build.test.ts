@@ -102,3 +102,18 @@ describe("guardedAdjudication", () => {
     expect(JSON.stringify(unknown)).not.toContain("secretword");
   });
 });
+
+describe("supply lines in the summary", () => {
+  const base = { themes: 150, origins: 22, letterVariants: 56, built: 2, retries: 0, failedDates: 0, bufferDays: 45, poolThemes: 29, poolOrigins: 14,
+    wikidata: { fresh: 0, cached: 8, stale: 0, missing: 0, "label-mismatch": 0 }, adjudication: { judged: 0, accepted: 0, amendedDays: 0 }, repair: { amendedDays: 0, added: 0, removed: 0, skippedOversize: 0 } };
+  it("says how many themes sat out for want of a fossil, and what the forecast found", () => {
+    const lines = summaryLines({ ...base, spentThemes: 12, forecast: { days: 30, unfilled: 0, fewestFreeThemes: 17 } });
+    expect(lines).toContain("Buffer: 45 days. Spare pool: 29 themes, 14 origins (12 more themes are off cooldown with no fossil free)");
+    expect(lines).toContain("Forecast: 0 of the next 30 days cannot be drawn; fewest free themes on any of them: 17");
+  });
+  it("keeps the old lines for stats without them", () => {
+    const lines = summaryLines(base);
+    expect(lines).toContain("Buffer: 45 days. Spare pool: 29 themes, 14 origins");
+    expect(lines.some((l) => l.startsWith("Forecast"))).toBe(false);
+  });
+});
