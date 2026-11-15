@@ -20,7 +20,8 @@ no day failed in three simulated years.
 2. **Fresh fossils first.** `chooseFossil` (`fossil.ts`) takes `lastUsed`: a fossil the prompt has never used always
    wins; only when none works does a used one return, the one used longest ago first. Without this the most-viewed
    fossil would come back every four months while unused ones waited.
-3. **The alarm.** `isFree` in `assemble.ts`: off cooldown and with a fossil that is not resting. The spare-pool count
+3. **The alarm.** `isFree` in `assemble.ts`: off cooldown and with a fossil that is not resting. A fossil here is a
+   candidate with a fact to show (`fossilFactFor` in `fossil.ts`, added after review). The spare-pool count
    in `build.ts` uses it, for themes and origins, and `MIN_POOL_THEMES` goes from 20 to 8.
 4. **Simulation.** `scripts/dig/audit/supply.ts` uses `COOLDOWNS.fossilDays` by default and reports how low the free
    pool gets.
@@ -40,8 +41,8 @@ years, and every day was still filled.
 ## Risks
 
 - **A regular may recognise a fossil** from four months earlier. Old fossils are already visible on past-day pages.
-- **The simulation is a best case.** It counts fossil candidates before the page-view, fact and typo rules narrow
-  them, so the real free pool is smaller than simulated. If the alarm fires, it is a true warning: add prompts or
+- **The simulation is a best case.** It counts fossil candidates that have a fact to show (as the alarm does), but
+  before the page-view and typo rules narrow them, so the real free pool is smaller than simulated. If the alarm fires, it is a true warning: add prompts or
   widen what can be a fossil.
 - **The alarm now means something different.** It counts fossils as well as cooldowns, so the "Spare pool" number in
   the run summary will be lower than before for the same pool.

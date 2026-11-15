@@ -216,7 +216,7 @@ A theme prompt runs about once a month, so a prompt with 6 fossils is spent in a
 
 `scripts/dig/audit/supply.ts --runway` draws days with the real picker and cooldowns for three simulated years, three times over, from a fresh start. A prompt drops out when it has no unused fossil left.
 
-It is a **best case**. It counts fossil candidates before the page-view, fact and typo rules cut them further, so the real run-out comes sooner. Days count from a fresh start: the live game began on 7 November 2026, so "day 131–151" is mid-March to early April 2027 at the latest.
+It is a **best case**. It counts fossil candidates before the page-view and typo rules cut them further, so the real run-out comes sooner. (The table was measured counting every candidate. Counting only candidates that have a fact to show, as the pipeline's alarm now does, gave the same results: almost every theme candidate has one.) Days count from a fresh start: the live game began on 7 November 2026, so "day 131–151" is mid-March to early April 2027 at the latest.
 
 "Alarm" is the day the count of free theme prompts (off cooldown, with a fossil left) first drops under 20, the pipeline's threshold at the time.
 
