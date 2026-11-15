@@ -38,9 +38,29 @@ export function fossilsResting(lastUsed: Map<string, string>, date: string, cd: 
  * passes the fossils the prompt could really use (build.ts counts candidates that have a fact to show).
  * The spare-pool alarm counts these. Cooldowns alone used to count a prompt with no fossil left as spare. */
 export function isFree(c: Candidate, date: string, history: HistoryDay[], fossilCandidates: string[], cd: Cooldowns = COOLDOWNS): boolean {
-  if (!isEligible(c, date, history, cd)) return false;
+  return isEligible(c, date, history, cd) && hasFossilFree(c, date, history, fossilCandidates, cd);
+}
+
+/** True when at least one of the prompt's fossils is not resting on `date`. */
+export function hasFossilFree(c: Candidate, date: string, history: HistoryDay[], fossilCandidates: string[], cd: Cooldowns = COOLDOWNS): boolean {
   const resting = fossilsResting(lastFossilUse(c.id, history), date, cd);
   return fossilCandidates.some((w) => !resting.has(w));
+}
+
+/** The prompts a day on `date` may be drawn from: those with a fossil that is not resting, less any the
+ * builder has already found unusable for this date (`skip`). pickDay applies the cooldowns itself.
+ * Until 2026-11-15 the draw was offered every prompt, and each drawn prompt with no fossil left wasted a salt;
+ * once about a fifth of the themes were spent, all ten salts could be wasted and the date failed. */
+export function drawablePools(
+  pools: { themes: Candidate[]; origins: Candidate[] },
+  date: string,
+  history: HistoryDay[],
+  fossilsOf: (c: Candidate) => string[],
+  skip: ReadonlySet<string> = new Set(),
+  cd: Cooldowns = COOLDOWNS
+): { themes: Candidate[]; origins: Candidate[] } {
+  const ok = (c: Candidate) => !skip.has(c.id) && hasFossilFree(c, date, history, fossilsOf(c), cd);
+  return { themes: pools.themes.filter(ok), origins: pools.origins.filter(ok) };
 }
 
 export function isEligible(c: Candidate, date: string, history: HistoryDay[], cd: Cooldowns = COOLDOWNS): boolean {
@@ -128,4 +148,45 @@ export function pickDay(
   themes.sort((a, b) => rare(a) - rare(b) || a.id.localeCompare(b.id));
   const last = themes.pop()!;
   return [first, themes[0], origins[0], themes[1], themes[2], origins[1], last];
+}
+
+export type SupplyForecast = { days: number; unfilled: number; fewestFreeThemes: number };
+
+/** Draws the `days` days from `from` the way the builder does (drawablePools, then pickDay with up to
+ * `salts` salts), a few times over with throwaway seeds, and reports the worst run: how many days could not be
+ * drawn, and the fewest theme prompts that were free (off cooldown, with a fossil not resting) on any day.
+ * It spends fossils as the builder does (never-used first, then the one used longest ago) but does not check
+ * page views or typos, so it is slightly generous. The real draw uses a secret seed, so this is a forecast of
+ * supply, not of the days themselves. */
+export function forecastSupply(
+  pools: { themes: Candidate[]; origins: Candidate[] },
+  history: HistoryDay[],
+  fossilsOf: (c: Candidate) => string[],
+  zipf: Map<string, number>,
+  opts: { from: string; days: number; runs?: number; salts?: number },
+  cd: Cooldowns = COOLDOWNS
+): SupplyForecast {
+  const DAY = 86_400_000;
+  const addDays = (d: string, n: number) => new Date(Date.parse(`${d}T00:00:00Z`) + n * DAY).toISOString().slice(0, 10);
+  let unfilled = 0, fewestFreeThemes = Infinity;
+  for (let run = 0; run < (opts.runs ?? 3); run++) {
+    const h = [...history];
+    let missed = 0;
+    for (let i = 0; i < opts.days; i++) {
+      const date = addDays(opts.from, i);
+      const live = drawablePools(pools, date, h, fossilsOf, undefined, cd);
+      fewestFreeThemes = Math.min(fewestFreeThemes, live.themes.filter((c) => isEligible(c, date, h, cd)).length);
+      let picks: Candidate[] | null = null;
+      for (let salt = 0; salt < (opts.salts ?? 10) && !picks; salt++) picks = pickDay(date, live, h, zipf, `forecast-${run}`, salt, cd);
+      if (!picks) { missed++; continue; }
+      h.push({ date, prompts: picks.map((c) => {
+        const last = lastFossilUse(c.id, h), resting = fossilsResting(last, date, cd);
+        const free = fossilsOf(c).filter((w) => !resting.has(w));
+        const fossil = free.find((w) => !last.has(w)) ?? [...free].sort((a, b) => last.get(a)!.localeCompare(last.get(b)!))[0];
+        return { id: c.id, base: c.base, fossil, ...(c.languages.length ? { languages: c.languages } : {}) };
+      }) });
+    }
+    unfilled = Math.max(unfilled, missed);
+  }
+  return { days: opts.days, unfilled, fewestFreeThemes: Number.isFinite(fewestFreeThemes) ? fewestFreeThemes : 0 };
 }

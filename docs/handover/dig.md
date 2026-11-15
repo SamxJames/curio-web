@@ -188,3 +188,27 @@ Wrong guesses now go out as they are made (`miss` event, `newMisses` in `lib/dig
 After adjudication, `scripts/dig/review.ts` sends each refused real word (most typed first, 20 a prompt, 60 calls a run, claude-haiku-5-5) to a reviewer that sees only the prompt text and the word, never our verdict or sources. Our reason (`not-a-word`, `blocked`, `unusable`, `not-in-sources`) and its verdict go in `curio:dig:verdicts`. Blocked words and single-typed non-words are logged without asking. **Nothing here changes an answer list.** The admin page ("Refused guesses, reviewed blind") lists the words it would accept, most confident first.
 Public logs: the run prints counts only (`Review (shadow): …`). Words appear only on the admin page.
 Next (not built): auto-accept. It would let a confident reviewer "yes" replace the "must be in a source list" rule in `adjudicate.ts`, keeping the lexicon, blocklist, `usable` and cap checks. Turn it on only after reading a week or two of admin verdicts and agreeing the reviewer is right.
+
+## Intermittent "no usable fossil" failures: cause and fix (2026-11-15)
+
+Branch `fix/dig-fossil-aware-draw`, opened as a PR. **Not merged, not deployed.** The first scheduled run on the fix is the real test.
+
+**Cause.** The step that draws a day's seven prompts (`pickDay` in `scripts/dig/assemble.ts`) was offered every prompt that was off cooldown. It did not know whether a prompt still had a fossil it was allowed to use. A drawn prompt with none left wasted that attempt ("salt"). There are 10 attempts per date. Once about a fifth of the theme prompts were spent, all 10 could be wasted and the date failed, even though plenty of usable prompts were free.
+
+**Evidence.**
+- Actions logs (counts only): the failing prompt was almost always position 1, 2 or 4, never 3 or 6. Positions 2 and 4 are the themes with the fewest rare words; 3 and 6 are "came from" prompts, which have 42 to 1,162 fossil candidates. The 11-05 "success" was already a near miss: 17 retries for 3 days.
+- Theme prompts have few fossils: fewest 1, a quarter have 6 or fewer, the middle one 11. A theme can return every 14 days, so the thinnest are spent within two months of the first build (about 10-26). That is when the failures began (12-17 onwards).
+- Simulation that draws as the builder did (`supply.ts --as-built --start 2026-10-26`, 20 runs): first date that cannot be built on day 54 to 86 (from 12-18); 9% of dates fail over 400 days; dates failed with 15 to 74 theme prompts still free. With the draw skipping spent prompts: no failed date and no wasted attempt in 400 days, 20 runs.
+- A real 62-day local build of 4432331 was started as a second control and stopped: this laptop builds a day in about 8 minutes, so it would have taken 8 hours. The control is the Actions logs plus the simulation.
+
+**Did the PRs fix it?** No. PR #6 (fossils return after 122 days) cannot help in the first four months: the simulated failures in the first 120 days are identical with and without it. It removes the long-run dry-up, but only for a draw that skips spent prompts, which is what its simulation assumed and the builder did not do. PR #5 made lists bigger (more fossil candidates, 123 to 150 themes), which is why the manual runs since have passed; it delays the failures and does not remove them. Neither PR caused or worsened the problem.
+
+**Fix (this branch).**
+- `drawablePools` (`assemble.ts`): the draw is offered only prompts with a fossil that is not resting. `build.ts` uses it for every new date.
+- If the fossil chooser still refuses a prompt (a page-view or typo rule the cheap count cannot see), that prompt sits out the rest of that date's attempts.
+- Guard: `forecastSupply` draws the 30 days after the newest built day, three times. If any day cannot be drawn the run fails with `supply forecast: N of the next 30 days cannot be drawn`, about a month before the builder would get there. The summary gains `Forecast: …` and the spare-pool line says how many themes are off cooldown with no fossil free.
+- Not changed: built days, scoring, tiers, cooldowns, the fossil rules, the 8-theme spare-pool alarm. No retry loop and no fallback was added.
+
+**What could still go wrong.** The pool is thin, not empty: with the fix the simulated free pool is 29 themes on a typical day and 8 at its lowest, and the alarm fires under 8. If the alarm or the forecast fires, the answer is more prompts or more fossil candidates (`docs/dig-word-audit.md`, "Supply runway"). The forecast uses throwaway seeds, not the secret one, so it predicts supply, not the actual days.
+
+**Proof that built days do not change (run 2026-11-15):** master built 11-15 to 11-17 locally; that folder was then extended to 11-20 by master and, separately, by the fix. All three built days, including the run day, kept the same sha256, and the three new days were byte-identical under both. Hashes are in PR #7. Limit: a 3-day history has no spent prompt and nothing to repair. CI on the PR is green (3 checks).

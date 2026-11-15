@@ -195,6 +195,8 @@ Eight "___ word" prompts score under 75% and would be paused: phonetics 39%, wea
 
 **The alarm changed with it.** The pipeline run fails when fewer than **8** theme prompts are free: the 5 a day needs plus 3 to spare. Under the new rule the pool of free themes never fell below 9 in three simulated years, and every day was still filled. "Free" now means off cooldown *and* with a fossil that is not resting. The old alarm (20 themes) counted cooldowns alone, so it could not see a prompt that had run out of fossils and would not have warned before days started failing. The "alarm first fires" column below used the stricter, fossil-aware count, so it shows when the real alarm *should* have fired, not when it would have.
 
+**Correction, 15 November 2026 (later the same day).** The simulation behind this section removed prompts with no fossil left *before* drawing a day. The builder did not: it drew from every prompt off cooldown, and each spent prompt it drew wasted one of its ten attempts. So "never" in the table was not true of the pipeline as built: drawn the builder's way, the four-month rule still fails about 9% of dates, from about day 54 (`supply.ts --as-built`). The builder now skips spent prompts too (`drawablePools`, `docs/handover/dig.md`), which makes the table's numbers hold.
+
 The rest of this section is the measurement that led to the decision.
 
 ### The problem

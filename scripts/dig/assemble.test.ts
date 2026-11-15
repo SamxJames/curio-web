@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assignFamilies, COOLDOWNS, daysBetween, fossilsResting, isEligible, isFree, lastFossilUse, overlapRatio, pickDay, sameFamily, type HistoryDay } from "./assemble";
+import { assignFamilies, COOLDOWNS, daysBetween, drawablePools, forecastSupply, fossilsResting, isEligible, isFree, lastFossilUse, overlapRatio, pickDay, sameFamily, type HistoryDay } from "./assemble";
 import type { Candidate } from "./themes";
 
 const mk = (id: string, kind: "theme" | "origin", core: string[], over: Partial<Candidate> = {}): Candidate => ({
@@ -100,5 +100,56 @@ describe("pickDay", () => {
     const shared = words("s", 50);
     const pool = [mk("origin:g1", "origin", shared), mk("origin:g2", "origin", shared)];
     expect(pickDay("2026-12-05", { themes, origins: pool }, [], zipf, "test-salt")).toBeNull();
+  });
+});
+
+// The 2026-11 "no usable fossil" failures: the draw offered prompts whose fossils were all resting, and each
+// one wasted a salt until a date could not be built.
+describe("the draw only offers prompts that have a fossil free", () => {
+  const zipf = new Map<string, number>();
+  const themes = ["a", "b", "c", "d", "e", "f", "g"].map((p) => mk(`theme:${p}`, "theme", words(p, 50)));
+  const origins = ["x", "y", "z"].map((p) => mk(`origin:${p}`, "origin", words(p, 50)));
+  // theme:a ran four months of fossils dry: its only fossil was used 20 days ago (off its 14-day cooldown).
+  const history: HistoryDay[] = [{ date: "2026-11-15", prompts: [{ id: "theme:a", base: "theme:a", fossil: "a0" }] }];
+  const fossilsOf = (c: Candidate) => (c.id === "theme:a" ? ["a0"] : c.core.slice(0, 5));
+  it("leaves out a prompt whose fossils are all resting, though its cooldown has passed", () => {
+    expect(isEligible(themes[0], "2026-12-05", history)).toBe(true);
+    const pools = drawablePools({ themes, origins }, "2026-12-05", history, fossilsOf);
+    expect(pools.themes.map((c) => c.id)).not.toContain("theme:a");
+    expect(pools.themes).toHaveLength(6);
+    expect(pools.origins).toHaveLength(3);
+    // No salt can draw it, where the blind draw did on most salts.
+    const blind = Array.from({ length: 10 }, (_, salt) => pickDay("2026-12-05", { themes, origins }, history, zipf, "t", salt)!);
+    expect(blind.some((day) => day.some((c) => c.id === "theme:a"))).toBe(true);
+    const aware = Array.from({ length: 10 }, (_, salt) => pickDay("2026-12-05", pools, history, zipf, "t", salt)!);
+    expect(aware.every((day) => day.every((c) => c.id !== "theme:a"))).toBe(true);
+  });
+  it("offers it again once a fossil is back, and leaves out prompts the builder found unusable today", () => {
+    expect(drawablePools({ themes, origins }, "2027-03-17", history, fossilsOf).themes.map((c) => c.id)).toContain("theme:a"); // 122 days on
+    const pools = drawablePools({ themes, origins }, "2026-12-05", history, fossilsOf, new Set(["theme:b", "origin:x"]));
+    expect(pools.themes.map((c) => c.id)).not.toContain("theme:b");
+    expect(pools.origins.map((c) => c.id)).toEqual(["origin:y", "origin:z"]);
+  });
+});
+
+describe("forecastSupply", () => {
+  const zipf = new Map<string, number>();
+  const themes = Array.from({ length: 10 }, (_, i) => mk(`theme:t${i}`, "theme", words(`t${i}x`, 50)));
+  const origins = Array.from({ length: 10 }, (_, i) => mk(`origin:o${i}`, "origin", words(`o${i}x`, 50)));
+  // Ten themes fill two days, rest 14, fill two more, and so on: days 1, 2, 15, 16, 29 and 30 of 30.
+  it("fills every day the cooldowns allow when each prompt has fossils to spare", () => {
+    const f = forecastSupply({ themes, origins }, [], (c) => c.core.slice(0, 3), zipf, { from: "2026-12-01", days: 30 });
+    expect(f.unfilled).toBe(24);
+  });
+  it("counts the days lost when prompts run out of fossils", () => {
+    const f = forecastSupply({ themes, origins }, [], (c) => (c.kind === "theme" ? c.core.slice(0, 1) : c.core.slice(0, 3)), zipf, { from: "2026-12-01", days: 30 });
+    expect(f.unfilled).toBe(28); // each theme's one fossil rests for 122 days after day 1 or 2
+    expect(f.fewestFreeThemes).toBe(0);
+  });
+  it("reports no lost days and the thinnest day's free themes when supply is ample", () => {
+    const many = Array.from({ length: 80 }, (_, i) => mk(`theme:m${i}`, "theme", words(`m${i}x`, 50)));
+    const f = forecastSupply({ themes: many, origins }, [], (c) => (c.kind === "theme" ? c.core.slice(0, 3) : c.core), zipf, { from: "2026-12-01", days: 30 });
+    expect(f.unfilled).toBe(0);
+    expect(f.fewestFreeThemes).toBeGreaterThanOrEqual(5);
   });
 });
