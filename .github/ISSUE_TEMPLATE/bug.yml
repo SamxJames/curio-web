@@ -1,0 +1,20 @@
+name: Bug
+description: Something is broken or wrong.
+labels: ["type:bug", "triage"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens, and what should happen
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to see it
+      placeholder: URL, device, signed in or out, steps
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      placeholder: "- [ ] A test reproduces it and now passes\n- [ ] Verified in production"
