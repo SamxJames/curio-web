@@ -10,6 +10,7 @@ import { redactAddresses } from "@/lib/digestSend";
 import { dayKey } from "@/lib/day";
 import { submitDailyIndexNow } from "@/lib/indexNow";
 import { getDigLine } from "@/lib/dig/digLine";
+import { runGateReadout } from "@/lib/dig/gateReadout";
 
 /** Vercel Hobby with Fluid compute allows up to 300s (the project default
  * is also 300; pinned here so a dashboard change can't cut a retrying send
@@ -84,6 +85,11 @@ export async function GET(req: NextRequest) {
   // the response is decided and can't delay, fail or alter the digest or the
   // Bluesky post. It has its own day lock, and resend/repost runs skip it.
   if (!resendFailed && repost === null) after(() => submitDailyIndexNow(word.slug, day));
+
+  // The dig gate numbers, emailed to DIG_ALERT_TO on Mondays and on 2026-12-04
+  // (lib/dig/gateReadout.ts). Same after() rule: it can't delay or fail the digest
+  // (it never throws), it has its own day lock, and resend/repost runs skip it.
+  if (!resendFailed && repost === null) after(() => runGateReadout(now));
 
   // Bluesky-only re-post: for a day whose post failed or went out wrong.
   // Forces only the Bluesky lock; email, its lock and the pending set are
