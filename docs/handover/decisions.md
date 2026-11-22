@@ -161,3 +161,6 @@ The end screen hints at tomorrow with the exact first prompt (minus "Name"), the
 
 ### 2026-11-12 — Enforce rules with scripts and hooks, not prose; reject ravenseat and open-design-agent-kit
 **Why:** failing guards beat more instructions (the marmelab idea). Rejected: ravenseat (duplicates superpowers, 13 stars, public late Oct 2026) and open-design-agent-kit (198 brand systems conflict with Curio's design system, tool bloat). Skip OpenSpec, Spec Kit, Claude Squad, Vibe Kanban, Postiz. Candidates not installed: cc-safety-net, ccusage, mcp-gsc (needs Python via uvx plus Google OAuth).
+
+### 2026-11-16 — Automate dig-specific marketing before adding channels; never automate Reddit or Show HN
+**Why:** the existing channels reach few people (9 Bluesky followers), so the most valuable automation compounds answer pages and measures the 12-04 kill line without Sam. Ranking: 1 reveal post (done, off until `DIG_REVEAL_POSTS=on`), 2 directory / "Wordle alternatives" listings (Sam submits; add a `directory` tag to `TAGGED` in `lib/traffic.ts`), 3 weekly gate readout emailed via Resend or a GitHub Action (build next), 4 newsletter pitch prep (Sam sends), 5 Typefully weekly queue (would replace the daily Threads/IG cron the roadmap says to pause), 6 dig-only email capture (held until after 12-04). Skills: no more installed beyond grilling + grill-me.
