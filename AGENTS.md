@@ -22,3 +22,12 @@ Curio may let people *pull* any word — the story pages, the A–Z list and rel
 - manufactured history for days a user didn't experience.
 
 Test every future feature against this rule.
+
+## Development process (shipyard board)
+
+Work is tracked on GitHub issues with the shipyard labels. `/status` shows the board and whether production matches `master`, and it beats any "deploy state" line in `handover.md`.
+
+- **Verify command:** `npm run check` (guard, lint, typecheck, tests). CI's `check` job is required on `master`.
+- **Production:** merging or pushing to `master` deploys to production on Vercel (`etymology-app`). Vercel reports to GitHub Deployments as `Production`, which `board.mjs live` uses to prove an issue is live.
+- **Deploy window:** don't merge to `master` between 08:45 and 09:15 UTC, while the daily digest and Bluesky cron runs.
+- **Always `risk:high`:** anything touching the send-daily cron, email sending, social posting, auth or sessions, Upstash keys and schema, the dig answer pipeline, or subscriber data.

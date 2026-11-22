@@ -1,0 +1,6 @@
+{
+  "deploy": {
+    "environment": "Production"
+  },
+  "check": "npm run check"
+}

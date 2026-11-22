@@ -1,0 +1,31 @@
+name: Feature or change
+description: Something to build or change. Agents can pick it up once it is labelled status:ready.
+labels: ["type:feature", "triage"]
+body:
+  - type: textarea
+    id: why
+    attributes:
+      label: Why (from the user's point of view)
+      placeholder: What gets better for the person using the product?
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      description: Observable acceptance criteria. An agent must be able to check each one.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes, constraints, links
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Risk
+      description: "low = agents may merge and deploy on their own. high = auth, email sends, crons, data schema, money, or anything public-facing that can't be undone."
+      options: ["low", "high"]
