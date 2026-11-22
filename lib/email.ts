@@ -227,6 +227,20 @@ export async function sendDigAlert(problems: string[]): Promise<void> {
   if (error) throw new Error(`Resend send failed: ${error.name}`);
 }
 
+/** The weekly dig gate readout (lib/dig/gateReadout.ts) to DIG_ALERT_TO. Same shape and
+ * same rules as sendDigAlert: a count-only dev log, a thrown error in production when
+ * it isn't configured (the caller catches it, so it can never break the digest run). */
+export async function sendGateReadout(msg: { subject: string; text: string }): Promise<void> {
+  const to = process.env.DIG_ALERT_TO;
+  if (!resend || !to) {
+    if (process.env.NODE_ENV === "production") throw new Error("Gate readout email not configured");
+    console.log(`[curio:email:dev-fallback] would send the gate readout "${msg.subject}"`);
+    return;
+  }
+  const { error } = await resend.emails.send({ from: FROM_ADDRESS, to, ...msg });
+  if (error) throw new Error(`Resend send failed: ${error.name}`);
+}
+
 export type DigestMessage = {
   from: string;
   to: string;

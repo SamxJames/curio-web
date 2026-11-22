@@ -6,7 +6,7 @@ const RUN_TTL_SECONDS = 3 * 24 * 60 * 60;
 /** The pending set keeps longer: a week's grace to notice and inspect it. */
 const FAILURES_TTL_SECONDS = 7 * 24 * 60 * 60;
 
-export type Channel = "email" | "bluesky" | "threads" | "instagram" | "bluesky-reveal" | "threads-reveal";
+export type Channel = "email" | "bluesky" | "threads" | "instagram" | "bluesky-reveal" | "threads-reveal" | "gate";
 
 // Email keeps its original "run" key so existing locks stay valid.
 const RUN_KEY_PREFIX: Record<Channel, string> = {
@@ -17,6 +17,8 @@ const RUN_KEY_PREFIX: Record<Channel, string> = {
   // The dig "yesterday's answer" posts (lib/dig/reveal.ts), one lock each per UTC day.
   "bluesky-reveal": "curio:digest:bluesky-reveal:",
   "threads-reveal": "curio:digest:threads-reveal:",
+  // The weekly dig gate readout email (lib/dig/gateReadout.ts), one per UTC day.
+  gate: "curio:digest:gate:",
 };
 const runKey = (channel: Channel, day: string) => `${RUN_KEY_PREFIX[channel]}${day}`;
 const failuresKey = (day: string) => `curio:digest:failed:${day}`;

@@ -48,6 +48,7 @@ vi.mock("@/lib/email", () => ({
 vi.mock("@/lib/bluesky", () => ({ postDailyWordToBluesky: vi.fn(async () => ({ posted: true, thumb: true })) }));
 vi.mock("@/lib/dig/digLine", () => ({ getDigLine: vi.fn(async () => ({ prompt: "P" })) }));
 vi.mock("@/lib/indexNow", () => ({ submitDailyIndexNow: vi.fn(async () => "submitted") }));
+vi.mock("@/lib/dig/gateReadout", () => ({ runGateReadout: vi.fn(async () => "sent") }));
 vi.mock("next/server", async (importOriginal) => ({
   ...(await importOriginal<typeof import("next/server")>()),
   after: vi.fn((cb: () => unknown) => { void cb(); }),
@@ -60,6 +61,7 @@ const { postDailyWordToBluesky } = await import("@/lib/bluesky");
 const { resolveTodayWord } = await import("@/lib/words");
 const { getDigLine } = await import("@/lib/dig/digLine");
 const { submitDailyIndexNow } = await import("@/lib/indexNow");
+const { runGateReadout } = await import("@/lib/dig/gateReadout");
 const { claimRun, getFailures, seedPending } = await import("@/lib/digestRuns");
 
 function cronRequest() {
@@ -466,6 +468,22 @@ describe("GET /api/cron/send-daily", () => {
     await GET(cronRequestTo("?resend=failed"));
     await GET(cronRequestTo("?repost=bluesky"));
     expect(submitDailyIndexNow).not.toHaveBeenCalled();
+  });
+
+  it("a scheduled run hands the gate readout the same `now`; resend and repost runs skip it", async () => {
+    await GET(cronRequest());
+    expect(runGateReadout).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(runGateReadout).mock.calls[0][0]).toBe(vi.mocked(resolveTodayWord).mock.calls[0][0]);
+    vi.mocked(runGateReadout).mockClear();
+    await GET(cronRequestTo("?resend=failed"));
+    await GET(cronRequestTo("?repost=bluesky"));
+    expect(runGateReadout).not.toHaveBeenCalled();
+  });
+
+  it("a gate readout failure doesn't touch the digest or Bluesky result", async () => {
+    vi.mocked(runGateReadout).mockResolvedValueOnce("failed");
+    const body = await (await GET(cronRequest())).json();
+    expect(body).toMatchObject({ sent: 2, bluesky: true });
   });
 
   it("an IndexNow failure doesn't touch the digest or Bluesky result", async () => {
