@@ -47,7 +47,7 @@ export function summarizeGate(rows: CohortRow[], today: string): GateSummary {
   };
 }
 
-const pct = (r: number | null) => (r === null ? "no data yet" : `${Math.round(r * 100)}%`);
+const pct = (r: number | null) => (r === null ? "no data yet" : `${(r * 100).toFixed(1)}%`);
 const verdict = (r: number | null, need: number) => (r === null ? "no data yet" : r >= need ? "met" : "below");
 
 export function buildGateReadoutMessage(s: GateSummary, today: string): { subject: string; text: string } {
@@ -57,7 +57,7 @@ export function buildGateReadoutMessage(s: GateSummary, today: string): { subjec
     `curio dig gate readout for ${today}. ${when}`,
     "",
     `- First-time finishers since ${COHORT_START}: ${s.finishers} (need ${GATE.finishers}): ${s.finishers >= GATE.finishers ? "met" : "not yet"}`,
-    `- Day-7 return: ${s.d7.rate === null ? "no data yet" : `${pct(s.d7.rate)} (${s.d7.returned} of ${s.d7.finishers} finishers whose day 7 has passed; need ${Math.round(GATE.d7Rate * 100)}%): ${verdict(s.d7.rate, GATE.d7Rate)}`}`,
+    `- Day-7 return: ${s.d7.rate === null ? "no data yet" : `${pct(s.d7.rate)} (${s.d7.returned} starts on exactly day 7 from ${s.d7.finishers} finishers whose day 7 has passed; need ${Math.round(GATE.d7Rate * 100)}%): ${verdict(s.d7.rate, GATE.d7Rate)}`}`,
     `- Share rate: ${s.share.rate === null ? "no data yet" : `${pct(s.share.rate)} (${s.share.shared} of ${s.share.finishers} finishers since ${SHARE_START}; need ${Math.round(GATE.shareRate * 100)}%): ${verdict(s.share.rate, GATE.shareRate)}`}`,
     "",
     "Under 200 finishers means the launch failed: re-launch. Low return means Curio on autopilot: build Same Brain.",

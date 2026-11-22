@@ -63,10 +63,10 @@ describe("buildGateReadoutMessage", () => {
 
   it("states each line against its threshold with the real numbers", () => {
     const m = buildGateReadoutMessage(summarizeGate(rows, "2026-11-30"), "2026-11-30");
-    expect(m.subject).toBe("curio dig gate readout: 200 first-time finishers, day-7 return 16%");
+    expect(m.subject).toBe("curio dig gate readout: 200 first-time finishers, day-7 return 16.0%");
     expect(m.text).toContain("First-time finishers since 2026-11-08: 200 (need 200): met");
-    expect(m.text).toContain("Day-7 return: 16% (32 of 200 finishers whose day 7 has passed; need 15%): met");
-    expect(m.text).toContain("Share rate: 20% (40 of 200 finishers since 2026-11-12; need 15%): met");
+    expect(m.text).toContain("Day-7 return: 16.0% (32 starts on exactly day 7 from 200 finishers whose day 7 has passed; need 15%): met");
+    expect(m.text).toContain("Share rate: 20.0% (40 of 200 finishers since 2026-11-12; need 15%): met");
     expect(m.text).toContain("4 days to the 2026-12-04 read");
   });
 
@@ -75,6 +75,14 @@ describe("buildGateReadoutMessage", () => {
     const m = buildGateReadoutMessage(summarizeGate(low, "2026-11-30"), "2026-11-30");
     expect(m.text).toContain("(need 200): not yet");
     expect(m.text).toContain("need 15%): below");
+  });
+
+  it("shows a near miss as a miss: 14.6% never reads as 15%", () => {
+    const near = [row("2026-11-12", { newFinishers: 1000, d7: 146, sharedNew: 146 })];
+    const m = buildGateReadoutMessage(summarizeGate(near, "2026-11-30"), "2026-11-30");
+    expect(m.text).toContain("Day-7 return: 14.6%");
+    expect(m.text).toContain("need 15%): below");
+    expect(m.subject).toContain("14.6%");
   });
 
   it("marks the gate day as the read, and says no data yet when a rate has no base", () => {
